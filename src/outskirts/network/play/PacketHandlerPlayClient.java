@@ -2,6 +2,7 @@ package outskirts.network.play;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.screen.GuiScreenDisconnect;
+import outskirts.client.gui.screen.GuiScreenInGame;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.event.EventHandler;
 import outskirts.event.conn.ChannelInactiveEvent;
@@ -47,7 +48,7 @@ public class PacketHandlerPlayClient {
     @EventHandler
     private void handleChatMessage(SPacketChatMessage packet) {
 
-        Outskirts.getIngameGUI().getGuiChatMessages().printMessage(packet.getMessage());
+        GuiScreenInGame.INSTANCE.getGuiChatMessages().printMessage(packet.getMessage());
     }
 
     @EventHandler

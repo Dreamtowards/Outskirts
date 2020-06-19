@@ -1,6 +1,7 @@
 package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.screen.ingame.GuiChatMessages;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Colors;
@@ -8,7 +9,9 @@ import outskirts.util.Colors;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
-public class GuiScreenInGame extends GuiScreen {
+public class GuiScreenInGame extends Gui {
+
+    public static final GuiScreenInGame INSTANCE = new GuiScreenInGame();
 
     private GuiScreenDebug screenDebug = addGui(new GuiScreenDebug()).setVisible(false);
     private GuiChatMessages guiChatMessages = addGui(new GuiChatMessages());

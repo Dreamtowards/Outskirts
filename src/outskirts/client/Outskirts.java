@@ -63,8 +63,8 @@ public class Outskirts {
 
     private boolean running;
 
-    private GuiScreenRoot rootGUI = new GuiScreenRoot();
-    private LinkedList<Gui> screenStack = new LinkedList<>(Collections.singletonList(Gui.EMPTY));
+    private Gui rootGUI = new Gui();
+//    private LinkedList<Gui> screenStack = new LinkedList<>(Collections.singletonList(Gui.EMPTY));
 
     private WorldClient world;
 
@@ -129,10 +129,10 @@ public class Outskirts {
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        rootGUI.setIngameGUI(new GuiScreenInGame());
+        getRootGUI().addGui(new GuiScreenInGame());// GuiScreenInGame should split out as multi gui which in them.
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-        getIngameGUI().addGui(GuiScreen3DVertices._TMP_DEF_INST.setVisible(false));
+        getRootGUI().addGui(GuiScreen3DVertices._TMP_DEF_INST.setVisible(false));
 
 //        GuiScreenHawks screenHawks = new GuiScreenHawks();
 //        GuiHawksWindow w = new GuiHawksWindow();
@@ -185,13 +185,7 @@ public class Outskirts {
         profiler.push("gui");
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
-        {
-            profiler.push("ingame");
-            rootGUI.getIngameGUI().onDraw();
-            profiler.pop().push("currScreen");
-            rootGUI.getCurrentScreen().onDraw();
-            profiler.pop();
-        }
+        rootGUI.onDraw();
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         profiler.pop("gui");
@@ -201,7 +195,6 @@ public class Outskirts {
         this.updateDisplay();
         profiler.pop("updateDisplay");
         profiler.pop("rt");
-//        GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
     }
 
     /**
@@ -407,15 +400,6 @@ public class Outskirts {
                     new QuickHull().quickHull(vs.toArray(new Vector3f[0]));
                 }
             }
-
-            if (e.getKey() == GLFW_KEY_C) {
-                if (e.getKeyState()){
-                    PREV_FOV[0] = GameSettings.FOV;
-                    GameSettings.FOV = 30;
-                } else {
-                    GameSettings.FOV = PREV_FOV[0];
-                }
-            }
         });
     }
     public static void setPauseWorld(float speed) {
@@ -427,7 +411,7 @@ public class Outskirts {
     private void runTick() {
 
         if (getWorld() != null) {
-            if (currentScreen() == Gui.EMPTY) {
+            if (currentScreen() == null) {
                 float lv =1;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
@@ -437,6 +421,8 @@ public class Outskirts {
                 if (GameSettings.KEY_WALK_RIGHT.isKeyDown()) player.walkStep(lv, -Maths.PI/2);
                 if (GameSettings.KEY_JUMP.isKeyDown()) player.walkStep(lv, new Vector3f(0, 1, 0));
                 if (GameSettings.KEY_SNEAK.isKeyDown()) player.walkStep(lv, new Vector3f(0, -1, 0));
+
+                GameSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
 
 
@@ -461,29 +447,35 @@ public class Outskirts {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
-    public static Gui currentScreen() {
-        return INSTANCE.rootGUI.getCurrentScreen();
+    public static GuiScreen currentScreen() {
+        Gui g;
+        for (int i = getRootGUI().getChildCount()-1;i >= 0;i--) {
+            if ((g=getRootGUI().getChildAt(i)) instanceof GuiScreen)
+                return (GuiScreen)g;
+        }
+        return null;
     }
-    private static void setCurrentScreen(Gui screen) {
-        // Mouse.setGrabbed(screen == null);
-        // Keyboard.enableRepeatEvents(screen != null);
-        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, screen == Gui.EMPTY ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-        INSTANCE.rootGUI.setCurrentScreen(screen);
-    }
-
     public static void startScreen(GuiScreen screen) {
-        Validate.isTrue(screen != null && screen != Gui.EMPTY, "illegal screen.");
-        INSTANCE.screenStack.push(screen);
-        setCurrentScreen(screen);
+        getRootGUI().addGui(screen);
+        setMouseGrabbed(currentScreen()==null);
     }
-    public static void closeScreen() {
-        INSTANCE.screenStack.pop();
-        setCurrentScreen(INSTANCE.screenStack.peek());
+    public static GuiScreen closeScreen() {
+        GuiScreen g = null;
+        for (int i = getRootGUI().getChildCount()-1;i >= 0;i--) {
+            if (getRootGUI().getChildAt(i) instanceof GuiScreen) {
+                g = getRootGUI().removeGui(i);
+                break;
+            }
+        }
+        setMouseGrabbed(currentScreen()==null);
+        return g;
     }
     public static void closeAllScreen() {
-        while (currentScreen() != Gui.EMPTY) {
+        while (currentScreen() != null)
             closeScreen();
-        }
+    }
+    private static void setMouseGrabbed(boolean grabbed) {
+        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, grabbed?GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
     }
 
     public static boolean isRunning() {
@@ -502,8 +494,8 @@ public class Outskirts {
         return INSTANCE.scheduler;
     }
 
-    public static GuiScreenInGame getIngameGUI() {
-        return (GuiScreenInGame)INSTANCE.rootGUI.getIngameGUI();
+    public static Gui getRootGUI() {
+        return INSTANCE.rootGUI;
     }
 
     public static EntityPlayerSP getPlayer() {
