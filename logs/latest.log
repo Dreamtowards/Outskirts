@@ -1,8 +1,44 @@
-[22:01:28][][main/INFO]: Loaded GameSettings options. (options.dat)
-[22:01:31][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
-[22:01:33][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
-[22:01:33][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
-[22:01:33][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
-[22:01:37][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
-[22:01:37][][main/INFO]: Err. computeMTV() out of itr.
-[22:01:37][][main/INFO]: Err. computeMTV() out of itr.
+[22:21:48][][main/INFO]: ./.DS_Store
+[22:21:48][][main/INFO]: ./libraries/.DS_Store
+[22:21:48][][main/INFO]: ./libraries/platform/.DS_Store
+[22:21:48][][main/INFO]: ./libraries/platform/mac/.DS_Store
+[22:21:48][][main/INFO]: ./libraries/platform/linux/.DS_Store
+[22:21:48][][main/INFO]: ./libraries/platform/windows/.DS_Store
+[22:21:48][][main/INFO]: ./saves/.DS_Store
+[22:21:48][][main/INFO]: ./saves/wrd/.DS_Store
+[22:21:48][][main/INFO]: ./mods/.DS_Store
+[22:21:48][][main/INFO]: ./mods/org/.DS_Store
+[22:21:48][][main/INFO]: ./mods/Platf/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/artifacts/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/out/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/out/production/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/out/production/Outskirts/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/out/production/Outskirts/ext/.DS_Store
+[22:21:48][][main/INFO]: ./.idea/_schedu/.DS_Store
+[22:21:48][][main/INFO]: ./src/.DS_Store
+[22:21:48][][main/INFO]: ./src/ext/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/init/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/util/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/physics/collision/narrowphase/collisionalgorithm/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/event/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/client/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/client/render/renderer/.DS_Store
+[22:21:48][][main/INFO]: ./src/outskirts/client/render/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/textures/blocks/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/textures/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/textures/gui/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/textures/gui/weights/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/textures/skybox/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/tree1/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/stall/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/dennis_posed/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/geo/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/mount/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/aya091/tex/.DS_Store
+[22:21:48][][main/INFO]: ./src/assets/outskirts/materials/aya091/.DS_Store
+[22:21:49][][main/INFO]: ./src/assets/outskirts/.DS_Store
+[22:21:49][][main/INFO]: ./src/assets/outskirts/font/.DS_Store

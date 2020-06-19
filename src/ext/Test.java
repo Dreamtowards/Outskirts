@@ -59,6 +59,16 @@ public class Test {
 //        LOGGER.info(Vector3f.dot(ABCNorm, B));
 //        LOGGER.info(Vector3f.dot(ABCNorm, C));
 
+        FileUtils.walk(new File("."), f -> {
+            if (f.getName().endsWith(".DS_Store")) {
+                LOGGER.info(f);
+                try {
+                    FileUtils.delete(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 

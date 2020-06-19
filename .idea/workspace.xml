@@ -6,40 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c929cd81-0b63-4c0e-af5f-22ccf7b04ed1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outskirts/client/gui/GuiWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/GameSettings$ProgramArguments.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/GameSettings$ProgramArguments.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/GameSettings.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/GameSettings.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/Outskirts.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/Outskirts.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenConnecting.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenConnecting.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenDisconnect.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenDisconnect.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenInGame.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenInGame.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenPause.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/GuiScreenPause.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/options/GuiScreenOptions.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/options/GuiScreenOptions.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/tools/debug/GuiMemoryLog.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/tools/debug/GuiMemoryLog.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/tools/debug/GuiProfilerVisual.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/gui/screen/tools/debug/GuiProfilerVisual.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/render/Camera$CamUpdater.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/client/render/Camera$CamUpdater.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/network/login/PacketHandlerLoginClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/network/login/PacketHandlerLoginClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/network/play/PacketHandlerPlayClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/network/play/PacketHandlerPlayClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/physics/dynamics/DiscreteDynamicsWorld.class" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/out/production/Outskirts/outskirts/physics/dynamics/DiscreteDynamicsWorld.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libglfw3.a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-1.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-1.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-2.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-2.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-3.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-3.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-4.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-4.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-5.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-5.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-6.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-6.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/2020-06-19-7.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/2020-06-19-7.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/latest.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/latest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/GameSettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/GameSettings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/gui/Gui.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/gui/Gui.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/gui/screen/GuiScreenInGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/gui/screen/GuiScreenInGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/network/play/PacketHandlerPlayClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/network/play/PacketHandlerPlayClient.java" afterDir="false" />
-    </list>
+    <list default="true" id="c929cd81-0b63-4c0e-af5f-22ccf7b04ed1" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -132,7 +99,7 @@
       <command value="run.sh" />
     </option>
   </component>
-  <component name="RunManager" selected="Application.Start">
+  <component name="RunManager" selected="Application.Test">
     <configuration name="Start" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Start" />
       <module name="Outskirts" />
@@ -214,8 +181,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Start" />
         <item itemvalue="Application.Test" />
+        <item itemvalue="Application.Start" />
         <item itemvalue="JUnit.TestMemAlloc.stack" />
         <item itemvalue="JUnit.LiteExam.tst2" />
         <item itemvalue="JUnit.LiteExam.exa1" />
@@ -348,7 +315,7 @@
       <workItem from="1590746946066" duration="101386000" />
       <workItem from="1591953160868" duration="145239000" />
       <workItem from="1592444043965" duration="40561000" />
-      <workItem from="1592561047372" duration="5555000" />
+      <workItem from="1592561047372" duration="5947000" />
     </task>
     <servers />
   </component>
@@ -438,7 +405,7 @@
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state x="-141" y="-1248" width="1812" height="875" key="DiffContextDialog/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592562496039" />
-    <state width="1970" height="307" key="GridCell.Tab.0.bottom" timestamp="1592575287150">
+    <state width="1970" height="307" key="GridCell.Tab.0.bottom" timestamp="1592576508289">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.bottom/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919412" />
@@ -473,10 +440,10 @@
     <state width="1970" height="307" key="GridCell.Tab.0.bottom/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592546760476" />
     <state width="1970" height="307" key="GridCell.Tab.0.bottom/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592557920634" />
     <state width="1970" height="360" key="GridCell.Tab.0.bottom/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592560364703" />
-    <state width="1970" height="307" key="GridCell.Tab.0.bottom/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592575287149" />
+    <state width="1970" height="307" key="GridCell.Tab.0.bottom/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592576508289" />
     <state width="1783" height="315" key="GridCell.Tab.0.bottom/0.23.1680.976/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1591868987726" />
     <state width="1851" height="327" key="GridCell.Tab.0.bottom/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975592" />
-    <state width="1970" height="307" key="GridCell.Tab.0.center" timestamp="1592575287148">
+    <state width="1970" height="307" key="GridCell.Tab.0.center" timestamp="1592576508288">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.center/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919411" />
@@ -511,10 +478,10 @@
     <state width="1970" height="307" key="GridCell.Tab.0.center/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592546760475" />
     <state width="1970" height="307" key="GridCell.Tab.0.center/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592557920633" />
     <state width="1970" height="360" key="GridCell.Tab.0.center/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592560364702" />
-    <state width="1970" height="307" key="GridCell.Tab.0.center/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592575287148" />
+    <state width="1970" height="307" key="GridCell.Tab.0.center/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592576508288" />
     <state width="1783" height="315" key="GridCell.Tab.0.center/0.23.1680.976/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1591868987725" />
     <state width="1851" height="327" key="GridCell.Tab.0.center/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975591" />
-    <state width="1970" height="307" key="GridCell.Tab.0.left" timestamp="1592575287148">
+    <state width="1970" height="307" key="GridCell.Tab.0.left" timestamp="1592576508288">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.left/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919411" />
@@ -549,10 +516,10 @@
     <state width="1970" height="307" key="GridCell.Tab.0.left/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592546760475" />
     <state width="1970" height="307" key="GridCell.Tab.0.left/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592557920633" />
     <state width="1970" height="360" key="GridCell.Tab.0.left/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592560364702" />
-    <state width="1970" height="307" key="GridCell.Tab.0.left/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592575287148" />
+    <state width="1970" height="307" key="GridCell.Tab.0.left/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592576508288" />
     <state width="1783" height="315" key="GridCell.Tab.0.left/0.23.1680.976/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1591868987724" />
     <state width="1851" height="327" key="GridCell.Tab.0.left/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975591" />
-    <state width="1970" height="307" key="GridCell.Tab.0.right" timestamp="1592575287149">
+    <state width="1970" height="307" key="GridCell.Tab.0.right" timestamp="1592576508289">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.right/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919412" />
@@ -587,7 +554,7 @@
     <state width="1970" height="307" key="GridCell.Tab.0.right/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592546760476" />
     <state width="1970" height="307" key="GridCell.Tab.0.right/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592557920634" />
     <state width="1970" height="360" key="GridCell.Tab.0.right/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592560364703" />
-    <state width="1970" height="307" key="GridCell.Tab.0.right/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592575287149" />
+    <state width="1970" height="307" key="GridCell.Tab.0.right/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592576508289" />
     <state width="1783" height="315" key="GridCell.Tab.0.right/0.23.1680.976/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1591868987725" />
     <state width="1851" height="327" key="GridCell.Tab.0.right/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975592" />
     <state width="1970" height="360" key="GridCell.Tab.1.bottom" timestamp="1592560364704">
