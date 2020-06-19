@@ -1,5 +1,0 @@
-ID: ext_mod
-Main: com.extmod.ExtMOD
-Version: v1.0.0-SNAPSHOT
-Description: website: https://extmod.com
-Name: The Ext Mod
