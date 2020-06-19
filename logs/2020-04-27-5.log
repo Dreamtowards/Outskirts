@@ -1,7 +1,0 @@
-[22:37:11][][main/WARN]: Unknown program argument: tmploadlibs
-[22:37:11][][main/INFO]: Loaded GameSettings options. (options.dat)
-[22:37:12][][main/INFO]: OperationSystem Windows 10 10.0, rt 1.8.0_202 amd64, VM Java HotSpot(TM) 64-Bit Server VM v25.202-b08
-[22:37:15][][main/INFO]: RenderEngine initialized. GL_I: Parallels and Intel Inc. - Parallels using Intel(R) Iris(TM) Plus Graphics 645 (Compat) | 3.2 INTEL-14.5.22
-[22:37:15][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Win32 WGL EGL OSMesa VisualC DLL
-[22:37:15][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
-[22:39:31][][main/INFO]: Saved GameSettings options. (options.dat)

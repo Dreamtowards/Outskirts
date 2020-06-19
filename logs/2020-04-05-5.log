@@ -1,6 +1,0 @@
-[09:23:38][][main/INFO]: Loaded GameSettings options. (%s)
-[09:23:39][][main/INFO]: OperationSystem %s %s, rt %s %s, VM %s v%s
-[09:23:39][][main/INFO]: RenderEngine initialized. GL_I: %s - %s | %s
-[09:23:39][][main/INFO]: LWJGL %s, GLFWL %s
-[09:23:39][][main/INFO]: AudioEngine initialized. AL_I: %s / %s, devispec %s
-[09:24:39][][main/INFO]: Saved GameSettings options. (%s)
