@@ -1,7 +1,6 @@
 
-*.class
-*.DS_Store
-
 .idea/out/
 logs/
 
+*.class
+*.DS_Store

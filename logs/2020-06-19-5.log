@@ -1,6 +1,8 @@
-[21:52:10][][main/INFO]: Loaded GameSettings options. (options.dat)
-[21:52:12][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
-[21:52:14][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
-[21:52:14][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
-[21:52:14][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
-[21:52:37][][main/INFO]: Saved GameSettings options. (options.dat)
+[22:01:28][][main/INFO]: Loaded GameSettings options. (options.dat)
+[22:01:31][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[22:01:33][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
+[22:01:33][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[22:01:33][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[22:01:37][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:01:37][][main/INFO]: Err. computeMTV() out of itr.
+[22:01:37][][main/INFO]: Err. computeMTV() out of itr.
