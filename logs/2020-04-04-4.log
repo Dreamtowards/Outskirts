@@ -1,0 +1,7 @@
+[21:50:29][][main/INFO]: Loaded GameSettings options. (%s)
+[21:50:30][][main/INFO]: OperationSystem %s %s, rt %s %s, VM %s v%s
+[21:50:30][][main/INFO]: RenderEngine initialized. GL_I: %s - %s | %s
+[21:50:30][][main/INFO]: LWJGL %s, GLFWL %s
+[21:50:30][][main/INFO]: AudioEngine initialized. AL_I: %s / %s, devispec %s
+[21:53:08][][main/WARN]: no find mtv. err
+[21:53:24][][main/INFO]: Saved GameSettings options. (%s)

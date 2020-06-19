@@ -1,0 +1,82 @@
+[21:35:29][][main/INFO]: Loaded GameSettings options. (options.dat)
+[21:35:30][][main/INFO]: OperationSystem Mac OS X 10.15.4, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[21:35:33][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.5.22
+[21:35:33][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[21:35:33][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[21:35:37][][main/INFO]: barErr. denome==0
+[21:35:45][][main/WARN]: Out of iter 30
+[21:35:45][][main/WARN]: Out of iter 30
+[21:35:47][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:35:47][][main/WARN]: big penetration: 44.000248
+[21:35:48][][main/INFO]: triangle zero len Norm
+[21:35:48][][main/INFO]: triangle zero len Norm
+[21:35:48][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:35:48][][main/WARN]: big penetration: 44.000275
+[21:35:49][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:35:49][][main/WARN]: big penetration: 45.531364
+[21:35:51][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:35:51][][main/WARN]: big penetration: 44.007885
+[21:35:56][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:35:56][][main/WARN]: big penetration: 46.696598
+[21:35:56][][main/WARN]: big penetration: 10.27344
+[21:35:56][][main/WARN]: big penetration: 11.591554
+[21:35:56][][main/WARN]: big penetration: 11.258426
+[21:36:00][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:00][][main/WARN]: big penetration: 44.435223
+[21:36:01][][main/WARN]: big penetration: 47.397663
+[21:36:01][][main/WARN]: big penetration: 54.01961
+[21:36:02][][main/INFO]: triangle zero len Norm
+[21:36:02][][main/INFO]: triangle zero len Norm
+[21:36:02][][main/WARN]: big penetration: 44.002716
+[21:36:03][][main/WARN]: big penetration: 44.0002
+[21:36:03][][main/WARN]: big penetration: 13.825905
+[21:36:03][][main/WARN]: big penetration: 16.04024
+[21:36:03][][main/WARN]: big penetration: 17.569523
+[21:36:03][][main/WARN]: big penetration: 20.17688
+[21:36:03][][main/WARN]: big penetration: 18.008873
+[21:36:03][][main/WARN]: big penetration: 11.77803
+[21:36:04][][main/WARN]: big penetration: 45.325928
+[21:36:05][][main/WARN]: big penetration: 130.2181
+[21:36:05][][main/WARN]: big penetration: 44.00248
+[21:36:06][][main/WARN]: big penetration: 342.9549
+[21:36:09][][main/WARN]: big penetration: 79.43892
+[21:36:12][][main/WARN]: big penetration: 14.552528
+[21:36:20][][main/INFO]: barErr. denome==0
+[21:36:27][][main/WARN]: Out of iter 30
+[21:36:28][][main/WARN]: Out of iter 30
+[21:36:30][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:30][][main/WARN]: big penetration: 44.000248
+[21:36:31][][main/INFO]: triangle zero len Norm
+[21:36:31][][main/INFO]: triangle zero len Norm
+[21:36:31][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:31][][main/WARN]: big penetration: 44.000275
+[21:36:32][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:32][][main/WARN]: big penetration: 45.531364
+[21:36:34][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:34][][main/WARN]: big penetration: 44.007885
+[21:36:38][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:38][][main/WARN]: big penetration: 46.696598
+[21:36:38][][main/WARN]: big penetration: 10.27344
+[21:36:38][][main/WARN]: big penetration: 11.591554
+[21:36:38][][main/WARN]: big penetration: 11.258426
+[21:36:42][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:36:42][][main/WARN]: big penetration: 44.435223
+[21:36:43][][main/WARN]: big penetration: 47.397663
+[21:36:44][][main/WARN]: big penetration: 54.01961
+[21:36:45][][main/INFO]: triangle zero len Norm
+[21:36:45][][main/INFO]: triangle zero len Norm
+[21:36:45][][main/WARN]: big penetration: 44.002716
+[21:36:46][][main/WARN]: big penetration: 44.0002
+[21:36:46][][main/WARN]: big penetration: 13.825905
+[21:36:46][][main/WARN]: big penetration: 16.04024
+[21:36:46][][main/WARN]: big penetration: 17.569523
+[21:36:46][][main/WARN]: big penetration: 20.17688
+[21:36:46][][main/WARN]: big penetration: 18.008873
+[21:36:46][][main/WARN]: big penetration: 11.77803
+[21:36:47][][main/WARN]: big penetration: 45.325928
+[21:36:48][][main/WARN]: big penetration: 130.2181
+[21:36:48][][main/WARN]: big penetration: 44.00248
+[21:36:49][][main/WARN]: big penetration: 342.9549
+[21:36:51][][main/WARN]: big penetration: 79.43892
+[21:36:54][][main/WARN]: big penetration: 14.552528
+[21:37:01][][main/INFO]: Saved GameSettings options. (options.dat)

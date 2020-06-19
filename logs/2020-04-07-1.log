@@ -1,0 +1,14 @@
+[21:47:34][][main/INFO]: Loaded GameSettings options. (%s)
+[21:47:34][][main/INFO]: OperationSystem %s %s, rt %s %s, VM %s v%s
+[21:47:34][][main/INFO]: RenderEngine initialized. GL_I: %s - %s | %s
+[21:47:34][][main/INFO]: LWJGL %s, GLFWL %s
+[21:47:34][][main/INFO]: AudioEngine initialized. AL_I: %s / %s, devispec %s
+[21:47:46][][main/WARN]: Out of iter 30
+[21:47:47][][main/WARN]: Out of iter 30
+[21:47:48][][main/WARN]: Out of iter 30
+[21:47:48][][main/WARN]: Out of iter 30
+[21:48:08][][main/WARN]: zero penetration
+[21:48:08][][main/WARN]: zero penetration
+[21:48:08][][main/WARN]: zero penetration
+[21:48:08][][main/WARN]: zero penetration
+[21:51:16][][main/INFO]: Saved GameSettings options. (%s)

@@ -1,0 +1,30 @@
+[21:37:43][][main/INFO]: Loaded GameSettings options. (options.dat)
+[21:37:44][][main/INFO]: OperationSystem Mac OS X 10.15.4, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[21:37:46][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.5.22
+[21:37:46][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[21:37:46][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[21:37:56][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:01][][main/WARN]: Out of iter 30
+[21:38:05][][main/INFO]: triangle zero len Norm
+[21:38:05][][main/INFO]: triangle zero len Norm
+[21:38:16][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:16][][main/WARN]: big penetration: 44.02959
+[21:38:20][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:20][][main/WARN]: big penetration: 44.00015
+[21:38:22][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:22][][main/WARN]: big penetration: 94.69921
+[21:38:31][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:31][][main/WARN]: big penetration: 44.012222
+[21:38:37][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:37][][main/WARN]: big penetration: 46.108295
+[21:38:41][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:38:41][][main/WARN]: big penetration: 44.0005
+[21:38:48][][main/WARN]: big penetration: 44.050156
+[21:38:54][][main/WARN]: big penetration: 45.1374
+[21:38:54][][main/WARN]: big penetration: 10.386577
+[21:38:54][][main/WARN]: big penetration: 15.986676
+[21:38:54][][main/WARN]: big penetration: 20.196539
+[21:38:54][][main/WARN]: big penetration: 16.990139
+[21:38:54][][main/WARN]: big penetration: 13.581063
+[21:38:54][][main/WARN]: big penetration: 10.61411
+[21:38:57][][main/INFO]: Saved GameSettings options. (options.dat)

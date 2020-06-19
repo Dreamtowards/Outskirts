@@ -1,0 +1,15 @@
+[22:49:13][][main/INFO]: Loaded GameSettings options. (options.dat)
+[22:49:14][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[22:49:16][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
+[22:49:16][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[22:49:16][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[22:49:19][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:20][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:21][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:21][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:26][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:31][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:36][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:36][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:37][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:45][][main/INFO]: Saved GameSettings options. (options.dat)

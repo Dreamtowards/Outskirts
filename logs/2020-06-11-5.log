@@ -1,0 +1,26 @@
+[23:20:03][][main/INFO]: Loaded GameSettings options. (options.dat)
+[23:20:04][][main/INFO]: OperationSystem Mac OS X 10.15.4, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[23:20:06][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.5.22
+[23:20:06][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[23:20:06][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[23:20:14][][main/INFO]: Epa penetration < 0. -9.536743E-7
+[23:20:16][][main/INFO]: Epa penetration < 0. -4.7683716E-7
+[23:20:17][][main/INFO]: Epa penetration < 0. -2.861023E-6
+[23:20:17][][main/INFO]: Epa penetration < 0. -1.9073486E-6
+[23:20:18][][main/INFO]: Epa penetration < 0. -1.9073486E-6
+[23:20:18][][main/INFO]: Epa penetration < 0. -1.9073486E-6
+[23:20:18][][main/INFO]: Epa penetration < 0. -3.8146973E-6
+[23:20:19][][main/INFO]: Epa penetration < 0. -7.6293945E-6
+[23:20:20][][main/INFO]: Epa penetration < 0. -1.1444092E-5
+[23:20:21][][main/INFO]: Epa penetration < 0. -3.8146973E-6
+[23:20:21][][main/INFO]: Epa penetration < 0. -1.9073486E-5
+[23:20:22][][main/INFO]: Epa penetration < 0. -3.8146973E-6
+[23:20:22][][main/INFO]: Epa penetration < 0. -1.1444092E-5
+[23:20:22][][main/INFO]: Epa penetration < 0. -3.8146973E-6
+[23:20:23][][main/INFO]: Epa penetration < 0. -1.5258789E-5
+[23:20:25][][main/INFO]: Epa penetration < 0. -1.5258789E-5
+[23:20:25][][main/INFO]: Epa penetration < 0. -2.2888184E-5
+[23:20:26][][main/INFO]: Epa penetration < 0. -7.6293945E-6
+[23:20:27][][main/INFO]: Epa penetration < 0. -1.5258789E-5
+[23:20:28][][main/INFO]: Epa penetration < 0. -2.2888184E-5
+[23:20:38][][main/INFO]: Saved GameSettings options. (options.dat)

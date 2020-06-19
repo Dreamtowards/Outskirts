@@ -1,0 +1,27 @@
+[22:02:12][][main/INFO]: Loaded GameSettings options. (%s)
+[22:02:13][][main/INFO]: OperationSystem %s %s, rt %s %s, VM %s v%s
+[22:02:13][][main/INFO]: RenderEngine initialized. GL_I: %s - %s | %s
+[22:02:13][][main/INFO]: LWJGL %s, GLFWL %s
+[22:02:13][][main/INFO]: AudioEngine initialized. AL_I: %s / %s, devispec %s
+[22:03:40][][main/WARN]: zero penetration
+[22:04:14][][main/WARN]: zero penetration
+[22:04:14][][main/WARN]: zero penetration
+[22:04:14][][main/WARN]: zero penetration
+[22:04:14][][main/WARN]: zero penetration
+[22:04:14][][main/WARN]: zero penetration
+[22:04:16][][main/WARN]: zero penetration
+[22:04:22][][main/WARN]: zero penetration
+[22:04:23][][main/WARN]: zero penetration
+[22:04:23][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:29][][main/WARN]: zero penetration
+[22:04:58][][main/WARN]: zero penetration
+[22:05:00][][main/WARN]: zero penetration
+[22:05:01][][main/WARN]: zero penetration
+[22:05:20][][main/WARN]: zero penetration
+[22:05:26][][main/WARN]: zero penetration
+[22:10:33][][main/INFO]: Saved GameSettings options. (%s)

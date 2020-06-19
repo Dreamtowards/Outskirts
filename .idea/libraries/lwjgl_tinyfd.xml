@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="lwjgl-tinyfd">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libraries/lwjgl-tinyfd.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

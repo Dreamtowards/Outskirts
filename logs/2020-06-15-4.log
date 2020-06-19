@@ -1,0 +1,8 @@
+[22:38:31][][main/INFO]: Loaded GameSettings options. (options.dat)
+[22:38:32][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[22:38:34][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
+[22:38:34][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[22:38:34][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[22:38:38][][Thread-2/INFO]: Done.
+[22:38:47][][Thread-3/INFO]: Done.
+[22:38:51][][main/INFO]: Saved GameSettings options. (options.dat)

@@ -1,0 +1,55 @@
+[22:49:51][][main/INFO]: Loaded GameSettings options. (options.dat)
+[22:49:52][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[22:49:54][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
+[22:49:54][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[22:49:55][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[22:49:58][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:58][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:49:58][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:50:00][][main/WARN]: Out of iter 30.
+[22:50:05][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:50:06][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:50:06][][main/WARN]: Out of iter 30.
+[22:50:11][][main/WARN]: Out of iter 30.
+[22:50:14][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[22:50:21][][main/WARN]: Out of iter 30.
+[22:50:21][][main/WARN]: Out of iter 30.
+[22:50:27][][main/WARN]: Out of iter 30.
+[22:50:37][][main/WARN]: big penetration: 49.119717
+[22:50:37][][main/WARN]: big penetration: 12.960436
+[22:50:38][][main/WARN]: big penetration: 31.174784
+[22:50:38][][main/WARN]: big penetration: 62.395832
+[22:50:38][][main/WARN]: big penetration: 29.205376
+[22:50:38][][main/WARN]: big penetration: 93.663246
+[22:50:38][][main/WARN]: big penetration: 36.725773
+[22:50:38][][main/WARN]: big penetration: 124.93799
+[22:50:38][][main/WARN]: big penetration: 30.431448
+[22:50:38][][main/WARN]: big penetration: 156.13914
+[22:50:38][][main/INFO]: Err. computeMTV() out of itr.
+[22:50:38][][main/WARN]: big penetration: 187.28745
+[22:50:38][][main/INFO]: Err. computeMTV() out of itr.
+[22:50:38][][main/WARN]: big penetration: 135.49666
+[22:50:38][][main/WARN]: big penetration: 84.56519
+[22:50:38][][main/WARN]: big penetration: 33.03487
+[22:50:40][][main/WARN]: big penetration: 44.732254
+[22:50:40][][main/WARN]: big penetration: 50.204308
+[22:50:40][][main/WARN]: big penetration: 26.192112
+[22:50:43][][main/INFO]: Err. computeMTV() out of itr.
+[22:50:51][][main/WARN]: big penetration: 25.878391
+[22:51:16][][main/WARN]: big penetration: 10.511497
+[22:51:16][][main/WARN]: big penetration: 11.955296
+[22:53:20][][main/WARN]: big penetration: 16.759684
+[22:53:20][][main/WARN]: big penetration: 33.95922
+[22:53:20][][main/WARN]: big penetration: 37.985756
+[22:53:20][][main/WARN]: big penetration: 32.23535
+[22:53:20][][main/WARN]: big penetration: 17.309822
+[22:54:45][][main/WARN]: big penetration: 14.112061
+[22:54:45][][main/WARN]: big penetration: 18.65039
+[22:54:45][][main/WARN]: big penetration: 21.092318
+[22:54:45][][main/WARN]: big penetration: 17.155664
+[22:54:45][][main/WARN]: big penetration: 13.237393
+[22:55:00][][main/WARN]: big penetration: 11.431318
+[22:55:00][][main/WARN]: big penetration: 19.098942
+[22:55:00][][main/WARN]: big penetration: 13.3630295
+[22:55:37][][main/WARN]: big penetration: 70.84789
+[22:55:42][][main/INFO]: Saved GameSettings options. (options.dat)

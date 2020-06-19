@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Outskirts:jar">
+    <output-path>$PROJECT_DIR$/.idea/artifacts</output-path>
+    <root id="archive" name="Outskirts.jar">
+      <element id="module-output" name="Outskirts" />
+    </root>
+  </artifact>
+</component>

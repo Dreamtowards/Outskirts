@@ -1,0 +1,64 @@
+[15:48:10][][main/INFO]: Loaded GameSettings options. (options.dat)
+[15:48:10][][main/INFO]: OperationSystem Mac OS X 10.15.4, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[15:48:12][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.5.22
+[15:48:12][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[15:48:12][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[15:48:16][][main/INFO]: triangle zero len Norm
+[15:48:16][][main/INFO]: triangle zero len Norm
+[15:48:16][][main/INFO]: triangle zero len Norm
+[15:48:17][][main/INFO]: Zero penetration epa. 2.994784E-8
+[15:48:20][][main/INFO]: Zero penetration epa. 9.49949E-8
+[15:48:23][][main/INFO]: Zero penetration epa. 3.7252903E-9
+[15:48:36][][main/INFO]: Zero penetration epa. 1.0430813E-7
+[15:48:36][][main/INFO]: Zero penetration epa. 0.0
+[15:48:36][][main/INFO]: Zero penetration epa. 2.9802322E-8
+[15:48:38][][main/INFO]: Zero penetration epa. 4.4703484E-8
+[15:48:38][][main/INFO]: Zero penetration epa. 0.0
+[15:48:39][][main/INFO]: Zero penetration epa. 1.0430813E-7
+[15:48:39][][main/INFO]: Zero penetration epa. 5.9604645E-8
+[15:48:40][][main/INFO]: Zero penetration epa. 0.0
+[15:48:40][][main/INFO]: Zero penetration epa. 5.9604645E-8
+[15:48:41][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[15:48:41][][main/WARN]: big penetration: 44.001617
+[15:48:42][][main/INFO]: Zero penetration epa. 7.4505806E-8
+[15:48:43][][main/INFO]: Zero penetration epa. 1.0430813E-7
+[15:48:47][][main/INFO]: Zero penetration epa. 5.9604645E-8
+[15:48:48][][main/INFO]: Zero penetration epa. 7.4505806E-8
+[15:49:03][][main/INFO]: Zero penetration epa. 3.7252903E-8
+[15:49:11][][main/INFO]: Zero penetration epa. 5.9604645E-8
+[15:49:17][][main/INFO]: Zero penetration epa. 8.940697E-8
+[15:49:17][][main/INFO]: Zero penetration epa. 2.9802322E-8
+[15:49:18][][main/INFO]: Zero penetration epa. 8.940697E-8
+[15:49:18][][main/INFO]: Zero penetration epa. 0.0
+[15:49:30][][main/INFO]: Zero penetration epa. 5.9604645E-8
+[15:49:32][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[15:49:32][][main/WARN]: big penetration: 44.00721
+[15:49:33][][main/INFO]: Zero penetration epa. 0.0
+[15:50:05][][main/INFO]: Zero penetration epa. 0.0
+[15:50:06][][main/WARN]: big penetration: 4028.6492
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: triangle zero len Norm
+[15:50:10][][main/INFO]: Err. computeMTV() out of itr.
+[15:50:10][][main/WARN]: big penetration: 1307.3964
+[15:50:18][][main/WARN]: big penetration: 143.45293
+[15:50:18][][main/WARN]: big penetration: 10.461876
+[15:50:18][][main/WARN]: big penetration: 15.183822
+[15:50:27][][main/INFO]: triangle zero len Norm
+[15:50:27][][main/INFO]: triangle zero len Norm
+[15:50:27][][main/INFO]: Err. computeMTV() out of itr.
+[15:50:27][][main/WARN]: big penetration: 41.44124
+[15:50:29][][main/WARN]: Out of iter 30
+[15:50:30][][main/WARN]: big penetration: 728.6764
+[15:50:31][][main/WARN]: big penetration: 222.27338
+[15:50:44][][main/WARN]: big penetration: 14.741791
+[15:50:44][][main/WARN]: big penetration: 15.331512
+[15:50:44][][main/WARN]: big penetration: 12.969482
+[15:50:49][][main/INFO]: Saved GameSettings options. (options.dat)

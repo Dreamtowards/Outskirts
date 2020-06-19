@@ -1,0 +1,52 @@
+[21:29:14][][main/INFO]: Loaded GameSettings options. (options.dat)
+[21:29:15][][main/INFO]: OperationSystem Mac OS X 10.15.5, rt 1.8.0_231 x86_64, VM Java HotSpot(TM) 64-Bit Server VM v25.231-b11
+[21:29:17][][main/INFO]: RenderEngine initialized. GL_I: Intel Inc. - Intel(R) Iris(TM) Plus Graphics 645 | 4.1 INTEL-14.6.18
+[21:29:17][][main/INFO]: LWJGL 3.2.3 build 13, GLFWL 3.4.0 Cocoa NSGL EGL OSMesa dynamic
+[21:29:17][][main/INFO]: AudioEngine initialized. AL_I: OpenAL Community / 1.1 ALSOFT 1.19.1, devispec OpenAL Soft
+[21:29:22][][main/WARN]: illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.
+[21:29:36][][main/WARN]: Out of iter 30
+[21:29:38][][main/WARN]: Out of iter 30
+[21:29:38][][main/WARN]: Out of iter 30
+[21:29:38][][main/WARN]: Out of iter 30
+[21:29:39][][main/WARN]: Out of iter 30
+[21:29:39][][main/WARN]: Out of iter 30
+[21:29:39][][main/WARN]: Out of iter 30
+[21:29:39][][main/WARN]: Out of iter 30
+[21:29:39][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:40][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:41][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:42][][main/WARN]: Out of iter 30
+[21:29:43][][main/WARN]: Out of iter 30
+[21:29:43][][main/WARN]: Out of iter 30
+[21:29:49][][main/INFO]: Saved GameSettings options. (options.dat)

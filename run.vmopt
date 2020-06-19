@@ -1,0 +1,44 @@
+java
+//DEF -XX:+DoEscapeAnalysis
+//DEF -XX:+UseTLAB
+//DEF -XX:+EliminateAllocations
+
+-Dfile.encoding=UTF-8
+-DsocksProxyHost=localhost
+-DsocksProxyPort=1080
+-Djava.library.path=libraries/platform/mac
+-XstartOnFirstThread
+-Djava.awt.headless=true
+-Xms1024M
+-Xmx1024M
+-cp ".idea/out/production/Outskirts"
+Start
+--tmploadlibs
+--width=700
+--height=500
+--uuid=0000
+--token=aas7d98798s7d9a8s7d9a8s7d9a8s7d9a8s7d9as87d9a8sd79as87d9as87d
+--extensions="mods/Ext.jar"
+
+
+
+
+Interf Standard:
+
+## AuthI
+email: [0-9a-zA-Z._]+@[a-z0-9.]+
+username: [0-9a-zA-Z_]{5,}
+password: [0-9a-zA-Z]{8,}
+
+## Authenticate
+Req:
+https://api.outskirts.net/authenticate?email=2736310270@qq.com&password=userpwd
+Resp:
+{
+    "uuid": "bc321813-e628-48c0-a9e3-a2dbc0f8b651",
+    "token": "d1d861f8053125384a178c40512d133042d8e8d89cc6e5bd20b724b7d8aea3be"
+}
+
+## Validate
+Req:
+https://api.outskirts.net/validate?uuid=bc321813-e628-48c0-a9e3-a2dbc0f8b651&token=d1d861f8053125384a178c40512d133042d8e8d89cc6e5bd20b724b7d8aea3be
