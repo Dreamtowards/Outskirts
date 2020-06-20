@@ -1,6 +1,5 @@
 package outskirts.physics.collision.narrowphase.collisionalgorithm.gjk;
 
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.shapes.ConvexShape;
 import outskirts.util.*;

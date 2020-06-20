@@ -2,8 +2,8 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
-import outskirts.client.gui.screen.tools.debug.GuiMemoryLog;
-import outskirts.client.gui.screen.tools.debug.GuiProfilerVisual;
+import outskirts.client.gui.debug.GuiMemoryLog;
+import outskirts.client.gui.debug.GuiProfilerVisual;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.ModelRenderer;
@@ -13,8 +13,6 @@ import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.Colors;
-import outskirts.util.FileUtils;
-import outskirts.util.SystemUtils;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -63,9 +61,6 @@ public class GuiScreenDebug extends GuiScreen {
 //        ((GuiSlider)e.gui()).setText(""+((GuiSlider)e.gui()).getCurrentUserValue());
 //    }));
 
-    private float deltaSumUntilOne = 0;
-    private int currSecFrames = 0;
-    private int prevSecFrames = 0;
 
     private boolean showPhysBoundingbox = false;
     private boolean showPhysVelicities = false;
@@ -86,19 +81,7 @@ public class GuiScreenDebug extends GuiScreen {
             guiProfilerVisual.setX(Outskirts.getWidth() - PROF_WIDTH - 10).setY(Outskirts.getHeight() - PROF_HEIGHT - 20)
                     .setWidth(PROF_WIDTH).setHeight(PROF_HEIGHT);
 
-            drawString(String.format("U/T: %s / %s | JVM_Max: %s", FileUtils.toDisplaySize(SystemUtils.MEM_USED), FileUtils.toDisplaySize(SystemUtils.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtils.MEM_MAXIMUM)), 0, startY+=16, Colors.WHITE);
 
-            currSecFrames++;
-            deltaSumUntilOne += Outskirts.getDelta();
-            if (deltaSumUntilOne >= 1f) {
-                prevSecFrames = currSecFrames;
-                deltaSumUntilOne = 0;
-                currSecFrames = 0;
-            }
-            drawString(String.format("P: avgT: %sms, s: %s", 1000f/prevSecFrames, prevSecFrames), 0, startY+=16, Colors.WHITE);
-
-
-            drawString(String.format("CameraPos: %s", Outskirts.getCamera().getPosition()), 0, startY+=16, Colors.WHITE);
 
             // render camera's chunk bound
 //        if (Outskirts.getCamera().getPosition().y >= 0) {

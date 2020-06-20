@@ -1,13 +1,10 @@
 package outskirts.physics.collision.narrowphase.collisionalgorithm;
 
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.collision.shapes.ConcaveShape;
 import outskirts.physics.collision.shapes.ConvexShape;
 import outskirts.physics.collision.shapes.convex.TriangleShape;
-import outskirts.util.Colors;
-import outskirts.util.vector.Vector3f;
 
 public class CollisionAlgorithmConvexConcave extends CollisionAlgorithm {
 

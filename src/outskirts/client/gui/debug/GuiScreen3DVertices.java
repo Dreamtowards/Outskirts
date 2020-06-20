@@ -1,4 +1,4 @@
-package outskirts.client.gui.screen.tools;
+package outskirts.client.gui.debug;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class GuiScreen3DVertices extends GuiScreen {
 

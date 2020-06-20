@@ -29,7 +29,7 @@ public class GuiTextField extends GuiText {
 
     public GuiTextField() {
         setWidth(120);
-        setHeight(40);
+        setHeight(16);
 
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && isMouseOver()) {

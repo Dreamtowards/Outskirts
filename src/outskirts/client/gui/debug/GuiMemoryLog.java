@@ -1,4 +1,4 @@
-package outskirts.client.gui.screen.tools.debug;
+package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
@@ -15,7 +15,7 @@ public class GuiMemoryLog extends Gui {
     private float elapsedPartial = 0;
     private int writePointer;
 
-    public GuiMemoryLog() {
+    {
         addOnDrawListener(e -> {
             SystemUtils.updateMemoryInfo(); // Utils supports..  // updates states
 

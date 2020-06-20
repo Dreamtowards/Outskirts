@@ -1,4 +1,4 @@
-package outskirts.client.gui.screen.tools.setter;
+package outskirts.client.gui.debug.setter;
 
 import javafx.util.Pair;
 import outskirts.client.gui.Gui;

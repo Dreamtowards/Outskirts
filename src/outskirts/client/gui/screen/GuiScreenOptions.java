@@ -1,13 +1,9 @@
-package outskirts.client.gui.screen.options;
+package outskirts.client.gui.screen;
 
 import outskirts.client.GameSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiLayoutLinear;
 import outskirts.client.gui.GuiSlider;
-import outskirts.client.gui.screen.GuiScreen;
-import outskirts.client.gui.GuiScroll;
-import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 

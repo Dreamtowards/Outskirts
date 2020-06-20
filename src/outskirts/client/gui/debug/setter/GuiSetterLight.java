@@ -1,7 +1,6 @@
-package outskirts.client.gui.screen.tools.setter;
+package outskirts.client.gui.debug.setter;
 
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiSlider;
 import outskirts.client.render.Light;
 
 public class GuiSetterLight extends Gui {

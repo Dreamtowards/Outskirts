@@ -1,11 +1,7 @@
 package outskirts.physics.extras.quickhull;
 
-import org.lwjgl.glfw.GLFW;
-import outskirts.client.Outskirts;
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
+import outskirts.client.gui.debug.GuiScreen3DVertices;
 import outskirts.util.*;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
 import java.util.*;

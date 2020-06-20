@@ -1,10 +1,12 @@
 package outskirts.util.profiler;
 
+import outskirts.util.StringUtils;
+
 import java.util.*;
 
 public class Profiler {
 
-    private Section ROOT_SECTION = new Section("root");
+    private Section ROOT_SECTION = new Section("R");
     private Section currentSection = ROOT_SECTION;
 
     private boolean enable = true;
@@ -68,13 +70,13 @@ public class Profiler {
         return enable;
     }
 
-    public static final class Section implements Iterable<Section> {
+    public static final class Section {
         public final String name;
         private long lastStartTimeNano;
         public long lastUsedTimeNano;
         public long totalUsedTimeNano;
         public int calledCounter;
-        private List<Section> subs = new ArrayList<>();
+        public List<Section> subs = new ArrayList<>();
         public Section parent;
 
         private Section(String name) {
@@ -93,9 +95,26 @@ public class Profiler {
             return null;
         }
 
-        @Override
-        public Iterator<Section> iterator() {
-            return subs.iterator();
+        public Section getSection(String name) {
+            if (name.startsWith(".")) name=name.substring(1);
+            if (name.isEmpty()) return this;
+            int endi = name.contains(".")?name.indexOf('.'):name.length();
+
+            String subName = name.substring(0, endi);
+            for (Section s : subs) {
+                if (s.name.equals(subName)) {
+                    return s.getSection(name.substring(endi));
+                }
+            }
+            return null;
+        }
+        public String getFullName() {
+            StringBuilder sb = new StringBuilder().insert(0, name);
+            Section s=this;
+            while ((s=s.parent)!=null) {
+                sb.insert(0,'.').insert(0, s.name);
+            }
+            return sb.toString();
         }
     }
 }

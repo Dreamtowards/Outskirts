@@ -4,9 +4,15 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiMenu;
+import outskirts.client.gui.GuiMenubar;
+import outskirts.client.gui.debug.GuiDebugTextInfos;
+import outskirts.client.gui.debug.GuiMemoryLog;
+import outskirts.client.gui.debug.GuiProfilerVisual;
+import outskirts.client.gui.ex.GuiRoot;
+import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
+import outskirts.client.gui.debug.GuiScreen3DVertices;
 import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
@@ -22,7 +28,6 @@ import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.narrowphase.collisionalgorithm.gjk.Gjk;
 import outskirts.physics.collision.shapes.ConvexShape;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.extras.quickhull.QuickHull;
@@ -45,15 +50,11 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
-    private float dScroll; // wheelDXY
-    private float mouseDX;
-    private float mouseDY;
-    private float mouseX;
-    private float mouseY;
-    private int width; // screen coordinate (not Framebuffer coordinate, not GUI_SCALE
-    private int height;
+    // dScroll: wheelDXY. all windowCoords
+    private float dScroll, mouseDX, mouseDY, mouseX, mouseY; // WindowCoords
+    private float width, height; // WindowCoords. not FramebufferCoords, not GuiCoords.
     private long window; // glfwWindow
-    private float osContentScale; // ContentScale of OS = fb_size / window_size
+    private float OS_CONTENT_SCALE; // window_size * OS_CONTENT_SCALE = fb_size.
 
     private static Outskirts INSTANCE;
 
@@ -63,8 +64,7 @@ public class Outskirts {
 
     private boolean running;
 
-    private Gui rootGUI = new Gui();
-//    private LinkedList<Gui> screenStack = new LinkedList<>(Collections.singletonList(Gui.EMPTY));
+    private GuiRoot rootGUI = new GuiRoot();
 
     private WorldClient world;
 
@@ -77,7 +77,7 @@ public class Outskirts {
     private Thread thread = Thread.currentThread();
     private Scheduler scheduler = new Scheduler(thread);
 
-    private Profiler profiler = new Profiler().setEnable(false);
+    private Profiler profiler = new Profiler();
 
     public void run() {
         try
@@ -129,18 +129,18 @@ public class Outskirts {
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        getRootGUI().addGui(new GuiScreenInGame());// GuiScreenInGame should split out as multi gui which in them.
+        getRootGUI().addGui(GuiScreenInGame.INSTANCE);// GuiScreenInGame should split out as multi gui which in them.
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-        getRootGUI().addGui(GuiScreen3DVertices._TMP_DEF_INST.setVisible(false));
-
-//        GuiScreenHawks screenHawks = new GuiScreenHawks();
-//        GuiHawksWindow w = new GuiHawksWindow();
-//        w.setWidth(100).setHeight(100);
-//        w.setTitle("The Window Title");
-//        w.getGuiMain().addGui(new GuiHawksSysCMD());
-//        screenHawks.windows.addGui(w);
-//        startScreen(screenHawks);
+        GuiMenubar menubar = getRootGUI().addGui(new GuiMenubar());
+        menubar.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
+        {
+            GuiMenu menu = menubar.addMenu("DebugV", new GuiMenu());
+            menu.addGui(GuiMenu.GuiItem.button("Infos display")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugTextInfos())));
+            menu.addGui(GuiMenu.GuiItem.button("Memlog window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiMemoryLog())));
+            menu.addGui(GuiMenu.GuiItem.button("Profile window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiProfilerVisual())));
+            menu.addGui(GuiMenu.GuiItem.button("3DVertices window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(GuiScreen3DVertices._TMP_DEF_INST)));
+        }
 
 
 
@@ -152,16 +152,16 @@ public class Outskirts {
 
         timer.update();
 
+        profiler.push("scheduleTasks");
         scheduler.processTasks();
+        profiler.pop("scheduleTasks");
 
-        profiler.setEnable(true);
         profiler.push("runTick");
         while (timer.pollFullTick())
         {
             this.runTick();
         }
         profiler.pop("runTick");
-        profiler.setEnable(false);
 
         profiler.push("glfwPollEvents");
         glfwPollEvents();
@@ -184,17 +184,15 @@ public class Outskirts {
 
         profiler.push("gui");
         glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
         rootGUI.onDraw();
-        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         profiler.pop("gui");
         profiler.pop("render");
 
+        profiler.pop("rt");
         profiler.push("updateDisplay");
         this.updateDisplay();
         profiler.pop("updateDisplay");
-        profiler.pop("rt");
     }
 
     /**
@@ -211,7 +209,6 @@ public class Outskirts {
         INSTANCE.world = world;
         if (world == null)
             return;
-//        INSTANCE.world.addEntity(getPlayer());
 
         Light lightSun = new Light();
         lightSun.getPosition().set(100, 100, 100);
@@ -347,7 +344,6 @@ public class Outskirts {
         RigidBody.updateShapeInertia(getPlayer().getRigidBody());
 
 
-        float[] PREV_FOV = {0};
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState()) {
                 if (e.getKey() == GLFW_KEY_C)
@@ -448,34 +444,16 @@ public class Outskirts {
     }
 
     public static GuiScreen currentScreen() {
-        Gui g;
-        for (int i = getRootGUI().getChildCount()-1;i >= 0;i--) {
-            if ((g=getRootGUI().getChildAt(i)) instanceof GuiScreen)
-                return (GuiScreen)g;
-        }
-        return null;
+        return getRootGUI().currentScreen();
     }
     public static void startScreen(GuiScreen screen) {
         getRootGUI().addGui(screen);
-        setMouseGrabbed(currentScreen()==null);
     }
     public static GuiScreen closeScreen() {
-        GuiScreen g = null;
-        for (int i = getRootGUI().getChildCount()-1;i >= 0;i--) {
-            if (getRootGUI().getChildAt(i) instanceof GuiScreen) {
-                g = getRootGUI().removeGui(i);
-                break;
-            }
-        }
-        setMouseGrabbed(currentScreen()==null);
-        return g;
+        return getRootGUI().closeScreen();
     }
     public static void closeAllScreen() {
-        while (currentScreen() != null)
-            closeScreen();
-    }
-    private static void setMouseGrabbed(boolean grabbed) {
-        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, grabbed?GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
+        getRootGUI().closeAllScreen();
     }
 
     public static boolean isRunning() {
@@ -494,7 +472,7 @@ public class Outskirts {
         return INSTANCE.scheduler;
     }
 
-    public static Gui getRootGUI() {
+    public static GuiRoot getRootGUI() {
         return INSTANCE.rootGUI;
     }
 
@@ -565,6 +543,10 @@ public class Outskirts {
         return glfwGetKey(INSTANCE.window, key) == GLFW_PRESS;
     }
 
+    public static void setMouseGrabbed(boolean grabbed) {
+        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, grabbed?GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
+    }
+
     // there is not requires AWT. useful in OSX
     public static String getClipboard() {
         return glfwGetClipboardString(INSTANCE.window);
@@ -574,8 +556,8 @@ public class Outskirts {
     }
 
     // framebuffer_size = window_size * os_content_scale = (guiCoords * GUI_SCALE)==window_size * os_content_scale
-    public static float toFramebufferCoords(float guiCoords) {
-        return guiCoords * GUI_SCALE * INSTANCE.osContentScale;
+    public static int toFramebufferCoords(float guiCoords) {
+        return (int)((guiCoords * GUI_SCALE) * INSTANCE.OS_CONTENT_SCALE);
     }
 
     private void createDisplay() throws IOException {
@@ -633,7 +615,7 @@ public class Outskirts {
             FloatBuffer scaleY = stack.callocFloat(1);
             glfwGetWindowContentScale(INSTANCE.window, scaleX, scaleY);
             Validate.isTrue(scaleX.get(0) == scaleY.get(0), "Unsupported scale type: x != y");
-            osContentScale = scaleX.get(0);
+            OS_CONTENT_SCALE = scaleX.get(0);
         }
 
         // clear curr delta in frame tail
@@ -657,7 +639,7 @@ public class Outskirts {
         this.width = nWidth;
         this.height = nHeight;
 
-        glViewport(0, 0, (int)Outskirts.toFramebufferCoords(Outskirts.getWidth()), (int)Outskirts.toFramebufferCoords(Outskirts.getHeight()));
+        glViewport(0, 0, toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
     }
 
     private void onMouseMove(long w, double nX, double nY) {

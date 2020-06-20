@@ -1,15 +1,18 @@
 package outskirts.client.gui.screen.ingame;
 
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiLayoutLinear;
 import outskirts.client.gui.GuiScroll;
 import outskirts.client.gui.GuiText;
 import outskirts.util.Colors;
+import outskirts.util.vector.Vector2f;
+import outskirts.util.vector.Vector3f;
 
 public class GuiChatMessages extends Gui {
 
-    private GuiLayoutLinear listMessages = new GuiLayoutLinear().setOrientation(GuiLayoutLinear.VERTICAL).setWidth(300);
-    private GuiScroll scrollMsgs = addGui(new GuiScroll().setContentGui(listMessages)).setWidth(300).setHeight(100).setClipChildren(true);
+    private Gui listMessages = new Gui().addLayoutorLayoutLinear(Vector2f.UNIT_Y).addLayoutorWrapChildren();
+    {
+        addGui(new GuiScroll().setContentGui(listMessages)).setWidth(300).setHeight(100).setClipChildren(true);
+    }
 
 
     public void printMessage(String message) {

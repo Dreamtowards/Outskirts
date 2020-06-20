@@ -92,16 +92,16 @@ public class GuiScroll extends Gui {
         public GuiScrollHandle(int axis) {
             this.axis = axis;
 
-            addOnDraggingListener(e -> {
+            addOnDraggingListener((dx, dy) -> {
                 GuiScroll owner = getParent();
                 Gui contentGui = owner.getContentGui();
 
                 if (axis == AXIS_X) {
-                    float scrollRatioX = (float)contentGui.getWidth() / owner.getWidth();
-                    owner.getScrollOffset().x += -scrollRatioX * e.getDX();
+                    float scrollRatioX = contentGui.getWidth() / owner.getWidth();
+                    owner.getScrollOffset().x += -scrollRatioX * dx;
                 } else if (axis == AXIS_Y) {
-                    float scrollRatioY = (float)contentGui.getHeight() / owner.getHeight();
-                    owner.getScrollOffset().y += -scrollRatioY * e.getDY();
+                    float scrollRatioY = contentGui.getHeight() / owner.getHeight();
+                    owner.getScrollOffset().y += -scrollRatioY * dy;
                 }
 
                 owner.clampScrollOffset();
@@ -111,7 +111,7 @@ public class GuiScroll extends Gui {
                 GuiScroll owner = getParent();
                 Gui contentGui = owner.getContentGui();
                 if (axis == AXIS_X) {
-                    float viewPercentX = (float)owner.getWidth() / contentGui.getWidth();
+                    float viewPercentX = owner.getWidth() / contentGui.getWidth();
                     setWidth(viewPercentX >= 1 ? 0 : Maths.ceil(owner.getWidth() * viewPercentX));
                     setHeight(handleSize);
 
@@ -119,7 +119,7 @@ public class GuiScroll extends Gui {
                     setX(owner.getX() + (int)(owner.getWidth() * offsetPercentX));
                     setY(owner.getY() + owner.getHeight() - handleSize);
                 } else if (axis == AXIS_Y) {
-                    float viewPercentY = (float)owner.getHeight() / contentGui.getHeight();
+                    float viewPercentY = owner.getHeight() / contentGui.getHeight();
                     setHeight(viewPercentY >= 1 ? 0 : Maths.ceil(owner.getHeight() * viewPercentY));
                     setWidth(handleSize);
 
@@ -127,7 +127,7 @@ public class GuiScroll extends Gui {
                     setY(owner.getY() + (int)(owner.getHeight() * offsetPercentY));
                     setX(owner.getX() + owner.getWidth() - handleSize);
                 }
-                drawRect(Colors.WHITE20, getX(), getY(), getWidth(), getHeight());
+                drawRect(Colors.WHITE20, this);
             });
         }
     }

@@ -1,48 +1,44 @@
 package outskirts.client.gui;
 
 import outskirts.util.Colors;
+import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector2f;
 
+import java.awt.*;
 import java.util.function.Consumer;
 
+//PopupMenu
 public class GuiMenu extends Gui {
 
-    private Gui itemsGui = addGui(new GuiLayoutLinear().setOrientation(GuiLayoutLinear.VERTICAL));
-    private boolean standalone = true;
+    private boolean topmenu = true;
+    private long lastShowMillis;
 
     public GuiMenu() {
         hide();
-        
+
+        addLayoutorLayoutLinear(Vector2f.UNIT_Y);
+        addLayoutorWrapChildren();
+
+        // when mouse-click in outside, hide the menu.
         addMouseButtonListener(e -> {
-            if (standalone && e.getButtonState()) {
-                if (!isMouseInMenu(this)) {
-                    hide();
-                }
+            if (lastShowMillis+300 < System.currentTimeMillis() && !isMouseInMenu(this)) {  // rem topmenu
+                hide();
             }
         });
     }
 
-    public Gui getItemsGui() {
-        return itemsGui;
-    }
-
     public final void show(float x, float y) {
-        setX(x);
-        setY(y);
-        setVisible(true);
+        setX(x).setY(y).setVisible(true);
+        lastShowMillis = System.currentTimeMillis();
     }
 
     public final void hide() {
         setVisible(false);
-        forChildren(child -> {
-            if (child instanceof GuiMenu) {
-                child.setVisible(false);
-            }
-        }, true);
     }
 
     private static boolean isMouseInMenu(GuiMenu menu) {
-        for (int i = 0;i < menu.itemsGui.getChildCount();i++) {
-            GuiMenuItem item = menu.itemsGui.getChildAt(i);
+        for (int i = 0;i < menu.getChildCount();i++) {
+            GuiItem item = menu.getChildAt(i);
             if (item.isMouseOver()) {
                 return true;
             } else if (item.subMenu != null && item.subMenu.isVisible()) {
@@ -52,16 +48,26 @@ public class GuiMenu extends Gui {
         return false;
     }
 
-    public static class GuiMenuItem extends GuiText {
+    public static class GuiItem extends GuiText {
+
+        public static GuiItem button(String text) {
+            GuiItem g = new GuiItem();
+            g.setText(text);
+            return g;
+        }
 
         private GuiMenu subMenu;
 
-        public GuiMenuItem(String text) {
-            setText(text);
-            updateTextBound(this);
+        public void setSubMenu(GuiMenu subMenu) {
+            this.subMenu = subMenu;
+            subMenu.topmenu = false;
+            addGui(subMenu);
+        }
+
+        private GuiItem() {
             Consumer lsr = e -> {
                 for (int i = 0;i < getParent().getChildCount();i++) {
-                    GuiMenuItem item = getParent().getChildAt(i);
+                    GuiItem item = getParent().getChildAt(i);
                     if (item.subMenu != null) {
                         if (item.isMouseOver()) {
                             item.subMenu.setX(getX() + getWidth()).setY(getY());
@@ -75,26 +81,17 @@ public class GuiMenu extends Gui {
 
             addOnMouseExitedListener(lsr);
             addOnMouseEnteredListener(lsr);
-        }
-
-        public GuiMenuItem() {
-            this("");
 
             addOnDrawListener(e -> {
+                Gui paren = getParent();
                 if (isMouseOver()) {
-                    drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
+                    drawRect(Colors.BLACK40, getX(), getY(), paren.getWidth(), getHeight());
                 }
-                drawRect(Colors.WHITE20, getX(), getY(), getWidth(), getHeight());
+                drawRect(Colors.WHITE20, getX(), getY(), paren.getWidth(), getHeight());
                 if (subMenu != null) {
-                    drawRect(Colors.GREEN, getX() + getWidth() - 5, getY(), 5, getHeight());
+                    drawRect(Colors.GREEN, getX() + paren.getWidth() - 5, getY(), 5, getHeight());
                 }
             });
-        }
-
-        public void setSubMenu(GuiMenu subMenu) {
-            this.subMenu = subMenu;
-            subMenu.standalone = false;
-            addGui(subMenu);
         }
     }
 

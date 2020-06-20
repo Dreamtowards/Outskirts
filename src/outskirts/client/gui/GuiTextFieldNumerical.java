@@ -8,16 +8,17 @@ import java.util.function.Predicate;
 public class GuiTextFieldNumerical extends GuiTextField {
 
     private boolean isNumDragDragging;
-    private Gui guiNumDrag = addGui(new Gui()).addOnDraggingListener(e -> {
+    private Gui guiNumDrag = addGui(new Gui()).addOnDraggingListener((dx, dy) -> {
         float FACT = 0.05f;
         if (Outskirts.isCtrlKeyDown())
             FACT = 2f;
 
-        float diff = -e.getDY() * FACT;
+        float diff = -dy * FACT;
         setText(String.valueOf(getValue()+diff));
-    }).setWidth(16).addOnDraggingStateChangedListener(e -> {
-        isNumDragDragging = e.isDragging();
-    }).addOnDrawListener(e -> {
+    }, isDragging -> {
+        isNumDragDragging = isDragging;
+    }, null).setWidth(16)
+            .addOnDrawListener(e -> {
         drawRect(isNumDragDragging?Colors.WHITE40:e.gui().isMouseOver()?Colors.WHITE30:Colors.WHITE20, e.gui().getX(), e.gui().getY(), e.gui().getWidth(), e.gui().getHeight());
         drawString("↕", e.gui().getX()+4, e.gui().getY()+getHeight()/2f-10, isNumDragDragging?Colors.YELLOW:Colors.WHITE);
     });

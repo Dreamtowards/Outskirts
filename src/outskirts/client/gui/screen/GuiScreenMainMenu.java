@@ -4,7 +4,6 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiTextField;
-import outskirts.client.gui.screen.options.GuiScreenOptions;
 import outskirts.client.render.renderer.GuiRenderer;
 import outskirts.util.Colors;
 import outskirts.world.WorldClient;

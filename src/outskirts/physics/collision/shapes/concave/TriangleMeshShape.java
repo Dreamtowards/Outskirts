@@ -1,10 +1,7 @@
 package outskirts.physics.collision.shapes.concave;
 
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.ConcaveShape;
-import outskirts.util.Colors;
-import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 
 import java.util.Arrays;

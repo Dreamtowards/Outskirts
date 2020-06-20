@@ -93,6 +93,12 @@ public class Vector2f extends Vector {
         return this;
     }
 
+    public final Vector2f addScaled(float scalar, Vector2f v) {
+        this.x += scalar * v.x;
+        this.y += scalar * v.y;
+        return this;
+    }
+
     public Vector2f sub(Vector2f right) {
         return sub(right.x, right.y);
     }

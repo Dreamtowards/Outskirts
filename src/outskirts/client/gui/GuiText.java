@@ -9,6 +9,7 @@ import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector4f;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class GuiText extends Gui {
 
@@ -22,17 +23,25 @@ public class GuiText extends Gui {
 
     private Vector2f textOffset = new Vector2f();
 
-    public GuiText() {
-        // addBeforeDrawListener
+    {
         addOnDrawListener(e -> {
 
             drawString(text, getX() + textOffset.x, getY() + textOffset.y, textColor, textHeight);
         }, EventPriority.LOW); // let text always overlay
+
+        addOnTextChangedListener(e -> {
+            updateTextBound(this);
+        });
+    }
+
+    public GuiText() { }
+
+    public GuiText(String t) {
+        setText(t);
     }
 
     public final <T extends GuiText> T setText(String text) {
-        if (this.text.equals(text))
-            return (T)this;
+        if (this.text.equals(text)) return (T)this;
         if (performEvent(new TextChangeEvent(text)))
             return (T)this; // cancelled.
         this.text = text;
@@ -91,4 +100,17 @@ public class GuiText extends Gui {
         }
     }
     public static class TextChangedEvent extends GuiEvent {}
+
+
+    public void addValueSyncer(Supplier<String> getter, Consumer<String> setter) {
+        addOnTextChangedListener(e -> {
+            setter.accept(getText());
+        });
+        addOnDrawListener(e -> {
+            String s = getter.get();
+            if (!s.equals(getText())) {
+                setText(s);
+            }
+        });
+    }
 }

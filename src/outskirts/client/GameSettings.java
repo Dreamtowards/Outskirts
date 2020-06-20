@@ -7,7 +7,6 @@ import outskirts.client.gui.Gui;
 import outskirts.client.gui.screen.GuiScreenInGame;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.client.gui.screen.GuiScreenPause;
-import outskirts.client.gui.screen.tools.GuiScreenOSX;
 import outskirts.event.EventBus;
 import outskirts.util.IOUtils;
 import outskirts.util.KeyBinding;
@@ -124,6 +123,7 @@ public final class GameSettings {
     //public static float GUI_SCALE = 1f;
 //    public static final Vector2f CONTENT_SCALE = new Vector2f(); // contentscale = fb_size / window_size
 
+    // GUI_COORD_SCALE   guiCoords to windowCoords scale.
     public static float GUI_SCALE = 1f;
 
 
@@ -141,7 +141,7 @@ public final class GameSettings {
     public static final KeyBinding KEY_ESC = new KeyBinding("key.esc", GLFW_KEY_ESCAPE, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {
         if (keyState) {
             if (Outskirts.getWorld() != null) {
-                if (Outskirts.currentScreen() == Gui.EMPTY) {
+                if (Outskirts.currentScreen() == null) {
                     Outskirts.startScreen(GuiScreenPause.INSTANCE);
                 } else {
                     Outskirts.closeScreen();
@@ -162,7 +162,7 @@ public final class GameSettings {
 
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == Gui.EMPTY) {
+        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == null) {
 
 
         }
@@ -170,7 +170,7 @@ public final class GameSettings {
 
 
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == Gui.EMPTY) {
+        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == null) {
 
 
         }

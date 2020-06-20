@@ -1,11 +1,7 @@
 
 .idea/out/
+.idea/workspace.xml
 logs/
 
 *.class
 *.DS_Store
-
-*.json
-*.log
-vert.json
-vert.json

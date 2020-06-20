@@ -1,7 +1,5 @@
 package outskirts.util;
 
-import outskirts.client.Outskirts;
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.*;
 

@@ -32,7 +32,7 @@ public class GuiSlider extends GuiText {
         @Override public float getHeight() {
             return GuiSlider.this.getHeight();
         }
-    }).addOnDraggingListener(e -> {
+    }).addOnDraggingListener((dx,dy) -> {
         setValue(calculateCurrentCursorValue());
     });
 

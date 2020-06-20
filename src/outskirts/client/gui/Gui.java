@@ -29,7 +29,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Gui {
 
-    private float x; //actually is relative-x
+    private float x; //actually is relative-x   should use vector.?
     private float y;
     private float width;
     private float height;
@@ -102,6 +102,9 @@ public class Gui {
         GuiRenderer.PARAM_colorMultiply.set(color);
         Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, Texture.UNIT, x, y, width, height);
     }
+    public static void drawRect(Vector4f color, Gui g) {
+        drawRect(color, g.getX(), g.getY(), g.getWidth(), g.getHeight());
+    }
 
     public static void drawTexture(Texture texture, float x, float y, float width, float height) {
         Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height);
@@ -118,7 +121,7 @@ public class Gui {
     }
 
     /**
-     * A border inner the [x, y, width, height] size
+     * thickness > 0, inner. < 0, outer.
      */
     public static void drawRectBorder(Vector4f color, float x, float y, float width, float height, float thickness) {
 
@@ -127,6 +130,9 @@ public class Gui {
 
         drawRect(color, x, y + thickness, thickness, height - thickness - thickness); //Left
         drawRect(color, x + width - thickness, y + thickness, thickness, height - thickness - thickness); //Right
+    }
+    public static void drawRectBorder(Vector4f color, Gui g, float thickness) {
+        drawRectBorder(color, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
     }
 
 
@@ -174,11 +180,27 @@ public class Gui {
         getChildAt(index).setParent(null);
         return (T) children.remove(index);
     }
+    public final void removeGui(Gui g) {
+        removeGui(indexOfGui(g));
+    }
 
     public final void removeAllGuis() {
-        for (int i = getChildCount() - 1;i >= 0;i--) {
+        for (int i = getChildCount()-1;i >= 0;i--) {
             removeGui(i);
         }
+    }
+
+    public final int lastIndexOfGui(Gui gui) {
+        for (int i = getChildCount()-1;i >= 0;i--) {
+            if (getChildAt(i).equals(gui)) return i;
+        }
+        return -1;
+    }
+    public final int indexOfGui(Gui gui) {
+        for (int i = 0;i < getChildCount();i++) {
+            if (getChildAt(i).equals(gui)) return i;
+        }
+        return -1;
     }
 
     public final <T extends Gui> T getParent() {
@@ -350,6 +372,10 @@ public class Gui {
         forChildren(visitor, false);
     }
 
+    public final List<Gui> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
     //should this..?
     public static void toggleVisible(Gui gui) {
         gui.setVisible(!gui.isVisible());
@@ -517,13 +543,49 @@ public class Gui {
         attachListener(OnDrawEvent.class, listener); return (T)this;
     }
 
-    public final <T extends Gui> T addLayoutorPercent(float xt, float yt) {
+    // AlignParentLTRB
+    public final <T extends Gui> T addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
         return addOnLayoutListener(e -> {
-            setX((getParent().getWidth()-getWidth())*xt);
-            setY((getParent().getHeight()-getHeight())*yt);
+            if (!Float.isNaN(left)) setRelativeX(left);
+            if (!Float.isNaN(top)) setRelativeY(top);
+
+            if (!Float.isNaN(right)) {
+                if (!Float.isNaN(left)) setWidth(getParent().getWidth() - (right+left));
+                else setRelativeX(getParent().getWidth() - (right+getWidth()));
+            }
+            if (!Float.isNaN(bottom)) {
+                if (!Float.isNaN(top)) setHeight(getParent().getHeight() - (top+bottom));
+                else setRelativeY(getParent().getHeight() - (bottom+getHeight()));
+            }
         });
     }
-
+    public final <T extends Gui> T addLayoutorAlignParentRR(float rrx, float rry) { // RestRatio. 0:left, 0.5f:mid, 1:right
+        return addOnLayoutListener(e -> {
+            setRelativeX((getParent().getWidth()-getWidth())*rrx);
+            setRelativeY((getParent().getHeight()-getHeight())*rry);
+        });
+    }
+    public final <T extends Gui> T addLayoutorLayoutLinear(Vector2f dir) {
+        return addOnLayoutListener(e -> {
+            float rx=0, ry=0;
+            for (int i = 0;i < getChildCount();i++) {
+                Gui gui = getChildAt(i);
+                gui.setRelativeX(rx).setRelativeY(ry);
+                rx += dir.x * gui.getWidth();
+                ry += dir.y * gui.getHeight();
+            }
+        });
+    }
+    public final <T extends Gui> T addLayoutorWrapChildren() {
+        return addOnLayoutListener(e -> {
+            float mxWid=0, mxHei=0;
+            for (Gui g : getChildren()) {
+                mxWid = Math.max(mxWid, g.getWidth());
+                mxHei = Math.max(mxHei, g.getHeight());
+            }
+            setWidth(mxWid).setHeight(mxHei);
+        });
+    }
     /**
      * A module tool for Mouse-Dragging
      * onDragging() when MouseOver-pressed AND moving until release pressing
@@ -534,13 +596,30 @@ public class Gui {
      * cause f mouse move too fast, the tricking will be lose,
      * and this way f mouse out gui border, mouse will not be tricking continue
      */
-    public final <T extends Gui> T addOnDraggingListener(Consumer<OnDraggingEvent> listener) {
-        checkTrigger_OnDragging();
-        attachListener(OnDraggingEvent.class, listener); return (T)this;
+    public final <T extends Gui> T addOnDraggingListener(BiConsumer<Float, Float> ondragging, Consumer<Boolean> ondragstatechanged, Predicate<MouseButtonEvent> predictCanDrag) {
+//        checkTrigger_OnDragging();
+//        attachListener(OnDraggingEvent.class, listener);
+        boolean[] dragging = {false};
+        addMouseButtonListener(e -> {
+            if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                if (e.getButtonState() && isMouseOver() && (predictCanDrag==null || predictCanDrag.test(e))) {
+                    dragging[0] = true;
+                    if (ondragstatechanged!=null)ondragstatechanged.accept(true);
+                } else if (dragging[0] && !e.getButtonState()) {
+                    dragging[0] = false;
+                    if (ondragstatechanged!=null)ondragstatechanged.accept(false);
+                }
+            }
+        });
+        addMouseMoveListener(e -> {
+            if (dragging[0]) {
+                ondragging.accept(Outskirts.getMouseDX(), Outskirts.getMouseDY());  // todo had not ext.test yet
+            }
+        });
+        return (T)this;
     }
-    public final <T extends Gui> T addOnDraggingStateChangedListener(Consumer<OnDraggingStateChangedEvent> lsr) {
-        checkTrigger_OnDragging();
-        attachListener(OnDraggingStateChangedEvent.class, lsr); return (T)this;
+    public final <T extends Gui> T addOnDraggingListener(BiConsumer<Float, Float> ondragging) {
+        return addOnDraggingListener(ondragging, null, null);
     }
 
     protected static class MouseExitedEvent extends GuiEvent { }
@@ -596,7 +675,7 @@ public class Gui {
                     dragging[0] = true;
                     performEvent(new OnDraggingStateChangedEvent(true));
                 }
-                if (!e.getButtonState()) {
+                if (dragging[0] && !e.getButtonState()) {
                     dragging[0] = false;
                     performEvent(new OnDraggingStateChangedEvent(false));
                 }

@@ -1,13 +1,9 @@
 package ext;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import org.json.JSONObject;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.screen.tools.GuiScreen3DVertices;
+import outskirts.client.gui.debug.GuiScreen3DVertices;
 import outskirts.event.EventHandler;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.*;
@@ -15,18 +11,12 @@ import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
-import static java.lang.Math.floor;
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -60,7 +50,6 @@ public class Test {
 //        LOGGER.info(Vector3f.dot(ABCNorm, C));
 
 
-        LOGGER.info("smTXT");
     }
 
 

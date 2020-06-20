@@ -2,11 +2,6 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.screen.options.GuiScreenOptions;
-import outskirts.util.Colors;
-import outskirts.util.Maths;
-import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 public class GuiScreenPause extends GuiScreen {
