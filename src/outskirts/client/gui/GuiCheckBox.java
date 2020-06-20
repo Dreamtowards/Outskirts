@@ -14,11 +14,7 @@ public class GuiCheckBox extends GuiText {
 
     private boolean checked = false;
 
-    public GuiCheckBox(String text) {
-        this();setText(text);
-    }
-
-    public GuiCheckBox() {
+    {
         setWidth(250);
         setHeight(40);
 
@@ -44,6 +40,10 @@ public class GuiCheckBox extends GuiText {
             int INNR_SIZE = OUTR_SIZE-2*OUTR_THIN-2*INNR_BORDER;
             drawRect(isChecked()?Colors.GREEN:isMouseOver()?Colors.WHITE05: Vector4f.ZERO, iconX+OUTR_THIN+INNR_BORDER, iconY+OUTR_THIN+INNR_BORDER, INNR_SIZE, INNR_SIZE);
         });
+    }
+
+    public GuiCheckBox(String text) {
+        super(text);
     }
 
     public boolean isChecked() {

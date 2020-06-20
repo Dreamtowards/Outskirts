@@ -6,18 +6,19 @@ import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.GuiMenu;
 import outskirts.client.gui.GuiMenubar;
-import outskirts.client.gui.debug.GuiDebugTextInfos;
-import outskirts.client.gui.debug.GuiMemoryLog;
-import outskirts.client.gui.debug.GuiProfilerVisual;
+import outskirts.client.gui.GuiTextField;
+import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
-import outskirts.client.gui.debug.GuiScreen3DVertices;
 import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
+import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityGeoShape;
+import outskirts.entity.EntityMaterialDisplay;
+import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
@@ -129,17 +130,30 @@ public class Outskirts {
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        getRootGUI().addGui(GuiScreenInGame.INSTANCE);// GuiScreenInGame should split out as multi gui which in them.
+        getRootGUI().addGui(GuiDebugCommon.INSTANCE);
+        getRootGUI().addGui(GuiDebugPhys.INSTANCE);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
         GuiMenubar menubar = getRootGUI().addGui(new GuiMenubar());
         menubar.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
         {
-            GuiMenu menu = menubar.addMenu("DebugV", new GuiMenu());
-            menu.addGui(GuiMenu.GuiItem.button("Infos display")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugTextInfos())));
-            menu.addGui(GuiMenu.GuiItem.button("Memlog window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiMemoryLog())));
-            menu.addGui(GuiMenu.GuiItem.button("Profile window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiProfilerVisual())));
-            menu.addGui(GuiMenu.GuiItem.button("3DVertices window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(GuiScreen3DVertices._TMP_DEF_INST)));
+            GuiMenu mDebug = menubar.addMenu("DebugV", new GuiMenu());
+            mDebug.addGui(GuiMenu.GuiItem.button("Infos display")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugTextInfos())));
+            mDebug.addGui(GuiMenu.GuiItem.button("Memlog window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiMemoryLog())));
+            mDebug.addGui(GuiMenu.GuiItem.button("Profile window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiProfilerVisual())));
+            mDebug.addGui(GuiMenu.GuiItem.button("3DVertices window")).addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(GuiScreen3DVertices._TMP_DEF_INST)));
+            mDebug.addGui(GuiMenu.GuiItem.divider());
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Cam Basis", false, c -> GuiDebugCommon.INSTANCE.showCambasis =c));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", false, c -> GuiDebugCommon.INSTANCE.showLightMarks =c));
+            mDebug.addGui(GuiMenu.GuiItem.divider());
+            mDebug.addGui(GuiMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
+
+            GuiMenu mPhys = menubar.addMenu("Phys", new GuiMenu());
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("BoundingBox", false, c -> GuiDebugPhys.INSTANCE.showBoundingBox=c));
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("Velocities", false, c -> GuiDebugPhys.INSTANCE.showVelocities=c));
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("ContactPoints", false, c -> GuiDebugPhys.INSTANCE.showContactPoints=c));
+            mPhys.addGui(GuiMenu.GuiItem.divider());
+            mPhys.addGui(GuiMenu.GuiItem.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
         }
 
 
@@ -184,7 +198,9 @@ public class Outskirts {
 
         profiler.push("gui");
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
         rootGUI.onDraw();
+        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         profiler.pop("gui");
         profiler.pop("render");
@@ -194,16 +210,6 @@ public class Outskirts {
         this.updateDisplay();
         profiler.pop("updateDisplay");
     }
-
-    /**
-     * the "On-Floor-Items non stand stable" bug.
-     * appear when:
-     * if (manifold instanceof [Item, Floor(invMass~=0)] (i.e Manifold Item-as-bodyA, Floor-as-bodyB) ) {   // wait.. mass? or "area"..??
-     *     if ( x &&(also a little ||) y < 0 )
-     *         bug appear.
-     * }
-     *
-     */
 
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
@@ -221,41 +227,6 @@ public class Outskirts {
                 .setShininess(18).setSpecularStrength(0.1f)
                 .setModel(Models.GEO_CUBE);
 
-
-//        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-//            if (e.getKeyState() && e.getKey() == GLFW_KEY_B) {
-//                setPauseWorld(0.5f);
-
-                GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
-
-//                Random rand = new Random();
-//                Vector3f[] vertices = new Vector3f[60];
-//                for (int i = 0;i < vertices.length;i++) {
-//                    vertices[i] = new Vector3f(rand.nextFloat()*200, rand.nextFloat()*250, rand.nextFloat()*200);
-//
-//                    GuiScreen3DVertices.addVert("", vertices[i], Colors.WHITE);
-//                }
-
-//                Model model = Loader.loadOBJ(new Identifier("materials/nonbox.obj").getInputStream(), dat -> {
-//                    Set<Vector3f> set = new HashSet<>();
-//                    for (int idx : dat.indices) {
-//                        Vector3f v = new Vector3f(
-//                                dat.positions[idx*3],
-//                                dat.positions[idx*3+1],
-//                                dat.positions[idx*3+2]
-//                        );
-//                        set.add(v);
-//                        GuiScreen3DVertices.addVert("", v, Colors.WHITE);
-//                    }
-//                    Set<Vector3f> hull = new QuickHull().quickHull(set.toArray(new Vector3f[0]));
-//                    getPlayer().getRigidBody().setCollisionShape(new PolygonConvexShape(hull));
-//                });
-//                getPlayer().getMaterial().setModel(model);
-//            }
-//            if (e.getKeyState() && e.getKey() == GLFW_KEY_K)
-//                QuickHull.canContinue = true;
-//        });
-
 //        if (true)return;
 
         for (int i = 0;i < 4;i++) {
@@ -266,8 +237,8 @@ public class Outskirts {
                     INSTANCE.world.addEntity(entity);
                     RigidBody body = entity.getRigidBody();
                     body.getGravity().set(0, -20f, 0);
-                    body.transform().origin.set(i*4, 50+ k*4, j*4);
-                    body.setMass(20);
+                    body.transform().origin.set(i*4, 2+ k*4, j*4);
+                    body.setMass(20).setRestitution(0);
                     RigidBody.updateShapeInertia(body);
                     entity.getMaterial()
                             .setDiffuseMap(Textures.FRONT)
@@ -291,23 +262,23 @@ public class Outskirts {
 //                .setDiffuseMap(Loader.loadTexture(new Identifier("materials/tree1/bark_0021.jpg").getInputStream()));
 //        RigidBody.updateShapeInertia(entityNsuit.getRigidBody());
 //
-//
-//        EntityMaterialDisplay entityNorm = new EntityMaterialDisplay();
-//        INSTANCE.world.addEntity(entityNorm);
-//        entityNorm.tmp_boxSphere_scale.scale(6);
-//        entityNorm.getRigidBody().setCollisionShape(new ShapeBox(entityNorm.tmp_boxSphere_scale));
-//        entityNorm.getRigidBody().setMass(0);
-//        entityNorm.getRigidBody().getGravity().set(0, 0, 0);
-//        entityNorm.getRigidBody().transform().origin.set(0, 40, 0);
-//        entityNorm.getRigidBody().setRestitution(0.5f);
-//        entityNorm.getMaterial()
-//                .setModel(Models.GEO_CUBE)
-//                .setDiffuseMap(Loader.loadTexture(new Identifier("materials/brickwall.png").getInputStream()))
-//                .setNormalMap(Loader.loadTexture(new Identifier("materials/brickwall_normal.png").getInputStream()))
-//                .setNormalMap(Loader.loadTexture(new Identifier("materials/bricks2_normal.png").getInputStream()))
-//                .setDisplacementMap(Loader.loadTexture(new Identifier("materials/bricks2_disp.png").getInputStream()))
-//                .setShininess(35);
-//        RigidBody.updateShapeInertia(entityNorm.getRigidBody());
+
+        EntityMaterialDisplay entityNorm = new EntityMaterialDisplay();
+        INSTANCE.world.addEntity(entityNorm);
+        entityNorm.tmp_boxSphere_scale.scale(6);
+        entityNorm.getRigidBody().setCollisionShape(new BoxShape(entityNorm.tmp_boxSphere_scale));
+        entityNorm.getRigidBody().setMass(0);
+        entityNorm.getRigidBody().getGravity().set(0, 0, 0);
+        entityNorm.getRigidBody().transform().origin.set(0, 40, 0);
+        entityNorm.getRigidBody().setRestitution(0.5f);
+        entityNorm.getMaterial()
+                .setModel(Loader.loadOBJ(new Identifier("materials/geo/cube2.obj").getInputStream()))
+                .setDiffuseMap(Loader.loadTexture(new Identifier("materials/bricks2.png").getInputStream()))
+                .setNormalMap(Loader.loadTexture(new Identifier("materials/bricks2_norm.png").getInputStream()))
+                .setDiffuseMap(Textures.FRONT)
+                .setDisplacementMap(Loader.loadTexture(new Identifier("materials/bricks2_disp.png").getInputStream()))
+                .setShininess(35);
+        RigidBody.updateShapeInertia(entityNorm.getRigidBody());
 
 
         EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
@@ -325,7 +296,6 @@ public class Outskirts {
                 .setSpecularStrength(0.1f).setShininess(20);
 
         Vector3f[] v = new Vector3f[]{new Vector3f(0,0,-1), new Vector3f(-1,0,1), new Vector3f(1,0,1)};
-
         Model model = Loader.loadModelWithTangent(new int[]{0,1,2},new float[]{v[0].x,v[0].y,v[0].z,v[1].x,v[1].y,v[1].z,v[2].x,v[2].y,v[2].z},new float[]{0,0,0.5f,1,1,0},new float[]{0,1,0,0,1,0,0,1,0});
 
 //        getPlayer().getMaterial().setModel(model); //Loader.loadOBJ(new Identifier("materials/_capsule.obj").getInputStream())
@@ -336,7 +306,7 @@ public class Outskirts {
         getPlayer().getRigidBody().setCollisionShape(new SphereShape(3));
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(3);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
-//        getPlayer().getRigidBody().transform().origin.set(0,50,50);
+        getPlayer().getRigidBody().transform().origin.set(0,50,50);
         getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
@@ -349,26 +319,27 @@ public class Outskirts {
                 if (e.getKey() == GLFW_KEY_C)
                     GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
+                    lightSun.getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(0, 1000, 0);
 //                CollisionAlgorithm ca = new CollisionAlgorithmConvexConvex();
 //                ca.detectCollision(bodyA.getRigidBody(), getPlayer().getRigidBody(), new CollisionManifold(bodyA.getRigidBody(), getPlayer().getRigidBody()));
 
-                    new Thread(() -> {
-                        GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
-
-                        Gjk gjk = new Gjk();
-
-                        List<Gjk.SupportPoint> slx = gjk.detectCollision(eFloor.getRigidBody(), getPlayer().getRigidBody());
-
-                        if (slx != null) {
-                            GuiScreen3DVertices.addTri("ABC", slx.get(0).point, slx.get(1).point, slx.get(2).point, Colors.YELLOW, null);
-                            GuiScreen3DVertices.addTri("ABD", slx.get(0).point, slx.get(1).point, slx.get(3).point, Colors.YELLOW, null);
-                            GuiScreen3DVertices.addTri("BCD", slx.get(1).point, slx.get(2).point, slx.get(3).point, Colors.YELLOW, null);
-                            GuiScreen3DVertices.addTri("CAD", slx.get(2).point, slx.get(0).point, slx.get(3).point, Colors.YELLOW, null);
-                        }
-
-                        LOGGER.info("simplex: {}", slx);
-                    }).start();
+//                    new Thread(() -> {
+//                        GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
+//
+//                        Gjk gjk = new Gjk();
+//
+//                        List<Gjk.SupportPoint> slx = gjk.detectCollision(eFloor.getRigidBody(), getPlayer().getRigidBody());
+//
+//                        if (slx != null) {
+//                            GuiScreen3DVertices.addTri("ABC", slx.get(0).point, slx.get(1).point, slx.get(2).point, Colors.YELLOW, null);
+//                            GuiScreen3DVertices.addTri("ABD", slx.get(0).point, slx.get(1).point, slx.get(3).point, Colors.YELLOW, null);
+//                            GuiScreen3DVertices.addTri("BCD", slx.get(1).point, slx.get(2).point, slx.get(3).point, Colors.YELLOW, null);
+//                            GuiScreen3DVertices.addTri("CAD", slx.get(2).point, slx.get(0).point, slx.get(3).point, Colors.YELLOW, null);
+//                        }
+//
+//                        LOGGER.info("simplex: {}", slx);
+//                    }).start();
                 }
                 if (e.getKey() == GLFW_KEY_1) {
                     getCamera().getPosition().set(0, 0, 10);
@@ -399,6 +370,7 @@ public class Outskirts {
         });
     }
     public static void setPauseWorld(float speed) {
+        if (getWorld()==null)return;
 //        if (speed == 0) speed = 0.000001f;
         getCamera().getCameraUpdater().setOwnerEntity(speed==1.0f ? getPlayer() : null);
         getWorld().tmpTickFactor = speed;

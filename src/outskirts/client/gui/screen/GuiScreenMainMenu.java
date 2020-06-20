@@ -21,9 +21,10 @@ public class GuiScreenMainMenu extends GuiScreen {
             int baseLineX = (int)(Outskirts.getWidth() * 0.08f);
             int startY = (int)(Outskirts.getHeight() * 0.45f);
 
-            GuiRenderer.PARAM_roundradius = 2;
-            Gui.drawRect(Colors.BLACK, baseLineX-45, 10, 100, 100);
-            tbTitle.setX(baseLineX).setY(64);
+//            GuiRenderer.PARAM_roundradius = 2;
+//            Gui.drawRect(Colors.BLACK, baseLineX-45, 10, 100, 100);
+//            tbTitle.setX(baseLineX).setY(64);
+            tbTitle.setVisible(false);
 
             btnMultiplayer.setX(baseLineX).setY(startY+=60);
             btnOptions.setX(baseLineX).setY(startY+=60);

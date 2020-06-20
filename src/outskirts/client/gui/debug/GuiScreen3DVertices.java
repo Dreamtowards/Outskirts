@@ -93,7 +93,7 @@ public class GuiScreen3DVertices extends GuiScreen {
     private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider())
             .setUserMinMaxValue(0, 200)
             .addValueChangedListener(e -> {
-                e.<GuiSlider>gui().setText("DisplayNum: "+e.<GuiSlider>gui().getCurrentUserValue());
+                e.<GuiSlider>gui().setText("DisplayNum: "+(int)e.<GuiSlider>gui().getCurrentUserValue());
             }).setValue(1f);
 
     public static Vert addVert(String name, Vector3f position, Vector4f color) {

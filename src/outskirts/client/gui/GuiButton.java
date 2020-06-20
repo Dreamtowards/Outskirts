@@ -13,20 +13,13 @@ public class GuiButton extends GuiText {
 
     private static AudioSource BUTTON_AUDIO = AudioSource.allocSource();
 
-    static Texture TEXTURE_BUTTON_NORMAL = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_normal.png").getInputStream());
+    public static Texture TEXTURE_BUTTON_NORMAL = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_normal.png").getInputStream());
     static Texture TEXTURE_BUTTON_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_hover.png").getInputStream());
     static Texture TEXTURE_BUTTON_DISABLE = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_disable.png").getInputStream());
 
-    // tmp tool constructor
-    public GuiButton(String text) {
-        this();
-        setText(text);
-        updateTextToCenter(this);
-    }
-
-    public GuiButton() {
-        setWidth(250);
-        setHeight(40);
+    {
+        setWidth(100); //250
+        setHeight(16); //40
 
         addOnClickListener(e -> {
             playClickSound();
@@ -53,6 +46,12 @@ public class GuiButton extends GuiText {
         });
     }
 
+    // tmp tool constructor
+    public GuiButton(String text) {
+        super(text);
+        updateTextToCenter(this);
+    }
+
     public static void playClickSound() {
         BUTTON_AUDIO.stop();
         BUTTON_AUDIO.unqueueAllBuffers();
@@ -60,7 +59,7 @@ public class GuiButton extends GuiText {
         BUTTON_AUDIO.play();
     }
 
-    static void drawButtonTexture(Texture texture, float x, float y, float width, float height) {
+    public static void drawButtonTexture(Texture texture, float x, float y, float width, float height) {
         float halfWidth = width/2;
 
         float halfTexWidth = halfWidth * texture.getHeight()/height / texture.getWidth(); // todo how? why..?

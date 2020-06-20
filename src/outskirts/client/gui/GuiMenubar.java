@@ -12,6 +12,7 @@ public class GuiMenubar extends Gui {
     {
         setHeight(GuiText.DEFAULT_TEXT_HEIGHT);
 
+        addGui(new Gui()).setWidth(12); // just take a width.
         addLayoutorLayoutLinear(Vector2f.UNIT_X);
 
         addOnDrawListener(e -> {
@@ -21,7 +22,7 @@ public class GuiMenubar extends Gui {
 
     public GuiMenu addMenu(String name, GuiMenu menu) {
 
-        Gui btn = addGui(new GuiText().setText(name));
+        Gui btn = addGui(new GuiText("  "+name+"  "));
         btn.addOnClickListener(e -> {
             if (!menu.isVisible()) {
                 menu.show(btn.getX(), btn.getY() + btn.getHeight());

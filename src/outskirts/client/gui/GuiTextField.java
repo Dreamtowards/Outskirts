@@ -27,7 +27,7 @@ public class GuiTextField extends GuiText {
         }
     }).setWidth(3);
 
-    public GuiTextField() {
+    {
         setWidth(120);
         setHeight(16);
 
@@ -122,6 +122,12 @@ public class GuiTextField extends GuiText {
                 drawRect(Colors.WHITE20, getX() + getTextOffset().x + pos.x, getY() + getTextOffset().y + pos.y, charWidth + FontRenderer.GAP_CHAR, getTextHeight());
             }
         });
+    }
+
+    public GuiTextField() {}
+
+    public GuiTextField(String s) {
+        setText(s);
     }
 
     private int calculateCurrentCursorPosition() {

@@ -2,7 +2,9 @@ package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiText;
+import outskirts.init.Textures;
 import outskirts.util.Colors;
 
 /**
@@ -30,6 +32,7 @@ public class GuiWindow extends Gui {
             });
             wHandler.addOnDrawListener(e -> {
                 drawRect(Colors.WHITE, wHandler);
+//                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), wHandler.getHeight());
                 drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY(), Colors.BLACK, 16, true, false);
             });
             {

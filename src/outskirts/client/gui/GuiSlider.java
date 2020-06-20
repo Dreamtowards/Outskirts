@@ -27,7 +27,7 @@ public class GuiSlider extends GuiText {
             return GuiSlider.this.getY();
         }
         @Override public float getWidth() {
-            return 20;
+            return 10;
         }
         @Override public float getHeight() {
             return GuiSlider.this.getHeight();
@@ -36,11 +36,10 @@ public class GuiSlider extends GuiText {
         setValue(calculateCurrentCursorValue());
     });
 
-    public GuiSlider(String text) {this(); setText(text);}
-
-    public GuiSlider() {
-        setWidth(250);
-        setHeight(40);
+    {
+        setWidth(100);
+        setHeight(16);
+        getTextColor().set(Colors.GRAY);
 
         addOnClickListener(e -> {
             GuiButton.playClickSound();
@@ -49,9 +48,10 @@ public class GuiSlider extends GuiText {
         addOnDrawListener(e -> {
             getTextColor().set(isMouseOver() ? Colors.YELLOW : Colors.WHITE);
 
-            GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_DISABLE, getX(), getY(), getWidth(), getHeight());
-            if (isMouseOver())
-                drawRect(Colors.WHITE05, getX(), getY(), getWidth(), getHeight());
+//            GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_DISABLE, getX(), getY(), getWidth(), getHeight());
+            drawRect(isMouseOver()?Colors.GRAY:Colors.BLACK, getX(), getY()+7, getWidth(), 2);
+//            if (isMouseOver())
+//                drawRect(Colors.WHITE05, getX(), getY(), getWidth(), getHeight());
 
             // draw dragGui
             GuiButton.drawButtonTexture(dragGui.isMouseOver()?GuiButton.TEXTURE_BUTTON_HOVER:GuiButton.TEXTURE_BUTTON_NORMAL,
@@ -60,6 +60,12 @@ public class GuiSlider extends GuiText {
         addOnTextChangedListener(e -> {
             updateTextToCenter(this);
         });
+    }
+
+    public GuiSlider() {}
+
+    public GuiSlider(String text) {
+        super(text);
     }
 
     private float calculateCurrentCursorValue() {

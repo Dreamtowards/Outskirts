@@ -29,15 +29,13 @@ public class GuiText extends Gui {
             drawString(text, getX() + textOffset.x, getY() + textOffset.y, textColor, textHeight);
         }, EventPriority.LOW); // let text always overlay
 
-        addOnTextChangedListener(e -> {
-            updateTextBound(this);
-        });
     }
 
     public GuiText() { }
 
     public GuiText(String t) {
         setText(t);
+        updateTextBound(this);
     }
 
     public final <T extends GuiText> T setText(String text) {

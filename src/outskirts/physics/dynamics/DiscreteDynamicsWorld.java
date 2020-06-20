@@ -9,6 +9,7 @@ import outskirts.physics.dynamics.constraint.constraintsolver.SequentialImpulseC
 import outskirts.util.Transform;
 import outskirts.util.vector.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class DiscreteDynamicsWorld extends CollisionWorld {
 
     protected ConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
 
-    private List<CollisionManifold> collisionManifolds;
+    private List<CollisionManifold> collisionManifolds = new ArrayList<>();
 
     public DiscreteDynamicsWorld() { }
 

@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.screen.GuiScreenInGame;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.client.gui.screen.GuiScreenPause;
 import outskirts.event.EventBus;
@@ -156,7 +155,7 @@ public final class GameSettings {
 
     public static final KeyBinding KEY_GUI_DEBUG = new KeyBinding("key.debug", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {
         if (keyState) {
-            Gui.toggleVisible(GuiScreenInGame.INSTANCE.getGuiScreenDebug());
+//            Gui.toggleVisible(GuiScreenInGame.INSTANCE.getGuiScreenDebug());
         }
     });
 

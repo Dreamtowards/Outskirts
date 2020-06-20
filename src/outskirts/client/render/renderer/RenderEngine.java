@@ -58,9 +58,9 @@ public final class RenderEngine {
 
         shadowRenderer.renderDepthMap(world.getEntities());
 
-        glDisable(GL_CULL_FACE);
+//        glDisable(GL_CULL_FACE);
         entityRenderer.render(world.getEntities(), world.lights);
-        glEnable(GL_CULL_FACE);
+//        glEnable(GL_CULL_FACE);
 
         terrainRenderer.render(world.getTerrains());
 

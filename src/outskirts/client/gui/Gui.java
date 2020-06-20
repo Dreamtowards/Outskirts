@@ -2,7 +2,6 @@ package outskirts.client.gui;
 
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.screen.GuiScreenDebug;
 import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.GuiRenderer;
 import outskirts.event.Cancellable;
@@ -126,10 +125,10 @@ public class Gui {
     public static void drawRectBorder(Vector4f color, float x, float y, float width, float height, float thickness) {
 
         drawRect(color, x, y, width, thickness); //Top
-        drawRect(color, x, y + height - thickness, width, thickness); //Bottom
+        drawRect(color, x, y + height-thickness, width, thickness); //Bottom
 
-        drawRect(color, x, y + thickness, thickness, height - thickness - thickness); //Left
-        drawRect(color, x + width - thickness, y + thickness, thickness, height - thickness - thickness); //Right
+        drawRect(color, x, y + thickness, thickness, height-thickness-thickness); //Left
+        drawRect(color, x + width - thickness, y+thickness, thickness, height-thickness-thickness); //Right
     }
     public static void drawRectBorder(Vector4f color, Gui g, float thickness) {
         drawRectBorder(color, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
@@ -568,23 +567,32 @@ public class Gui {
     public final <T extends Gui> T addLayoutorLayoutLinear(Vector2f dir) {
         return addOnLayoutListener(e -> {
             float rx=0, ry=0;
-            for (int i = 0;i < getChildCount();i++) {
-                Gui gui = getChildAt(i);
-                gui.setRelativeX(rx).setRelativeY(ry);
-                rx += dir.x * gui.getWidth();
-                ry += dir.y * gui.getHeight();
+            for (Gui g : getChildren()) {
+                g.setRelativeX(rx).setRelativeY(ry);
+                rx += dir.x * g.getWidth();
+                ry += dir.y * g.getHeight();
             }
         });
     }
-    public final <T extends Gui> T addLayoutorWrapChildren() {
+    public final <T extends Gui> T addLayoutorWrapChildren(float pleft, float ptop, float pright, float pbottom) {
         return addOnLayoutListener(e -> {
-            float mxWid=0, mxHei=0;
+
+            float mxRelRight=0, mxRelBottom=0, mnRelX=Float.MAX_VALUE, mnRelY=Float.MAX_VALUE;
             for (Gui g : getChildren()) {
-                mxWid = Math.max(mxWid, g.getWidth());
-                mxHei = Math.max(mxHei, g.getHeight());
+                mxRelRight = Math.max(mxRelRight, g.getRelativeX()+g.getWidth());
+                mxRelBottom = Math.max(mxRelBottom, g.getRelativeY()+g.getHeight());
+                mnRelX = Math.min(mnRelX, g.getRelativeX());
+                mnRelY = Math.min(mnRelY, g.getRelativeY());
             }
-            setWidth(mxWid).setHeight(mxHei);
+            for (Gui g : getChildren()) {
+                g.setRelativeX(g.getRelativeX()-mnRelX+pleft);
+                g.setRelativeY(g.getRelativeY()-mnRelY+ptop);
+            }
+            setWidth(mxRelRight-mnRelX+pleft+pright).setHeight(mxRelBottom-mnRelY+ptop+pbottom);
         });
+    }
+    public final <T extends Gui> T addLayoutorWrapChildren() {
+        return addLayoutorWrapChildren(0,0,0,0);
     }
     /**
      * A module tool for Mouse-Dragging
