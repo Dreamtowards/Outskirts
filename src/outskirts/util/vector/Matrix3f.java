@@ -123,6 +123,7 @@ public class Matrix3f extends Matrix {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) return true;
         if (obj instanceof Matrix3f) {
             Matrix3f other = (Matrix3f) obj;
             return  other.m00 == this.m00 && other.m01 == this.m01 && other.m02 == this.m02 &&

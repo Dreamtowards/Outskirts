@@ -61,6 +61,7 @@ public class GuiMenu extends Gui {
 
         public static GuiItem bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
             boolean[] checked = {ck};
+            if (ck)onSwitch.accept(true);
             return new GuiItem(text).addOnClickListener(e -> {
                 checked[0] = !checked[0];
                 onSwitch.accept(checked[0]);
@@ -108,12 +109,12 @@ public class GuiMenu extends Gui {
 
         private GuiItem(String s) {
             super(s);
-            addOnClickListener(e -> {  // when item clicked, dismiss all sup-menu
-                Gui gui = this;
-                while ((gui=gui.getParent())!=Gui.EMPTY) {
-                    if (gui instanceof GuiMenu) ((GuiMenu)gui).hide();
-                }
-            });
+//            addOnClickListener(e -> {  // when item clicked, dismiss all sup-menu
+//                Gui gui = this;
+//                while ((gui=gui.getParent())!=Gui.EMPTY) {
+//                    if (gui instanceof GuiMenu) ((GuiMenu)gui).hide();
+//                }
+//            });
 //            Consumer lsr = e -> {
 //                for (int i = 0;i < getParent().getChildCount();i++) {
 //                    Gui item = getParent().getChildAt(i);

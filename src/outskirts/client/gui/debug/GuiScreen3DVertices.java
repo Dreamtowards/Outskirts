@@ -26,13 +26,6 @@ public class GuiScreen3DVertices extends GuiScreen {
 
     public static GuiScreen3DVertices _TMP_DEF_INST = new GuiScreen3DVertices();
 
-    {
-        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_V)
-                toggleVisible(this);
-        });
-    }
-
     public static class Vert {
         public String name = "";
         public Vector3f position = new Vector3f();
@@ -168,7 +161,7 @@ public class GuiScreen3DVertices extends GuiScreen {
 
         addOnDrawListener(e -> {
 
-            drawString("vts: "+vertices.size(), 0, 100, Colors.WHITE);
+            drawString("vts: "+vertices.size(), getX(), getY()+100, Colors.WHITE);
 
             // draw vertices
             int i = 0;

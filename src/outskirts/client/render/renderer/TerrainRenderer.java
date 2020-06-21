@@ -28,8 +28,8 @@ public class TerrainRenderer extends Renderer {
 
     @EventHandler
     private void onTerrainLoaded(TerrainLoadedEvent event) {
-//        event.getTerrain()._update_model();
-//        event.getTerrain()._update_texture();
+        event.getTerrain()._update_model(); // may dup call
+        event.getTerrain()._update_texture();
     }
 
     @EventHandler

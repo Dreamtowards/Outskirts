@@ -30,9 +30,7 @@ public abstract class CollisionShape {
         getAABB(dest);
         if (transform.equals(Transform.IDENTITY))
             return dest;
-        if (this instanceof ConcaveShape)
-            throw new IllegalArgumentException("Concave is not supports Transforms."); // may shouldn't validate in there..
-        if (this instanceof SphereShape)
+        if (this instanceof ConcaveShape || this instanceof SphereShape)
             return dest.translate(transform.origin);
 
         // apply rotation

@@ -7,22 +7,23 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * ConcaveShape is Static-Shape. no Transform. Offset/Rotation.
+ * ConcaveShape
  *
- * all triangles data, are worldspace coordinates. not localspace.
+ * all triangles data, localspace.
  *
- * // may Concave should had a offset/position.? (far terrain vertex coordinate...
+ * ConcaveShape dosen't supports Rotations.
  */
 public abstract class ConcaveShape extends CollisionShape {
 
     /**
+     * for each Triangles in the AABB.
      * @param onProcessTriangle (triangle3vts: vec3[] , triangleIndex: int)
-     * @param aabb worldspace.?
+     * @param aabb in Concave-Space. in concave-localspace aabb.
      */
     public abstract void processAllTriangles(BiConsumer<Vector3f[], Integer> onProcessTriangle, AABB aabb);
 
     @Override
     public final Vector3f calculateLocalInertia(float mass, Vector3f dest) {
-         throw new UnsupportedOperationException();  // return dest.set(0, 0, 0);
+         return dest.set(0, 0, 0);  // throw new UnsupportedOperationException();
     }
 }

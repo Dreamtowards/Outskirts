@@ -19,7 +19,7 @@ public class GuiButton extends GuiText {
 
     {
         setWidth(100); //250
-        setHeight(16); //40
+        setHeight(32); //40
 
         addOnClickListener(e -> {
             playClickSound();

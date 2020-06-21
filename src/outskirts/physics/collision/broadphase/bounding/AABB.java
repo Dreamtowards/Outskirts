@@ -114,6 +114,9 @@ public class AABB {
     public final AABB translate(Vector3f trans) {
         return translate(trans.x, trans.y, trans.z);
     }
+    public final AABB translateScaled(float scalar, Vector3f trans) {
+        return translate(trans.x*scalar, trans.y*scalar, trans.z*scalar);
+    }
 
     private boolean intersects(AABB other) {
         return  min.x < other.max.x && max.x > other.min.x &&

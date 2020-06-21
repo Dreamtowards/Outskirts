@@ -9,15 +9,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import static outskirts.world.terrain.Terrain.VERT_SIZE;
+
 public class TerrainGenerator {
 
     private static BufferedImage DEF_TEXTURE;
-    private static BufferedImage DEF_HEIMAP;
 
     static {
         try {
             DEF_TEXTURE = ImageIO.read(new File("def_tex.png"));
-            DEF_HEIMAP = ImageIO.read(new File("def_tex.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -29,11 +29,11 @@ public class TerrainGenerator {
         terrain.texture = DEF_TEXTURE;
 
         NoiseGenerator noise = new NoiseGenerator();
-        for (int iz = 0;iz < Terrain.DENSITY;iz++) {
-            for (int ix = 0;ix < Terrain.DENSITY;ix++) {
+        for (int iz = 0;iz < VERT_SIZE;iz++) {
+            for (int ix = 0;ix < VERT_SIZE;ix++) {
                 terrain.heights[ix][iz] = noise.octavesNoise(
-                        (x+(float)ix/Terrain.DENSITY*Terrain.SIZE)/26f,
-                        (z+(float)iz/Terrain.DENSITY*Terrain.SIZE)/26f, 4) / 5f;
+                        (x+(float)ix/VERT_SIZE*Terrain.SIZE)/20f,
+                        (z+(float)iz/VERT_SIZE*Terrain.SIZE)/20f, 4) * 8f;
             }
         }
 

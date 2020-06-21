@@ -1,6 +1,7 @@
 package outskirts.physics.collision.narrowphase;
 
 import outskirts.physics.collision.dispatch.CollisionManifold;
+import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithm;
 import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithmConvexConcave;
 import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithmConvexConvex;
@@ -33,7 +34,13 @@ public class Narrowphase {
         if ((shape1 instanceof ConvexShape && shape2 instanceof ConcaveShape) || (shape1 instanceof ConcaveShape && shape2 instanceof ConvexShape))
             return collisionAlgorithmConvexConcave;
 
-        throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
+        return new CollisionAlgorithm() {
+            @Override
+            public void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold) {
+                // empty
+            }
+        };
+//        throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
     }
 
     // dispatch narrowphase the really collision detection

@@ -7,6 +7,9 @@ import outskirts.util.vector.Vector3f;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
+/**
+ * Triangle vertices data. localspace.
+ */
 public class TriangleMeshShape extends ConcaveShape {
 
     private int[] indices;

@@ -3,6 +3,7 @@ package outskirts.physics.dynamics;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.physics.collision.dispatch.CollisionObject;
+import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.ObjectPool;
@@ -28,7 +29,7 @@ public class RigidBody extends CollisionObject {
     private float inverseMass = 1; // F=ma == a=invM*F, unit as kg
 
     private Matrix3f invInertiaTensorWorld = new Matrix3f(); // world coordinate
-    private Vector3f invInertiaTensorLocalDiag = new Vector3f(1f, 1f ,1f); // there is not vec3, actually its a mat3, its diagonal in mat3. actually mat3 rows: [x, 0, 0], [0, y, 0], [0, 0, z]
+    private Vector3f invInertiaTensorLocalDiag = new Vector3f(1, 1 ,1); // there is not vec3, actually its a mat3, its diagonal in mat3. actually mat3 rows: [x, 0, 0], [0, y, 0], [0, 0, z]
 
     /**
      * this forces are use for calculate acceleration (V'=a) (for integrate velocity)
@@ -170,6 +171,7 @@ public class RigidBody extends CollisionObject {
         totalForce.add(force);
     }
     public void applyTorque(Vector3f torque) {
+        if (inverseMass == 0) return;
         totalTorque.add(torque);
     }
     public void applyForce(Vector3f force, Vector3f relpos) {
@@ -184,6 +186,7 @@ public class RigidBody extends CollisionObject {
         linearVelocity.addScaled(inverseMass, impulse); // I=mv, v=invM*I
     }
     public void applyTorqueImpulse(Vector3f impulse) {
+        if (inverseMass == 0) return;
         angularVelocity.add(Matrix3f.transform(invInertiaTensorWorld, new Vector3f(impulse)));
     }
     public void applyImpulse(Vector3f impulse, Vector3f relpos) {
@@ -194,11 +197,6 @@ public class RigidBody extends CollisionObject {
         }
     }
 
-
-//    public void _tmp_ApplyImpulse_Internal_linModify(Vector3f linear, Vector3f angular, float factor) {
-//        linearVelocity.addScaled(factor * inverseMass, linear);
-//        angularVelocity.addScaled(factor, angular);
-//    }
 
 
     public Vector3f getVelocity(Vector3f relpos, Vector3f dest) {  // getVelocityInLocalPoint()
@@ -213,19 +211,14 @@ public class RigidBody extends CollisionObject {
     }
 
 
-    public float computeImpulseDenominator(Vector3f relpos, Vector3f norm) {
-        Vector3f c0 = Vector3f.cross(relpos, norm, null);
-
-        Vector3f tmp = Matrix3f.transform(invInertiaTensorWorld.transpose(), new Vector3f(c0));
-        invInertiaTensorWorld.transpose(); // transp back
-
-        Vector3f vec = Vector3f.cross(tmp, relpos, null);
-
-        return inverseMass + Vector3f.dot(norm, vec);
+    @Override
+    public RigidBody setCollisionShape(CollisionShape collisionShape) {
+        super.setCollisionShape(collisionShape);
+        updateShapeInertia(this);
+        return this;
     }
 
-
-    public static void updateShapeInertia(RigidBody body) {
+    private static void updateShapeInertia(RigidBody body) {
         body.setInertiaTensorLocal(
                 body.getCollisionShape().calculateLocalInertia(body.getMass(), new Vector3f())
         );

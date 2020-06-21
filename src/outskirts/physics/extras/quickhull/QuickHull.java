@@ -15,39 +15,39 @@ public class QuickHull {
     private static final float EPSILON = 0.0001f;
 
 
-    private static Vector3f[] buildInitTetrahedron(Vector3f[] vertices) {
+    private static Vector3f[] buildInitTetrahedronVset(Set<Vector3f> vertices) {
         Vector3f A=null, B=null, C=null, D=null;
 
-        int[] mxmnxyz = new int[6]; // index of max,min of XYZ
-        for (int i = 0;i < vertices.length;i++) {
-            if (vertices[i].x > vertices[mxmnxyz[0]].x) mxmnxyz[0]=i;
-            if (vertices[i].y > vertices[mxmnxyz[1]].y) mxmnxyz[1]=i;
-            if (vertices[i].z > vertices[mxmnxyz[2]].z) mxmnxyz[2]=i;
-            if (vertices[i].x < vertices[mxmnxyz[3]].x) mxmnxyz[3]=i;
-            if (vertices[i].y < vertices[mxmnxyz[4]].y) mxmnxyz[4]=i;
-            if (vertices[i].z < vertices[mxmnxyz[5]].z) mxmnxyz[5]=i;
+        Vector3f[] mxmnxyz = new Vector3f[6]; // index of max,min of XYZ.    refer from Set<Vector3f> input. so should be Readonly.
+        for (Vector3f v : vertices) {
+            if (mxmnxyz[0]==null) Arrays.fill(mxmnxyz, v); // init.
+            if (v.x > mxmnxyz[0].x) mxmnxyz[0]=v;
+            if (v.y > mxmnxyz[1].y) mxmnxyz[1]=v;
+            if (v.z > mxmnxyz[2].z) mxmnxyz[2]=v;
+            if (v.x < mxmnxyz[3].x) mxmnxyz[3]=v;
+            if (v.y < mxmnxyz[4].y) mxmnxyz[4]=v;
+            if (v.z < mxmnxyz[5].z) mxmnxyz[5]=v;
         }
         // find points A,B. which two points makeup the longest LineSegment in the 6 points.
         float mxLenSq = 0;
-        for (int i = 0;i < mxmnxyz.length;i++) {
-            for (int j = 0;j < mxmnxyz.length;j++) {
-                if (i==j) continue;
-                float lenSq = Vector3f.sub(vertices[mxmnxyz[i]], vertices[mxmnxyz[j]], null).lengthSquared();
+        for (Vector3f v1 : vertices) {
+            for (Vector3f v2 : vertices) {
+                if (v1==v2) continue;
+                float lenSq = Vector3f.sub(v1, v2, null).lengthSquared();
                 if (lenSq > mxLenSq) {
                     mxLenSq=lenSq;
-                    A=vertices[mxmnxyz[i]]; B=vertices[mxmnxyz[j]];
+                    A=v1; B=v2;
                 }
             }
         }
         // find point C. which is a point farthest from the AB-LineSegment. in the 6 points.
         mxLenSq = 0;
-        for (int i = 0;i < mxmnxyz.length;i++) {
-            Vector3f P = vertices[mxmnxyz[i]];
-            if (P==A || P==B) continue;
-            float lenSq = Vector3f.sub(P, Maths.findClosestPointOnLineSegment(P, A, B, null), null).lengthSquared();
+        for (Vector3f v : vertices) {
+            if (v==A || v==B) continue;
+            float lenSq = Vector3f.sub(v, Maths.findClosestPointOnLineSegment(v, A, B, null), null).lengthSquared();
             if (lenSq > mxLenSq) {
                 mxLenSq = lenSq;
-                C=P;
+                C=v;
             }
         }
         // find point D. which is a point farthest from the ABC-Triangle along the Normal. whether either norm side. in all points.
@@ -78,17 +78,29 @@ public class QuickHull {
     }
 
 
+    // tool method. input "can" duplicated vertices.
+    public static Set<Vector3f> quickHull(float[] dupvts) {
+        Set<Vector3f> s = new HashSet<>();
+        Vector3f TMP = new Vector3f();
+        for (int i = 0;i < dupvts.length;i+=3) {
+            if (s.add(TMP.set(dupvts[i], dupvts[i+1], dupvts[i+2]))) { // prevents add-fault but new useless. - only new when add success.
+                TMP = new Vector3f();
+            }
+        }
+        return quickHull(s);
+    }
     /**
      * input no duplicated points. out put no duplicated.
+     * @return hull vertices. (reference is the param Set<Vector3f> vertices.)
      */
-    public Set<Vector3f> quickHull(Vector3f[] vertices) {
+    public static Set<Vector3f> quickHull(Set<Vector3f> vertices) {
 
-        Vector3f[] slx = buildInitTetrahedron(vertices);
+        Vector3f[] slx = buildInitTetrahedronVset(vertices);
         Vector3f A=slx[0], B=slx[1], C=slx[2], D=slx[3];
         Vector3f ABCNorm=slx[4],ABDNorm=slx[5],BCDNorm=slx[6],CADNorm=slx[7];
 
         List<Triangle> triangles = new ArrayList<>();
-        List<Vector3f> verts = new ArrayList<>(Arrays.asList(vertices));
+        List<Vector3f> verts = new ArrayList<>(vertices);
 
         triangles.add(new Triangle(A,B,C,ABCNorm, verts)); //verts.removeAll(triangles.get(0).pointsInfront);
         triangles.add(new Triangle(A,B,D,ABDNorm, verts));
@@ -96,7 +108,7 @@ public class QuickHull {
         triangles.add(new Triangle(C,A,D,CADNorm, verts));
 
         for (int i = 0;i < triangles.size();) { Triangle t = triangles.get(i);
-            if (t.P != null) {
+            if (t.P != null) {  // had front-points
                 quickHull(t, triangles);
                 i=0;
             } else {
@@ -104,11 +116,11 @@ public class QuickHull {
             }
         }
 
-        Set<Vector3f> rs = new HashSet<>();
+        vertices.clear();
         for (Triangle t : triangles) {
-            rs.add(t.v0); rs.add(t.v1); rs.add(t.v2);
+            vertices.add(t.v0); vertices.add(t.v1); vertices.add(t.v2);
         }
-        return rs;
+        return vertices;
     }
 
     private static void quickHull(Triangle trig, List<Triangle> triangles) {
@@ -126,7 +138,7 @@ public class QuickHull {
                 triangles.remove(i);
                 ls.addAll(t.pointsInfront);
 
-                GuiScreen3DVertices._TMP_DEF_INST.vertices.removeAll(t.vs);
+//                GuiScreen3DVertices._TMP_DEF_INST.vertices.removeAll(t.vs);
                 isCanContinue();
             }
         }
@@ -173,10 +185,10 @@ public class QuickHull {
             }
             // vertices.removeAll(pointsInfront); // for no duplicated search in futrue. but when no, ok yet.
 
-            vs = GuiScreen3DVertices.addTri("hull", v0, v1, v2, Colors.YELLOW, normal);
-            if (P!=null) {
-                GuiScreen3DVertices.Vert v = GuiScreen3DVertices.addVert("hull.P", P, Colors.GOLD);
-            }
+//            vs = GuiScreen3DVertices.addTri("hull", v0, v1, v2, Colors.YELLOW, normal);
+//            if (P!=null) {
+//                GuiScreen3DVertices.Vert v = GuiScreen3DVertices.addVert("hull.P", P, Colors.GOLD);
+//            }
         }
     }
 

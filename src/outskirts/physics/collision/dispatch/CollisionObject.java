@@ -25,8 +25,9 @@ public abstract class CollisionObject {
     public CollisionShape getCollisionShape() {
         return collisionShape;
     }
-    public void setCollisionShape(CollisionShape collisionShape) {
+    public CollisionObject setCollisionShape(CollisionShape collisionShape) {
         this.collisionShape = collisionShape;
+        return this;
     }
 
     public AABB getAABB() {

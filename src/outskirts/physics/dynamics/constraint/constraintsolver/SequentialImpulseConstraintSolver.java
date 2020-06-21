@@ -64,9 +64,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
             manifold.refreshContactPoints();
 
             for (int i = 0;i < manifold.getNumContactPoints();i++) {
-//                CollisionManifold.ContactPoint cp = manifold.getContactPoint(i);
-//                if (cp.penetration > 0.5f)
-//                    LOGGER.info("penetration: {}", cp.penetration);
                 prepareConstraints(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(i), delta);
             }
         }
