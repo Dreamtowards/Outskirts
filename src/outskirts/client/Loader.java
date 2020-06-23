@@ -16,10 +16,12 @@ import outskirts.util.ogg.OggLoader;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+import javax.xml.ws.Holder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -111,11 +113,11 @@ public final class Loader {
         return vboID;
     }
 
-    public static Model loadOBJ(InputStream inputStream, Consumer<ModelData> visitor) {
+    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
         try {
             ModelData modeldat = OBJFileLoader.loadOBJ(inputStream);
-            if (visitor!=null)
-                visitor.accept(modeldat);
+            if (mdat != null)
+                mdat[0] = modeldat;
             return Loader.loadModelWithTangent(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);

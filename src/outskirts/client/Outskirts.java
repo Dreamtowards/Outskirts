@@ -4,42 +4,25 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiMenu;
-import outskirts.client.gui.GuiMenubar;
-import outskirts.client.gui.GuiTextField;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
-import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
-import outskirts.client.render.Light;
-import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.client.render.renderer.RenderEngine;
-import outskirts.entity.EntityGeoShape;
-import outskirts.entity.EntityMaterialDisplay;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
 import outskirts.init.Models;
+import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
-import outskirts.physics.collision.narrowphase.collisionalgorithm.gjk.Gjk;
-import outskirts.physics.collision.shapes.ConvexShape;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.*;
-import outskirts.physics.dynamics.RigidBody;
-import outskirts.physics.extras.quickhull.QuickHull;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
-import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
 import java.io.*;
@@ -200,100 +183,61 @@ public class Outskirts {
         if (world == null)
             return;
 
-        Light lightSun = new Light();
-        lightSun.getPosition().set(100, 100, 100);
-        lightSun.getDirection().set(-1, -1, -1).normalize();
-        lightSun.getColor().set(5, 5, 5);
-        Light.calculateApproximateAttenuation(100, lightSun.getAttenuation());
-        INSTANCE.world.lights.add(lightSun);
-
-        getPlayer().getMaterial()
-                .setShininess(18).setSpecularStrength(0.1f)
-                .setModel(Models.GEO_CUBE);
+        SceneIniter.init(world);
 
 //        if (true)return;
 
-        for (int i = 0;i < 1;i++) {
-            for (int j = 0;j < 4;j++) {
-                for (int k = 0;k < 4;k++) {
-                    EntityGeoShape entity = new EntityGeoShape(new BoxShape(new Vector3f(2, 2, 2)));
-//                    EntityGeoShape entity = new EntityGeoShape(new ShapeSphere(2));
-                    INSTANCE.world.addEntity(entity);
-                    RigidBody body = entity.getRigidBody();
-                    body.getGravity().set(0, -20f, 0);
-                    body.transform().origin.set(i*4, 2+ k*4, j*4);
-                    body.setMass(20).setRestitution(0);
-                    entity.getMaterial()
-                            .setDiffuseMap(Textures.FRONT)
-                            .setSpecularMap(Textures.CONTAINER_SPEC)
-                            .setShininess(100);
-                }
-            }
-        }
-
-//        getWorld().provideTerrain(-1, -1);
-//        getWorld().provideTerrain(0, -1);
-//        getWorld().provideTerrain(-1, 0);
-//        for (int x = 3;x >= -2;x--) {
-//            for (int z = 3;z >= -2;z--) {
-//                getWorld().provideTerrain(x*16,z*16);
-//                LOGGER.info("provideTerrain. {}", getWorld().getTerrains().size());
+//        for (int i = 0;i < 1;i++) {
+//            for (int j = 0;j < 4;j++) {
+//                for (int k = 0;k < 4;k++) {
+//                    EntityGeoShape entity = new EntityGeoShape(new BoxShape(new Vector3f(2, 2, 2)));
+////                    EntityGeoShape entity = new EntityGeoShape(new ShapeSphere(2));
+//                    INSTANCE.world.addEntity(entity);
+//                    RigidBody body = entity.getRigidBody();
+//                    body.getGravity().set(0, -20f, 0);
+//                    body.transform().origin.set(i*4, 2+ k*4, j*4);
+//                    body.setMass(20).setRestitution(0);
+//                    entity.getMaterial()
+//                            .setDiffuseMap(Textures.FRONT)
+//                            .setSpecularMap(Textures.CONTAINER_SPEC)
+//                            .setShininess(100);
+//                }
 //            }
 //        }
 
-//        EntityMaterialDisplay entityNorm = new EntityMaterialDisplay();
-//        INSTANCE.world.addEntity(entityNorm);
-//        entityNorm.tmp_boxSphere_scale.scale(6);
-//        entityNorm.getRigidBody().setCollisionShape(new BoxShape(entityNorm.tmp_boxSphere_scale));
-//        entityNorm.getRigidBody().setMass(0);
-//        entityNorm.getRigidBody().getGravity().set(0, 0, 0);
-//        entityNorm.getRigidBody().transform().origin.set(0, 40, 0);
-//        entityNorm.getRigidBody().setRestitution(0.5f);
-//        entityNorm.getMaterial()
-//                .setModel(Loader.loadOBJ(new Identifier("materials/geo/fc.objfx").getInputStream()))
-//                .setDiffuseMap(Loader.loadTexture(new Identifier("materials/bricks2.png").getInputStream()))
-//                .setNormalMap(Loader.loadTexture(new Identifier("materials/bricks2_norm.png").getInputStream()))
-//                .setDisplacementMap(Loader.loadTexture(new Identifier("materials/bricks2_disp.png").getInputStream()))
-//                .setDisplacementScale(0.03f)
-//                .setShininess(35);
-//        RigidBody.updateShapeInertia(entityNorm.getRigidBody());
+//        ModelData[] mdat = new ModelData[1];
+//        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
+//        INSTANCE.world.addEntity(eFloor);
+//        eFloor.tmp_boxSphere_scale.set(1,1,1);
+//        eFloor.getRigidBody().getGravity().set(0,0,0);
+////        eFloor.getRigidBody().transform().origin.set(0, -10, 0);
+//        eFloor.getRigidBody().setMass(8000*0f).setRestitution(0.1f);
+//        eFloor.getMaterial()
+//                .setModel(Loader.loadOBJ(new Identifier("materials/mount/part.obj").getInputStream(), mdat))
+//                .setDiffuseMap(Textures.WOOD1)
+//                .setSpecularStrength(0.1f).setShininess(20);
+//        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
-        INSTANCE.world.addEntity(eFloor);
-        eFloor.tmp_boxSphere_scale.set(1,1,1);
-        eFloor.getRigidBody().getGravity().set(0,0,0);
-//        eFloor.getRigidBody().transform().origin.set(0, -10, 0);
-        eFloor.getRigidBody().setMass(8000*0f).setRestitution(0.1f);
-        eFloor.getMaterial()
-                .setModel(Loader.loadOBJ(new Identifier("materials/mount/part.obj").getInputStream(), mdat -> {
-                    eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat.indices, mdat.positions));
-                }))
-                .setDiffuseMap(Textures.WOOD1)
-                .setSpecularStrength(0.1f).setShininess(20);
-
-
-//        getPlayer().getMaterial().setModel(model); //Loader.loadOBJ(new Identifier("materials/_capsule.obj").getInputStream())
-        getPlayer().getMaterial().setModel(Models.GEO_SPHERE);
+        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
-//        getPlayer().getRigidBody().setCollisionShape(new TriangleShape());
-//        getPlayer().getRigidBody().setCollisionShape(new BoxShape(new Vector3f(1, 1, 1)));
-        getPlayer().getRigidBody().setCollisionShape(new SphereShape(1.5f));
-        getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(1.5f);
+        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
+        getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
         getPlayer().getRigidBody().transform().origin.set(0,50,50);
         getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(20).setFriction(0.5f);//.setLinearDamping(0.01f);
+        getPlayer().getRigidBody().setMass(20).setFriction(0.5f).setLinearDamping(0.04f);
+        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
 
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState()) {
                 if (e.getKey() == GLFW_KEY_C)
-                    GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
+                    GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
-                    lightSun.getPosition().set(getCamera().getPosition());
+                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(0, 1000, 0);
                 }
                 if (e.getKey() == GLFW_KEY_1) {

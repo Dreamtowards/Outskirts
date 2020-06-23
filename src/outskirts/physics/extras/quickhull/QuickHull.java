@@ -1,6 +1,6 @@
 package outskirts.physics.extras.quickhull;
 
-import outskirts.client.gui.debug.GuiScreen3DVertices;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.util.*;
 import outskirts.util.vector.Vector3f;
 
@@ -165,7 +165,7 @@ public class QuickHull {
         private List<Vector3f> pointsInfront = new ArrayList<>();
         private Vector3f P; // Nullable. the point farthest along the normal. when null, just no point infront of the triangle anymore.
 
-        List<GuiScreen3DVertices.Vert> vs;
+        List<GuiVert3D.Vert> vs;
 
         public Triangle(Vector3f v0, Vector3f v1, Vector3f v2, Vector3f normal, List<Vector3f> vertices) {
             this.v0 = v0;this.v1 = v1;this.v2 = v2;this.normal = normal;

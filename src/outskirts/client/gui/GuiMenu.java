@@ -1,6 +1,9 @@
 package outskirts.client.gui;
 
 import outskirts.client.render.renderer.GuiRenderer;
+import outskirts.event.EventBus;
+import outskirts.event.Events;
+import outskirts.event.client.input.KeyboardEvent;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
@@ -140,6 +143,15 @@ public class GuiMenu extends Gui {
 //                    drawRect(Colors.GREEN, paren.getX() + paren.getWidth() - 5, getY(), 5, getHeight());
 //                }
             });
+        }
+
+        public GuiItem bindKey(int key) {
+            Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+                if (e.getKeyState() && e.getKey() == key) {
+                    performEvent(new OnClickEvent());
+                }
+            });
+            return this;
         }
     }
 

@@ -2,13 +2,15 @@ package outskirts.entity;
 
 import outskirts.client.material.Material;
 import outskirts.physics.dynamics.RigidBody;
-import outskirts.util.nbt.NBTTagCompound;
-import outskirts.util.nbt.Savable;
+import outskirts.storage.Savable;
+import outskirts.storage.SaveUtils;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
+
+import java.util.Map;
 
 public abstract class Entity implements Savable, Registrable {
 
@@ -32,9 +34,9 @@ public abstract class Entity implements Savable, Registrable {
             throw new RuntimeException("Failed to create Entity.", ex);
         }
     }
-    public static Entity createEntity(NBTTagCompound tagEntity) {
-        Entity entity = createEntity(tagEntity.getCompoundTag("registryID"));
-        entity.readNBT(tagEntity);
+    public static Entity createEntity(Map mpEntity) {
+        Entity entity = createEntity((String)mpEntity.get("registryID"));
+        entity.onRead(mpEntity);
         return entity;
     }
 
@@ -63,20 +65,16 @@ public abstract class Entity implements Savable, Registrable {
     }
 
     @Override
-    public void readNBT(NBTTagCompound tagCompound) {
+    public void onRead(Map mp) {
 
-        tagCompound.getVector3f("position", getPosition());
+        SaveUtils.vector3f(mp.get("position"), getPosition());
 
     }
 
     @Override
-    public NBTTagCompound writeNBT(NBTTagCompound tagCompound) {
-
-        tagCompound.setString("registryID", getRegistryID());
-
-        tagCompound.setVector3f("position", getPosition()); // setCompoundTag("rigidbody", rigidbodt.writeNBT()) ..?
-
-        return tagCompound;
+    public void onWrite(Map mp) {
+        mp.put("registryID", registryID);
+        mp.put("position", SaveUtils.vector3f(getPosition()));
     }
 
     @Override

@@ -1,10 +1,13 @@
 package outskirts.init;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiMenu;
 import outskirts.client.gui.GuiMenubar;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiWindow;
+import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
@@ -84,19 +87,22 @@ public final class Init {
 
     private static void initGuiMenu() {
 
-        GuiWindow TXTINFOS = Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugTextInfos())).setVisible(false);
-        GuiWindow MEMLOG = Outskirts.getRootGUI().addGui(new GuiWindow(new GuiMemoryLog())).setVisible(false);
-        GuiWindow PROFILERV = Outskirts.getRootGUI().addGui(new GuiWindow(new GuiProfilerVisual())).setVisible(false);
-        GuiWindow VERT3D = Outskirts.getRootGUI().addGui(new GuiWindow(GuiScreen3DVertices._TMP_DEF_INST)).setVisible(false);
+        Gui TXTINFOS = Outskirts.getRootGUI().addGui(new GuiDebugTextInfos()).setVisible(false).setRelativeY(32);
+        Gui MEMLOG = Outskirts.getRootGUI().addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
+        Gui PROFILERV = Outskirts.getRootGUI().addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);  // 好像没有设置初始化size。。。
+        Gui VERT3D = Outskirts.getRootGUI().addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
+
+        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);
 
         GuiMenubar menubar = Outskirts.getRootGUI().addGui(new GuiMenubar());
         menubar.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
         {
             GuiMenu mDebug = menubar.addMenu("DebugV", new GuiMenu());
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false, TXTINFOS::setVisible));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false, TXTINFOS::setVisible).bindKey(GLFW.GLFW_KEY_F3));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I));
             mDebug.addGui(GuiMenu.GuiItem.divider());
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Cam Basis", false, c -> GuiDebugCommon.INSTANCE.showCambasis =c));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> GuiDebugCommon.INSTANCE.showLightMarks =c));

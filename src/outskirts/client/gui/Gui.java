@@ -68,6 +68,12 @@ public class Gui {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState())
                 setFocused(isMouseOver());
         });
+        // OnClickEvent
+        addMouseButtonListener(e -> {
+            if (isVisible() && isEnable() && e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && isMouseOver()) {
+                performEvent(new OnClickEvent());
+            }
+        });
     }
 
     //////////////////////////// START GLOBAL DRAW ////////////////////////////
@@ -350,17 +356,16 @@ public class Gui {
      * and {for size: get} is original method.
      * cause always use and have multi params, so not use static.
      */
-    public final <T extends Gui> void forChildren(Consumer<T> visitor, boolean includeChildren, Predicate<Gui> selfpredicate) {
-        if (!selfpredicate.test(this))
-            return;
+    public final <T extends Gui> void forChildren(Consumer<T> visitor, boolean includeChildren, Predicate<Gui> eachpredicate) {
         // if iterating children use index, probably skip/repeat iteration-item when the list been edit(add/remove)
         for (int i = 0;i < getChildCount();i++) {
             T child = getChildAt(i);
+            if (!eachpredicate.test(child)) continue;
 
             visitor.accept(child);
 
             if (includeChildren && child.getChildCount() > 0) {
-                child.forChildren(visitor, true, selfpredicate);
+                child.forChildren(visitor, true, eachpredicate);
             }
         }
     }
@@ -498,12 +503,8 @@ public class Gui {
     }
 
 
-    public final <T extends Gui> T addOnClickListener(Consumer<MouseButtonEvent> listener) {
-        return addMouseButtonListener(e -> {
-            if (isVisible() && isEnable() && e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && isMouseOver()) {
-                listener.accept(e);
-            }
-        });
+    public final <T extends Gui> T addOnClickListener(Consumer<OnClickEvent> listener) {
+        attachListener(OnClickEvent.class, listener); return (T)this;
     }
 
     // Global/ Events
@@ -636,30 +637,8 @@ public class Gui {
 
     public static class OnDrawEvent extends GuiEvent { }
 
-    protected static class OnDraggingEvent extends GuiEvent {
-        private float dx;
-        private float dy;
-        public OnDraggingEvent(float dx, float dy) {
-            this.dx = dx;
-            this.dy = dy;
-        }
-        public float getDX() {
-            return dx;
-        }
-        public float getDY() {
-            return dy;
-        }
-    }
+    public static class OnClickEvent extends GuiEvent { }
 
-    public static class OnDraggingStateChangedEvent extends GuiEvent {
-        private boolean dragging;
-        public OnDraggingStateChangedEvent(boolean dragging) {
-            this.dragging = dragging;
-        }
-        public boolean isDragging() {
-            return dragging;
-        }
-    }
 
 
     private List<Class<? extends GuiEvent>> initializedTriggers = new ArrayList<>();
@@ -673,28 +652,6 @@ public class Gui {
         }
     }
 
-    private void checkTrigger_OnDragging() {
-        if (isTriggerInitialized(OnDraggingEvent.class))
-            return;
-        boolean[] dragging = {false};
-        addMouseButtonListener(e -> {
-            if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                if (e.getButtonState() && isMouseOver()) {
-                    dragging[0] = true;
-                    performEvent(new OnDraggingStateChangedEvent(true));
-                }
-                if (dragging[0] && !e.getButtonState()) {
-                    dragging[0] = false;
-                    performEvent(new OnDraggingStateChangedEvent(false));
-                }
-            }
-        });
-        addMouseMoveListener(e -> {
-            if (dragging[0]) {
-                performEvent(new OnDraggingEvent(Outskirts.getMouseDX(), Outskirts.getMouseDY())); // todo had not ext.test yet
-            }
-        });
-    }
 
     private void checkTrigger_OnMouseInOut() {
         if (isTriggerInitialized(MouseEnteredEvent.class))

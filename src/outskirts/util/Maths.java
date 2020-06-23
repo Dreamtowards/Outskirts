@@ -1,5 +1,6 @@
 package outskirts.util;
 
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.*;
 
@@ -321,6 +322,55 @@ public final class Maths {
     }
 
     /**
+     * rfrom JOML.
+     * Reference: <a href="https://dl.acm.org/citation.cfm?id=1198748">An Efficient and Robust Ray–Box Intersection</a>
+     */
+    public static boolean intersectRayAabb(float originX, float originY, float originZ, float dirX, float dirY, float dirZ,
+                                          float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Vector2f result) {
+        float invDirX = 1.0f / dirX, invDirY = 1.0f / dirY, invDirZ = 1.0f / dirZ;
+        float tNear, tFar, tymin, tymax, tzmin, tzmax;
+        if (invDirX >= 0.0f) {
+            tNear = (minX - originX) * invDirX;
+            tFar = (maxX - originX) * invDirX;
+        } else {
+            tNear = (maxX - originX) * invDirX;
+            tFar = (minX - originX) * invDirX;
+        }
+        if (invDirY >= 0.0f) {
+            tymin = (minY - originY) * invDirY;
+            tymax = (maxY - originY) * invDirY;
+        } else {
+            tymin = (maxY - originY) * invDirY;
+            tymax = (minY - originY) * invDirY;
+        }
+        if (tNear > tymax || tymin > tFar)
+            return false;
+        if (invDirZ >= 0.0f) {
+            tzmin = (minZ - originZ) * invDirZ;
+            tzmax = (maxZ - originZ) * invDirZ;
+        } else {
+            tzmin = (maxZ - originZ) * invDirZ;
+            tzmax = (minZ - originZ) * invDirZ;
+        }
+        if (tNear > tzmax || tzmin > tFar)
+            return false;
+        tNear = tymin > tNear || Float.isNaN(tNear) ? tymin : tNear;
+        tFar = tymax < tFar || Float.isNaN(tFar) ? tymax : tFar;
+        tNear = Math.max(tzmin, tNear);
+        tFar = Math.min(tzmax, tFar);
+        if (tNear < tFar && tFar >= 0.0f) {
+            result.x = tNear;
+            result.y = tFar;
+            return true;
+        }
+        return false;
+    }
+    public static boolean intersectRayAabb(Vector3f rayOrigin, Vector3f rayDir, AABB aabb, Vector2f result) {
+        return intersectRayAabb(rayOrigin.x, rayOrigin.y, rayOrigin.z, rayDir.x, rayDir.y, rayDir.z,
+                aabb.min.x, aabb.min.y, aabb.min.z, aabb.max.x, aabb.max.y, aabb.max.z, result);
+    }
+
+    /**
      * "Real-Time Collision Detection" chapter 3.4 "Barycentric Coordinates"
      */
 //    public static Vector3f calculateBarycentric(Vector3f P, Vector3f v0, Vector3f v1, Vector3f v2, Vector3f dest) {
@@ -404,12 +454,12 @@ public final class Maths {
     /**
      * note that there are some expensive operations like mat4::inverse mat4::new whether time or space
      */
-    public static Vector3f calculateWorldRay(Vector2i displayPoint, Matrix4f projectionMatrix, Matrix4f viewMatrix, int vpwidth, int vpheight) {
+    public static Vector3f calculateWorldRay(float vx, float vy, float vwidth, float vheight, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
 
         //to Viewport Coordinates: xy = (p.x, height-p.y)
 
         //to NDC Coordinates
-        Vector2f ndcCoords = calculateNormalDeviceCoords(displayPoint.x, displayPoint.y, vpwidth, vpheight, null);
+        Vector2f ndcCoords = calculateNormalDeviceCoords(vx, vy, vwidth, vheight, null);
 
         //to Clip (Projection) Coordinates Ray
         Vector4f clipCoords = new Vector4f(ndcCoords.x, ndcCoords.y, -1f, 1f);

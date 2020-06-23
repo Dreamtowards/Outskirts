@@ -6,6 +6,7 @@ import outskirts.physics.collision.dispatch.CollisionWorld;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.constraint.constraintsolver.ConstraintSolver;
 import outskirts.physics.dynamics.constraint.constraintsolver.SequentialImpulseConstraintSolver;
+import outskirts.util.Maths;
 import outskirts.util.Transform;
 import outskirts.util.vector.Vector3f;
 
@@ -98,7 +99,6 @@ public class DiscreteDynamicsWorld extends CollisionWorld {
             Transform.integrate(body.transform(), body.getLinearVelocity(), body.getAngularVelocity(), delta);
         }
     }
-
 
 
 

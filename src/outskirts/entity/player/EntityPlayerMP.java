@@ -9,6 +9,8 @@ import outskirts.world.World;
 import outskirts.world.WorldServer;
 import outskirts.world.terrain.Terrain;
 
+import java.util.Map;
+
 public class EntityPlayerMP extends EntityPlayer {
 
     private int viewDistance = 2 * Terrain.SIZE;
@@ -28,21 +30,21 @@ public class EntityPlayerMP extends EntityPlayer {
     }
 
     @Override
-    public void readNBT(NBTTagCompound tagCompound) {
+    public void onRead(Map mp) {
 
-        if (tagCompound.hasKey("world"))
-            setWorld(OutskirtsServer.getWorlds().get(tagCompound.getString("world"))); // probably null. when saves curr not exists
+        if (mp.containsKey("world"))
+            setWorld(OutskirtsServer.getWorlds().get((String)mp.get("world")));  // probably null. when saves curr not exists
 
-        super.readNBT(tagCompound);
+        super.onRead(mp);
     }
 
     @Override
-    public NBTTagCompound writeNBT(NBTTagCompound tagCompound) {
+    public void onWrite(Map mp) {
 
-        if (getWorld() != null) // when is null ..?
-            tagCompound.setString("world", getWorld().getRegistryID());
+        if (getWorld() != null)  // when is null ..?
+            mp.put("world", getWorld().getRegistryID());
 
-        return super.writeNBT(tagCompound);
+        super.onWrite(mp);
     }
 
     @Override

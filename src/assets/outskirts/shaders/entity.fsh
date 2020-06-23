@@ -113,7 +113,7 @@ void main() {
     vec3 totalSpecular = ltRst[1];
 
     // Shadow factoring
-    float shadowFactor = 1.0 - (calculateShadowFactor() * 0.65f);
+    float shadowFactor = max(1.0 - (calculateShadowFactor() * 0.65f), 0.3);
     totalDiffuse *= shadowFactor;
     totalSpecular *= shadowFactor;
 
@@ -141,14 +141,14 @@ float calculateShadowFactor() { // 1.0: full-shadow, 0.0: none-shadow
          shadowFragCoord = shadowFragCoord * 0.5f + 0.5f; // [0, 1]
     if (isTexCoordOutOfBound(shadowFragCoord.xy))
         return 0.0;
-    float fragDepth = shadowFragCoord.z;
+    float fragDepth = shadowFragCoord.z;  // far > near.
     float shadowFactor = 0;
     vec2 mapSize = textureSize(shadowdepthmapSampler, 0);
-    int SAMPLES = 1; // (x*2+1)^2
+    int SAMPLES = 0; // (x*2+1)^2
     for (int x = -SAMPLES;x <= SAMPLES;x++) {
         for (int y = -SAMPLES;y <= SAMPLES;y++) {
             float pcfClosestDepth = texture(shadowdepthmapSampler, shadowFragCoord.xy + vec2(x,y)/mapSize).r;  // in shadowspace
-            shadowFactor += fragDepth + 0.0001f > pcfClosestDepth ? 1.0 : 0.0;
+            shadowFactor += fragDepth - 0.0003f > pcfClosestDepth ? 1.0 : 0.0;
         }
     }
     return shadowFactor / ((SAMPLES*2.0f+1.0f)*SAMPLES*2.0f+1.0f);

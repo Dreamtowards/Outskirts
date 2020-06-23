@@ -56,7 +56,7 @@ public class ShadowRenderer extends Renderer {
         shader.useProgram();
         shader.setMatrix4f("lightspaceMatrix", getShadowspaceMatrix());
 
-        glCullFace(GL_FRONT);
+//        glCullFace(GL_FRONT);
 
         for (Entity entity : entities) {
 
@@ -65,7 +65,7 @@ public class ShadowRenderer extends Renderer {
             glBindVertexArray(entity.getMaterial().getModel().vaoID());
             Renderer.drawElementsOrArrays(entity.getMaterial().getModel());
         }
-        glCullFace(GL_BACK);
+//        glCullFace(GL_BACK);
 
         Framebuffer.bindMainFramebuffer();
 

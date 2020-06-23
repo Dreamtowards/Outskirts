@@ -1449,3 +1449,11 @@ QuickHull.java
 
 
 
+IOUtils. writeUTF
+        for (int i = 0;i < strlen;i++) { // prepares bytes len. for creating bytearray.
+            c = s.charAt(i);
+            if (c <= 0x007F) blen++;
+            else if (c <= 0x07FF) blen+=2;
+            else blen+=3;
+        }
+        if (blen > 0xFFFF) throw new IndexOutOfBoundsException();

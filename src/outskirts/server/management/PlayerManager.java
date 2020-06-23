@@ -4,6 +4,9 @@ import outskirts.entity.player.EntityPlayerMP;
 import outskirts.network.ChannelHandler;
 import outskirts.server.OutskirtsServer;
 import outskirts.server.ServerSettings;
+import outskirts.storage.Savable;
+import outskirts.storage.dst.DST;
+import outskirts.storage.dst.DSTUtils;
 import outskirts.util.nbt.NBTTagCompound;
 import outskirts.util.nbt.NBTUtils;
 
@@ -11,12 +14,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class PlayerManager {
 
     public EntityPlayerMP loadPlayer(ChannelHandler conn, String uuid, String username) {
         try {
-            File playerfile = playerfile(uuid);
+            File playerfile = getPlayerFile(uuid);
 
             EntityPlayerMP player = new EntityPlayerMP();
             player.setUUID(uuid);
@@ -24,7 +28,7 @@ public class PlayerManager {
             player.setName(username);
 
             if (playerfile.exists()) { // load player data
-                player.readNBT(NBTUtils.read(new FileInputStream(playerfile)));
+                player.onRead(DSTUtils.read(new FileInputStream(playerfile)));
             }
 
             // init player.world and join to the world
@@ -45,15 +49,15 @@ public class PlayerManager {
 
     public void savePlayer(EntityPlayerMP player) {
         try {
-            File playerfile = playerfile(player.getUUID());
+            File playerfile = getPlayerFile(player.getUUID());
 
-            NBTUtils.write(player.writeNBT(new NBTTagCompound()), new FileOutputStream(playerfile));
+            DSTUtils.write(player.onWriteG(new HashMap()), new FileOutputStream(playerfile));
         } catch (IOException ex) {
             throw new RuntimeException("Failed to save player.", ex);
         }
     }
 
-    private File playerfile(String uuid) {
+    private static File getPlayerFile(String uuid) {
         return new File(ServerSettings.DIR_PLAYERDATA, uuid + ".dat");
     }
 }

@@ -3,7 +3,7 @@ package ext;
 import ext.srt.QuickSort;
 import ext.srt.Sort;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.debug.GuiScreen3DVertices;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.EventHandler;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.*;
@@ -12,9 +12,7 @@ import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.LongConsumer;
 
 import static java.lang.Math.random;
@@ -50,9 +48,71 @@ public class Test {
 //        LOGGER.info(Vector3f.dot(ABCNorm, C));
 
 
+//        Ett e = new Ett("EttTitle123", "SomeAUTHOr", 123, "SomeTime", "ABC123", 0.567f, Arrays.asList("user1", "userABC", "user567"));
+//
+//        Map mp = new HashMap();
+//
+//        e.onWrite(mp);
+//
+//        LOGGER.info(mp);
+//
+//        SNL.write(new FileOutputStream("ett.snl"), mp);
+
+//        Map mpRead = DST.read(new FileInputStream("ett.snl"));
+//        LOGGER.info(mpRead);
+//
+//        Ett e2 = new Ett();
+//        e2.onRead(mpRead);
+//
+//        LOGGER.info(e2.toString());
+
+//        LOGGER.info();
+        int v = 100;
+
+        SomeClas someClas = new SomeClas();
+        Class<?> cls = SomeClas.class;
+        f=0;
+        speed("accessClassGetter", 100_000_000, i -> {
+            if (v == someClas.metho())
+                f++;
+        });
+
+        f=0;
+        speed("hashCodeAccess", 100_000_000, i -> {
+            if (v == someClas.hashCode())
+                f++;
+        });
+
+        f=0;
+        speed("ClassHashCodeAccess", 100_000_000, i -> {
+            if (v == someClas.getClass().hashCode())
+                f++;
+        });
+
+        f=0;
+        speed("cachedLocalClassHashCodeAccess", 100_000_000, i -> {
+            if (v == cls.hashCode())
+                f++;
+        });
+
+        Class loc = someClas.getClass();
+        f=0;
+        speed("ClassEq", 100_000_000, i -> {
+            if (cls == loc)
+                f++;
+        });
+
+
+
     }
 
 
+    private static class SomeClas {
+
+        public int someInt = 123;
+
+        public int metho() {return someInt;}
+    }
 
     private static void test_alloc_stack() {
 
@@ -107,9 +167,9 @@ public class Test {
 
 
 
-    private static void writeVerts(Iterable<GuiScreen3DVertices.Vert> verts) throws IOException {
+    private static void writeVerts(Iterable<GuiVert3D.Vert> verts) throws IOException {
         IOUtils.write(
-                new ByteArrayInputStream(GuiScreen3DVertices.Vert.writeToJSON(verts).toString(4).getBytes()),
+                new ByteArrayInputStream(GuiVert3D.Vert.writeToJSON(verts).toString(4).getBytes()),
                 new FileOutputStream("vert.json"));
     }
 

@@ -32,10 +32,11 @@ public class OBJFileUVFixer {
     }
 
     public static void main(String[] args) throws IOException {
-        String filename = "src/assets/outskirts/materials/geo/fc.obj";//args[0];
+        String filename = "src/assets/outskirts/materials/mount/Roline1.obj";//args[0];
 
         Log.LOGGER.info("Opening file...");
-        String filefixed = flipV(new FileInputStream(filename));
+//        String filefixed = flipV(new FileInputStream(filename));
+        String filefixed = OBJFileVVtVnFRegularizer.regu(new FileInputStream(filename));
         Log.LOGGER.info("Proccessed.");
 
         IOUtils.write(new ByteArrayInputStream(filefixed.getBytes(StandardCharsets.UTF_8)), new FileOutputStream(filename+"fx"));

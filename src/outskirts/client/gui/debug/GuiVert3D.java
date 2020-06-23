@@ -5,9 +5,6 @@ import org.json.JSONObject;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
-import outskirts.client.gui.screen.GuiScreen;
-import outskirts.event.Events;
-import outskirts.event.client.input.KeyboardEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
@@ -22,9 +19,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiScreen3DVertices extends GuiScreen {
+public class GuiVert3D extends Gui {
 
-    public static GuiScreen3DVertices _TMP_DEF_INST = new GuiScreen3DVertices();
+    public static GuiVert3D INSTANCE = new GuiVert3D();
 
     public static class Vert {
         public String name = "";
@@ -87,11 +84,11 @@ public class GuiScreen3DVertices extends GuiScreen {
             .setUserMinMaxValue(0, 200)
             .addValueChangedListener(e -> {
                 e.<GuiSlider>gui().setText("DisplayNum: "+(int)e.<GuiSlider>gui().getCurrentUserValue());
-            }).setValue(1f);
+            }).setValue(1f).setWidth(400);
 
     public static Vert addVert(String name, Vector3f position, Vector4f color) {
         Vert v = new Vert(name, position, color);
-        _TMP_DEF_INST.vertices.add(v);
+        INSTANCE.vertices.add(v);
         return v;
     }
     public static Vert addVert(String name, Vector3f position, Vector4f color, String[] connectNames) {
@@ -137,7 +134,7 @@ public class GuiScreen3DVertices extends GuiScreen {
     }
 
 
-    public GuiScreen3DVertices() {
+    public GuiVert3D() {
 
         addKeyboardListener(e -> {
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_I) {
@@ -151,6 +148,8 @@ public class GuiScreen3DVertices extends GuiScreen {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                Log.LOGGER.info("Imported.");
+                new Throwable().printStackTrace();
             }
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_P) {
                 int i = 0;
@@ -243,4 +242,5 @@ public class GuiScreen3DVertices extends GuiScreen {
         }
         return vec;
     }
+
 }

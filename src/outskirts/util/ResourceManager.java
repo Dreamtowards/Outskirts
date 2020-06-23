@@ -4,6 +4,7 @@ import outskirts.client.GameSettings;
 import outskirts.client.Loader;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -38,7 +39,7 @@ public final class ResourceManager {
                 }
             }
 
-            return inputStream;
+            return Validate.notNull(inputStream, "Could not find the resource. %s", path);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;

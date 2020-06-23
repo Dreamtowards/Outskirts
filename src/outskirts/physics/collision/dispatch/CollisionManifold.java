@@ -27,7 +27,7 @@ import java.util.List;
 public final class CollisionManifold {
 
     private static final float MIN_CONTACT_POINT_DISTANCE = 0.02F;
-    private static final int MAX_CONTACT_POINTS = 4;
+    public static final int MAX_CONTACT_POINTS = 4;
 
     // contact Points cache
     private ContactPoint[] contactPoints = CollectionUtils.fill(new ContactPoint[MAX_CONTACT_POINTS], ContactPoint::new);
