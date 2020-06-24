@@ -47,7 +47,7 @@ public class ModelRenderer extends Renderer {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.textureID());
 
-        drawElementsOrArrays(model, mode);
+        glDrawElements(mode, model.vertexCount(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
     }
@@ -98,64 +98,62 @@ public class ModelRenderer extends Renderer {
      *  +-------+
      *  1       2,3
      */
-    public static Model MODEL_CUBE = Loader.loadModel(null, new float[] { // positions. [-1.0, 1.0], 0.0 center.
+    public static Model MODEL_CUBE = Loader.loadModel(3,new float[] { // positions. [-1.0, 1.0], 0.0 center.
              1, 1, 1, 1,-1, 1, 1,-1,-1, 1,-1,-1, 1, 1,-1, 1, 1, 1, // +X. Y_UP(face) pPass
             -1, 1,-1,-1,-1,-1,-1,-1, 1,-1,-1, 1,-1, 1, 1,-1, 1,-1, // -X. Y_UP
             -1, 1,-1,-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,-1,-1, 1,-1, // +Y. -Z_UP
             -1,-1, 1,-1,-1,-1, 1,-1,-1, 1,-1,-1, 1,-1, 1,-1,-1, 1, // -Y. Z_UP  //should -Z_UP ..?
             -1, 1, 1,-1,-1, 1, 1,-1, 1, 1,-1, 1, 1, 1, 1,-1, 1, 1, // +Z. Y_UP
              1, 1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1, 1, 1,-1  // -Z. Y_UP
-    },3, new float[] { // textureCoords
+    }, 2,new float[] { // textureCoords
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, // one Face
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
             0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
-    },2, new float[] { // normals
+    }, 3,new float[] { // normals
              1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,  // +X
             -1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,  // -X
              0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,  // +Y
              0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0,  // -Y
              0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,  // +Z
              0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1,  // -Z
-    },3, new float[] { // tangents  // +Z
+    }, 3,new float[] { // tangents  // +Z
              0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1,  // +X.  (-Z
              0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,  // -X   (+Z
              1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,  // +Y   (+X
              1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,  // -Y   (+X
              1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,  // +Z   (+X
             -1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,  // -Z   (-X
+    });//Models.GEO_CUBE;//Loader.loadModelWithTangent(null, DATA_CUBE_POSITIONS,3, DATA_CUBE_TEXTURECOORDS,2, DATA_CUBE_NORMALS,3);
 
 
-    },3);//Models.GEO_CUBE;//Loader.loadModelWithTangent(null, DATA_CUBE_POSITIONS,3, DATA_CUBE_TEXTURECOORDS,2, DATA_CUBE_NORMALS,3);
-
-
-    public static final Model MODEL_LINE = Loader.loadModel(null, new float[] {
+    public static final Model MODEL_LINE = Loader.loadModel(3,new float[] {
             0, 0, 0,
             0, 0,-1
-    },3);
+    });
 
-    public static final Model MODEL_TRIANGLE = Loader.loadModel(null, new float[] {
+    public static final Model MODEL_TRIANGLE = Loader.loadModel(3,new float[] {
             0, 0, 0,
             0, 0, 0,
             0, 0, 0
-    },3);
+    });
 
     // based on the Origin
-    private static final Model MODEL_LINES_BOUNDINGBOX = Loader.loadModel(null, new float[] {
+    private static final Model MODEL_LINES_BOUNDINGBOX = Loader.loadModel(3,new float[] {
             0, 0, 0, 0, 1, 0,   0, 0, 1, 0, 1, 1,   1, 0, 1, 1, 1, 1,   1, 0, 0, 1, 1, 0,
             0, 0, 0, 0, 0, 1,   0, 0, 1, 1, 0, 1,   1, 0, 1, 1, 0, 0,   1, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 1, 1,   0, 1, 1, 1, 1, 1,   1, 1, 1, 1, 1, 0,   1, 1, 0, 0, 1, 0,
-    },3);
+    });
 
     // based on the Origin
-    public static Model MODEL_CUBE_BZERO = Loader.loadModel(null, new float[] {
+    public static Model MODEL_CUBE_BZERO = Loader.loadModel(3,new float[] {
             1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1,
             0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0,
             0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0,
             0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1,
             0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
             1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0,
-    },3);
+    });
 }

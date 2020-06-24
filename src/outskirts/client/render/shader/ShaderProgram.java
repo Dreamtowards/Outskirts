@@ -87,12 +87,7 @@ public final class ShaderProgram {
     }
 
     private int getUniformLocation(String uniformName) {
-        Integer location = uniformLocationMap.get(uniformName);
-        if (location == null) {
-            location = glGetUniformLocation(programID, uniformName);
-            uniformLocationMap.put(uniformName, location);
-        }
-        return location;
+        return uniformLocationMap.computeIfAbsent(uniformName, nm -> glGetUniformLocation(programID, uniformName));
     }
 
     private void delete() {
@@ -140,17 +135,11 @@ public final class ShaderProgram {
     }
 
     public void setVector3f(String uniformName, Vector3f vector) {
-        setVector3f(uniformName, vector.x, vector.y, vector.z);
-    }
-    public void setVector3f(String uniformName, float x, float y, float z) {
-        glUniform3f(getUniformLocation(uniformName), x, y, z);
+        glUniform3f(getUniformLocation(uniformName), vector.x, vector.y, vector.z);
     }
 
     public void setVector4f(String uniformName, Vector4f vector) {
-        setVector4f(uniformName, vector.x, vector.y, vector.z, vector.w);
-    }
-    public void setVector4f(String uniformName, float x, float y, float z, float w) {
-        glUniform4f(getUniformLocation(uniformName), x, y, z, w);
+        glUniform4f(getUniformLocation(uniformName), vector.x, vector.y, vector.z, vector.w);
     }
 
 }

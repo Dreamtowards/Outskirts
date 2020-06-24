@@ -18,7 +18,7 @@ public final class Model {
     private int vaoID;
 
     /** If not EBO, (use GL_ARRAY_BUFFER) that eboID will be 0 */
-    private int eboID = 0;
+    private int eboID;
 
     private int[] vboID;
 

@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL;
 import outskirts.client.material.Model;
 import outskirts.client.material.ModelData;
 import outskirts.client.material.Texture;
+import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
@@ -70,26 +71,28 @@ public final class Loader {
     public static Model loadModelWithTangent(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
         float[] tangents = new float[positions.length];
         Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
-        return loadModel(indices, positions,3, textureCoords,2, normals,3, tangents,3);
+        return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
     }
     /**
      * Load VertexData to VAO
-     * @param indices If not null, that will uses EBO
-     * @param attrdat_vertsz [VAO-AttributeList-Datas:float[], VertexSize:int] //todo:adjust order.
+     * @param indices uses EBO
+     * @param attrvsz_vdat [VertexSize:int, VAO-AttributeList-Datas:float[]]
      */
-    public static Model loadModel(@Nullable int[] indices, Object... attrdat_vertsz) {
+    public static Model loadModel(int[] indices, Object... attrvsz_vdat) {
         int vaoID = glGenVertexArrays(); vaos.add(vaoID);
         glBindVertexArray(vaoID);
-        int eboID = (indices != null) ? bindElementBuffer(indices) : 0;
+        int eboID = bindElementBuffer(indices);
 
-        int[] vbos = new int[attrdat_vertsz.length/2];
+        int[] vbos = new int[attrvsz_vdat.length/2];
         for (int i = 0;i < vbos.length;i++) {
-            int attrdat_i = i*2;
-            vbos[i] = storeDataToAttributeList(i, (int)attrdat_vertsz[attrdat_i+1], (float[])attrdat_vertsz[attrdat_i]);
+            int attrp_i = i*2;
+            vbos[i] = storeDataToAttributeList(i, (int)attrvsz_vdat[attrp_i], (float[])attrvsz_vdat[attrp_i+1]);
         }
 
-        glBindVertexArray(0);
-        return new Model(vaoID, eboID, vbos, indices!=null?indices.length: ((float[])attrdat_vertsz[0]).length/(int)attrdat_vertsz[1]);
+        return new Model(vaoID, eboID, vbos, indices.length);
+    }
+    public static Model loadModel(Object... attrvsz_vdat) {
+        return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
     /**
      * Store IndicesData (Indices[]) to EBO

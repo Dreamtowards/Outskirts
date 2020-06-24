@@ -13,8 +13,7 @@ import outskirts.world.terrain.Terrain;
 
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -51,7 +50,7 @@ public class TerrainRenderer extends Renderer {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, material.getDiffuseMap().textureID());
 
-            drawElementsOrArrays(material.getModel());
+            glDrawElements(GL_TRIANGLES, material.getModel().vertexCount(), GL_UNSIGNED_INT, 0);
         }
 
         glBindVertexArray(0);

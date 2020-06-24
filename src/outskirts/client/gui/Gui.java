@@ -3,24 +3,19 @@ package outskirts.client.gui;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
-import outskirts.client.render.renderer.GuiRenderer;
+import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
 import outskirts.event.EventBus;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.*;
-import outskirts.util.function.TriConsumer;
-import outskirts.util.function.TriFunction;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
-import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.*;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -104,7 +99,7 @@ public class Gui {
     }
 
     public static void drawRect(Vector4f color, float x, float y, float width, float height) {
-        GuiRenderer.PARAM_colorMultiply.set(color);
+        GuiRenderer.OP_colormul.set(color);
         Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, Texture.UNIT, x, y, width, height);
     }
     public static void drawRect(Vector4f color, Gui g) {

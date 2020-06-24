@@ -1,8 +1,6 @@
 package outskirts.client.gui;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
-import outskirts.client.render.renderer.GuiRenderer;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;

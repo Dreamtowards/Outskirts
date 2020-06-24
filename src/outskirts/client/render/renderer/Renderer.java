@@ -2,6 +2,7 @@ package outskirts.client.render.renderer;
 
 import outskirts.client.material.Model;
 import outskirts.client.render.shader.ShaderProgram;
+import outskirts.util.logging.Log;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -32,18 +33,6 @@ public abstract class Renderer {
             nameArray[i] = String.format(uniformName, i);
         }
         return nameArray;
-    }
-
-    public static void drawElementsOrArrays(Model model, int mode) {
-        if (model.eboID() != 0) {
-            glDrawElements(mode, model.vertexCount(), GL_UNSIGNED_INT, 0);
-        } else {
-            glDrawArrays(mode, 0, model.vertexCount());
-        }
-    }
-
-    public static void drawElementsOrArrays(Model model) {
-        drawElementsOrArrays(model, GL_TRIANGLES);
     }
 
 }

@@ -5,7 +5,7 @@ layout (location = 1) in vec2 texCoords;
 out vec2 textureCoords;
 out vec2 fragPos;
 
-uniform mat2 transMatrix;
+uniform mat2 transMatrix = mat2(1,0,0,1);
 uniform vec2 posOffset;
 uniform vec2 posScale;
 

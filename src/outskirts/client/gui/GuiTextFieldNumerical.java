@@ -1,6 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
+import outskirts.event.EventPriority;
 import outskirts.util.Colors;
 
 import java.util.function.Predicate;
@@ -12,16 +13,12 @@ public class GuiTextFieldNumerical extends GuiTextField {
         float FACT = 0.05f;
         if (Outskirts.isCtrlKeyDown())
             FACT = 2f;
-
         float diff = -dy * FACT;
-        setText(String.valueOf(getValue()+diff));
+        setText(String.format("%.2f", getValue()+diff));
     }, isDragging -> {
         isNumDragDragging = isDragging;
-    }, null).setWidth(16)
-            .addOnDrawListener(e -> {
-        drawRect(isNumDragDragging?Colors.WHITE40:e.gui().isMouseOver()?Colors.WHITE30:Colors.WHITE20, e.gui().getX(), e.gui().getY(), e.gui().getWidth(), e.gui().getHeight());
-        drawString("↕", e.gui().getX()+4, e.gui().getY()+getHeight()/2f-10, isNumDragDragging?Colors.YELLOW:Colors.WHITE);
-    });
+        Outskirts.setMouseGrabbed(isDragging);
+    }, null).setWidth(16);
 
     public GuiTextFieldNumerical() {
         setText("0");
@@ -41,6 +38,12 @@ public class GuiTextFieldNumerical extends GuiTextField {
                 e.setCancelled(true);
             }
         });
+
+        addOnDrawListener(e -> {
+            drawRect(isNumDragDragging?Colors.WHITE40:guiNumDrag.isMouseOver()?Colors.WHITE30:Colors.WHITE20, guiNumDrag);
+            drawString("↕", guiNumDrag.getX()+guiNumDrag.getWidth()/2, guiNumDrag.getY()+getHeight()/2f-10, isNumDragDragging?Colors.YELLOW:Colors.WHITE, 16, true, false);
+
+        }, EventPriority.LOWEST);
     }
 
     private float cachedValue = 0;

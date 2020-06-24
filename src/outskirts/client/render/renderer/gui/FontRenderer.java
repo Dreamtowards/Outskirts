@@ -1,29 +1,18 @@
-package outskirts.client.render.renderer;
+package outskirts.client.render.renderer.gui;
 
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.material.Model;
 import outskirts.client.material.Texture;
+import outskirts.client.render.renderer.Renderer;
+import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.*;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector4f;
-import sun.tracing.dtrace.DTraceProviderFactory;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
 
 public class FontRenderer extends Renderer {
 
@@ -77,7 +66,7 @@ public class FontRenderer extends Renderer {
 
             Texture tex = checkUnicodePageTexture(ch / 256);
 
-            GuiRenderer.PARAM_colorMultiply.set(color);
+            GuiRenderer.OP_colormul.set(color);
             Gui.drawTexture(tex, pointer.x, pointer.y, displayWidth, textHeight, (ch%16)/16f, (float)((ch%256)/16)/16f, 1f/16f*widthPercent , 1f/16f);
 
             pointer.x += (int)displayWidth + GAP_CHAR;

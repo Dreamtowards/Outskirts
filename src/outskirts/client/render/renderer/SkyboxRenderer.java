@@ -42,7 +42,7 @@ public class SkyboxRenderer extends Renderer {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureCubemap.textureID());
 
-        Renderer.drawElementsOrArrays(Models.GEO_CUBE);
+        glDrawElements(GL_TRIANGLES, Models.GEO_CUBE.vertexCount(), GL_UNSIGNED_INT, 0);
 
         glDepthFunc(GL_LESS);   // set back
         glEnable(GL_CULL_FACE); // set back.

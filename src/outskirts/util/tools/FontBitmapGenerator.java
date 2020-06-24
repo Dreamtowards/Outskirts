@@ -1,6 +1,6 @@
 package outskirts.util.tools;
 
-import outskirts.client.render.renderer.FontRenderer;
+import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.util.FileUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.logging.Log;

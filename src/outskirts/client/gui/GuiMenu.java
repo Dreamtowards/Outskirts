@@ -1,14 +1,10 @@
 package outskirts.client.gui;
 
-import outskirts.client.render.renderer.GuiRenderer;
-import outskirts.event.EventBus;
 import outskirts.event.Events;
 import outskirts.event.client.input.KeyboardEvent;
 import outskirts.util.Colors;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
-import java.awt.*;
 import java.util.function.Consumer;
 
 //PopupMenu

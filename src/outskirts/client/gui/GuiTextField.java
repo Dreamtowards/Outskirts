@@ -1,7 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.renderer.FontRenderer;
+import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
@@ -121,6 +121,12 @@ public class GuiTextField extends GuiText {
                 int charWidth = (int)(Outskirts.renderEngine.getFontRenderer().charWidth(getText().charAt(i)) * getTextHeight());
                 drawRect(Colors.WHITE20, getX() + getTextOffset().x + pos.x, getY() + getTextOffset().y + pos.y, charWidth + FontRenderer.GAP_CHAR, getTextHeight());
             }
+        });
+
+        addOnTextChangedListener(e -> {
+
+            setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, getText().length()-1));
+            setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, getText().length()-1));
         });
     }
 

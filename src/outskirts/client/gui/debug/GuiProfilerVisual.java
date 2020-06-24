@@ -4,15 +4,10 @@ import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
-import outskirts.client.gui.GuiTextField;
-import outskirts.client.render.renderer.FontRenderer;
 import outskirts.util.Colors;
 import outskirts.util.StringUtils;
-import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector4f;
-
-import java.util.Arrays;
 
 // the visual actually is not very accurate, because the profiling data is half-prev-frame, half-curr-frame.
 public class GuiProfilerVisual extends Gui {

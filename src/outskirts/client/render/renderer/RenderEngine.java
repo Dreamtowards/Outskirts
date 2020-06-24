@@ -3,6 +3,8 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Version;
 import outskirts.client.GameSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.render.renderer.gui.FontRenderer;
+import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.shadow.ShadowRenderer;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;

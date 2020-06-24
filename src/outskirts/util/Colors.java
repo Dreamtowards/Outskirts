@@ -10,12 +10,16 @@ public final class Colors {
     public static final Vector4f WHITE40 = new Vector4f(1, 1, 1, 0.4f);
     public static final Vector4f WHITE30 = new Vector4f(1, 1, 1, 0.3f);
     public static final Vector4f WHITE20 = new Vector4f(1, 1, 1, 0.2f);
+    public static final Vector4f WHITE15 = new Vector4f(1, 1, 1, 0.15f);
     public static final Vector4f WHITE10 = new Vector4f(1, 1, 1, 0.1f);
     public static final Vector4f WHITE05 = new Vector4f(1, 1, 1, 0.05f);
 
     public static final Vector4f BLACK = new Vector4f(0, 0, 0, 1);
+    public static final Vector4f BLACK80 = new Vector4f(0, 0, 0, 0.8f);
     public static final Vector4f BLACK40 = new Vector4f(0, 0, 0, 0.4f);
     public static final Vector4f BLACK10 = new Vector4f(0, 0, 0, 0.1f);
+
+    public static final Vector4f BRIGHTNESS15 = new Vector4f(0.15f, 0.15f, 0.15f, 1f);
 
     public static Vector4f DARK_BLUE = fromRGB(0, 0, 170);    //&1
     public static Vector4f DARK_GREEN = fromRGB(0, 170, 0);   //&2

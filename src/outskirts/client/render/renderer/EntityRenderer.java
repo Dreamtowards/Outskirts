@@ -117,7 +117,7 @@ public class EntityRenderer extends Renderer {
             glActiveTexture(GL_TEXTURE4);
             glBindTexture(GL_TEXTURE_2D, material.getDisplacementMap().textureID());
 
-            drawElementsOrArrays(model);
+            glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }
 
         glBindVertexArray(0);

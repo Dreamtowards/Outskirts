@@ -3,6 +3,7 @@ package outskirts.client.gui.ex;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
+import outskirts.client.gui.GuiScroll;
 import outskirts.client.gui.GuiText;
 import outskirts.init.Textures;
 import outskirts.util.Colors;
@@ -20,6 +21,7 @@ public class GuiWindow extends Gui {
         setY(300);
         setWidth(400);
         setHeight(400);
+        setClipChildren(true);
         String title = main.getClass().getSimpleName();
 
         {
@@ -31,9 +33,9 @@ public class GuiWindow extends Gui {
                 setY(getY()+dy);
             });
             wHandler.addOnDrawListener(e -> {
-                drawRect(Colors.WHITE, wHandler);
+                drawRect(Colors.WHITE10, wHandler);
 //                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), wHandler.getHeight());
-                drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY(), Colors.BLACK, 16, true, false);
+                drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY(), Colors.GRAY, 16, true, false);
             });
             {
                 Gui gClose = wHandler.addGui(new Gui());
@@ -44,14 +46,13 @@ public class GuiWindow extends Gui {
                 });
                 gClose.addOnDrawListener(e -> {
                     if (gClose.isMouseOver())
-                        drawRect(Colors.BLACK10, gClose);
-                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY(), gClose.isMouseOver()?Colors.RED:Colors.BLACK, 16, true, false);
+                        drawRect(Colors.WHITE20, gClose);
+                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY(), gClose.isMouseOver()?Colors.RED:Colors.GRAY, 16, true, false);
                 });
             }
         }
         {
-            addGui(main);
-            main.addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
+            addGui(new GuiScroll().setContentGui(main)).addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
         }
         {
             float SIZER_SZ = 8;
@@ -69,7 +70,7 @@ public class GuiWindow extends Gui {
         }
 
         addOnDrawListener(e -> {
-            drawRect(Colors.BLACK40, this);
+            drawRect(Colors.BRIGHTNESS15, this);
             drawRectBorder(Colors.BLACK, this, -1);
         });
     }

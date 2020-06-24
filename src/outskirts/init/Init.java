@@ -23,6 +23,7 @@ import outskirts.network.play.packet.SPacketChatMessage;
 import outskirts.network.play.packet.SPacketTerrainData;
 import outskirts.network.play.packet.SPacketTerrainUnload;
 import outskirts.util.Side;
+import outskirts.util.logging.Log;
 
 public final class Init {
 
@@ -102,7 +103,7 @@ public final class Init {
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, b -> {}).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
             mDebug.addGui(GuiMenu.GuiItem.divider());
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Cam Basis", false, c -> GuiDebugCommon.INSTANCE.showCambasis =c));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> GuiDebugCommon.INSTANCE.showLightMarks =c));
