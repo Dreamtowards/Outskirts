@@ -1,4 +1,4 @@
-package outskirts.client.render;
+package outskirts.client.render.glw;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
@@ -7,7 +7,6 @@ import outskirts.util.logging.Log;
 
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
-import java.util.Stack;
 
 import static org.lwjgl.opengl.GL30.*;
 

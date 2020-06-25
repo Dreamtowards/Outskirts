@@ -3,10 +3,10 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Version;
 import outskirts.client.GameSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.render.Framebuffer;
+import outskirts.client.render.glw.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
-import outskirts.client.render.shadow.ShadowRenderer;
+import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
@@ -30,9 +30,9 @@ public final class RenderEngine {
 
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
+            .resize(1000, 500)
             .attachTextureColor(0)
             .attachRenderbufferDepthStencil()
-            .resize(500, 500)
             .checkFramebufferStatus()
             .popFramebuffer();
 

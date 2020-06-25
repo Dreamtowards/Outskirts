@@ -1,12 +1,11 @@
-package outskirts.client.render.shadow;
+package outskirts.client.render.renderer.shadow;
 
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
-import outskirts.client.render.Framebuffer;
+import outskirts.client.render.glw.Framebuffer;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
