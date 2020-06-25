@@ -20,9 +20,22 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 public class ShadowRenderer extends Renderer {
 
     private static final int SHADOW_RESOLUTION = 1024*2;
-    private static final int SHADOW_SIZE = 500;
+    private static final int SHADOW_SIZE = 100;
 
     private Framebuffer depthMapFBO;
+    {
+        depthMapFBO = Framebuffer.glfGenFramebuffer()
+                .bindPushFramebuffer()
+                .resize(SHADOW_RESOLUTION, SHADOW_RESOLUTION)
+                .attachTextureColor(0)
+                .attachTextureDepth()
+                .checkFramebufferStatus();
+
+        glDrawBuffer(GL_NONE);  // not render any Color Data. just depthMap.
+        glReadBuffer(GL_NONE);
+
+        depthMapFBO.popFramebuffer();
+    }
 
     private Matrix4f shadowspaceMatrix = new Matrix4f();  // a.k.a LightSpace. LightProjectionMatrix * LightViewMatrix. Worldpoint->ProjectionPoint.
 
@@ -31,21 +44,11 @@ public class ShadowRenderer extends Renderer {
             new Identifier("shaders/shadow_depthmap.fsh").getInputStream()
     );
 
-    private void init() {
-        depthMapFBO = Framebuffer.glfGenFramebuffer(SHADOW_RESOLUTION, SHADOW_RESOLUTION)
-                .bindFramebuffer()
-                .attachTextureColor(0)
-                .attachTextureDepth();
-
-        glDrawBuffer(GL_NONE);  // not render any Color Data. just depthMap.
-        glReadBuffer(GL_NONE);
-    }
-
     public void renderDepthMap(List<Entity> entities) {
-        if (depthMapFBO == null)
-            init();
+//        if (depthMapFBO == null)
+//            init();
 
-        depthMapFBO.bindFramebuffer();
+        depthMapFBO.bindPushFramebuffer();
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -67,7 +70,7 @@ public class ShadowRenderer extends Renderer {
         }
 //        glCullFace(GL_BACK);
 
-        Framebuffer.bindMainFramebuffer();
+        depthMapFBO.popFramebuffer();
 
     }
 

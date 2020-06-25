@@ -162,22 +162,20 @@ public final class Loader {
     }
 
     public static Texture loadTexture(@Nullable Texture dest, BufferedImage bufferedImage) {
-        boolean create = (dest == null);
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
 
-        if (create) {
-            dest = new Texture(glGenTextures(), width, height); texs.add(dest.textureID());
-        } else if (width > dest.getWidth() || height > dest.getHeight()) {
-            throw new IllegalStateException("Failed to loadTexture(). Source-Image size(width/height) is bigger over dest-Texture's size, can't storage completely.");
+        if (dest == null) {
+            dest = new Texture(glGenTextures()); texs.add(dest.textureID());
         }
 
         bindAndInitializeTexture(GL_TEXTURE_2D, dest.textureID());
 
         ByteBuffer buffer = Loader.loadTextureData(bufferedImage, true);
 
-        if (create) {
+        if (width > dest.getWidth() || height > dest.getHeight()) {
             glTexImage2D(GL_TEXTURE_2D, 0, OP_TEX2D_internalformat, width, height, 0, OP_TEX2D_format, OP_TEX2D_type, buffer);
+            dest.setWidth(width).setHeight(height);
         } else {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, OP_TEX2D_format, OP_TEX2D_type, buffer);
         }
@@ -193,7 +191,6 @@ public final class Loader {
      */
     public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage[] bufferedImages) {
         Validate.isTrue(bufferedImages.length == 6, "Texture CubeMap requires 6 faces.");
-        boolean create = (dest == null);
         int width = bufferedImages[0].getWidth();
         int height = bufferedImages[0].getHeight();
 
@@ -201,10 +198,8 @@ public final class Loader {
             Validate.isTrue(bi.getWidth()==width && bi.getHeight()==height, "Texuure CubeMap faces required same size.");
         }
 
-        if (create) {
-            dest = new Texture(glGenTextures(), width, height); texs.add(dest.textureID());
-        } else if (width != dest.getWidth() || height != dest.getHeight()) {
-            throw new IllegalStateException("Failed to loadTextureCubeMap(). Different .");
+        if (dest == null) {
+            dest = new Texture(glGenTextures()); texs.add(dest.textureID());
         }
 
         bindAndInitializeTexture(GL_TEXTURE_CUBE_MAP, dest.textureID());
@@ -214,8 +209,9 @@ public final class Loader {
         for (int i = 0;i < 6;i++) {
             ByteBuffer buffer = Loader.loadTextureData(bufferedImages[i], false);
 
-            if (create) {
+            if (width != dest.getWidth() || height != dest.getHeight()) {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                dest.setWidth(width).setHeight(height);
             } else {
                 glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             }
@@ -228,7 +224,6 @@ public final class Loader {
      * TextureArray.length == srcImages.length + fromIndex
      */
     public static Texture loadTextureArray(@Nullable Texture dest, BufferedImage[] bufferedImagesArray, int fromIndex) {
-        boolean create = (dest == null);
         int maxWidth = 0;
         int maxHeight = 0;
 
@@ -237,16 +232,15 @@ public final class Loader {
             maxHeight = Math.max(maxHeight, bufferedImage.getHeight());
         }
 
-        if (create) {
-            dest = new Texture(glGenTextures(), maxWidth, maxHeight); texs.add(dest.textureID());
-        } else if (maxWidth > dest.getWidth() || maxHeight > dest.getHeight()) {
-            throw new IllegalStateException("Failed to loadTextureArray().  Source-Images max-size(maxWidth/maxHeight) is bigger over dest-TextureArray's size, can't storage completely.");
+        if (dest == null) {
+            dest = new Texture(glGenTextures()); texs.add(dest.textureID());
         }
 
         bindAndInitializeTexture(GL_TEXTURE_2D_ARRAY, dest.textureID());
 
-        if (create) {
+        if (maxWidth > dest.getWidth() || maxHeight > dest.getHeight()) {
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, maxWidth, maxHeight, fromIndex + bufferedImagesArray.length, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            dest.setWidth(maxWidth).setHeight(maxHeight);
         }
 
         for (int i = 0;i < bufferedImagesArray.length;i++) {

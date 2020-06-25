@@ -3,6 +3,7 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Version;
 import outskirts.client.GameSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.shadow.ShadowRenderer;
@@ -27,6 +28,14 @@ public final class RenderEngine {
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
     private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
 
+    private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
+            .bindPushFramebuffer()
+            .attachTextureColor(0)
+            .attachRenderbufferDepthStencil()
+            .resize(500, 500)
+            .checkFramebufferStatus()
+            .popFramebuffer();
+
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
@@ -34,12 +43,13 @@ public final class RenderEngine {
 
     public void prepare() {
         glClearColor(0.45f, 0.45f, 0.45f, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS); // DEF
 
         glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -60,9 +70,13 @@ public final class RenderEngine {
 
         shadowRenderer.renderDepthMap(world.getEntities());
 
+
+        worldFramebuffer.bindPushFramebuffer();
+        prepare();
 //        glDisable(GL_CULL_FACE);
         entityRenderer.render(world.getEntities(), world.lights);
 //        glEnable(GL_CULL_FACE);
+        worldFramebuffer.popFramebuffer();
 
         terrainRenderer.render(world.getTerrains());
 
@@ -73,7 +87,6 @@ public final class RenderEngine {
     public Matrix4f getViewMatrix() {
         return viewMatrix;
     }
-
     public Matrix4f getProjectionMatrix() {
         return projectionMatrix;
     }
@@ -82,28 +95,27 @@ public final class RenderEngine {
     public EntityRenderer getEntityRenderer() {
         return entityRenderer;
     }
-
     public GuiRenderer getGuiRenderer() {
         return guiRenderer;
     }
-
     public FontRenderer getFontRenderer() {
         return fontRenderer;
     }
-
     public ModelRenderer getModelRenderer() {
         return modelRenderer;
     }
-
     public TerrainRenderer getTerrainRenderer() {
         return terrainRenderer;
     }
-
     public ShadowRenderer getShadowRenderer() {
         return shadowRenderer;
     }
-
     public SkyboxRenderer getSkyboxRenderer() {
         return skyboxRenderer;
+    }
+
+
+    public Framebuffer getWorldFramebuffer() {
+        return worldFramebuffer;
     }
 }

@@ -4,11 +4,14 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
+import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
@@ -155,21 +158,26 @@ public class Outskirts {
 
         // Render Phase
         profiler.push("render");
-        renderEngine.prepare();
+        {
+            renderEngine.prepare();
 
-        profiler.push("world");
-        if (world != null) {
-            renderEngine.render(world);
+            profiler.push("world");
+            if (world != null) {
+                renderEngine.render(world);
+            }
+            profiler.pop("world");
+
+            profiler.push("gui");
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
+
+            Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
+            rootGUI.onDraw();
+
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
+            profiler.pop("gui");
         }
-        profiler.pop("world");
-
-        profiler.push("gui");
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
-        rootGUI.onDraw();
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
-        profiler.pop("gui");
         profiler.pop("render");
 
         profiler.pop("rt");

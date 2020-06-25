@@ -35,13 +35,13 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 public class GuiRenderer extends Renderer {
 
     private ShaderProgram shader = new ShaderProgram(
-            new ResourceLocation("shaders/gui.vsh").getInputStream(),
-            new ResourceLocation("shaders/gui.fsh").getInputStream()
+            new ResourceLocation("shaders/gui/gui.vsh").getInputStream(),
+            new ResourceLocation("shaders/gui/gui.fsh").getInputStream()
     );
 
     // once a render call finished, those OP fields'll been set back to Default.
     public static final Matrix2f OP_transmat = new Matrix2f();
-    public static final Vector4f OP_colormul = new Vector4f(Colors.WHITE);
+    public static final Vector4f OP_colormul = new Vector4f();
     public static float OP_roundradius = 0;
 
     /**

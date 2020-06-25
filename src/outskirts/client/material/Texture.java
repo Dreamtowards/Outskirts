@@ -10,17 +10,15 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 
 public final class Texture {
 
-    public static final Texture UNIT = Loader.loadTexture(gen1x1tex(Colors.WHITE));
+    public static final Texture UNIT = Loader.loadTexture(gen1x1tex(Vector4f.ONE));
     public static final Texture ZERO = Loader.loadTexture(gen1x1tex(Vector4f.ZERO));
 
     private int textureID;
     private int width;
     private int height;
 
-    public Texture(int textureID, int width, int height) {
+    public Texture(int textureID) {
         this.textureID = textureID;
-        this.width = width;
-        this.height = height;
     }
 
     public int textureID() {
@@ -30,11 +28,18 @@ public final class Texture {
     public int getWidth() {
         return width;
     }
+    public Texture setWidth(int width) {
+        this.width = width;
+        return this;
+    }
 
     public int getHeight() {
         return height;
     }
-
+    public Texture setHeight(int height) {
+        this.height = height;
+        return this;
+    }
 
     private void delete() {
         glDeleteTextures(textureID);

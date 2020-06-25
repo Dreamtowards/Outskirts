@@ -90,7 +90,7 @@ public final class Init {
 
         Gui TXTINFOS = Outskirts.getRootGUI().addGui(new GuiDebugTextInfos()).setVisible(false).setRelativeY(32);
         Gui MEMLOG = Outskirts.getRootGUI().addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
-        Gui PROFILERV = Outskirts.getRootGUI().addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);  // 好像没有设置初始化size。。。
+        Gui PROFILERV = Outskirts.getRootGUI().addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
         Gui VERT3D = Outskirts.getRootGUI().addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
 
         Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);

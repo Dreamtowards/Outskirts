@@ -112,6 +112,9 @@ public class Gui {
     public static void drawTexture(Texture texture, float x, float y, float width, float height, float texOffsetX, float texOffsetY, float texScaleX, float texScaleY) {
         Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height, texOffsetX, texOffsetY, texScaleX, texScaleY);
     }
+    public static void drawTexture(Texture texture, Gui g) {
+        drawTexture(texture, g.getX(), g.getY(), g.getWidth(), g.getHeight());
+    }
 
     public static void drawWorldpoint(Vector3f worldposition, BiConsumer<Float, Float> lsr) {
         Vector4f v = Maths.calculateDisplayPosition(worldposition, Outskirts.renderEngine.getProjectionMatrix(), Outskirts.renderEngine.getViewMatrix(), null);
@@ -384,8 +387,8 @@ public class Gui {
 
 
     public final void onDraw() {
-        if (!isVisible())
-            return;
+        if (!isVisible()) return;
+
         boolean isClip = isClipChildren(); // avoid field dynamic changed
 
         performEvent(new OnDrawEvent()); // OnDraw
@@ -393,7 +396,8 @@ public class Gui {
         if (isClip)
             GuiRenderer.pushScissor(getX(), getY(), getWidth(), getHeight());
 
-        forChildren(Gui::onDraw);
+        for (Gui child : getChildren())
+            child.onDraw();
 
         if (isClip)
             GuiRenderer.popScissor();
