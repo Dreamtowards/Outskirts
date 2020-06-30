@@ -43,6 +43,7 @@ public class GuiTextFieldNumerical extends GuiTextField {
             drawRect(isNumDragDragging?Colors.WHITE40:guiNumDrag.isMouseOver()?Colors.WHITE30:Colors.WHITE20, guiNumDrag);
             drawString("↕", guiNumDrag.getX()+guiNumDrag.getWidth()/2, guiNumDrag.getY()+getHeight()/2f-10, isNumDragDragging?Colors.YELLOW:Colors.WHITE, 16, true, false);
 
+            drawRectBorder(Colors.BLACK, this, 1);
         }, EventPriority.LOWEST);
     }
 

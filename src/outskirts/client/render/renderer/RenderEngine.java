@@ -1,9 +1,10 @@
 package outskirts.client.render.renderer;
 
 import org.lwjgl.Version;
-import outskirts.client.GameSettings;
+import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.render.glw.Framebuffer;
+import outskirts.client.animation.AnRenderer;
+import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
@@ -30,7 +31,7 @@ public final class RenderEngine {
 
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
-            .resize(1000, 500)
+            .resize(1920, 1080)
             .attachTextureColor(0)
             .attachRenderbufferDepthStencil()
             .checkFramebufferStatus()
@@ -62,7 +63,7 @@ public final class RenderEngine {
 
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
-        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(GameSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), GameSettings.NEAR_PLANE, GameSettings.FAR_PLANE, getProjectionMatrix());
+        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
 //        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth(), Outskirts.getHeight(), 1000, renderEngine.getProjectionMatrix());
     }
 
@@ -73,9 +74,9 @@ public final class RenderEngine {
 
         worldFramebuffer.bindPushFramebuffer();
         prepare();
-//        glDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
         entityRenderer.render(world.getEntities(), world.lights);
-//        glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         worldFramebuffer.popFramebuffer();
 
         terrainRenderer.render(world.getTerrains());

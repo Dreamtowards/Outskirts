@@ -3,6 +3,12 @@ package outskirts.client;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import outskirts.client.animation.AnRenderer;
+import outskirts.client.animation.Animation;
+import outskirts.client.animation.animated.AnimatedModel;
+import outskirts.client.animation.loader.tmpcolladaloader.MyFile;
+import outskirts.client.animation.loader.tmpmodelloader.AnimatedModelLoader;
+import outskirts.client.animation.loader.tmpmodelloader.AnimationLoader;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.*;
@@ -34,7 +40,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static outskirts.client.GameSettings.GUI_SCALE;
+import static outskirts.client.ClientSettings.GUI_SCALE;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
@@ -91,13 +97,13 @@ public class Outskirts {
     private void startGame() throws Throwable {
 
         // init, load Modules
-        for (String e : GameSettings.ProgramArguments.EXTENSIONS) {
+        for (String e : ClientSettings.ProgramArguments.EXTENSIONS) {
             Mods.registerInit(new File(e));
         }
 
         this.running = true;
         Outskirts.INSTANCE = this;
-        GameSettings.loadOptions();
+        ClientSettings.loadOptions();
         this.createDisplay();
 
         renderEngine = new RenderEngine();
@@ -105,7 +111,7 @@ public class Outskirts {
 
         {   // set window to screen center and perform init-onResize()
             GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
-            int wWidth = GameSettings.ProgramArguments.WIDTH, wHeight = GameSettings.ProgramArguments.HEIGHT;
+            int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
             glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
             glfwSetWindowSize(window, wWidth, wHeight); // for init onResize() in macOS
             glfwShowWindow(window);
@@ -118,8 +124,9 @@ public class Outskirts {
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        getRootGUI().addGui(GuiDebugCommon.INSTANCE);
+        getRootGUI().addGui(GuiDebugCommon.INSTANCE.setVisible(false));
         getRootGUI().addGui(GuiDebugPhys.INSTANCE);
+        getRootGUI().addGui(GuiVert3D.INSTANCE.setVisible(false));
         startScreen(GuiScreenMainMenu.INSTANCE);
 
 
@@ -128,7 +135,15 @@ public class Outskirts {
 
 //        Events.EVENT_BUS.post(new InitializedEvent());
 
+        anRenderer = new AnRenderer();
+
+        animatedModel = AnimatedModelLoader.loadEntity(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
+
+        animation = AnimationLoader.loadAnimation(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
     }
+    AnRenderer anRenderer;
+    AnimatedModel animatedModel;
+    Animation animation;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -174,6 +189,9 @@ public class Outskirts {
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
+
+            animatedModel.update(getDelta());
+            anRenderer.render(animatedModel);
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -225,17 +243,19 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE);
+        getPlayer().getMaterial().setModel(Models.GEO_CUBE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
-        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
-        getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(.5f);
+        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
+//        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
+        getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
-        getPlayer().getRigidBody().transform().origin.set(0,50,50);
+        getPlayer().getRigidBody().transform().origin.set(0,20,20);
         getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(20).setFriction(0.5f).setLinearDamping(0.04f);
-        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
+        getPlayer().getRigidBody().setMass(20).setFriction(0.5f);//.setLinearDamping(0.04f);
+//        getPlayer().getRigidBody().invInertiaTensorLocalDiag = SceneIniter.e.getRigidBody().invInertiaTensorLocalDiag;
+//        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
 
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
@@ -243,6 +263,7 @@ public class Outskirts {
                 if (e.getKey() == GLFW_KEY_C)
                     GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
+                    INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
                     Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(0, 1000, 0);
                 }
@@ -266,14 +287,14 @@ public class Outskirts {
                 float lv =1;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
-                if (GameSettings.KEY_WALK_FORWARD.isKeyDown()) player.walkStep(lv, 0);
-                if (GameSettings.KEY_WALK_BACKWARD.isKeyDown()) player.walkStep(lv, Maths.PI);
-                if (GameSettings.KEY_WALK_LEFT.isKeyDown()) player.walkStep(lv, Maths.PI/2);
-                if (GameSettings.KEY_WALK_RIGHT.isKeyDown()) player.walkStep(lv, -Maths.PI/2);
-                if (GameSettings.KEY_JUMP.isKeyDown()) player.walkStep(lv, new Vector3f(0, 1, 0));
-                if (GameSettings.KEY_SNEAK.isKeyDown()) player.walkStep(lv, new Vector3f(0, -1, 0));
+                if (ClientSettings.KEY_WALK_FORWARD.isKeyDown()) player.walkStep(lv, 0);
+                if (ClientSettings.KEY_WALK_BACKWARD.isKeyDown()) player.walkStep(lv, Maths.PI);
+                if (ClientSettings.KEY_WALK_LEFT.isKeyDown()) player.walkStep(lv, Maths.PI/2);
+                if (ClientSettings.KEY_WALK_RIGHT.isKeyDown()) player.walkStep(lv, -Maths.PI/2);
+                if (ClientSettings.KEY_JUMP.isKeyDown()) player.walkStep(lv, new Vector3f(0, 1, 0));
+                if (ClientSettings.KEY_SNEAK.isKeyDown()) player.walkStep(lv, new Vector3f(0, -1, 0));
 
-                GameSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
+                ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
 
 
@@ -285,7 +306,7 @@ public class Outskirts {
 
     private void destroy() {
 
-        GameSettings.saveOptions();
+        ClientSettings.saveOptions();
 
         Loader.destroy();
 

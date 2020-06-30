@@ -4,6 +4,7 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.narrowphase.Narrowphase;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.CollectionUtils;
+import outskirts.util.Maths;
 import outskirts.util.Transform;
 import outskirts.util.Validate;
 import outskirts.util.vector.Vector3f;
@@ -109,8 +110,8 @@ public final class CollisionManifold {
 
         cp.normOnB.set(normOnB);
 
-        cp.combined_friction = bodyA.getFriction() * bodyB.getFriction();
-        cp.combined_restitution = bodyA.getRestitution() * bodyB.getRestitution();
+        cp.combined_friction = Maths.sqrt(bodyA.getFriction() * bodyB.getFriction());
+        cp.combined_restitution = Maths.sqrt(bodyA.getRestitution() * bodyB.getRestitution());
 
         // other Contact-Point's information just wait been update/setup by refreshContactPoints() in later (when finished "this" Collision-Detection).
 

@@ -25,8 +25,8 @@ public class GuiRoot extends Gui {
     private <T> T updateTopScreen(T param) {
         GuiScreen g = null;
         for (int i = getChildCount()-1;i >= 0;i--) {
-            if (getChildAt(i) instanceof GuiScreen) {
-                g = getChildAt(i);
+            if (getGui(i) instanceof GuiScreen) {
+                g = getGui(i);
                 break;
             }
         }

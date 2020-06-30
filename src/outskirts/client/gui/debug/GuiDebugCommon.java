@@ -2,11 +2,15 @@ package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiMenu;
+import outskirts.client.gui.GuiMenubar;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.init.Textures;
 import outskirts.util.Colors;
+import outskirts.util.FileUtils;
+import outskirts.util.SystemUtils;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -17,8 +21,14 @@ public class GuiDebugCommon extends Gui {
 
     public static final GuiDebugCommon INSTANCE = new GuiDebugCommon();
 
-    public boolean showCambasis;
+    public GuiMenubar debugMenu = addGui(new GuiMenubar());
+
+    public boolean showCambasisAndInfos;
     public boolean showLightMarks;
+
+    private float deltaSumUntilOne = 0;
+    private int currSecFrames = 0;
+    private int prevSecFrames = 0;
 
     {
         addOnDrawListener(e -> {
@@ -36,7 +46,24 @@ public class GuiDebugCommon extends Gui {
                 }
             }
 
-            if (showCambasis) {
+            if (showCambasisAndInfos) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(String.format("\nU/T: %s / %s | JVM_Max: %s\n", FileUtils.toDisplaySize(SystemUtils.MEM_USED), FileUtils.toDisplaySize(SystemUtils.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtils.MEM_MAXIMUM)));
+
+                currSecFrames++;
+                deltaSumUntilOne += Outskirts.getDelta();
+                if (deltaSumUntilOne >= 1f) {
+                    prevSecFrames = currSecFrames;
+                    deltaSumUntilOne = 0;
+                    currSecFrames = 0;
+                }
+                sb.append(String.format("P: avgT: %sms, s: %s\n", 1000f/prevSecFrames, prevSecFrames));
+
+                sb.append(String.format("CameraPos: %s\n", Outskirts.getCamera().getPosition()));
+
+                drawString(sb.toString(), getX(), getY()+32, Colors.WHITE);
+
+
                 // renderCameraAxises
                 Matrix3f.set(TMP_MAT3, Outskirts.renderEngine.getViewMatrix());
                 float s = 0.003f;
@@ -61,5 +88,15 @@ public class GuiDebugCommon extends Gui {
                 true,
                 GL_TRIANGLES
         );
+    }
+
+    @Override
+    public float getWidth() {
+        return Outskirts.getWidth();
+    }
+
+    @Override
+    public float getHeight() {
+        return Outskirts.getHeight();
     }
 }

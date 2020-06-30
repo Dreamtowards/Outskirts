@@ -6,14 +6,19 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.EventHandler;
 import outskirts.event.client.WindowResizedEvent;
+import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.LongConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
@@ -67,44 +72,89 @@ public class Test {
 //        LOGGER.info(e2.toString());
 
 //        LOGGER.info();
-        int v = 100;
+//        int v = 100;
+//
+//        SomeClas someClas = new SomeClas();
+//        Class<?> cls = SomeClas.class;
+//        f=0;
+//        speed("accessClassGetter", 100_000_000, i -> {
+//            if (v == someClas.metho())
+//                f++;
+//        });
+//
+//        f=0;
+//        speed("hashCodeAccess", 100_000_000, i -> {
+//            if (v == someClas.hashCode())
+//                f++;
+//        });
+//
+//        f=0;
+//        speed("ClassHashCodeAccess", 100_000_000, i -> {
+//            if (v == someClas.getClass().hashCode())
+//                f++;
+//        });
+//
+//        f=0;
+//        speed("cachedLocalClassHashCodeAccess", 100_000_000, i -> {
+//            if (v == cls.hashCode())
+//                f++;
+//        });
+//
+//        Class loc = someClas.getClass();
+//        f=0;
+//        speed("ClassEq", 100_000_000, i -> {
+//            if (cls == loc)
+//                f++;
+//        });
 
-        SomeClas someClas = new SomeClas();
-        Class<?> cls = SomeClas.class;
-        f=0;
-        speed("accessClassGetter", 100_000_000, i -> {
-            if (v == someClas.metho())
-                f++;
-        });
 
-        f=0;
-        speed("hashCodeAccess", 100_000_000, i -> {
-            if (v == someClas.hashCode())
-                f++;
-        });
+//        for (int i = 2;i < 100;i++) {
+//            boolean is = true;
+//            for (int ti = 2; ti < i; ti++) {
+//                if (Maths.frac((float)i/ti)==0) {
+//                    is=false;
+//                    break;
+//                }
+//            }
+//            if (is)LOGGER.info(i);
+//        }
 
-        f=0;
-        speed("ClassHashCodeAccess", 100_000_000, i -> {
-            if (v == someClas.getClass().hashCode())
-                f++;
-        });
-
-        f=0;
-        speed("cachedLocalClassHashCodeAccess", 100_000_000, i -> {
-            if (v == cls.hashCode())
-                f++;
-        });
-
-        Class loc = someClas.getClass();
-        f=0;
-        speed("ClassEq", 100_000_000, i -> {
-            if (cls == loc)
-                f++;
-        });
+//        new Thread(() -> {
+//            try {
+//                int[] da_sum = {0};
+//
+//                String line;
+//                BufferedReader br = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+//                while ((line=br.readLine()) != null) {
+//                    float f = Float.parseFloat(line);
+//                    if (f == 0) break;
+//                    da_sum[0]+=f;
+//                    LOGGER.info("inputed: {}, sum: {}", f, da_sum[0]);
+//                }
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            } catch (NumberFormatException ex) {
+//                LOGGER.warn("Bad input: require num.");
+//            }
+//        }).start();
 
 
+//        Matrix3f R = Matrix3f.rotate(2, new Vector3f(1,1,1).normalize(), null);
+//
+//        Matrix3f I = Matrix3f.scale(new BoxShape(1,2,3).calculateLocalInertia(10, new Vector3f()), new Matrix3f());
+//
+//        Matrix3f RT = new Matrix3f(R).transpose();
+//
+//        LOGGER.info("I: {}", I);
+//
+//        LOGGER.info("R*I*R^T: {}", Matrix3f.mul(Matrix3f.mul(R, I, null), RT, null));
+
+
+
+        String s = "-34.352.3.141.2.-4";
 
     }
+
 
 
     private static class SomeClas {

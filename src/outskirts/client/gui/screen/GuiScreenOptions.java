@@ -1,6 +1,6 @@
 package outskirts.client.gui.screen;
 
-import outskirts.client.GameSettings;
+import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiSlider;
@@ -28,10 +28,10 @@ public class GuiScreenOptions extends GuiScreen {
 
     private GuiSlider sldFov = addGui(new GuiSlider()).addValueChangedListener(e -> {
         GuiSlider slider = e.gui();
-        GameSettings.FOV = (int)slider.getCurrentUserValue();
+        ClientSettings.FOV = (int)slider.getCurrentUserValue();
 
-        slider.setText("FOV: " + GameSettings.FOV);
-    }).setUserMinValue(25).setUserMaxValue(115).setCurrentUserValue(GameSettings.FOV).addOnDrawListener(e -> {
+        slider.setText("FOV: " + ClientSettings.FOV);
+    }).setUserMinValue(25).setUserMaxValue(115).setCurrentUserValue(ClientSettings.FOV).addOnDrawListener(e -> {
         e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
         e.gui().setY(140-60);
     });
@@ -48,9 +48,9 @@ public class GuiScreenOptions extends GuiScreen {
 
     private GuiSlider sldGuiscale = addGui(new GuiSlider()).addValueChangedListener(e -> {
         GuiSlider slider = (GuiSlider)e.gui();
-        GameSettings.GUI_SCALE = Maths.floor(slider.getCurrentUserValue(), 0.1f);
-        slider.setText("GUI_SCALE: " + GameSettings.GUI_SCALE);
-    }).setUserMinValue(0.5f).setUserMaxValue(4).setCurrentUserValue(GameSettings.GUI_SCALE).addOnDrawListener(e -> {
+        ClientSettings.GUI_SCALE = Maths.floor(slider.getCurrentUserValue(), 0.1f);
+        slider.setText("GUI_SCALE: " + ClientSettings.GUI_SCALE);
+    }).setUserMinValue(0.5f).setUserMaxValue(4).setCurrentUserValue(ClientSettings.GUI_SCALE).addOnDrawListener(e -> {
         e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
         e.gui().setY(310+60);
     });

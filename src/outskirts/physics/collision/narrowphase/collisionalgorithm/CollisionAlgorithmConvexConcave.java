@@ -8,7 +8,7 @@ import outskirts.physics.collision.shapes.ConvexShape;
 import outskirts.physics.collision.shapes.convex.TriangleShape;
 import outskirts.util.vector.Matrix3f;
 
-public class CollisionAlgorithmConvexConcave extends CollisionAlgorithm {
+public final class CollisionAlgorithmConvexConcave extends CollisionAlgorithm {
 
     private TriangleShape trigshape = new TriangleShape();
     private AABB tmpConcaveSpaceAABB = new AABB();

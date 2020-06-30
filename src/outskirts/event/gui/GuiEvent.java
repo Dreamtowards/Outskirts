@@ -9,10 +9,10 @@ import outskirts.event.Event;
  */
 public class GuiEvent extends Event {
 
-    private Gui gui;
+    public Gui _gui;
 
     // strong dependencies method. then not "get" prefix.
     public <T extends Gui> T gui() {
-        return (T)gui;
+        return (T)_gui;
     }
 }

@@ -34,6 +34,7 @@ public class GuiWindow extends Gui {
             });
             wHandler.addOnDrawListener(e -> {
                 drawRect(Colors.WHITE10, wHandler);
+                drawRect(Colors.WHITE40, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), 1);
 //                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), wHandler.getHeight());
                 drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY(), Colors.GRAY, 16, true, false);
             });

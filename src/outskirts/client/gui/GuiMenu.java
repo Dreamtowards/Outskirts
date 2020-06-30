@@ -40,8 +40,7 @@ public class GuiMenu extends Gui {
     }
 
     private static boolean isMouseInMenu(GuiMenu menu) {
-        for (int i = 0;i < menu.getChildCount();i++) {
-            Gui item = menu.getChildAt(i);
+        for (Gui item : menu.getChildren()) {
             if (item.isMouseOver()) {
                 return true;
             }
@@ -134,6 +133,7 @@ public class GuiMenu extends Gui {
                 Gui paren = getParent();
                 if (isMouseOver(paren.getX(), getY(), paren.getWidth(), getHeight())) {
                     drawRect(Colors.BLACK40, paren.getX(), getY(), paren.getWidth(), getHeight());
+//                    drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
                 }
 //                if (subMenu != null) {
 //                    drawRect(Colors.GREEN, paren.getX() + paren.getWidth() - 5, getY(), 5, getHeight());

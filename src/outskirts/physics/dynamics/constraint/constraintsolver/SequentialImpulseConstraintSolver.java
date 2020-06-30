@@ -1,10 +1,12 @@
 package outskirts.physics.dynamics.constraint.constraintsolver;
 
+import outskirts.client.Outskirts;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.dynamics.constraint.Constraint;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
@@ -55,6 +57,9 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
     public boolean USE_WARMSTART = false;
 
+    private static float SLOP_POSITIONAL = 0.005f; // ContcatSolving process Positional-Error only when the Penetration > the SLOP value. for stability.
+    private static float SLOP_RESTITUTION_RV = 0.5f; // Velocity. When relative-velocity-dotN "less" than this SLOP value, not process Restitution. for stability.
+
     @Override
     public void solveGroup(List<CollisionObject> bodies, List<CollisionManifold> manifolds, List<Constraint> constraints, float delta) {
 
@@ -62,6 +67,9 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         for (CollisionManifold manifold : manifolds)
         {
             manifold.refreshContactPoints();
+//            if (manifold.bodyA() == Outskirts.getPlayer().getRigidBody() || manifold.bodyB() == Outskirts.getPlayer().getRigidBody()) {
+//                Log.LOGGER.info(manifold.getContactPoint(0).penetration);
+//            }
 
             for (int i = 0;i < manifold.getNumContactPoints();i++) {
                 prepareConstraints(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(i), delta);
@@ -80,11 +88,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
                 }
             }
 
-            for (CollisionManifold manifold : manifolds) {
-                for (int j = 0;j < manifold.getNumContactPoints();j++) {
-                    solveFriction(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(j));
-                }
-            }
+//            for (CollisionManifold manifold : manifolds) {
+//                for (int j = 0;j < manifold.getNumContactPoints();j++) {
+//                    solveFriction(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(j));
+//                }
+//            }
         }
     }
 
@@ -93,7 +101,12 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
         // Contact-Constraint  /Normal
 
-        cpd.rest_combined_restitution = cp.combined_restitution * relvel_dot_n(bodyA, bodyB, cp, cp.normOnB);
+        float relvel_dot_n = relvel_dot_n(bodyA, bodyB, cp, cp.normOnB);  // mainly negatives. when getting tending penetrating.
+        cpd.rest_combined_restitution = 0;
+        if (-relvel_dot_n > SLOP_RESTITUTION_RV) { // SLOP Stabilization: restitution only working when "Penetrating-Velocity" faster than a SLOP value.  for prevents 'static jitter'.
+            cpd.rest_combined_restitution = cp.combined_restitution * relvel_dot_n;
+        }
+
 
         cpd.normalEffectiveMass = jac_EffectiveMass(cp.rA, cp.rB, cp.normOnB,
                 bodyA.getInvMass(), bodyB.getInvMass(), bodyA.getInvInertiaTensorWorld(), bodyB.getInvInertiaTensorWorld());
@@ -110,10 +123,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
 
 
-        Vector3f totalImpulse = new Vector3f(cp.normOnB).scale(cpd.normalImpulseSum);
-        // apply previous frames impulse on both bodies
-        bodyA.applyImpulse(totalImpulse, cp.rA);
-        bodyB.applyImpulse(totalImpulse.negate(), cp.rB);
+        // this makes Restitution working WELL.
+//        Vector3f totalImpulse = new Vector3f(cp.normOnB).scale(cpd.normalImpulseSum);
+//        // apply previous frames impulse on both bodies
+//        bodyA.applyImpulse(totalImpulse, cp.rA);
+//        bodyB.applyImpulse(totalImpulse.negate(), cp.rB);
     }
 
 
@@ -123,8 +137,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         // J V =          [n ^T  r_A×n ^T  -n ^T  -r_B×n ^T] [v_A  ω_A  v_B  ω_B]^T
         // p = J^T * λ =  [n ^T  r_A×n ^T  -n ^T  -r_B×n ^T] * -(J * V_curr + b)/(J * M^-1 * J^T)
 
-        // Baumgarte Stabilization Method. (-penetration / delta) * beta. the beta factor always [0-1]. always close to 0, but not a "correct" value
-        float positionalErr = (-cp.penetration / delta) * 0.2f;
+        // Baumgarte Stabilization Method. (-penetration / delta) * beta. the beta factor always [0-1]. always close to 0, but not a "correct" value.
+        float positionalErr = 0;
+//        if (cp.penetration > SLOP_POSITIONAL) {
+            positionalErr = (-cp.penetration / delta) * 0.2f;  // ori 0.2f
+//        }
         float restitutionErr = cpd.rest_combined_restitution;
 
         float bias = positionalErr + restitutionErr; // the bias term
@@ -132,6 +149,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
         float normalImpulse = -(JV + bias) / cpd.normalEffectiveMass; // the LagrangianMultiplier λ
 
+//        normalImpulse = Math.max(normalImpulse, 0);
         // clamp the λ.  SUM(λ_i) >= 0.
         float oldNormalImpulse = cpd.normalImpulseSum;
         cpd.normalImpulseSum = Math.max(oldNormalImpulse + normalImpulse, 0);
@@ -194,7 +212,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         CollisionManifold.ContactPoint.ConstraintSolverPresistentData cpd = cp.cpd;
 
         float lim = cp.combined_friction * cpd.normalImpulseSum;
-
         if (lim <= 0) return;
 
         // friction1

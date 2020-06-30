@@ -47,14 +47,14 @@ public class GuiScreenPause extends GuiScreen {
 
     private GuiButton btnBack = addGui(new GuiButton("Back")).addOnClickListener(e -> {
         Outskirts.closeScreen();
-    }).addOnDrawListener(e -> {
+    }).addOnLayoutListener(e -> {
         e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
         e.gui().setY(100);
     });
 
     private GuiButton btnOptions = addGui(new GuiButton("Options")).addOnClickListener(e -> {
         Outskirts.startScreen(GuiScreenOptions.INSTANCE);
-    }).addOnDrawListener(e -> {
+    }).addOnLayoutListener(e -> {
         e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
         e.gui().setY(160);
     });
@@ -64,7 +64,7 @@ public class GuiScreenPause extends GuiScreen {
 //        Outskirts.getPlayer().connection.closeChannel("Dinsconne");  //client ext.test
         Outskirts.closeScreen();
         Outskirts.startScreen(GuiScreenMainMenu.INSTANCE);
-    }).addOnDrawListener(e -> {
+    }).addOnLayoutListener(e -> {
         e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
         e.gui().setY(220);
     });

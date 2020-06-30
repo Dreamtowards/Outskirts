@@ -39,12 +39,15 @@ public class CollisionAlgorithmConvexConvex extends CollisionAlgorithm {
         // the ContactPoint-OnB should in both BoundingBox of bodyA and bodyB.
         // sometimes pointOnB in a "wrong" position, its in AABB of bodyB, but not in AABB of bodyA.
         // this happens when bodyB is a Huge body. the ContactPoint-OnB is Sample from the bodyB. when bodyB huge, sampling precision down.
-        if (!(bodyA.getAABB().contains(mtv.pointOnB,1.8f) && bodyB.getAABB().contains(mtv.pointOnB,1.8f))) {
+        if (!(bodyA.getAABB().contains(mtv.pointOnB,1.2f) && bodyB.getAABB().contains(mtv.pointOnB,1.2f))) {
             LOGGER.warn("illegal ContactPoint-OnB. not in both AABB of bodyA and bodyB.");
         }
 
         if (mtv.penetration > 10f) {  // when wrong MTV, wrong Epa processes.
             LOGGER.warn("big penetration: {}", mtv.penetration);
+        }
+        else if (mtv.penetration > 1f) {  // debug.
+            LOGGER.warn("little penetration: {}", mtv.penetration);
         }
 
     }

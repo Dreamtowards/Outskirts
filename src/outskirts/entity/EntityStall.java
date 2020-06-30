@@ -20,6 +20,6 @@ public class EntityStall extends Entity {
                     .setDiffuseMap(Textures.BRICK);
         }
 
-        getRigidBody().setCollisionShape(new BoxShape(new Vector3f(5, 4.5f, 3)));
+//        getRigidBody().setCollisionShape(new BoxShape(new Vector3f(5, 4.5f, 3)));
     }
 }

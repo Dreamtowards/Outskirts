@@ -13,6 +13,7 @@ import java.util.Set;
 //todo: local AABB cache.
 
 // ConvexHullShape. renamed from PolygonConvexShape.
+// note that in the physSystem, the actually Center of Mass are in the local-Origin. so the custom shape should tends makes the CoM in Origin
 public class ConvexHullShape extends ConvexShape {
 
     private Set<Vector3f> vertices = new HashSet<>();  // non duplicated point set.

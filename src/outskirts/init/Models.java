@@ -3,6 +3,7 @@ package outskirts.init;
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
 import outskirts.client.render.renderer.ModelRenderer;
+import outskirts.util.Identifier;
 import outskirts.util.ResourceLocation;
 import outskirts.util.Side;
 import outskirts.util.SideOnly;
@@ -19,7 +20,7 @@ public final class Models {
     public static final Model GEOS_CAPSULE = loadOBJ("materials/_capsule.obj");
 
     private static Model loadOBJ(String resource) {
-        return Loader.loadOBJ(new ResourceLocation(resource).getInputStream());
+        return Loader.loadOBJ(new Identifier(resource).getInputStream());
     }
 
     static void init() {}

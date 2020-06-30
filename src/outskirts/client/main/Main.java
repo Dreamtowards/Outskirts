@@ -1,11 +1,8 @@
 package outskirts.client.main;
 
-import outskirts.client.GameSettings;
+import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.mod.Mods;
 import outskirts.util.Side;
-
-import java.io.File;
 
 /**
  * A indie class to bootstrap client Outskirts
@@ -17,7 +14,7 @@ public class Main {
 
         Side.CURRENT = Side.CLIENT;
 
-        GameSettings.ProgramArguments.readArguments(args);
+        ClientSettings.ProgramArguments.readArguments(args);
 
         new Outskirts().run();
     }

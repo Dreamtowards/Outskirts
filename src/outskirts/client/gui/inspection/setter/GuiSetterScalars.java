@@ -14,14 +14,13 @@ public class GuiSetterScalars extends Gui {
 
     public GuiSetterScalars(String title, Pair<Supplier<Float>, Consumer<Float>>... fgsetters) {
         setHeight(16);
-        float startX = 80;
+        float startX = 100;
         for (Pair<Supplier<Float>, Consumer<Float>> pair : fgsetters) {
             GuiTextFieldNumerical field = addGui(new GuiTextFieldNumerical());
             field.setWidth(80);
             field.addOnDrawListener(e -> {
                 if (pair.getKey().get() != field.getValue())
                     field.setText(String.valueOf(pair.getKey().get()));
-                drawString(title, getX(), getY(), Colors.WHITE);
             });
             field.addOnTextChangedListener(e -> {
                 pair.getValue().accept(field.getValue());
@@ -31,6 +30,9 @@ public class GuiSetterScalars extends Gui {
         }
         setWidth(startX);
         setHeight(16);
+        addOnDrawListener(e -> {
+            drawString(title, getX(), getY(), Colors.WHITE);
+        });
     }
 
     public static GuiSetterScalars forVector3f(String title, Supplier<Vector3f> v) {

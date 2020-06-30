@@ -2,7 +2,11 @@ package outskirts.client.material;
 
 import static org.lwjgl.opengl.ARBVertexArrayObject.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * A VAO Object.
@@ -17,18 +21,19 @@ public final class Model {
 
     private int vaoID;
 
-    /** If not EBO, (use GL_ARRAY_BUFFER) that eboID will be 0 */
     private int eboID;
 
-    private int[] vboID;
+    private int[] vboID = new int[16];
 
     private int vertexCount;
 
-    public Model(int vaoID, int eboID, int[] vboID, int vertexCount) {
-        this.vaoID = vaoID;
-        this.eboID = eboID;
-        this.vboID = vboID;
-        this.vertexCount = vertexCount;
+    private Model() { }
+
+    public static Model glwGenVertexArrays() {  // needs fill Indices data when creating.?
+        Model model = new Model();
+        model.vaoID = glGenVertexArrays();
+
+        return model;
     }
 
     public int vaoID() {
@@ -39,13 +44,46 @@ public final class Model {
         return eboID;
     }
 
-    public int[] vboID() {
-        return vboID;
+    public int vboID(int i) {
+        return vboID[i];
     }
 
     public int vertexCount() {
         return vertexCount;
     }
+
+    public void bindVertexArray() {
+        glBindVertexArray(vaoID);
+    }
+
+    public void createElementBuffer(int[] indices) {
+        this.vertexCount = indices.length;
+        this.eboID = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+    }
+
+    public void createAttribute(int attributeNumber, int vertexSize, float[] data) {
+        int vbo = glGenBuffers();
+        this.vboID[attributeNumber] = vbo;
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(attributeNumber, vertexSize, GL_FLOAT, false, 0, 0);
+        glEnableVertexAttribArray(attributeNumber);
+    }
+
+    // glBufferSubData
+
+    // actually only assoc with VBO, not Attribute..
+    public void setAttributeSubData(int attributeNumber, float[] data) {
+        glBindBuffer(GL_ARRAY_BUFFER, vboID[attributeNumber]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, data);
+    }
+
+
+
+
 
     public void delete() {
 

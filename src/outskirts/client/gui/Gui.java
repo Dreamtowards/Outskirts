@@ -7,6 +7,7 @@ import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
 import outskirts.event.EventBus;
+import outskirts.event.EventPriority;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.*;
@@ -71,79 +72,6 @@ public class Gui {
         });
     }
 
-    //////////////////////////// START GLOBAL DRAW ////////////////////////////
-
-//    public static Vector2i drawString(String texts, int x, int y, Vector4f color, int height, boolean centerHorizontal) {
-//        if (centerHorizontal) {
-//            int textWidth = Outskirts.renderEngine.getFontRenderer().stringWidth(texts, height);
-//            x = x - (textWidth / 2);
-//        }
-//        return Outskirts.renderEngine.getFontRenderer().drawString(texts, x, y, height, color, true);
-//    }
-
-    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal, boolean drawShadow) {
-        if (centerHorizontal) { // shoulddo tex_x = t * (max_width - tex_width)
-            int textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, height).x;
-            x -= textWidth/2f;
-        }
-        Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, height, color, drawShadow);
-    }
-    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal) {
-        drawString(text, x, y, color, height, centerHorizontal, true);
-    }
-    public static void drawString(String text, float x, float y, Vector4f color, int height) {
-        drawString(text, x, y, color, height, false);
-    }
-    public static void drawString(String text, float x, float y, Vector4f color) {
-        drawString(text, x, y, color, GuiText.DEFAULT_TEXT_HEIGHT);
-    }
-
-    public static void drawRect(Vector4f color, float x, float y, float width, float height) {
-        GuiRenderer.OP_colormul.set(color);
-        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, Texture.UNIT, x, y, width, height);
-    }
-    public static void drawRect(Vector4f color, Gui g) {
-        drawRect(color, g.getX(), g.getY(), g.getWidth(), g.getHeight());
-    }
-
-    public static void drawTexture(Texture texture, float x, float y, float width, float height) {
-        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height);
-    }
-    public static void drawTexture(Texture texture, float x, float y, float width, float height, float texOffsetX, float texOffsetY, float texScaleX, float texScaleY) {
-        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height, texOffsetX, texOffsetY, texScaleX, texScaleY);
-    }
-    public static void drawTexture(Texture texture, Gui g) {
-        drawTexture(texture, g.getX(), g.getY(), g.getWidth(), g.getHeight());
-    }
-
-    public static void drawWorldpoint(Vector3f worldposition, BiConsumer<Float, Float> lsr) {
-        Vector4f v = Maths.calculateDisplayPosition(worldposition, Outskirts.renderEngine.getProjectionMatrix(), Outskirts.renderEngine.getViewMatrix(), null);
-        if (v.z > 0) {
-            lsr.accept(v.x*Outskirts.getWidth(), v.y*Outskirts.getHeight());
-        }
-    }
-
-    /**
-     * thickness > 0, inner. < 0, outer.
-     */
-    public static void drawRectBorder(Vector4f color, float x, float y, float width, float height, float thickness) {
-
-        drawRect(color, x, y, width, thickness); //Top
-        drawRect(color, x, y + height-thickness, width, thickness); //Bottom
-
-        drawRect(color, x, y + thickness, thickness, height-thickness-thickness); //Left
-        drawRect(color, x + width - thickness, y+thickness, thickness, height-thickness-thickness); //Right
-    }
-    public static void drawRectBorder(Vector4f color, Gui g, float thickness) {
-        drawRectBorder(color, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
-    }
-
-
-
-    //////////////////////////// END GLOBAL DRAW ////////////////////////////
-
-
-    //just some tool-type methods, calls some really methods for more-convenient, do not needs override this
     /**
      * @return the Gui which added
      */
@@ -153,14 +81,12 @@ public class Gui {
 
     public <T extends Gui> T addGui(T gui, int index) {
         gui.setParent(this);
-
         children.add(index, gui);
-
         return gui;
     }
 
     // todo: getGui(i) ..?
-    public <T extends Gui> T getChildAt(int index) {
+    public <T extends Gui> T getGui(int index) {
         return (T) children.get(index);
     }
 
@@ -172,15 +98,16 @@ public class Gui {
         return (T)this;
     }
 
+    // size() .?
     public int getChildCount() {
         return children.size();
     }
 
     /**
-     * @return the Gui which removed
+     * @return the Gui which been removed
      */
     public <T extends Gui> T removeGui(int index) {
-        getChildAt(index).setParent(null);
+        getGui(index).setParent(null);
         return (T) children.remove(index);
     }
     public final void removeGui(Gui g) {
@@ -195,13 +122,13 @@ public class Gui {
 
     public final int lastIndexOfGui(Gui gui) {
         for (int i = getChildCount()-1;i >= 0;i--) {
-            if (getChildAt(i).equals(gui)) return i;
+            if (getGui(i).equals(gui)) return i;
         }
         return -1;
     }
     public final int indexOfGui(Gui gui) {
         for (int i = 0;i < getChildCount();i++) {
-            if (getChildAt(i).equals(gui)) return i;
+            if (getGui(i).equals(gui)) return i;
         }
         return -1;
     }
@@ -256,6 +183,7 @@ public class Gui {
     }
 
     public float getWidth() {
+        if (!isVisible()) return 0;
         return width;
     }
     public <T extends Gui> T setWidth(float width) {
@@ -264,6 +192,7 @@ public class Gui {
     }
 
     public float getHeight() {
+        if (!isVisible()) return 0;
         return height;
     }
     public <T extends Gui> T setHeight(float height) {
@@ -340,7 +269,7 @@ public class Gui {
     public static Vector2f calculateChildrenBound(Gui parent) {
         Vector2f bound = new Vector2f();
         for (int i = 0;i < parent.getChildCount();i++) {
-            Gui child = parent.getChildAt(i);
+            Gui child = parent.getGui(i);
 
             bound.x = Math.max(bound.x, child.getRelativeX() + child.getWidth());
             bound.y = Math.max(bound.y, child.getRelativeY() + child.getHeight());
@@ -354,10 +283,10 @@ public class Gui {
      * and {for size: get} is original method.
      * cause always use and have multi params, so not use static.
      */
-    public final <T extends Gui> void forChildren(Consumer<T> visitor, boolean includeChildren, Predicate<Gui> eachpredicate) {
+    public final void forChildren(Consumer<Gui> visitor, boolean includeChildren, Predicate<Gui> eachpredicate) {
         // if iterating children use index, probably skip/repeat iteration-item when the list been edit(add/remove)
         for (int i = 0;i < getChildCount();i++) {
-            T child = getChildAt(i);
+            Gui child = getGui(i);
             if (!eachpredicate.test(child)) continue;
 
             visitor.accept(child);
@@ -367,11 +296,8 @@ public class Gui {
             }
         }
     }
-    public final <T extends Gui> void forChildren(Consumer<T> visitor, boolean includeChildren) {
+    public final void forChildren(Consumer<Gui> visitor, boolean includeChildren) {
         forChildren(visitor, includeChildren, g -> true);
-    }
-    public final <T extends Gui> void forChildren(Consumer<T> visitor) {
-        forChildren(visitor, false);
     }
 
     public final List<Gui> getChildren() {
@@ -388,6 +314,7 @@ public class Gui {
 
     public final void onDraw() {
         if (!isVisible()) return;
+        _checks_MouseInOut();
 
         boolean isClip = isClipChildren(); // avoid field dynamic changed
 
@@ -403,7 +330,24 @@ public class Gui {
             GuiRenderer.popScissor();
     }
 
+    private boolean _isPrevMouseOver = false;
+    private void _checks_MouseInOut() {
+        boolean isCurrMouseOver = isMouseOver();
+        if (isCurrMouseOver && !_isPrevMouseOver) {
+            performEvent(new OnMouseInEvent());
+        } else if (!isCurrMouseOver && _isPrevMouseOver) {
+            performEvent(new OnMouseOutEvent());
+        }
+        _isPrevMouseOver = isCurrMouseOver;
+    }
 
+
+
+    public final void onLayout() {
+
+
+
+    }
 
 
 
@@ -417,12 +361,9 @@ public class Gui {
     };
 
 
-
-    private static final Field _REF_FIELD_GUIEVENT_GUI = ReflectionUtils.getField(GuiEvent.class, "gui");
-
     public final boolean performEvent(Event event) {
-        if (event instanceof GuiEvent && ((GuiEvent)event).gui() == null)
-            ReflectionUtils.setFieldValue(_REF_FIELD_GUIEVENT_GUI, event, this);
+        if (event instanceof GuiEvent)
+            ((GuiEvent)event)._gui=this;
         return eventBus.post(event);
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui
@@ -524,13 +465,11 @@ public class Gui {
     }
 
 
-    public final <T extends Gui> T addOnMouseEnteredListener(Consumer<MouseEnteredEvent> listener) {
-        checkTrigger_OnMouseInOut();
-        attachListener(MouseEnteredEvent.class, listener); return (T)this;
+    public final <T extends Gui> T addOnMouseInListener(Consumer<OnMouseInEvent> listener) {
+        attachListener(OnMouseInEvent.class, listener); return (T)this;
     }
-    public final <T extends Gui> T addOnMouseExitedListener(Consumer<MouseExitedEvent> listener) {
-        checkTrigger_OnMouseInOut();
-        attachListener(MouseExitedEvent.class, listener); return (T)this;
+    public final <T extends Gui> T addOnMouseOutListener(Consumer<OnMouseOutEvent> listener) {
+        attachListener(OnMouseOutEvent.class, listener); return (T)this;
     }
     public final <T extends Gui> T addOnDrawListener(Consumer<OnDrawEvent> listener) {
         attachListener(OnDrawEvent.class, listener); return (T)this;
@@ -539,7 +478,7 @@ public class Gui {
         attachListener(OnDrawEvent.class, listener).priority(priority); return (T)this;
     }
     public final <T extends Gui> T addOnLayoutListener(Consumer<OnDrawEvent> listener) { // the event waiting to do related.
-        attachListener(OnDrawEvent.class, listener); return (T)this;
+        attachListener(OnDrawEvent.class, listener).priority(EventPriority.MONITOR); return (T)this;
     }
 
     // AlignParentLTRB
@@ -576,7 +515,6 @@ public class Gui {
     }
     public final <T extends Gui> T addLayoutorWrapChildren(float pleft, float ptop, float pright, float pbottom) {
         return addOnLayoutListener(e -> {
-
             float mxRelRight=0, mxRelBottom=0, mnRelX=Float.MAX_VALUE, mnRelY=Float.MAX_VALUE;
             for (Gui g : getChildren()) {
                 mxRelRight = Math.max(mxRelRight, g.getRelativeX()+g.getWidth());
@@ -630,9 +568,9 @@ public class Gui {
         return addOnDraggingListener(ondragging, null, null);
     }
 
-    protected static class MouseExitedEvent extends GuiEvent { }
+    protected static class OnMouseOutEvent extends GuiEvent { }
 
-    protected static class MouseEnteredEvent extends GuiEvent { }
+    protected static class OnMouseInEvent extends GuiEvent { }
 
     public static class OnDrawEvent extends GuiEvent { }
 
@@ -640,32 +578,87 @@ public class Gui {
 
 
 
-    private List<Class<? extends GuiEvent>> initializedTriggers = new ArrayList<>();
 
-    private boolean isTriggerInitialized(Class t) {
-        if (initializedTriggers.contains(t)) {
-            return true;
-        } else {
-            initializedTriggers.add(t);
-            return false;
+
+
+
+
+
+
+
+
+
+    //////////////////////////// START GLOBAL DRAW ////////////////////////////
+
+//    public static Vector2i drawString(String texts, int x, int y, Vector4f color, int height, boolean centerHorizontal) {
+//        if (centerHorizontal) {
+//            int textWidth = Outskirts.renderEngine.getFontRenderer().stringWidth(texts, height);
+//            x = x - (textWidth / 2);
+//        }
+//        return Outskirts.renderEngine.getFontRenderer().drawString(texts, x, y, height, color, true);
+//    }
+
+    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal, boolean drawShadow) {
+        if (centerHorizontal) { // shoulddo tex_x = t * (max_width - tex_width)
+            int textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, height).x;
+            x -= textWidth/2f;
+        }
+        Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, height, color, drawShadow);
+    }
+    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal) {
+        drawString(text, x, y, color, height, centerHorizontal, true);
+    }
+    public static void drawString(String text, float x, float y, Vector4f color, int height) {
+        drawString(text, x, y, color, height, false);
+    }
+    public static void drawString(String text, float x, float y, Vector4f color) {
+        drawString(text, x, y, color, GuiText.DEFAULT_TEXT_HEIGHT);
+    }
+
+    public static void drawRect(Vector4f color, float x, float y, float width, float height) {
+        GuiRenderer.OP_colormul.set(color);
+        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, Texture.UNIT, x, y, width, height);
+    }
+    public static void drawRect(Vector4f color, Gui g) {
+        drawRect(color, g.getX(), g.getY(), g.getWidth(), g.getHeight());
+    }
+
+    public static void drawTexture(Texture texture, float x, float y, float width, float height) {
+        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height);
+    }
+    public static void drawTexture(Texture texture, float x, float y, float width, float height, float texOffsetX, float texOffsetY, float texScaleX, float texScaleY) {
+        Outskirts.renderEngine.getGuiRenderer().render(GuiRenderer.MODEL_RECT, texture, x, y, width, height, texOffsetX, texOffsetY, texScaleX, texScaleY);
+    }
+    public static void drawTexture(Texture texture, Gui g) {
+        drawTexture(texture, g.getX(), g.getY(), g.getWidth(), g.getHeight());
+    }
+
+    public static void drawWorldpoint(Vector3f worldposition, BiConsumer<Float, Float> lsr) {
+        Vector4f v = Maths.calculateDisplayPosition(worldposition, Outskirts.renderEngine.getProjectionMatrix(), Outskirts.renderEngine.getViewMatrix(), null);
+        if (v.z > 0) {
+            lsr.accept(v.x*Outskirts.getWidth(), v.y*Outskirts.getHeight());
         }
     }
 
+    /**
+     * thickness > 0, inner. < 0, outer.
+     */
+    public static void drawRectBorder(Vector4f color, float x, float y, float width, float height, float thickness) {
 
-    private void checkTrigger_OnMouseInOut() {
-        if (isTriggerInitialized(MouseEnteredEvent.class))
-            return;
-        if (isTriggerInitialized(MouseExitedEvent.class))
-            return;
-        boolean[] isPrevMouseOver = {false};
-        addOnDrawListener(e -> {
-            boolean isMouseOver = isMouseOver();
-            if (isMouseOver && !isPrevMouseOver[0]) {
-                performEvent(new MouseEnteredEvent());
-            } else if (!isMouseOver && isPrevMouseOver[0]) {
-                performEvent(new MouseExitedEvent());
-            }
-            isPrevMouseOver[0] = isMouseOver;
-        });
+        drawRect(color, x, y, width, thickness); //Top
+        drawRect(color, x, y + height-thickness, width, thickness); //Bottom
+
+        drawRect(color, x, y + thickness, thickness, height-thickness-thickness); //Left
+        drawRect(color, x + width - thickness, y+thickness, thickness, height-thickness-thickness); //Right
     }
+    public static void drawRectBorder(Vector4f color, Gui g, float thickness) {
+        drawRectBorder(color, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
+    }
+
+
+
+    //////////////////////////// END GLOBAL DRAW ////////////////////////////
+
+
+
 }

@@ -83,9 +83,10 @@ public class QuickHull {
         Set<Vector3f> s = new HashSet<>();
         Vector3f TMP = new Vector3f();
         for (int i = 0;i < dupvts.length;i+=3) {
-            if (s.add(TMP.set(dupvts[i], dupvts[i+1], dupvts[i+2]))) { // prevents add-fault but new useless. - only new when add success.
-                TMP = new Vector3f();
-            }
+            s.add(new Vector3f(dupvts[i], dupvts[i+1], dupvts[i+2]));
+//            if (s.add(TMP.set(dupvts[i], dupvts[i+1], dupvts[i+2]))) { // prevents add-fault but new useless. - only new when add success.
+//                TMP = new Vector3f();
+//            }
         }
         return quickHull(s);
     }
@@ -138,7 +139,7 @@ public class QuickHull {
                 triangles.remove(i);
                 ls.addAll(t.pointsInfront);
 
-//                GuiScreen3DVertices._TMP_DEF_INST.vertices.removeAll(t.vs);
+//                GuiVert3D.INSTANCE.vertices.removeAll(t.vs);
                 isCanContinue();
             }
         }
@@ -185,9 +186,9 @@ public class QuickHull {
             }
             // vertices.removeAll(pointsInfront); // for no duplicated search in futrue. but when no, ok yet.
 
-//            vs = GuiScreen3DVertices.addTri("hull", v0, v1, v2, Colors.YELLOW, normal);
+//            vs = GuiVert3D.addTri("hull", v0, v1, v2, Colors.YELLOW, normal);
 //            if (P!=null) {
-//                GuiScreen3DVertices.Vert v = GuiScreen3DVertices.addVert("hull.P", P, Colors.GOLD);
+//                GuiVert3D.Vert v = GuiVert3D.addVert("hull.P", P, Colors.GOLD);
 //            }
         }
     }

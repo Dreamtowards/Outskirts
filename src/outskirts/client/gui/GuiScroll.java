@@ -79,7 +79,7 @@ public class GuiScroll extends Gui {
     }
 
     public <T extends Gui> T getContentGui() {
-        return getChildAt(0);
+        return getGui(0);
     }
 
     public static class GuiScrollHandle extends Gui {

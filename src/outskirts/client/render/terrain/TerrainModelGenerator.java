@@ -70,12 +70,12 @@ public class TerrainModelGenerator {
             }
         }
 
-        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
-        Outskirts.getWorld().addEntity(eFloor);
-        eFloor.tmp_boxSphere_scale.set(1,1,1);
-        eFloor.getRigidBody().setMass(0).setRestitution(0.1f);
-        eFloor.getRigidBody().setInertiaTensorLocal(0, 0, 0);
-        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(indices, positions));
+//        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
+//        Outskirts.getWorld().addEntity(eFloor);
+//        eFloor.tmp_boxSphere_scale.set(1,1,1);
+//        eFloor.getRigidBody().setMass(0).setRestitution(0.1f);
+//        eFloor.getRigidBody().setInertiaTensorLocal(0, 0, 0);
+//        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(indices, positions));
 
         return new ModelData(indices, positions, textureCoords, normals);
     }

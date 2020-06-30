@@ -1,5 +1,7 @@
 package outskirts.util.vector;
 
+import outskirts.util.Maths;
+
 public class Vector4f extends Vector {
 
     public static final Vector4f ZERO = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
@@ -158,4 +160,21 @@ public class Vector4f extends Vector {
     public static float angle(Vector4f a, Vector4f b) {
         return Vector.angle(dot(a, b), a, b);
     }
+
+
+
+
+
+    public static Vector4f lerp(float t, Vector4f start, Vector4f end, Vector4f dest) {
+        if (dest == null)
+            dest = new Vector4f();
+        return dest.set(
+                Maths.lerp(t, start.x, end.x),
+                Maths.lerp(t, start.y, end.y),
+                Maths.lerp(t, start.z, end.z),
+                Maths.lerp(t, start.w, end.w)
+        );
+    }
+
+
 }

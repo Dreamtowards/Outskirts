@@ -14,7 +14,7 @@ public abstract class CollisionObject {
      */
     protected Transform transform = new Transform();
 
-    private CollisionShape collisionShape = new BoxShape(new Vector3f());
+    private CollisionShape collisionShape;
 
     //should be keep away in broadphase..?
     private AABB aabb = new AABB();

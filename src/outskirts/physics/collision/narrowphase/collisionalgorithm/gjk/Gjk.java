@@ -66,7 +66,7 @@ public class Gjk {
 //            GuiScreen3DVertices.addVert("sp"+i, sp.point, Colors.YELLOW);
 
 
-            if (Vector3f.dot(sp.point, d) <= 0.001f) {
+            if (Vector3f.dot(sp.point, d) <= 0.0001f) {
                 // exit. when you want encloses the Origin. the boundary-point must further along the "Point/Line/Face to Origin direction".  when == 0 is touching.
                 // this the tolerance working for 1. prevents "Plane Simplex". 2. sometimes avoid getting duplicated SupportPoint.
                 return null;

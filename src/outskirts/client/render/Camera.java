@@ -1,14 +1,10 @@
 package outskirts.client.render;
 
-import org.lwjgl.glfw.GLFW;
-import outskirts.client.GameSettings;
+import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
 /**
@@ -58,8 +54,8 @@ public class Camera {
 //                if (Outskirts.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
 //                    eulerAngles.z += -Math.toRadians(Outskirts.getMouseDX() * GameSettings.MOUSE_SENSITIVITY);
 //                } else {
-                    eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * GameSettings.MOUSE_SENSITIVITY);
-                    eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * GameSettings.MOUSE_SENSITIVITY);
+                    eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
+                    eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
                     eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
 //                }
             }

@@ -10,8 +10,8 @@ public class BoxShape extends ConvexShape {
     private Vector3f halfExtent = new Vector3f();
 
     // can be simpleimize, this constructor may is not necessary
-    public BoxShape(Vector3f halfExtent) {
-        getHalfExtent().set(halfExtent);
+    public BoxShape(float hx, float hy, float hz) {
+        getHalfExtent().set(hx, hy, hz);
     }
 
     public Vector3f getHalfExtent() {

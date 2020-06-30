@@ -91,10 +91,12 @@ public class FontRenderer extends Renderer {
         int startY = 0;
         for (int i = 0;i < texts.length();i++) {
             char ch = texts.charAt(i);
-
             float widthRatio = charWidth(ch);
-
             startX += (int)(widthRatio * textHeight) + GAP_CHAR;
+            if (ch == '\n') {
+                startX=0;
+                startY+=textHeight+GAP_LINE;
+            }
         }
         startY += textHeight;
         return new Vector2i(startX, startY);

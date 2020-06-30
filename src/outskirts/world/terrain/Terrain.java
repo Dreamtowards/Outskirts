@@ -139,7 +139,7 @@ public class Terrain implements Savable {
 
     public void _update_model() {
         ModelData mdat = new TerrainModelGenerator().generateModel(this);
-        getMaterial().setModel(Loader.loadModelWithTangent(mdat.indices, mdat.positions,mdat.textureCoords,mdat.normals));
+//        getMaterial().setModel(Loader.loadModelWithTangent(mdat.indices, mdat.positions,mdat.textureCoords,mdat.normals));
     }
     public void _update_texture() {
         getMaterial().setDiffuseMap(Loader.loadTexture(texture));

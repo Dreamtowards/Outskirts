@@ -73,7 +73,6 @@ public final class Init {
             Models.init();
 
             initGuiMenu();
-
         } else {
 
             registerCommands();
@@ -88,24 +87,22 @@ public final class Init {
 
     private static void initGuiMenu() {
 
-        Gui TXTINFOS = Outskirts.getRootGUI().addGui(new GuiDebugTextInfos()).setVisible(false).setRelativeY(32);
         Gui MEMLOG = Outskirts.getRootGUI().addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
         Gui PROFILERV = Outskirts.getRootGUI().addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
         Gui VERT3D = Outskirts.getRootGUI().addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
 
         Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);
 
-        GuiMenubar menubar = Outskirts.getRootGUI().addGui(new GuiMenubar());
+        GuiMenubar menubar = GuiDebugCommon.INSTANCE.debugMenu; // Outskirts.getRootGUI().addGui(new GuiMenubar());
         menubar.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
         {
             GuiMenu mDebug = menubar.addMenu("DebugV", new GuiMenu());
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false, TXTINFOS::setVisible).bindKey(GLFW.GLFW_KEY_F3));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false,  c -> GuiDebugCommon.INSTANCE.showCambasisAndInfos =c).bindKey(GLFW.GLFW_KEY_F3));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, b -> {}).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
             mDebug.addGui(GuiMenu.GuiItem.divider());
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Cam Basis", false, c -> GuiDebugCommon.INSTANCE.showCambasis =c));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> GuiDebugCommon.INSTANCE.showLightMarks =c));
             mDebug.addGui(GuiMenu.GuiItem.divider());
             mDebug.addGui(GuiMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));

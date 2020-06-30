@@ -40,7 +40,15 @@ public class Quaternion extends Vector4f {
     }
 
     @Override
-    public Quaternion negate() { //conjugate
+    public Quaternion negate() { // different with conjugate. this negate dose makes rotate flip!!
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
+        this.w = -this.w;
+        return this;
+    }
+
+    public Quaternion conjugate() {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
@@ -295,4 +303,24 @@ public class Quaternion extends Vector4f {
     }
 
 
+
+
+
+
+    public static Quaternion nlerp(float t, Quaternion start, Quaternion end, Quaternion dest) {
+        return (Quaternion)Vector4f.lerp(t, start, end, dest).normalize();
+    }
+
+    // for anim interpolate
+    public static Quaternion nlerpsf(float t, Quaternion start, Quaternion end, Quaternion dest) {
+        if (dest == null)
+            dest = new Quaternion();
+        float dot = Quaternion.dot(start, end);
+        if (dot < 0f)
+            end.negate();
+        Quaternion.nlerp(t, start, end, dest);
+        if (dot < 0f)
+            end.negate();  // negaet back.
+        return dest;
+    }
 }

@@ -7,28 +7,20 @@ import outskirts.client.material.Model;
 import outskirts.client.material.ModelData;
 import outskirts.client.material.Texture;
 import outskirts.util.CollectionUtils;
-import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.logging.Log;
 import outskirts.util.obj.OBJFileLoader;
-import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import javax.xml.ws.Holder;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.Reference;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -39,7 +31,6 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL42.glTexStorage3D;
 
 public final class Loader {
 
@@ -56,64 +47,38 @@ public final class Loader {
         OP_TEX2D_type           = GL_UNSIGNED_BYTE;
     }
 
-    private static List<Integer> vaos = new ArrayList<>(); // GL VAO
-    private static List<Integer> vbos = new ArrayList<>(); // GL VBO
     private static List<Integer> texs = new ArrayList<>(); // GL Textures
     private static List<Integer> bufs = new ArrayList<>(); // AL Buffers
 
 
+    // needs rename.
     /**
-     * 3D Vertices Data. (positions:vec3)
+     * Load "General 3D Vertices Data" with Tangents. (positions:vec3, textureCoords:vec2, normals:vec3)
      */
-//    public static Model loadModel(@Nullable int[] indices, float[] positions, float[] textureCoords, float[] normals) {
-//        return loadModel(indices, positions,3, textureCoords,2, normals,3);
-//    }
-    public static Model loadModelWithTangent(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
+    private static Model loadModelTAN(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
         float[] tangents = new float[positions.length];
         Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
         return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
     }
+    // vertexSize is Required.! its can't been get by calc data.length/indices.length.
     /**
      * Load VertexData to VAO
-     * @param indices uses EBO
-     * @param attrvsz_vdat [VertexSize:int, VAO-AttributeList-Datas:float[]]
+     * @param attrvsz_vdat [vertexSize:int, VAOAttributeData:float[]]
      */
     public static Model loadModel(int[] indices, Object... attrvsz_vdat) {
-        int vaoID = glGenVertexArrays(); vaos.add(vaoID);
-        glBindVertexArray(vaoID);
-        int eboID = bindElementBuffer(indices);
+        Model model = Model.glwGenVertexArrays();
+        model.bindVertexArray();
+        model.createElementBuffer(indices);
 
-        int[] vbos = new int[attrvsz_vdat.length/2];
-        for (int i = 0;i < vbos.length;i++) {
+        for (int i = 0;i < attrvsz_vdat.length/2;i++) {
             int attrp_i = i*2;
-            vbos[i] = storeDataToAttributeList(i, (int)attrvsz_vdat[attrp_i], (float[])attrvsz_vdat[attrp_i+1]);
+            model.createAttribute(i, (int)attrvsz_vdat[attrp_i], (float[])attrvsz_vdat[attrp_i+1]);
         }
 
-        return new Model(vaoID, eboID, vbos, indices.length);
+        return model;
     }
     public static Model loadModel(Object... attrvsz_vdat) {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
-    }
-    /**
-     * Store IndicesData (Indices[]) to EBO
-     */
-    private static int bindElementBuffer(int[] indices) {
-        int eboID = glGenBuffers(); vbos.add(eboID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
-        return eboID;
-    }
-    /**
-     * Store VertexData (Vertices[]) to VBO, and setup AttributeList
-     */
-    private static int storeDataToAttributeList(int attributeNumber, int vertexSize, float[] data) {
-        int vboID = glGenBuffers(); vbos.add(vboID);
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(attributeNumber, vertexSize, GL_FLOAT, false, 0, 0);
-        glEnableVertexAttribArray(attributeNumber);
-        return vboID;
     }
 
     public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
@@ -121,7 +86,7 @@ public final class Loader {
             ModelData modeldat = OBJFileLoader.loadOBJ(inputStream);
             if (mdat != null)
                 mdat[0] = modeldat;
-            return Loader.loadModelWithTangent(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
+            return Loader.loadModelTAN(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);
         }
@@ -266,7 +231,7 @@ public final class Loader {
 
 //        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
 
-        if (GameSettings.ENABLE_FA) {
+        if (ClientSettings.ENABLE_FA) {
             if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 f use TextureFilterAnisotropic
 
@@ -330,10 +295,6 @@ public final class Loader {
     }
 
     static void destroy() {
-        for (int vao : vaos)
-            glDeleteVertexArrays(vao);
-        for (int vbo : vbos)
-            glDeleteBuffers(vbo);
         for (int tex : texs)
             glDeleteTextures(tex);
         for (int buf : bufs)

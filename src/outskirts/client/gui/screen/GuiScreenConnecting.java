@@ -1,6 +1,6 @@
 package outskirts.client.gui.screen;
 
-import outskirts.client.GameSettings;
+import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.network.ChannelHandler;
 import outskirts.network.Packet;
@@ -8,7 +8,6 @@ import outskirts.network.login.PacketHandlerLoginClient;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.util.Colors;
 import outskirts.util.StringUtils;
-import outskirts.util.SystemUtils;
 import outskirts.util.logging.Log;
 
 import static outskirts.util.logging.Log.LOGGER;
@@ -32,7 +31,7 @@ public class GuiScreenConnecting extends GuiScreen {
                 conn.eventBus().register(new PacketHandlerLoginClient(conn));
 
                 setStatusMessage("Logging in...");
-                conn.sendPacket(new CPacketLogin(GameSettings.ProgramArguments.UUID, GameSettings.ProgramArguments.TOKEN, Packet.PROTOCOL_DIGEST));
+                conn.sendPacket(new CPacketLogin(ClientSettings.ProgramArguments.UUID, ClientSettings.ProgramArguments.TOKEN, Packet.PROTOCOL_DIGEST));
 
             } catch (Throwable t) {
 

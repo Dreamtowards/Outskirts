@@ -192,16 +192,16 @@ public class Vector3f extends Vector {
 //        );
 //    }
 //
-//    //really should this..? (now for marchingCube lerp
-//    public static Vector3f lerp(float t, Vector3f start, Vector3f end, Vector3f dest) {
-//        if (dest == null)
-//            dest = new Vector3f();
-//        return dest.set(
-//                Maths.lerp(t, start.x, end.x),
-//                Maths.lerp(t, start.y, end.y),
-//                Maths.lerp(t, start.z, end.z)
-//        );
-//    }
+//    //really should this..? (now for marchingCube lerp   Needs.
+    public static Vector3f lerp(float t, Vector3f start, Vector3f end, Vector3f dest) {
+        if (dest == null)
+            dest = new Vector3f();
+        return dest.set(
+                Maths.lerp(t, start.x, end.x),
+                Maths.lerp(t, start.y, end.y),
+                Maths.lerp(t, start.z, end.z)
+        );
+    }
 
     /**
      * @param norm normalized normal vector
@@ -235,21 +235,24 @@ public class Vector3f extends Vector {
         }
         return dest;
     }
-
-
-    private static final Pattern SIMPLE_FLT_PATTERN = Pattern.compile("[+-]?\\d+\\.\\d+");
-    // tmptool
-    // required one[, one]. example: ***[1.0, 2, 5f ]**
-    public static Vector3f fromString(String s, Vector3f dest) {
-        if (dest == null)
-            dest = new Vector3f();
-        Matcher m = SIMPLE_FLT_PATTERN.matcher(s);
-        for (int i = 0;i < Vector3f.SIZE;i++) {
-            if (!m.find()) {
-                throw new IllegalArgumentException("Illegal string. can not find 3 numbers.");
-            }
-            Vector3f.set(dest, i, Float.parseFloat(m.group()));
-        }
-        return dest;
+    public static Vector3f set(Vector3f dest, float[] dat) {
+        return set(dest, dat, 0);
     }
+
+    // Vector3f.set(new Vector3f(), Vector.fromString("abc", new float[3]));
+//    private static final Pattern SIMPLE_FLT_PATTERN = Pattern.compile("[-]?\\d+\\.\\d+");
+//    // tmptool
+//    // required one[, one]. example: ***[1.0, 2, 5f ]**
+//    public static Vector3f fromString(String s, Vector3f dest) {
+//        if (dest == null)
+//            dest = new Vector3f();
+//        Matcher m = SIMPLE_FLT_PATTERN.matcher(s);
+//        for (int i = 0;i < Vector3f.SIZE;i++) {
+//            if (!m.find()) {
+//                throw new IllegalArgumentException("Illegal string. can not find 3 numbers.");
+//            }
+//            Vector3f.set(dest, i, Float.parseFloat(m.group()));
+//        }
+//        return dest;
+//    }
 }

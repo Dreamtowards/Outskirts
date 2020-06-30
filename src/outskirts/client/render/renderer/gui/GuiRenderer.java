@@ -1,6 +1,5 @@
 package outskirts.client.render.renderer.gui;
 
-import outskirts.client.GameSettings;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Model;
@@ -8,19 +7,10 @@ import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Colors;
-import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.*;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import static org.lwjgl.opengl.GL11.*;
