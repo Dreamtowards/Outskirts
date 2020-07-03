@@ -3,22 +3,18 @@ package ext;
 import ext.srt.QuickSort;
 import ext.srt.Sort;
 import outskirts.client.Outskirts;
+import outskirts.client.animation.loader.dae.DaeLoader;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.EventHandler;
 import outskirts.event.client.WindowResizedEvent;
-import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.LongConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
@@ -150,9 +146,50 @@ public class Test {
 //        LOGGER.info("R*I*R^T: {}", Matrix3f.mul(Matrix3f.mul(R, I, null), RT, null));
 
 
+//        MDLLoader.loadVtx(Loader.class.getResourceAsStream("/outskirts/client/mdl/model.mdlvtx"));
+//        long s;
+//        ModelData modelData;
+//
+//        s=System.currentTimeMillis();
+//        modelData = OBJFileLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_10K.obj").getInputStream());
+//        LOGGER.info("AssocFind OptED OBJ Loader: {}ms", System.currentTimeMillis()-s);
+//        LOGGER.info("posHash {}, posLen: {}", Arrays.hashCode(modelData.positions), modelData.positions.length);
+//        LOGGER.info("texHash {}, texLen: {}", Arrays.hashCode(modelData.textureCoords), modelData.textureCoords.length);
+//
+//        s=System.currentTimeMillis();
+//        modelData = SimpleOBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_10K.obj").getInputStream());
+//        LOGGER.info("Basic OBJ Loader: {}ms", System.currentTimeMillis()-s);
+//        LOGGER.info("posHash {}, posLen: {}", Arrays.hashCode(modelData.positions), modelData.positions.length);
+//        LOGGER.info("texHash {}, texLen: {}", Arrays.hashCode(modelData.textureCoords), modelData.textureCoords.length);
+//
+//        MDL.MDLData mdlData = new MDL.MDLData();
+//        mdlData.indices = modelData.indices;
+//        mdlData.layouts.add(modelData.positions);
+//        mdlData.layouts.add(modelData.textureCoords);
+//        mdlData.layouts.add(modelData.normals);
+//
+//        s=System.currentTimeMillis();
+//        MDL.saveMDL(mdlData, new FileOutputStream("mdl-fts/aya091_10K.mdl"));
+//        LOGGER.info("\n\nBasic MDL Saver: {}ms", System.currentTimeMillis()-s);
+//
+//        s=System.currentTimeMillis();
+//        MDL.MDLData loadedMDLD = MDL.loadMDL(new FileInputStream("mdl-fts/aya091_10K.mdl"));
+//        LOGGER.info("Basic MDL Loader: {}ms", System.currentTimeMillis()-s);
+//        LOGGER.info("posHash {}", Arrays.hashCode(loadedMDLD.layouts.get(0)));
+//        LOGGER.info("texHash {}", Arrays.hashCode(loadedMDLD.layouts.get(1)));
 
-        String s = "-34.352.3.141.2.-4";
+//        XML nd1 = new XML("<ele1 attr1='attrValue1'><a></a><b>Some of Texts</b></ele1>");
+//        System.out.println(nd1.toString(0));
+//        System.out.println(nd1.toString());  // default indentFactor: 4.
+//
+//        XML tn2 = new XML(new FileInputStream("testxml.xml"));
+//        System.out.println(tn2.toString(2));
+//
+//        System.out.println("attrs: "+tn2.getChildren().get(2).getAttributes());
 
+        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae");
+
+        LOGGER.info(DaeLoader.loadDAE(is));
     }
 
 

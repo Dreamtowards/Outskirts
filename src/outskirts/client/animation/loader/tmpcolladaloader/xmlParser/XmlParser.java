@@ -1,6 +1,7 @@
 package outskirts.client.animation.loader.tmpcolladaloader.xmlParser;
 
 import outskirts.client.animation.loader.tmpcolladaloader.MyFile;
+import outskirts.util.logging.Log;
 
 import java.io.BufferedReader;
 import java.util.regex.Matcher;
@@ -54,6 +55,7 @@ public class XmlParser {
 	private static XmlNode loadNode(BufferedReader reader) throws Exception {
 		String line = reader.readLine().trim();
 		if (line.startsWith("</")) {
+			Log.LOGGER.info("</");
 			return null;
 		}
 		String[] startTagParts = getStartTag(line).split(" ");

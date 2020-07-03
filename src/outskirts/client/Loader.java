@@ -55,7 +55,7 @@ public final class Loader {
     /**
      * Load "General 3D Vertices Data" with Tangents. (positions:vec3, textureCoords:vec2, normals:vec3)
      */
-    private static Model loadModelTAN(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
+    public static Model loadModelTAN(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
         float[] tangents = new float[positions.length];
         Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
         return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);

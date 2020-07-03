@@ -107,7 +107,7 @@ public class OBJFileLoader {
             verticesArray[i * 3 + 1] = position.y;
             verticesArray[i * 3 + 2] = position.z;
             texturesArray[i * 2] = textureCoords.x;
-            texturesArray[i * 2 + 1] = 1 - textureCoords.y;
+            texturesArray[i * 2 + 1] = textureCoords.y;//1 - textureCoords.y;  // Y even FLIPPED..?!?
             normalsArray[i * 3] = normalVector.x;
             normalsArray[i * 3 + 1] = normalVector.y;
             normalsArray[i * 3 + 2] = normalVector.z;

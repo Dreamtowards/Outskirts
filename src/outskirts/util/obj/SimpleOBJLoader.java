@@ -17,7 +17,7 @@ import static java.lang.Integer.parseInt;
 import static outskirts.util.StringUtils.explode;
 import static outskirts.util.StringUtils.explodeSpaces;
 
-public class OBJLoader {
+public class SimpleOBJLoader {
 
     public static ModelData loadOBJ(InputStream inputStream) {
         List<Vector3f> positions = new ArrayList<>();     // OBJ data table

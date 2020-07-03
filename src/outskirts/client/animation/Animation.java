@@ -49,8 +49,8 @@ public final class Animation {
         // bone space.
         public static class JointTransform {
 
-            private Vector3f position = new Vector3f();
-            private Quaternion rotation = new Quaternion();
+            private Vector3f position = new Vector3f(); // translation
+            private Quaternion rotation = new Quaternion(); // orientation
 
             public JointTransform() {}
 

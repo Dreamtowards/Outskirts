@@ -1,5 +1,8 @@
 package outskirts.util;
 
+import outskirts.util.logging.Log;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,7 +54,7 @@ public final class StringUtils {
             if (ch == ' ') {
                 if (sb.length() != 0) {
                     result.add(sb.toString());
-                    sb.delete(0, sb.length());
+                    sb.delete(0, sb.length()); // sb.clear();
                 }
             } else {
                 sb.append(ch);
@@ -70,10 +73,70 @@ public final class StringUtils {
         return str.substring(0, pos) + replacement + str.substring(pos + target.length());
     }
 
-    public static String dup(String c, int amount) {
+    public static String repeat(String c, int amount) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0;i < amount;i++)
             sb.append(c);
         return sb.toString();
+    }
+
+
+
+
+    public static boolean isNumrical(char ch) {
+        return ch >= '0' && ch <= '9';
+    }
+
+    public static int[] nextNumber(CharSequence s, int fromIndex) {  // Pattern.compile("-?\\d+(\\.\\d+)?");
+        int matchingStart = -1;
+        for (int i = fromIndex;i < s.length();i++) {
+            char ch = s.charAt(i);
+            if (matchingStart == -1) {
+                if (StringUtils.isNumrical(ch)) {
+                    matchingStart=i;
+                } else if (ch == '-') {
+                    if (i+1 < s.length() && StringUtils.isNumrical(s.charAt(i+1)))
+                        matchingStart=i;
+                }
+            } else {
+                if (ch == '.') {
+                    if (i+1 == s.length() || !StringUtils.isNumrical(s.charAt(i+1)))
+                        return new int[] {matchingStart, i};
+                } else if (!StringUtils.isNumrical(ch)) {
+                    return new int[] {matchingStart, i};
+                }
+            }
+        }
+        if (matchingStart != -1) {
+            return new int[] {matchingStart, s.length()};
+        }
+        return null;
+    }
+
+    public static float[] readNumbers(String s, float[] dest) {
+        if (dest == null) {
+            List<String> ls = new ArrayList<>();
+            int i = 0;
+            while (true) {
+                int[] r = StringUtils.nextNumber(s, i);
+                if (r==null) break;
+                i=r[1];
+                ls.add(s.substring(r[0], r[1]));
+            }
+            dest = new float[ls.size()];
+            for (int k = 0;k < dest.length;k++) {
+                dest[k] = Float.parseFloat(ls.get(k));
+            }
+            return dest;
+        }
+        int i = 0;
+        for (int j = 0;j < dest.length;j++) {
+            int[] r = StringUtils.nextNumber(s, i);
+            if (r==null)
+                throw new IllegalArgumentException();
+            i = r[1];
+            dest[j] = Float.parseFloat(s.substring(r[0], r[1]));
+        }
+        return dest;
     }
 }

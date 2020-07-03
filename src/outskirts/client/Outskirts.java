@@ -243,8 +243,8 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEO_CUBE);
-        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
+        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE);
+        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER).setDiffuseMap(Loader.loadTexture(new Identifier("materials/aya091/tex/tex.png").getInputStream()));
         getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
 //        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);

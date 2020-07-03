@@ -29,7 +29,6 @@ void main() {
         vec4 jointTransNorm = jointTransMat * vec4(normals, 0.0);
         modelNormal += jointTransNorm * jointWeights[i];
     }
-//    modelPosition = vec4(modelPosition.x*5,modelPosition.y*5,modelPosition.z*5, modelPosition.w);
 
     gl_Position = projectionMatrix * viewMatrix * modelPosition;
 

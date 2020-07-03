@@ -12,6 +12,7 @@ import static outskirts.util.IOUtils.*;
  *
  * DST Specificated 10 Types Object. 6 Primitives(4INT, 2FLOAT). 1 Stroage(BYTE_ARRAY). 1 String(STRING). 2 Struct(LIST, MAP).
  *
+ * ?DAT
  */
 public class DST {
 
