@@ -1,4 +1,4 @@
-package outskirts.client.animation.loader.dae;
+package outskirts.client.animation.dae;
 
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
@@ -25,8 +25,6 @@ import static java.lang.Integer.parseInt;
 public class DaeLoader {
 
     private static final List<String> SUPPORTED_VERSIONS = Arrays.asList("1.4.0", "1.4.1");
-
-    private static Matrix4f ROT_CORR = Matrix4f.set(new Matrix4f(), Matrix3f.rotate(-Maths.PI/2f, Vector3f.UNIT_X, null));
 
     public static DaeData loadDAE(InputStream inputStream) {
         XML COLLADA = new XML(inputStream);  assert SUPPORTED_VERSIONS.contains(COLLADA.getAttributes().get("version")) : "Unsupported DAE Version.";

@@ -3,11 +3,10 @@ package outskirts.client.animation.animated;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.animation.JointAnimation;
-import outskirts.client.animation.loader.dae.DaeLoader;
+import outskirts.client.animation.Animation;
+import outskirts.client.animation.dae.DaeLoader;
 import outskirts.client.material.Model;
 import outskirts.client.material.Texture;
-import outskirts.init.Textures;
 import outskirts.util.Identifier;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
@@ -39,8 +38,7 @@ public class AnimatedModel {
     }
 
     public void update(float delta) {
-        if (Outskirts.isKeyDown(GLFW.GLFW_KEY_L))
-            return;
+
         animator.update(delta, joints);
     }
 
@@ -50,18 +48,11 @@ public class AnimatedModel {
      */
     public Matrix4f[] getJointTransforms(Matrix4f[] dest) {
         for (int i = 0;i < joints.length;i++) {
-//            dest[i].set(joints[i].currentTransform);
             Matrix4f.mul(joints[i].currentTransform, joints[i].invBindTransform, dest[i]);
         }
         return dest;
     }
 
-//    private void fillJointTransf(Joint joint, Matrix4f[] dest) {
-//        dest[joint.idx] = joint.currentTransform;
-//        for (Joint child : joint.children) {
-//            fillJointTransf(child, dest);
-//        }
-//    }
 
 
     public static AnimatedModel newFromDAE(DaeLoader.DaeData daedata) {
@@ -81,15 +72,13 @@ public class AnimatedModel {
         return new AnimatedModel(model, joints);
     }
 
-    public static JointAnimation loadAfromDae(DaeLoader.DaeData daedat) {
-        JointAnimation ja = new JointAnimation();
+    public static Animation loadAfromDae(DaeLoader.DaeData daedat) {
+        Animation ja = new Animation();
 
         for (Map.Entry<String, DaeLoader.DaeData.JointKeyframeData[]> entry : daedat.anim1.entrySet()) {
-            JointAnimation.JKeyFrame[] kfs = new JointAnimation.JKeyFrame[entry.getValue().length];
-            Log.LOGGER.info("joint-{}, frames:{}", entry.getKey(), entry.getValue().length);
+            Animation.JKeyFrame[] kfs = new Animation.JKeyFrame[entry.getValue().length];
             for (int i = 0;i < entry.getValue().length;i++) {
-                Log.LOGGER.info(" - f{}", i);
-                kfs[i] = new JointAnimation.JKeyFrame();
+                kfs[i] = new Animation.JKeyFrame();
                 kfs[i].timestamp = entry.getValue()[i].timestamp;
                 kfs[i].translation.set(entry.getValue()[i].translation);
                 kfs[i].orientation.set(entry.getValue()[i].orientation);

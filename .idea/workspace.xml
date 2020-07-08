@@ -7,37 +7,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c929cd81-0b63-4c0e-af5f-22ccf7b04ed1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/assets/outskirts/materials/transres/t2.dae" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outskirts/client/animation/JointAnimation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/outskirts/util/obj/OBJLoader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/txt.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/assetsroot" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/assetsroot" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/outskirts/materials/gravestone/diff.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/outskirts/materials/gravestone/diff.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/outskirts/shaders/animation.vsh" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/outskirts/shaders/animation.vsh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ext/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ext/Test.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/Loader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/Loader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/AnRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/AnRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/Animation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/Animation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/JointAnimation.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/AnimatedModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/AnimatedModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Animator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Animator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Joint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Joint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/dae/DaeLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/loader/dae/DaeLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/AnimationLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/AnimationLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkeletonLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkeletonLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimatedModelLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimatedModelLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/material/Material.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/material/Material.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/render/shader/ShaderProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/render/shader/ShaderProgram.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/init/SceneIniter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/init/SceneIniter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/CollectionUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/util/CollectionUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/StringUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/util/StringUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/XML.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/util/XML.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/obj/OBJFileLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/obj/OBJFileVVtVnFRegularizer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/obj/SimpleOBJLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/vector/Matrix4f.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/util/vector/Matrix4f.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/util/vector/Quaternion.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/util/vector/Quaternion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/dae/DaeLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/dae/DaeLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/MyFile.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/AnimationLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/ColladaLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/GeometryLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkeletonLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkinLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/AnimatedModelData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/AnimationData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/JointData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/JointTransformData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/KeyFrameData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/MeshData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/SkeletonData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/SkinningData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/Vertex.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/VertexSkinData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlNode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlParser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimatedModelLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimationLoader.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -353,7 +350,7 @@
       <workItem from="1593590537119" duration="14683000" />
       <workItem from="1593662121758" duration="65347000" />
       <workItem from="1594045213362" duration="14000" />
-      <workItem from="1594090970605" duration="47162000" />
+      <workItem from="1594090970605" duration="47962000" />
     </task>
     <servers />
   </component>
@@ -451,7 +448,7 @@
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state x="-141" y="-1248" width="1812" height="875" key="DiffContextDialog/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592562496039" />
-    <state width="1818" height="242" key="GridCell.Tab.0.bottom" timestamp="1594205855824">
+    <state width="1818" height="242" key="GridCell.Tab.0.bottom" timestamp="1594207461261">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.bottom/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919412" />
@@ -480,7 +477,7 @@
     <state width="1779" height="307" key="GridCell.Tab.0.bottom/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592781179722" />
     <state width="1638" height="374" key="GridCell.Tab.0.bottom/0.23.1680.971@0.23.1680.971" timestamp="1593994011771" />
     <state width="1781" height="244" key="GridCell.Tab.0.bottom/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594118879347" />
-    <state width="1818" height="242" key="GridCell.Tab.0.bottom/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594205855824" />
+    <state width="1818" height="242" key="GridCell.Tab.0.bottom/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594207461261" />
     <state width="1945" height="333" key="GridCell.Tab.0.bottom/0.23.1680.974@0.23.1680.974" timestamp="1593307840013" />
     <state width="1946" height="328" key="GridCell.Tab.0.bottom/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593693306872" />
     <state width="1638" height="228" key="GridCell.Tab.0.bottom/0.23.1680.975@0.23.1680.975" timestamp="1593505702037" />
@@ -490,7 +487,7 @@
     <state width="1824" height="374" key="GridCell.Tab.0.bottom/0.23.1680.978/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593872472740" />
     <state width="1848" height="355" key="GridCell.Tab.0.bottom/0.23.1680.979/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593397408762" />
     <state width="1851" height="327" key="GridCell.Tab.0.bottom/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975592" />
-    <state width="1818" height="242" key="GridCell.Tab.0.center" timestamp="1594205855822">
+    <state width="1818" height="242" key="GridCell.Tab.0.center" timestamp="1594207461260">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.center/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919411" />
@@ -519,7 +516,7 @@
     <state width="1779" height="307" key="GridCell.Tab.0.center/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592781179721" />
     <state width="1638" height="374" key="GridCell.Tab.0.center/0.23.1680.971@0.23.1680.971" timestamp="1593994011771" />
     <state width="1781" height="244" key="GridCell.Tab.0.center/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594118879346" />
-    <state width="1818" height="242" key="GridCell.Tab.0.center/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594205855822" />
+    <state width="1818" height="242" key="GridCell.Tab.0.center/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594207461260" />
     <state width="1945" height="333" key="GridCell.Tab.0.center/0.23.1680.974@0.23.1680.974" timestamp="1593307840013" />
     <state width="1946" height="328" key="GridCell.Tab.0.center/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593693306871" />
     <state width="1638" height="228" key="GridCell.Tab.0.center/0.23.1680.975@0.23.1680.975" timestamp="1593505702036" />
@@ -529,7 +526,7 @@
     <state width="1824" height="374" key="GridCell.Tab.0.center/0.23.1680.978/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593872472739" />
     <state width="1848" height="355" key="GridCell.Tab.0.center/0.23.1680.979/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593397408761" />
     <state width="1851" height="327" key="GridCell.Tab.0.center/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975591" />
-    <state width="1818" height="242" key="GridCell.Tab.0.left" timestamp="1594205855822">
+    <state width="1818" height="242" key="GridCell.Tab.0.left" timestamp="1594207461260">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.left/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919411" />
@@ -558,7 +555,7 @@
     <state width="1779" height="307" key="GridCell.Tab.0.left/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592781179720" />
     <state width="1638" height="374" key="GridCell.Tab.0.left/0.23.1680.971@0.23.1680.971" timestamp="1593994011770" />
     <state width="1781" height="244" key="GridCell.Tab.0.left/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594118879345" />
-    <state width="1818" height="242" key="GridCell.Tab.0.left/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594205855822" />
+    <state width="1818" height="242" key="GridCell.Tab.0.left/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594207461260" />
     <state width="1945" height="333" key="GridCell.Tab.0.left/0.23.1680.974@0.23.1680.974" timestamp="1593307840012" />
     <state width="1946" height="328" key="GridCell.Tab.0.left/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593693306870" />
     <state width="1638" height="228" key="GridCell.Tab.0.left/0.23.1680.975@0.23.1680.975" timestamp="1593505702036" />
@@ -568,7 +565,7 @@
     <state width="1824" height="374" key="GridCell.Tab.0.left/0.23.1680.978/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593872472739" />
     <state width="1848" height="355" key="GridCell.Tab.0.left/0.23.1680.979/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593397408761" />
     <state width="1851" height="327" key="GridCell.Tab.0.left/0.23.2560.1323@0.23.2560.1323" timestamp="1588146975591" />
-    <state width="1818" height="242" key="GridCell.Tab.0.right" timestamp="1594205855823">
+    <state width="1818" height="242" key="GridCell.Tab.0.right" timestamp="1594207461261">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state width="1683" height="230" key="GridCell.Tab.0.right/0.23.1440.803/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1586168919412" />
@@ -597,7 +594,7 @@
     <state width="1779" height="307" key="GridCell.Tab.0.right/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592781179721" />
     <state width="1638" height="374" key="GridCell.Tab.0.right/0.23.1680.971@0.23.1680.971" timestamp="1593994011771" />
     <state width="1781" height="244" key="GridCell.Tab.0.right/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594118879346" />
-    <state width="1818" height="242" key="GridCell.Tab.0.right/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594205855823" />
+    <state width="1818" height="242" key="GridCell.Tab.0.right/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594207461261" />
     <state width="1945" height="333" key="GridCell.Tab.0.right/0.23.1680.974@0.23.1680.974" timestamp="1593307840013" />
     <state width="1946" height="328" key="GridCell.Tab.0.right/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593693306871" />
     <state width="1638" height="228" key="GridCell.Tab.0.right/0.23.1680.975@0.23.1680.975" timestamp="1593505702037" />

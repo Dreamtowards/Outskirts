@@ -5,13 +5,9 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.animation.AnRenderer;
 import outskirts.client.animation.Animation;
-import outskirts.client.animation.JointAnimation;
 import outskirts.client.animation.animated.AnimatedModel;
 import outskirts.client.animation.animated.Joint;
-import outskirts.client.animation.loader.dae.DaeLoader;
-import outskirts.client.animation.loader.tmpcolladaloader.MyFile;
-import outskirts.client.animation.loader.tmpmodelloader.AnimatedModelLoader;
-import outskirts.client.animation.loader.tmpmodelloader.AnimationLoader;
+import outskirts.client.animation.dae.DaeLoader;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.*;
@@ -145,15 +141,12 @@ public class Outskirts {
         anRenderer = new AnRenderer();
 
         animatedModel = AnimatedModel.newFromDAE(daeData);
-//        animatedModel = AnimatedModelLoader.loadEntity(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
 
-
-//        animation = AnimationLoader.loadAnimation(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
         animation = AnimatedModel.loadAfromDae(daeData);
     }
     AnRenderer anRenderer;
     AnimatedModel animatedModel;
-    JointAnimation animation;
+    Animation animation;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
