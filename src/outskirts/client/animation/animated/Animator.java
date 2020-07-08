@@ -6,19 +6,16 @@ import outskirts.util.vector.Matrix4f;
 
 import java.util.NoSuchElementException;
 
-// quastion: why src-data keeps 'inparent-bone-space'.?   then even not all in model-localspace.?
+// quastion: why src-data keeps 'inparent-bone-space'.?   then even not all in model-localspace.?  A: SkAnim One of Mainly Concept: related parent joint.
 public class Animator {
 
-    private float currentTime;  // current time.
-    private Animation animation;  // current animation.
-
-    // material, mat[] deltaTransArray, jointsCount, rootJoints..
+    private float currentTime;
+    private Animation animation;
 
     public final void doAnimation(Animation animation) {
         this.currentTime = 0;
         this.animation = animation;
     }
-
 
     public void update(float delta, Joint[] joints) {
         if (animation==null) return;
@@ -39,7 +36,7 @@ public class Animator {
 
             Matrix4f currInparentTrans = Animation.JKeyFrame.toMatrix(
                     currFrame==nextFrame?currFrame: Animation.JKeyFrame.lerp(t, currFrame, nextFrame, new Animation.JKeyFrame()),
-                    new Matrix4f());
+                    new Matrix4f()); // opt
 
             Joint j = getJ(jname, joints);
 

@@ -1,7 +1,6 @@
 package outskirts.client.animation.dae;
 
 import outskirts.util.CollectionUtils;
-import outskirts.util.Maths;
 import outskirts.util.StringUtils;
 import outskirts.util.XML;
 import outskirts.util.vector.Matrix3f;
@@ -19,7 +18,7 @@ import static java.lang.Integer.parseInt;
  * Unsupported:
  * <asset>, <library_cameras>, <library_lights>, <library_images>, <library_materials>, <library_effects>, <scene>, <extra>.
  *
- * Loadup part:
+ * Loadup:
  * <library_geometries>, <library_controllers>, <library_visual_scenes>, <library_animations>.
  */
 public class DaeLoader {
@@ -27,7 +26,7 @@ public class DaeLoader {
     private static final List<String> SUPPORTED_VERSIONS = Arrays.asList("1.4.0", "1.4.1");
 
     public static DaeData loadDAE(InputStream inputStream) {
-        XML COLLADA = new XML(inputStream);  assert SUPPORTED_VERSIONS.contains(COLLADA.getAttributes().get("version")) : "Unsupported DAE Version.";
+        XML COLLADA = new XML(inputStream);  assert SUPPORTED_VERSIONS.contains(COLLADA.getAttribute("version")) : "Unsupported DAE Version.";
         DaeData daedata = new DaeData();
 
         XML _library_geometries = COLLADA.getChild("library_geometries");
@@ -47,40 +46,28 @@ public class DaeLoader {
     public static final class DaeData {
 
         public MeshData meshs;
-
         public static final class MeshData {
             public int[] indices;
             public float[] positions;     // vec3
             public float[] textureCoords; // vec2
             public float[] normals;       // vec3
-
-            public float[] jointsIDs;     // vec?3. but x,y,z all are non-fraction (just like int).
-            public float[] jointsWeights; // vec?3. sum(vec3.xyz)==1.
+            public float[] jointsIDs;     // vec. almost int[]. float for uniform-type.
+            public float[] jointsWeights; // vec. sum(vec.xyz)==1.
         }
 
-        // validate: parentIdx < idx for vaild-order. (sometimes parent needs been operate before children.
-        public JointInfo[] joints; // rootjoint=i_0.
-
-        public static final class JointInfo { // tree or children... tree for Clearity.
+        public JointInfo[] joints; // must following tree-order. // rootJoint=index0.
+        public static final class JointInfo {
             public String name;  // nameId
             public int parentIdx;
             public Matrix4f bindTransform;
-
-            private static void validateJoints(JointInfo[] joints) {
-                assert joints[0].parentIdx == -1;
-                for (int i = 0;i < joints.length;i++)
-                    assert joints[i].parentIdx < i;
-            }
         }
 
         public Map<String, JointKeyframeData[]> anim1;  // <joint_name:String, JointAnim>
-
-        public static final class JointKeyframeData { // JointKeyframe
+        public static final class JointKeyframeData {
             public float timestamp;
             public Vector3f translation;
             public Quaternion orientation;
         }
-
     }
 
 
@@ -88,7 +75,6 @@ public class DaeLoader {
 
         private static final int MAX_WEIGHT_JOINTS = 3;
 
-        //    @SuppressWarnings("all")
         private static DaeData.MeshData loadMeshs(XML _library_geometries, XML _library_controllers) {
 
             XML nMesh = _library_geometries.getChild("geometry").getChild("mesh");
@@ -98,9 +84,9 @@ public class DaeLoader {
             List<mstVertex> vertices = new ArrayList<>();
 
             // read Table
-            float[] tbPositions = GetFloatArrayById(nMesh, nMesh.getChild("vertices").getChild("input").getAttributes().get("source").substring(1));
-            float[] tbTexCoords = GetFloatArrayById(nMesh, nTriangles.getChild("input", "semantic", "TEXCOORD").getAttributes().get("source").substring(1));
-            float[] tbNormals = GetFloatArrayById(nMesh, nTriangles.getChild("input", "semantic", "NORMAL").getAttributes().get("source").substring(1));
+            float[] tbPositions = GetFloatArrayById(nMesh, nMesh.getChild("vertices").getChild("input").getAttribute("source").substring(1));
+            float[] tbTexCoords = GetFloatArrayById(nMesh, nTriangles.getChild("input", "semantic", "TEXCOORD").getAttribute("source").substring(1));
+            float[] tbNormals = GetFloatArrayById(nMesh, nTriangles.getChild("input", "semantic", "NORMAL").getAttribute("source").substring(1));
             for (int i = 0; i < tbPositions.length / 3; i++) {
                 vertices.add(new mstVertex(i, -1, -1));
             }
@@ -131,7 +117,7 @@ public class DaeLoader {
                 XML nSkin = _library_controllers.getChild("controller").getChild("skin");
 
                 // build Table
-                float[] rawTbWeights = GetFloatArrayById(nSkin, nSkin.getChild("vertex_weights").getChild("input", "semantic", "WEIGHT").getAttributes().get("source").substring(1));
+                float[] rawTbWeights = GetFloatArrayById(nSkin, nSkin.getChild("vertex_weights").getChild("input", "semantic", "WEIGHT").getAttribute("source").substring(1));
                 String[] mulIdxArr = StringUtils.explodeSpaces(nSkin.getChild("vertex_weights").getChild("v").getTextContent()); // vJointIdWeightArr
                 String[] vcount = StringUtils.explodeSpaces(nSkin.getChild("vertex_weights").getChild("vcount").getTextContent());
 

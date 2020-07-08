@@ -21,6 +21,12 @@ public class Animation {
         public Vector3f   translation = new Vector3f();
         public Quaternion orientation = new Quaternion();
 
+        public JKeyFrame() {}
+        public JKeyFrame(float timestamp, Vector3f translation, Quaternion orientation) {
+            this.timestamp = timestamp;
+            this.translation.set(translation);
+            this.orientation.set(orientation);
+        }
         public static JKeyFrame lerp(float t, JKeyFrame start, JKeyFrame end, JKeyFrame dest) {
             Vector3f.lerp(t, start.translation, end.translation, dest.translation);
             Quaternion.nlerpsf(t, start.orientation, end.orientation, dest.orientation);

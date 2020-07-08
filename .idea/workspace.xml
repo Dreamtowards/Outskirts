@@ -8,33 +8,11 @@
   <component name="ChangeListManager">
     <list default="true" id="c929cd81-0b63-4c0e-af5f-22ccf7b04ed1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ext/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ext/Test.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/Outskirts.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/Animation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/Animation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/JointAnimation.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/AnimatedModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/AnimatedModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Animator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Animator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/dae/DaeLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/dae/DaeLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/MyFile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/AnimationLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/ColladaLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/GeometryLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkeletonLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/colladaLoader/SkinLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/AnimatedModelData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/AnimationData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/JointData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/JointTransformData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/KeyFrameData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/MeshData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/SkeletonData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/SkinningData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/Vertex.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/dataStructures/VertexSkinData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpcolladaloader/xmlParser/XmlParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimatedModelLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/loader/tmpmodelloader/AnimationLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Joint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/animated/Joint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/outskirts/client/animation/dae/DaeLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/outskirts/client/animation/dae/DaeLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -350,7 +328,7 @@
       <workItem from="1593590537119" duration="14683000" />
       <workItem from="1593662121758" duration="65347000" />
       <workItem from="1594045213362" duration="14000" />
-      <workItem from="1594090970605" duration="47962000" />
+      <workItem from="1594090970605" duration="49784000" />
     </task>
     <servers />
   </component>
@@ -406,7 +384,7 @@
     <state x="468" y="-1044" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592563170716" />
     <state x="468" y="-1044" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1680.977/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593567852352" />
     <state x="468" y="-1044" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1680.978/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593599122830" />
-    <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser" timestamp="1594198829404">
+    <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser" timestamp="1594208948475">
       <screen x="-352" y="-1417" width="2560" height="1417" />
     </state>
     <state x="533" y="148" key="#com.intellij.ide.util.MemberChooser/0.23.1440.810@0.23.1440.810" timestamp="1586839759737" />
@@ -416,7 +394,7 @@
     <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.967/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1591710345678" />
     <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.971/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592271694732" />
     <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.972/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593075305766" />
-    <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594198829404" />
+    <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.973/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1594208948475" />
     <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.975/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1593676550743" />
     <state x="622" y="174" key="#com.intellij.ide.util.MemberChooser/0.23.1680.975@0.23.1680.975" timestamp="1593504404006" />
     <state x="596" y="-1198" key="#com.intellij.ide.util.MemberChooser/0.23.1680.976/-352.-1417.2560.1417@-352.-1417.2560.1417" timestamp="1592909493032" />

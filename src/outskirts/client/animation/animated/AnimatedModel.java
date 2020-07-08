@@ -27,8 +27,7 @@ public class AnimatedModel {
     public Texture texture;
 
     public Joint[] joints;
-
-    public Animator animator;
+    public Animator animator; // animators
 
     public AnimatedModel(Model model, Joint[] joints) {
         this.model = model;
@@ -55,7 +54,7 @@ public class AnimatedModel {
 
 
 
-    public static AnimatedModel newFromDAE(DaeLoader.DaeData daedata) {
+    public static AnimatedModel loadModel(DaeLoader.DaeData daedata) {
         DaeLoader.DaeData.MeshData dMeshs = daedata.meshs;
         Model model = Loader.loadModel(dMeshs.indices, 3,dMeshs.positions, 2,dMeshs.textureCoords, 3,dMeshs.normals, 3,dMeshs.jointsIDs, 3,dMeshs.jointsWeights);
 
@@ -63,29 +62,21 @@ public class AnimatedModel {
         for (int i = 0;i < joints.length;i++) {
             DaeLoader.DaeData.JointInfo jinf = daedata.joints[i];
             joints[i] = new Joint(jinf.parentIdx, jinf.name, jinf.bindTransform);
-            if (i!=0) {
-                joints[joints[i].parentIdx]._children.add(joints[i]);
-            }
-//            Log.LOGGER.info("joint{}: parent:{}, bindTrans:{}", joints[i].name, joints[i].parentIdx==-1?"NO":joints[joints[i].parentIdx].name, joints[i]._bindTransform);
         }
 
         return new AnimatedModel(model, joints);
     }
 
-    public static Animation loadAfromDae(DaeLoader.DaeData daedat) {
-        Animation ja = new Animation();
-
-        for (Map.Entry<String, DaeLoader.DaeData.JointKeyframeData[]> entry : daedat.anim1.entrySet()) {
-            Animation.JKeyFrame[] kfs = new Animation.JKeyFrame[entry.getValue().length];
-            for (int i = 0;i < entry.getValue().length;i++) {
-                kfs[i] = new Animation.JKeyFrame();
-                kfs[i].timestamp = entry.getValue()[i].timestamp;
-                kfs[i].translation.set(entry.getValue()[i].translation);
-                kfs[i].orientation.set(entry.getValue()[i].orientation);
+    public static Animation loadAnim(DaeLoader.DaeData daedat) {
+        Animation anim = new Animation();
+        for (String jname : daedat.anim1.keySet()) {
+            DaeLoader.DaeData.JointKeyframeData[] data_jkeyframes = daedat.anim1.get(jname);
+            Animation.JKeyFrame[] jkframes = new Animation.JKeyFrame[data_jkeyframes.length];
+            for (int i = 0;i < jkframes.length;i++) {
+                jkframes[i] = new Animation.JKeyFrame(data_jkeyframes[i].timestamp, data_jkeyframes[i].translation, data_jkeyframes[i].orientation);
             }
-            ja.getKeyFrames().put(entry.getKey(), kfs);
+            anim.getKeyFrames().put(jname, jkframes);
         }
-
-        return ja;
+        return anim;
     }
 }
