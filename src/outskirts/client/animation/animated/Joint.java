@@ -7,30 +7,22 @@ import java.util.List;
 
 public class Joint {
 
-    public int idx;  // for shaders Indexing.
+    public int parentIdx;  // for shaders Indexing.
     public String name;
-    public List<Joint> children = new ArrayList<>();
 
-    public Matrix4f currentTransform = new Matrix4f(); // delta-transform
+    public List<Joint> _children = new ArrayList<>();
 
-    private final Matrix4f localBindTransform = new Matrix4f(); // bone-space. /inparentbone-space.     SHARED.
-    public final Matrix4f invBindTransform = new Matrix4f(); // modelspace. inv
+    public Matrix4f currentTransform = new Matrix4f(); // modelspace. 'joint-current-transform', not the delta-transform.
 
-    public Joint(int idx, String name, Matrix4f localBindTransform) {
-        this.idx = idx;
+    public final Matrix4f _bindTransform = new Matrix4f();
+    public final Matrix4f invBindTransform = new Matrix4f(); // modelspace.
+
+    public Joint(int parentIdx, String name, Matrix4f bindTransform) {
+        this.parentIdx = parentIdx;
         this.name = name;
-        this.localBindTransform.set(localBindTransform);
-    }
-
-    /**
-     * @param parentBindTransform model-space.
-     */
-    public void calcInvBindTransform(Matrix4f parentBindTransform) {
-        Matrix4f bindTransform = Matrix4f.mul(parentBindTransform, localBindTransform, new Matrix4f());  // model-space
-        for (Joint child : children) {
-            child.calcInvBindTransform(bindTransform);
-        }
-        invBindTransform.set(bindTransform).invert();
+        this.currentTransform.set(bindTransform); // tmp init.
+        this.invBindTransform.set(bindTransform).invert();
+        _bindTransform.set(bindTransform);
     }
 
 }

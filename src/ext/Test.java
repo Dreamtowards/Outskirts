@@ -5,12 +5,15 @@ import ext.srt.Sort;
 import outskirts.client.Outskirts;
 import outskirts.client.animation.loader.dae.DaeLoader;
 import outskirts.client.gui.debug.GuiVert3D;
+import outskirts.client.material.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 
 import java.io.*;
 import java.util.*;
@@ -188,8 +191,32 @@ public class Test {
 //        System.out.println("attrs: "+tn2.getChildren().get(2).getAttributes());
 
         InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae");
+//
+//        LOGGER.info(DaeLoader.loadDAE(is));
+        Matrix4f transmat = Maths.createModelMatrix(new Vector3f(0, 0, 10), new Vector3f(1,1,1), Matrix3f.rotate(Maths.PI/2, Vector3f.UNIT_Y, null), null);
 
-        LOGGER.info(DaeLoader.loadDAE(is));
+        LOGGER.info(Matrix4f.transform(transmat, new Vector4f(0,0,1, 1)));
+
+//        LOGGER.info(r==null?"null":s.substring(r[0], r[1]));
+
+//        ModelData mdat;
+//        long s;
+//
+//        s=System.currentTimeMillis();
+//        mdat = OBJFileLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
+//        LOGGER.info("PRE-OBJFileLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
+//
+//        s=System.currentTimeMillis();
+//        mdat = OBJFileLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
+//        LOGGER.info("OBJFileLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
+//
+//        s=System.currentTimeMillis();
+//        mdat = OBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
+//        LOGGER.info("PRE-OBJLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
+//
+//        s=System.currentTimeMillis();
+//        mdat = OBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
+//        LOGGER.info("OBJLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
     }
 
 

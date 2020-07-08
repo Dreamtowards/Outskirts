@@ -1457,3 +1457,30 @@ IOUtils. writeUTF
             else blen+=3;
         }
         if (blen > 0xFFFF) throw new IndexOutOfBoundsException();
+
+
+//        public String nextString() {
+//            char quote = next();
+//            assert quote=='"' || quote=='\'';
+//
+//            StringBuilder sb = new StringBuilder();
+//            while (true) {
+//                char c = next();
+//                if (c == '\u0000') // || c == '\n' || c == '\r')
+//                    throw new RuntimeException();
+//                if (c == '\\') {
+//                    char c1 = next();
+//                    if (c1=='\'' || c1=='\"' || c1=='\\') {
+//                        sb.append(c1);
+//                    } else if (c1=='n') {
+//                        sb.append('\n');
+//                    } else {
+//                        throw new RuntimeException("Illegal escape.");
+//                    }
+//                } else if (c == quote) {
+//                    return sb.toString();
+//                } else {
+//                    sb.append(c);
+//                }
+//            }
+//        }

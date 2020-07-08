@@ -121,10 +121,7 @@ public final class ShaderProgram {
     }
 
     public void setMatrix4f(String uniformName, Matrix4f matrix) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        Matrix4f.store(matrix, buffer);
-        buffer.flip();
-        glUniformMatrix4fv(getUniformLocation(uniformName), true, buffer);
+        glUniformMatrix4fv(getUniformLocation(uniformName), true, Matrix4f.store(matrix, new float[16]));
     }
 
     public void setVector2f(String uniformName, Vector2f vector) {

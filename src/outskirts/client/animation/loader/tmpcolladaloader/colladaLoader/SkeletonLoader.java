@@ -55,15 +55,15 @@ public class SkeletonLoader {
 		return new JointData(index, nameId, matrix);
 	}
 	
-	private FloatBuffer convertData(String[] rawData){
+	private float[] convertData(String[] rawData){
 		float[] matrixData = new float[16];
 		for(int i=0;i<matrixData.length;i++){
 			matrixData[i] = Float.parseFloat(rawData[i]);
 		}
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-		buffer.put(matrixData);
-		buffer.flip();
-		return buffer;
+//		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+//		buffer.put(matrixData);
+//		buffer.flip();
+		return matrixData;
 	}
 
 }

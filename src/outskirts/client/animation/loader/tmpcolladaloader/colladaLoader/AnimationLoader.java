@@ -20,15 +20,17 @@ public class AnimationLoader {
 	private XmlNode jointHierarchy;
 	
 	public AnimationLoader(XmlNode animationData, XmlNode jointHierarchy){
-		this.animationData = animationData;
+		this.animationData = animationData;//.getChild("animation");
 		this.jointHierarchy = jointHierarchy;
 	}
 	
 	public AnimationData extractAnimation(){
 		String rootNode = findRootJointName();
+
 		float[] times = getKeyTimes();
 		float duration = times[times.length-1];
 		KeyFrameData[] keyFrames = initKeyFrames(times);
+
 		List<XmlNode> animationNodes = animationData.getChildren("animation");
 		for(XmlNode jointNode : animationNodes){
 			loadJointTransforms(keyFrames, jointNode, rootNode);
@@ -74,22 +76,22 @@ public class AnimationLoader {
 	}
 	
 	private void processTransforms(String jointName, String[] rawData, KeyFrameData[] keyFrames, boolean root){
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+//		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 		float[] matrixData = new float[16];
 		for(int i=0;i<keyFrames.length;i++){
 			for(int j=0;j<16;j++){
 				matrixData[j] = Float.parseFloat(rawData[i*16 + j]);
 			}
-			buffer.clear();
-			buffer.put(matrixData);
-			buffer.flip();
+//			buffer.clear();
+//			buffer.put(matrixData);
+//			buffer.flip();
 			Matrix4f transform = new Matrix4f();
-			Matrix4f.load(transform, buffer);
+			Matrix4f.load(transform, matrixData);
 //			transform.transpose(); // todo: needs transpose.? different vec lib
-			if(root){
-				//because up axis in Blender is different to up axis in game
-				Matrix4f.mul(CORRECTION, transform, transform);
-			}
+//			if(root){
+//				because up axis in Blender is different to up axis in game
+//				Matrix4f.mul(CORRECTION, transform, transform);
+//			}
 			keyFrames[i].addJointTransform(new JointTransformData(jointName, transform));
 		}
 	}

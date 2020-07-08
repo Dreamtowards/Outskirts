@@ -9,7 +9,7 @@ public final class Material {
     private Texture normalMap = Texture.ZERO;
 
     private Texture specularMap = Texture.UNIT; // Specular Map
-    private float specularStrength = 0.5f;
+    private float specularStrength = 0f;
     private float shininess = 1;
 
     private Texture displacementMap = Texture.ZERO;  // Parallax Impl. actually is a DepthMap. displacement'll not Convex up, but Concave down.

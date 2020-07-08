@@ -87,7 +87,11 @@ public final class StringUtils {
         return ch >= '0' && ch <= '9';
     }
 
-    public static int[] nextNumber(CharSequence s, int fromIndex) {  // Pattern.compile("-?\\d+(\\.\\d+)?");
+    /**
+     * -1.32e-8
+     * @return a range. the number String is s.substring(r[0], r[1]).
+     */
+    public static int[] nextNumber(CharSequence s, int fromIndex) {  // Pattern.compile("-?\\d+(\\.\\d+)?([eE]-?\\d+)?");
         int matchingStart = -1;
         for (int i = fromIndex;i < s.length();i++) {
             char ch = s.charAt(i);
@@ -100,8 +104,24 @@ public final class StringUtils {
                 }
             } else {
                 if (ch == '.') {
-                    if (i+1 == s.length() || !StringUtils.isNumrical(s.charAt(i+1)))
+                    if (i == s.length()-1 || !StringUtils.isNumrical(s.charAt(i+1)))
                         return new int[] {matchingStart, i};
+                } else if (ch == 'e' || ch == 'E') {
+                    if (i==s.length()-1 || ("+-".indexOf(s.charAt(i+1)) == -1 && !StringUtils.isNumrical(s.charAt(i+1)))) {
+                        return new int[] {matchingStart, i};
+                    } else { // is Num
+                        i++; // step over [eE]
+                        if ("+-".indexOf(s.charAt(i)) != -1) {
+                            i++;
+                            if (i==s.length() || !StringUtils.isNumrical(s.charAt(i)))
+                                return new int[] {matchingStart, i-2};
+                        }
+                        while (i < s.length()) {
+                            if (!StringUtils.isNumrical(s.charAt(i)))
+                                return new int[] {matchingStart, i};
+                            i++;
+                        }
+                    }
                 } else if (!StringUtils.isNumrical(ch)) {
                     return new int[] {matchingStart, i};
                 }

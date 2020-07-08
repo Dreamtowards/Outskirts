@@ -10,7 +10,7 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.logging.Log;
-import outskirts.util.obj.OBJFileLoader;
+import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 
 import javax.annotation.Nullable;
@@ -28,7 +28,6 @@ import static org.lwjgl.opengl.GL12.glTexImage3D;
 import static org.lwjgl.opengl.GL12.glTexSubImage3D;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
 
@@ -83,7 +82,7 @@ public final class Loader {
 
     public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
         try {
-            ModelData modeldat = OBJFileLoader.loadOBJ(inputStream);
+            ModelData modeldat = OBJLoader.loadOBJ(inputStream);
             if (mdat != null)
                 mdat[0] = modeldat;
             return Loader.loadModelTAN(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);

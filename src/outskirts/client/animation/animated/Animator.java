@@ -1,66 +1,103 @@
 package outskirts.client.animation.animated;
 
 import outskirts.client.animation.Animation;
+import outskirts.client.animation.JointAnimation;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
+import outskirts.util.vector.Vector3f;
+import sun.security.provider.MD4;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 // quastion: why src-data keeps 'inparent-bone-space'.?   then even not all in model-localspace.?
 public class Animator {
 
     private float currentTime;  // current time.
-    private Animation animation;  // current animation.
+    private JointAnimation animation;  // current animation.
 
     // material, mat[] deltaTransArray, jointsCount, rootJoints..
 
-    public final void doAnimation(Animation animation) {
+    public final void doAnimation(JointAnimation animation) {
         this.currentTime = 0;
         this.animation = animation;
     }
 
 
-    public void update(float delta, Joint rootJoint) {
+    public void update(float delta, Joint[] joints) {
         if (animation==null) return;
         currentTime += delta;
-        currentTime %= animation.getDuration(); // loop.?
+        currentTime %= 4; // loop.?
 
-        Map<String, Matrix4f> currtrans = calculateCurrentAnimationPose();
-        applyTransToJoints(currtrans, rootJoint, new Matrix4f()); // opt IDENTITYmat   but why not mat4[] transArray -> to Joint[] jointArray setting.? yes not.. cuz needs treeStruc-set.
-    }
-
-    private Map<String, Matrix4f> calculateCurrentAnimationPose() {  // why not mat4[] trans array.?
-        // getting currFrame, nextFrame.
-        Animation.KeyFrame[] kfs = animation.getKeyFrames();
-        Animation.KeyFrame currFrame=null, nextFrame=null;
-        for (int i = 1;i < kfs.length;i++) {
-            if (currentTime < kfs[i].getTimestamp()) {
-                nextFrame=kfs[i];
-                currFrame=kfs[i-1];
-                break;
+        // for each joint, interpolate out current transform from curr/next keyframes.
+        for (String jname : animation.getKeyFrames().keySet()) {
+            JointAnimation.JKeyFrame[] jkframes = animation.getKeyFrames().get(jname);
+            JointAnimation.JKeyFrame currFrame=jkframes[0], nextFrame=jkframes[0];
+            for (int i = 0;i < jkframes.length;i++) {
+                if (currentTime > jkframes[i].timestamp) {
+                    currFrame=jkframes[i];
+                    nextFrame=jkframes[Math.min(i+1, jkframes.length-1)];
+                } else break;
             }
-        }
-        // getting 'current-progress'
-        float t = Maths.inverseLerp(currentTime, currFrame.getTimestamp(), nextFrame.getTimestamp());  // interpolate v.
+            float t = Maths.inverseLerp(currentTime, currFrame.timestamp, nextFrame.timestamp); // NaN when currFrame==nextFrame.
 
-        // interpolate/generate bone-space transform.
-        Map<String, Matrix4f> currentJointTrans = new HashMap<>();  // inparent-bone-space -trans.
-        for (String jointname : currFrame.getJointTransforms().keySet()) {
-            Animation.KeyFrame.JointTransform currTrans = currFrame.getJointTransforms().get(jointname);
-            Animation.KeyFrame.JointTransform nextTrans = nextFrame.getJointTransforms().get(jointname);
-            Matrix4f intpTrans = Animation.KeyFrame.JointTransform.interpolateAndToTransMat(t, currTrans, nextTrans); // cache obj.?
-            currentJointTrans.put(jointname, intpTrans);
+            Matrix4f currInparentTrans = JointAnimation.JKeyFrame.toMatrix(
+                    currFrame==nextFrame?currFrame: JointAnimation.JKeyFrame.lerp(t, currFrame, nextFrame, new JointAnimation.JKeyFrame()),
+                    new Matrix4f());
+
+            Joint j = getJ(jname, joints);
+
+            if (j.parentIdx == -1)
+                j.currentTransform.set(currInparentTrans);
+            else
+                Matrix4f.mul(joints[j.parentIdx].currentTransform, currInparentTrans, j.currentTransform);
         }
-        return currentJointTrans;
+
+//        Map<String, Matrix4f> currtrans = calculateCurrentAnimationPose();
+//        applyTransToJoints(currtrans, joints); // opt IDENTITYmat   but why not mat4[] transArray -> to Joint[] jointArray setting.? yes not.. cuz needs treeStruc-set.
     }
 
-    private void applyTransToJoints(Map<String, Matrix4f> trans, Joint joint, Matrix4f parentTrans) {
-        Matrix4f modelspTrans = Matrix4f.mul(parentTrans, trans.get(joint.name), new Matrix4f());
-        for (Joint child : joint.children) {
-            applyTransToJoints(trans, child, modelspTrans);
+    public static Joint getJ(String jname, Joint[] joints) {
+        for (Joint j : joints) {
+            if (j.name.equals(jname))
+                return j;
         }
-        Matrix4f.mul(modelspTrans, joint.invBindTransform, joint.currentTransform); // the exactly delta-transform
+        throw new NoSuchElementException();
     }
+
+//    private Map<String, Matrix4f> calculateCurrentAnimationPose() {  // why not mat4[] trans array.?
+//        // getting currFrame, nextFrame.
+//        Animation.KeyFrame[] kfs = animation.getKeyFrames();
+//        Animation.KeyFrame currFrame=null, nextFrame=null;
+//        for (int i = 1;i < kfs.length;i++) {
+//            if (currentTime < kfs[i].getTimestamp()) {
+//                nextFrame=kfs[i];
+//                currFrame=kfs[i-1];
+//                break;
+//            }
+//        }
+//        // getting 'current-progress'
+//
+//        // interpolate/generate bone-space transform.
+//        Map<String, Matrix4f> currentJointTrans = new HashMap<>();  // inparent-bone-space -trans.
+//        for (String jointname : currFrame.getJointTransforms().keySet()) {
+//            Animation.KeyFrame.JointTransform currTrans = currFrame.getJointTransforms().get(jointname);
+//            Animation.KeyFrame.JointTransform nextTrans = nextFrame.getJointTransforms().get(jointname);
+//            Matrix4f intpTrans = Animation.KeyFrame.JointTransform.interpolateAndToTransMat(t, currTrans, nextTrans); // cache obj.?
+//            currentJointTrans.put(jointname, intpTrans);
+//        }
+//        return currentJointTrans;
+//    }
+//
+//    private void applyTransToJoints(Map<String, Matrix4f> trans, Joint[] joints) {
+//        for (int i = 0;i < joints.length;i++) {
+//            Joint j = joints[i];
+//            Matrix4f.mul(
+//                    i==0? Matrix4f.IDENTITY:joints[j.parentIdx].currentTransform, trans.get(j.name),
+//                    j.currentTransform);
+//        }
+//    }
 
 }

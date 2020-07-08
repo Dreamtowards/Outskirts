@@ -11,20 +11,25 @@ import outskirts.client.animation.loader.tmpcolladaloader.dataStructures.MeshDat
 import outskirts.client.animation.loader.tmpcolladaloader.dataStructures.SkeletonData;
 import outskirts.client.material.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AnimatedModelLoader {
 
 	public static AnimatedModel loadEntity(MyFile modelFile) {
 		AnimatedModelData entityData = ColladaLoader.loadColladaModel(modelFile, 3);
 		Model model = createVao(entityData.getMeshData());
 		SkeletonData skeletonData = entityData.getJointsData();
-		Joint headJoint = createJoints(skeletonData.headJoint);
-		return new AnimatedModel(model, headJoint, skeletonData.jointCount);
+		List<Joint> jointList = new ArrayList<>();
+		Joint headJoint = createJoints(skeletonData.headJoint, jointList);
+		return new AnimatedModel(model, jointList.toArray(new Joint[0]));
 	}
 
-	private static Joint createJoints(JointData data) {
+	private static Joint createJoints(JointData data, List<Joint> dest) {
 		Joint joint = new Joint(data.index, data.nameId, data.bindLocalTransform);
+		dest.add(joint);
 		for (JointData child : data.children) {
-			joint.children.add(createJoints(child));
+			joint._children.add(createJoints(child, dest));
 		}
 		return joint;
 	}

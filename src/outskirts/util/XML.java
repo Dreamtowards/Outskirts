@@ -1,7 +1,5 @@
 package outskirts.util;
 
-import outskirts.util.logging.Log;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,6 +112,9 @@ public class XML {
     public Map<String, String> getAttributes() {
         return attributes;
     }
+    public final String getAttribute(String attrkey) {
+        return getAttributes().get(attrkey);
+    }
 
     public List<XML> getChildren() {
         assert !children.isEmpty() || !textContent.isEmpty();
@@ -128,29 +129,49 @@ public class XML {
         this.textContent = textContent;
     }
 
+    // get first child which name matched.
+    public XML getChild(String name) {
+        for (XML child : children) {
+            if (child.getName().equals(name))
+                return child;
+        }
+        return null;
+    }
+
+    public XML getChild(String name, String attrKey, String attrVal) {
+        for (XML child : children) {
+            if (child.getName().equals(name) && attrVal.equals(child.getAttributes().get(attrKey)))
+                return child;
+        }
+        return null;
+    }
+
+    public List<XML> getChildren(String name) {
+        List<XML> rs = new ArrayList<>();
+        for (XML child : children) {
+            if (child.getName().equals(name))
+                rs.add(child);
+        }
+        return rs;
+    }
+
     /**
-     *
+     * recursive find children. (cross sub levels)
      * @param mx max find count. -1 unlimited.
      */
-    private List<XML> findChildren(Predicate<XML> pred, List<XML> rs, int mx, boolean recursive) {
+    private List<XML> findChildren(Predicate<XML> pred, List<XML> rs, int mx) {
         for (XML child : children) {
             if (mx != -1 && rs.size() == mx)
                 return rs;
             if (pred.test(child)) {
                 rs.add(child);
             }
-            if (recursive) {
-                child.findChildren(pred, rs, mx, true);
-            }
+            child.findChildren(pred, rs, mx);
         }
         return rs;
     }
-    public final List<XML> findChildren(Predicate<XML> pred, int mx, boolean recursive) {
-        return findChildren(pred, new ArrayList<>(), mx, recursive);
-    }
-
-    public List<XML> findFirstChildByName(String name) {
-        return findChildren(xml -> xml.getName().equals(name), 1, true);
+    public final List<XML> findChildren(Predicate<XML> pred, int mx) {
+        return findChildren(pred, new ArrayList<>(), mx);
     }
 
 
@@ -348,49 +369,6 @@ public class XML {
             }
             return sb.toString();
         }
-
-//        public String nextString() {
-//            char quote = next();
-//            assert quote=='"' || quote=='\'';
-//
-//            StringBuilder sb = new StringBuilder();
-//            while (true) {
-//                char c = next();
-//                if (c == '\u0000') // || c == '\n' || c == '\r')
-//                    throw new RuntimeException();
-//                if (c == '\\') {
-//                    char c1 = next();
-//                    if (c1=='\'' || c1=='\"' || c1=='\\') {
-//                        sb.append(c1);
-//                    } else if (c1=='n') {
-//                        sb.append('\n');
-//                    } else {
-//                        throw new RuntimeException("Illegal escape.");
-//                    }
-//                } else if (c == quote) {
-//                    return sb.toString();
-//                } else {
-//                    sb.append(c);
-//                }
-//            }
-//        }
-//        private static String stringEscape(String s) {
-//            StringBuilder sb = new StringBuilder(s.length()); // init cap.
-//            for (int i = 0;i < s.length();i++) {
-//                char ch = s.charAt(i);
-//                switch (ch) { // no to \n, \r
-//                    case '\'':
-//                        sb.append("\\'"); break;
-//                    case '\"':
-//                        sb.append("\\\""); break;
-//                    case '\\':
-//                        sb.append("\\\\"); break;
-//                    default:
-//                        sb.append(ch);
-//                }
-//            }
-//            return sb.toString();
-//        }
 
         public String nextTo(char ch) {
             StringBuilder sb = new StringBuilder();

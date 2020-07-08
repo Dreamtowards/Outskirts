@@ -17,8 +17,6 @@ import outskirts.world.WorldClient;
 
 public class SceneIniter {
 
-    public static Entity e;
-
     public static void init(WorldClient world) {
 
 
@@ -26,8 +24,9 @@ public class SceneIniter {
         Light lightSun = new Light();
         lightSun.getPosition().set(100, 100, 100);
         lightSun.getDirection().set(-1, -1, -1).normalize();
-        lightSun.getColor().set(5, 5, 5);
-        Light.calculateApproximateAttenuation(100, lightSun.getAttenuation());
+        lightSun.getColor().set(1, 1, 1).scale(1);
+//        Light.calculateApproximateAttenuation(1000, lightSun.getAttenuation());
+        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
 
 
@@ -42,17 +41,17 @@ public class SceneIniter {
 //
 //        }
 
-//        {
-//            EntityModel gravestone = new EntityModel();
-//            world.addEntity(gravestone);
-//            ModelData[] mdatptr = new ModelData[1];
-//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/gravestone/model.objfx").getInputStream(), mdatptr))//.setModel(Models.GEO_CUBE)
-//                                    .setDiffuseMap(Loader.loadTexture(new Identifier("materials/gravestone/diff.png").getInputStream()));
-////            gravestone.getRigidBody().setCollisionShape(new TriangleMeshShape(mdatptr[0].indices, mdatptr[0].positions));
-//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-//            gravestone.getRigidBody().setMass(0);
-//            e=gravestone;
-//        }
+        {
+            EntityModel gravestone = new EntityModel();
+            world.addEntity(gravestone);
+            ModelData[] mdatptr = new ModelData[1];
+            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/gravestone/model.obj").getInputStream(), mdatptr))//.setModel(Models.GEO_CUBE)
+                                    .setDiffuseMap(Loader.loadTexture(new Identifier("materials/gravestone/diff.png").getInputStream()));
+            gravestone.getRigidBody().setCollisionShape(new TriangleMeshShape(mdatptr[0].indices, mdatptr[0].positions));
+            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+            gravestone.tmp_boxSphere_scale.scale(10);
+            gravestone.getRigidBody().setMass(0);
+        }
 
         {
             // stack tst

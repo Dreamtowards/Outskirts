@@ -5,7 +5,10 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.animation.AnRenderer;
 import outskirts.client.animation.Animation;
+import outskirts.client.animation.JointAnimation;
 import outskirts.client.animation.animated.AnimatedModel;
+import outskirts.client.animation.animated.Joint;
+import outskirts.client.animation.loader.dae.DaeLoader;
 import outskirts.client.animation.loader.tmpcolladaloader.MyFile;
 import outskirts.client.animation.loader.tmpmodelloader.AnimatedModelLoader;
 import outskirts.client.animation.loader.tmpmodelloader.AnimationLoader;
@@ -29,7 +32,9 @@ import outskirts.physics.collision.shapes.convex.*;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
 import java.io.*;
@@ -135,15 +140,20 @@ public class Outskirts {
 
 //        Events.EVENT_BUS.post(new InitializedEvent());
 
+        DaeLoader.DaeData daeData = DaeLoader.loadDAE(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
+
         anRenderer = new AnRenderer();
 
-        animatedModel = AnimatedModelLoader.loadEntity(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
+        animatedModel = AnimatedModel.newFromDAE(daeData);
+//        animatedModel = AnimatedModelLoader.loadEntity(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
 
-        animation = AnimationLoader.loadAnimation(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
+
+//        animation = AnimationLoader.loadAnimation(new MyFile("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
+        animation = AnimatedModel.loadAfromDae(daeData);
     }
     AnRenderer anRenderer;
     AnimatedModel animatedModel;
-    Animation animation;
+    JointAnimation animation;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -185,6 +195,7 @@ public class Outskirts {
             glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
 
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
+
             rootGUI.onDraw();
 
             glEnable(GL_CULL_FACE);
@@ -192,6 +203,7 @@ public class Outskirts {
 
             animatedModel.update(getDelta());
             anRenderer.render(animatedModel);
+
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -243,8 +255,8 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE);
-        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER).setDiffuseMap(Loader.loadTexture(new Identifier("materials/aya091/tex/tex.png").getInputStream()));
+        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE).setModel(INSTANCE.animatedModel.model);
+        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER).setDiffuseMap(INSTANCE.animatedModel.texture);
         getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
 //        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
@@ -264,11 +276,20 @@ public class Outskirts {
                     GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
                     INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
+//                    Matrix4f.translate(new Vector3f(20, 0, 10), INSTANCE.animatedModel.joints[6].currentTransform);
                     Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(0, 1000, 0);
                 }
                 if (e.getKey() == GLFW_KEY_1) {
-                    getCamera().getPosition().set(0, 0, 10);
+//                    getCamera().getPosition().set(0, 0, 10);
+                    GuiVert3D.INSTANCE.vertices.clear();
+                    Joint[] jts = INSTANCE.animatedModel.joints;
+                    for (int i = 0;i < jts.length;i++) {
+                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
+                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
+                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
+                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
+                    }
                 }
             }
         });

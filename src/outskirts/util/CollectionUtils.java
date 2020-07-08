@@ -47,13 +47,21 @@ public final class CollectionUtils {
         return dest;
     }
 
-    public static float[] toArray(List<Float> list) {
+    public static float[] toArrayf(List<Float> list) {
         float[] array = new float[list.size()];
         int i = 0;
         for (Float data : list) {
             array[i++] = data;
         }
         return array;
+    }
+
+    public static int[] toArrayi(List<Integer> ls) {
+        int[] arr = new int[ls.size()];
+        int i = 0;
+        for (Integer v : ls)
+            arr[i++] = v;
+        return arr;
     }
 
     public static int indexOf(Object[] array, Object find, int fromIndex, int toIndex) {

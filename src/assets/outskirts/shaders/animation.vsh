@@ -20,14 +20,12 @@ void main() {
     vec4 modelPosition = vec4(0.0f);
     vec4 modelNormal = vec4(0.0f);
 
-    for (int i = 0;i < 3;i++) {
-        mat4 jointTransMat = jointTransforms[int(jointIdx[i])];
+    for (int i = 0;i < 3;i++) {  // if (jointWeights[i] == 0) continue;
+        mat4 jointTrans = jointTransforms[int(jointIdx[i])];
 
-        vec4 jointTransPos = jointTransMat * vec4(positions, 1.0);
-        modelPosition += jointTransPos * jointWeights[i];
+        modelPosition += (jointTrans * vec4(positions, 1.0)) * jointWeights[i];
 
-        vec4 jointTransNorm = jointTransMat * vec4(normals, 0.0);
-        modelNormal += jointTransNorm * jointWeights[i];
+        modelNormal += (jointTrans * vec4(normals, 0.0)) * jointWeights[i];
     }
 
     gl_Position = projectionMatrix * viewMatrix * modelPosition;

@@ -275,7 +275,7 @@ public class Quaternion extends Vector4f {
         return dest;
     }
 
-    // #duplicated_from Quaternion.toMatrix(Quaternion, Matrix3f)
+    // #duplicated_from Quaternion.toMatrix(Quaternion, Matrix3f) // todo: REDUCE. can use mat4.set(mat3)
     /**
      * note that this will only directly set(not mul) Matrix4x4's first 0-2 rows AND cols (9 elements), other elements will not be touch.
      */
