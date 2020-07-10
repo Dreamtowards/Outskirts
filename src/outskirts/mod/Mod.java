@@ -9,12 +9,12 @@ public abstract class Mod implements Registrable {
 
     Mod.Manifest manifest;
 
-    public Manifest getManifest() {
+    public final Manifest getManifest() {
         return manifest;
     }
 
     @Override
-    public String getRegistryID() {
+    public final String getRegistryID() {
         return getManifest().getID();
     }
 

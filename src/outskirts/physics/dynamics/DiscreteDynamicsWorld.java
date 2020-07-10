@@ -8,6 +8,7 @@ import outskirts.physics.dynamics.constraint.constraintsolver.ConstraintSolver;
 import outskirts.physics.dynamics.constraint.constraintsolver.SequentialImpulseConstraintSolver;
 import outskirts.util.Maths;
 import outskirts.util.Transform;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
 import java.util.ArrayList;

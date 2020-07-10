@@ -14,7 +14,7 @@ public abstract class CollisionAlgorithm {
     // name as bodyA and bodyB .? num may is not vivid enough like normOnB
     /**
      * discrete collision detection.
-     * (dosen't needs return true/false if had collision. manifold will records collision results.)
+     * (dosen't needs return true/false if had collision. manifold will records collision results. even how much collision the difference.)
      */
     public abstract void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold);
 

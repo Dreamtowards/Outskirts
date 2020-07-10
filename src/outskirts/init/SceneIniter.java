@@ -41,30 +41,29 @@ public class SceneIniter {
 //
 //        }
 
-        {
-            EntityModel gravestone = new EntityModel();
-            world.addEntity(gravestone);
-            ModelData[] mdatptr = new ModelData[1];
-            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/gravestone/model.obj").getInputStream(), mdatptr))//.setModel(Models.GEO_CUBE)
-                                    .setDiffuseMap(Loader.loadTexture(new Identifier("materials/gravestone/diff.png").getInputStream()));
-            gravestone.getRigidBody().setCollisionShape(new TriangleMeshShape(mdatptr[0].indices, mdatptr[0].positions));
-            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-            gravestone.tmp_boxSphere_scale.scale(10);
-            gravestone.getRigidBody().setMass(0);
-        }
+//        {
+//            EntityModel gravestone = new EntityModel();
+//            world.addEntity(gravestone);
+//            ModelData[] mdatptr = new ModelData[1];
+//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/gravestone/model.obj").getInputStream(), mdatptr))//.setModel(Models.GEO_CUBE)
+//                                    .setDiffuseMap(Loader.loadTexture(new Identifier("materials/gravestone/diff.png").getInputStream()));
+//            gravestone.getRigidBody().setCollisionShape(new TriangleMeshShape(mdatptr[0].indices, mdatptr[0].positions));
+//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+//            gravestone.getRigidBody().setMass(0);
+//        }
 
         {
             // stack tst
 
-            for (int i = 0;i < 0;i++) {
-                EntityModel ebox = new EntityModel();
-                world.addEntity(ebox);
-                ebox.tmp_boxSphere_scale.set(3-i*0.2f,1, 3-i*0.2f);
-                ebox.getRigidBody().setCollisionShape(new BoxShape(3-i*0.2f,1, 3-i*0.2f)).setMass(40);
-                ebox.getRigidBody().transform().origin.y = i*2.5f+2;
-                ebox.getMaterial().setModel(Models.GEO_CUBE).setDiffuseMap(Textures.FLOOR);
-
-            }
+//            for (int i = 0;i < 6;i++) {
+//                EntityModel ebox = new EntityModel();
+//                world.addEntity(ebox);
+//                ebox.tmp_boxSphere_scale.set(3-i*0.2f,1, 3-i*0.2f);
+//                ebox.getRigidBody().setCollisionShape(new BoxShape(3-i*0.2f,1, 3-i*0.2f)).setMass(40);
+//                ebox.getRigidBody().transform().origin.y = i*2.5f+2;
+//                ebox.getMaterial().setModel(Models.GEO_CUBE).setDiffuseMap(Textures.FLOOR);
+//
+//            }
         }
 
 

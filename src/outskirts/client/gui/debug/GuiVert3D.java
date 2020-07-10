@@ -104,7 +104,7 @@ public class GuiVert3D extends Gui {
 
     public static List<Vert> addNorm(String name, Vector3f p, Vector3f norm, Vector4f color) {
         Vert v = addVert("", p, color);
-        Vert vNorm = addVert(name, new Vector3f(p).addScaled(10, norm), color, new Vert[]{v});
+        Vert vNorm = addVert(name, new Vector3f(p).add(norm), color, new Vert[]{v});
         return Arrays.asList(v, vNorm);
     }
     public static List<Vert> addTri(String prefix, Vector3f v0, Vector3f v1, Vector3f v2, Vector4f color, Vector3f norm) {

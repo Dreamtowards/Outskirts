@@ -7,6 +7,7 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Transform;
 import outskirts.util.Validate;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
 import java.util.List;
@@ -27,14 +28,13 @@ import java.util.List;
  */
 public final class CollisionManifold {
 
-    private static final float MIN_CONTACT_POINT_DISTANCE = 0.02F;
     public static final int MAX_CONTACT_POINTS = 4;
 
     // contact Points cache
     private ContactPoint[] contactPoints = CollectionUtils.fill(new ContactPoint[MAX_CONTACT_POINTS], ContactPoint::new);
     private int numContactPoints = 0;
 
-    public int cpAddedCount = 0;  // inserted.?
+    public int cpAdded = 0;
 
     // refer to Execution-CDNarrowphaseDispatcher.
     public Narrowphase narrowphase;
@@ -80,13 +80,8 @@ public final class CollisionManifold {
      */
     public final void addContactPoint(Vector3f normOnB, float penetration, Vector3f pointOnB) {
         Validate.isTrue(penetration > 0, "Illegal penetration, penetration should be > 0. actual: %s", penetration); // needs opt ..?
+        cpAdded++;
 
-        // check the distance with other points. fliter.
-        Vector3f TMP = new Vector3f();
-        for (ContactPoint cp : contactPoints) {
-            if (Vector3f.sub(cp.pointOnB, pointOnB, TMP).lengthSquared() < MIN_CONTACT_POINT_DISTANCE*MIN_CONTACT_POINT_DISTANCE)
-                return;
-        }
         // insert. went capacity
         int insertIndex = numContactPoints;
         if (numContactPoints == MAX_CONTACT_POINTS) {
@@ -113,55 +108,52 @@ public final class CollisionManifold {
         cp.combined_friction = Maths.sqrt(bodyA.getFriction() * bodyB.getFriction());
         cp.combined_restitution = Maths.sqrt(bodyA.getRestitution() * bodyB.getRestitution());
 
-        // other Contact-Point's information just wait been update/setup by refreshContactPoints() in later (when finished "this" Collision-Detection).
-
-        cpAddedCount++;
+        // other Contact-Point data/info just wait been update/setup by refreshContactPoints() in later (when finished "this" Collision-Detection).
     }
 
     /**
-     * @return max area cp index.
+     * find 'useless' ContactPoint.
+     * @return the index of 'approximaty most useless' ContactPoint.
      */
     private int sortCachedContactPoints(float cp_penetration, Vector3f cp_localpointB) {
 
-        int   maxpen_i = -1;
-        // keep max penetration Contact-Point
-        float maxpen = cp_penetration;
-        for (int i = 0;i < MAX_CONTACT_POINTS;i++) {
-            if (contactPoints[i].penetration > maxpen) {
-                maxpen_i = i;
-                maxpen = contactPoints[i].penetration;
+        // keep max penetration Contact-Point alive.
+        int maxpen_i = -1;
+        {   // just find out max_penetration index.
+            float maxpen = cp_penetration;
+            for (int i = 0; i < getNumContactPoints(); i++) {
+                if (contactPoints[i].penetration > maxpen) {
+                    maxpen_i = i;
+                    maxpen = contactPoints[i].penetration;
+                }
             }
         }
 
-        float[] res = new float[4];
-
-        if (maxpen_i != 0) {
-            Vector3f a0 = Vector3f.sub(              cp_localpointB, contactPoints[1].localpointB, null); // v1 -> cp
-            Vector3f b0 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
-            res[0] = Vector3f.cross(a0, b0, null).lengthSquared();
+        float[] areas = new float[4]; // the Areas of 'the area when Not/replace the ContactPoint_i'.
+        if (maxpen_i != 0) {  // if replace old cp0 with the new cp, then (they composed) approximaty area is..:
+            Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[1].localpointB, null); // v1 -> cp
+            Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
+            areas[0] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-
         if (maxpen_i != 1) {
-            Vector3f a1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
-            Vector3f b1 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
-            res[1] = Vector3f.cross(a1, b1, null).lengthSquared();
+            Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
+            Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
+            areas[1] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-
         if (maxpen_i != 2) {
-            Vector3f a2 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
-            Vector3f b2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[1].localpointB, null); // v1 -> v3
-            res[2] = Vector3f.cross(a2, b2, null).lengthSquared();
+            Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
+            Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[1].localpointB, null); // v1 -> v3
+            areas[2] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-
         if (maxpen_i != 3) {
-            Vector3f a3 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
-            Vector3f b3 = Vector3f.sub(contactPoints[2].localpointB, contactPoints[1].localpointB, null); // v1 -> v2
-            res[3] = Vector3f.cross(a3, b3, null).lengthSquared();
+            Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
+            Vector3f l2 = Vector3f.sub(contactPoints[2].localpointB, contactPoints[1].localpointB, null); // v1 -> v2
+            areas[3] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
 
         int maxarea_i = 0;
         for (int i = 0;i < 4;i++) {
-            if (res[i] > res[maxarea_i])
+            if (areas[i] > areas[maxarea_i])
                 maxarea_i = i;
         }
         return maxarea_i;
@@ -219,8 +211,8 @@ public final class CollisionManifold {
 
         public float penetration; // Contact-Penetration-Depth. must be > 0, (the value conceptly equals -surfaceDistan
 
-        public float combined_friction;
-        public float combined_restitution;
+        public float combined_friction;    // >= 0
+        public float combined_restitution; // >= 0
 
         public ConstraintSolverPresistentData cpd = new ConstraintSolverPresistentData();
 
@@ -241,13 +233,13 @@ public final class CollisionManifold {
             public float tangentImpulseSum1;
             public float tangentImpulseSum2;
 
-            public float normalEffectiveMass;  // λ denominator, contact constraint.
+            public float normalEffectiveMass;  // λ denominator, contact constraint.  Effective Mass.  >= 0.
             public float tangentEffectiveMass1; // λ denominator, friction constraint. both for A and B.
             public float tangentEffectiveMass2;
             public Vector3f tangent1 = new Vector3f(); // frictionTangent1. worldspace. both for A and B
             public Vector3f tangent2 = new Vector3f();
 
-            public float rest_combined_restitution;
+            public float rest_combined_restitution;  // mainly <= 0.
 
             private void reset() {
                 normalImpulseSum=0;

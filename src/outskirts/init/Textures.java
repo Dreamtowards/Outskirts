@@ -9,15 +9,11 @@ import outskirts.util.Side;
 
 public final class Textures {
 
-    public static final Texture BRICK = loadTexture("materials/brick.png");
-
     public static final Texture CONTAINER = loadTexture("materials/container2.png");
     public static final Texture CONTAINER_SPEC = loadTexture("materials/container2_specular.png");
-    public static final Texture MATRIX = loadTexture("materials/matrix.png");
     public static final Texture WOOD1 = loadTexture("materials/wood1.png");
     public static final Texture FLOOR = loadTexture("materials/floor.png");
     public static final Texture FRONT = loadTexture("materials/FRONT.png");
-
 
     public static final Texture ICON_LIGHT = loadTexture("textures/gui/icon_light.png");
 

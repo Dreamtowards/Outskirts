@@ -1484,3 +1484,17 @@ IOUtils. writeUTF
 //                }
 //            }
 //        }
+
+
+
+20200710 /Phys
+the Jitter problem update.
+before this time, when body stay collision, and slow-velocity, happens 'penetrating' phenomenon (tho been pop back to surface by posOff soon).
+But when fast velocity, like horiz moving, the vertical penetration beeing VeryStable, VeryGood, no jitter. this also when No-Pos-Off situation. (Velocity Solving Only)
+I am thinking that is the Big Velocity makes Bigger 'Force' to bigger push bodies away. even makes that so stable. but this think is not as-rule. because that the 'Force' is along the Normal, so no matter velocity magnitude, just matter with velocity direction ('along' the normal).
+But FINALLY, this is just NOT a mathematically problem actually even I spend lots time in cluelessly math analysis. this is a Logicly mistake. - CollisionDetection Manifold Passing/Transfering.
+in that time, the Broadphase is OK, but sometimes, when actually 100% had collision, but Narrowphase do not output manifold (then CollisionSolve dont solve.)
+ We the Manifold is Presistent as long as Broadphase-Overlapping. so whither is Nnarrowphase had add new ContactPoints, the Manifold still should be Solve when manifold.getNumContactPoints() > 0.
+ in the problem, the Narrowphase had detected new CP, but do not actually add because filter detected too closed to another old CP (baddly detect uses worldspace CP point). then Narrowphase 'result' as no new CP added (even had actually detected new CP), then wrongly as 'No-Collision', then not passed to Collision-Solve, then sometimes jitter...
+Solve: all broadphase manifold just passed to Collision-Solve when manifold.getNumContactPoints() > 0.
+and removed that add-CP distance filter. likes useless filter.

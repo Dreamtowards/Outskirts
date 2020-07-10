@@ -26,7 +26,7 @@ public class GuiMenu extends Gui {
         });
 
         addOnDrawListener(e -> {
-            drawRect(Colors.WHITE20, this);
+            drawRect(Colors.BLACK80, this);
         });
     }
 
@@ -66,7 +66,7 @@ public class GuiMenu extends Gui {
             }).addOnDrawListener(e -> {
                 if (checked[0]) {
                     Gui g = e.gui();
-                    drawString("✓", g.getX()-12, g.getY(), Colors.BLACK, GuiText.DEFAULT_TEXT_HEIGHT, false, false);
+                    drawString("✓", g.getX()-12, g.getY(), Colors.WHITE, GuiText.DEFAULT_TEXT_HEIGHT, false, false);
                 }
             });
         }

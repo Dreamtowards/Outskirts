@@ -197,9 +197,9 @@ public final class ClientSettings {
 
             loadJSON(ClientSettings.class, json);
 
-            LOGGER.info("Loaded GameSettings options. ({})", OPTION_FILE);
+            LOGGER.info("Loaded ClientSettings options. ({})", OPTION_FILE);
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to load GameSettings options.", ex);
+            throw new RuntimeException("Failed to load ClientSettings options.", ex);
         }
     }
 
@@ -211,9 +211,9 @@ public final class ClientSettings {
 
             IOUtils.write(new ByteArrayInputStream(json.toString(4).getBytes()), new FileOutputStream(OPTION_FILE));
 
-            LOGGER.info("Saved GameSettings options. ({})", OPTION_FILE);
+            LOGGER.info("Saved ClientSettings options. ({})", OPTION_FILE);
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to save GameSettings options.", ex);
+            throw new RuntimeException("Failed to save ClientSettings options.", ex);
         }
     }
 

@@ -11,7 +11,6 @@ import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
-import outskirts.entity.EntityStall;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
@@ -55,8 +54,6 @@ public final class Init {
 
     private static void registerEntities(Side side) {
 
-        Entity.REGISTRY.register(EntityStall.class);
-
         Entity.REGISTRY.register(side.isClient() ? EntityPlayerSP.class : EntityPlayerMP.class);
     }
 
@@ -72,7 +69,6 @@ public final class Init {
 
             Models.init();
 
-            initGuiMenu();
         } else {
 
             registerCommands();
@@ -81,39 +77,6 @@ public final class Init {
         registerPackets();
 
         registerEntities(side);
-    }
-
-
-
-    private static void initGuiMenu() {
-
-        Gui MEMLOG = Outskirts.getRootGUI().addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
-        Gui PROFILERV = Outskirts.getRootGUI().addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
-        Gui VERT3D = Outskirts.getRootGUI().addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
-
-        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);
-
-        GuiMenubar menubar = GuiDebugCommon.INSTANCE.debugMenu; // Outskirts.getRootGUI().addGui(new GuiMenubar());
-        menubar.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
-        {
-            GuiMenu mDebug = menubar.addMenu("DebugV", new GuiMenu());
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false,  c -> GuiDebugCommon.INSTANCE.showCambasisAndInfos =c).bindKey(GLFW.GLFW_KEY_F3));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
-            mDebug.addGui(GuiMenu.GuiItem.divider());
-            mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> GuiDebugCommon.INSTANCE.showLightMarks =c));
-            mDebug.addGui(GuiMenu.GuiItem.divider());
-            mDebug.addGui(GuiMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
-
-            GuiMenu mPhys = menubar.addMenu("Phys", new GuiMenu());
-            mPhys.addGui(GuiMenu.GuiItem.bswitch("BoundingBox", false, c -> GuiDebugPhys.INSTANCE.showBoundingBox=c));
-            mPhys.addGui(GuiMenu.GuiItem.bswitch("Velocities", false, c -> GuiDebugPhys.INSTANCE.showVelocities=c));
-            mPhys.addGui(GuiMenu.GuiItem.bswitch("ContactPoints", false, c -> GuiDebugPhys.INSTANCE.showContactPoints=c));
-            mPhys.addGui(GuiMenu.GuiItem.divider());
-            mPhys.addGui(GuiMenu.GuiItem.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
-        }
     }
 
 }

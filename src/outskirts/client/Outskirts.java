@@ -27,6 +27,7 @@ import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
@@ -126,8 +127,6 @@ public class Outskirts {
         camera.getCameraUpdater().setOwnerEntity(player);
 
         getRootGUI().addGui(GuiDebugCommon.INSTANCE.setVisible(false));
-        getRootGUI().addGui(GuiDebugPhys.INSTANCE);
-        getRootGUI().addGui(GuiVert3D.INSTANCE.setVisible(false));
         startScreen(GuiScreenMainMenu.INSTANCE);
 
 
@@ -140,9 +139,9 @@ public class Outskirts {
 
         anRenderer = new AnRenderer();
 
-        animatedModel = AnimatedModel.newFromDAE(daeData);
+        animatedModel = AnimatedModel.loadModel(daeData);
 
-        animation = AnimatedModel.loadAfromDae(daeData);
+        animation = AnimatedModel.loadAnim(daeData);
     }
     AnRenderer anRenderer;
     AnimatedModel animatedModel;
@@ -157,7 +156,7 @@ public class Outskirts {
         profiler.pop("scheduleTasks");
 
         profiler.push("runTick");
-        while (timer.pollFullTick())
+//        while (timer.pollFullTick())
         {
             this.runTick();
         }
@@ -193,9 +192,10 @@ public class Outskirts {
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
+            GuiVert3D.INSTANCE.vertices.clear();
 
-            animatedModel.update(getDelta());
-            anRenderer.render(animatedModel);
+//            animatedModel.update(getDelta());
+//            anRenderer.render(animatedModel);
 
             profiler.pop("gui");
         }
@@ -214,26 +214,6 @@ public class Outskirts {
 
         SceneIniter.init(world);
 
-//        if (true)return;
-
-//        for (int i = 0;i < 1;i++) {
-//            for (int j = 0;j < 4;j++) {
-//                for (int k = 0;k < 4;k++) {
-//                    EntityGeoShape entity = new EntityGeoShape(new BoxShape(new Vector3f(2, 2, 2)));
-////                    EntityGeoShape entity = new EntityGeoShape(new ShapeSphere(2));
-//                    INSTANCE.world.addEntity(entity);
-//                    RigidBody body = entity.getRigidBody();
-//                    body.getGravity().set(0, -20f, 0);
-//                    body.transform().origin.set(i*4, 2+ k*4, j*4);
-//                    body.setMass(20).setRestitution(0);
-//                    entity.getMaterial()
-//                            .setDiffuseMap(Textures.FRONT)
-//                            .setSpecularMap(Textures.CONTAINER_SPEC)
-//                            .setShininess(100);
-//                }
-//            }
-//        }
-
 //        ModelData[] mdat = new ModelData[1];
 //        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
 //        INSTANCE.world.addEntity(eFloor);
@@ -248,9 +228,10 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEOS_CAPSULE).setModel(INSTANCE.animatedModel.model);
-        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER).setDiffuseMap(INSTANCE.animatedModel.texture);
+        getPlayer().getMaterial().setModel(Models.GEO_CUBE);
+        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
         getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
+//        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));
 //        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
@@ -258,7 +239,7 @@ public class Outskirts {
         getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(20).setFriction(0.5f);//.setLinearDamping(0.04f);
+        getPlayer().getRigidBody().setMass(20).setFriction(50.5f).setRestitution(0f);//.setLinearDamping(0.04f);
 //        getPlayer().getRigidBody().invInertiaTensorLocalDiag = SceneIniter.e.getRigidBody().invInertiaTensorLocalDiag;
 //        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
 
@@ -271,7 +252,7 @@ public class Outskirts {
                     INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
 //                    Matrix4f.translate(new Vector3f(20, 0, 10), INSTANCE.animatedModel.joints[6].currentTransform);
                     Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
-//                    getPlayer().getRigidBody().getAngularVelocity().add(0, 1000, 0);
+                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
                 }
                 if (e.getKey() == GLFW_KEY_1) {
 //                    getCamera().getPosition().set(0, 0, 10);

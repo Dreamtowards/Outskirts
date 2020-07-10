@@ -1,16 +1,20 @@
 package outskirts.physics.dynamics.constraint.constraintsolver;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.dynamics.constraint.Constraint;
+import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
 import java.util.List;
+
+import static outskirts.util.logging.Log.LOGGER;
 
 /**
  * 1. Preparation the Positional Constration Equation.
@@ -57,7 +61,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
     public boolean USE_WARMSTART = false;
 
-    private static float SLOP_POSITIONAL = 0.005f; // ContcatSolving process Positional-Error only when the Penetration > the SLOP value. for stability.
+    private static float SLOP_POSITIONAL = 0.005f; // PositionalDirft only applies when penetration > this SLOP. for stability.
     private static float SLOP_RESTITUTION_RV = 0.5f; // Velocity. When relative-velocity-dotN "less" than this SLOP value, not process Restitution. for stability.
 
     @Override
@@ -66,11 +70,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         // prepare manifolds
         for (CollisionManifold manifold : manifolds)
         {
-            manifold.refreshContactPoints();
-//            if (manifold.bodyA() == Outskirts.getPlayer().getRigidBody() || manifold.bodyB() == Outskirts.getPlayer().getRigidBody()) {
-//                Log.LOGGER.info(manifold.getContactPoint(0).penetration);
-//            }
-
             for (int i = 0;i < manifold.getNumContactPoints();i++) {
                 prepareConstraints(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(i), delta);
             }
@@ -88,11 +87,11 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
                 }
             }
 
-//            for (CollisionManifold manifold : manifolds) {
-//                for (int j = 0;j < manifold.getNumContactPoints();j++) {
-//                    solveFriction(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(j));
-//                }
-//            }
+            for (CollisionManifold manifold : manifolds) {
+                for (int j = 0;j < manifold.getNumContactPoints();j++) {
+                    solveFriction(manifold.bodyA(), manifold.bodyB(), manifold.getContactPoint(j));
+                }
+            }
         }
     }
 
@@ -128,6 +127,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 //        // apply previous frames impulse on both bodies
 //        bodyA.applyImpulse(totalImpulse, cp.rA);
 //        bodyB.applyImpulse(totalImpulse.negate(), cp.rB);
+        cpd.normalImpulseSum=0;
     }
 
 
@@ -139,9 +139,9 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
         // Baumgarte Stabilization Method. (-penetration / delta) * beta. the beta factor always [0-1]. always close to 0, but not a "correct" value.
         float positionalErr = 0;
-//        if (cp.penetration > SLOP_POSITIONAL) {
+        if (cp.penetration > SLOP_POSITIONAL) {
             positionalErr = (-cp.penetration / delta) * 0.2f;  // ori 0.2f
-//        }
+        }
         float restitutionErr = cpd.rest_combined_restitution;
 
         float bias = positionalErr + restitutionErr; // the bias term
@@ -149,7 +149,6 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
         float normalImpulse = -(JV + bias) / cpd.normalEffectiveMass; // the LagrangianMultiplier λ
 
-//        normalImpulse = Math.max(normalImpulse, 0);
         // clamp the λ.  SUM(λ_i) >= 0.
         float oldNormalImpulse = cpd.normalImpulseSum;
         cpd.normalImpulseSum = Math.max(oldNormalImpulse + normalImpulse, 0);
@@ -162,6 +161,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
     /**
      * a.k.a  == J*V_curr
+     * JV. - '-Penetrated Velocities' 'Distance in Velicity' relative velocity projection alone the norm, when tends ovlp, result < 0.
      * when tends go collision, return negatives. tends separating, return positives. tends touching, return near zero.
      */
     private static float relvel_dot_n(RigidBody bodyA, RigidBody bodyB, CollisionManifold.ContactPoint cp, Vector3f n) {

@@ -1,12 +1,16 @@
 package outskirts.client.gui.debug;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiMenu;
 import outskirts.client.gui.GuiMenubar;
+import outskirts.client.gui.ex.GuiWindow;
+import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.ModelRenderer;
+import outskirts.entity.player.EntityPlayer;
 import outskirts.init.Textures;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
@@ -29,6 +33,37 @@ public class GuiDebugCommon extends Gui {
     private float deltaSumUntilOne = 0;
     private int currSecFrames = 0;
     private int prevSecFrames = 0;
+
+    {
+        addGui(GuiDebugPhys.INSTANCE);
+
+        Gui MEMLOG = addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
+        Gui PROFILERV = addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
+        Gui VERT3D = addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
+
+        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);
+
+        debugMenu.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
+        {
+            GuiMenu mDebug = debugMenu.addMenu("DebugV", new GuiMenu());
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Infos display", false,  c -> GuiDebugCommon.INSTANCE.showCambasisAndInfos =c).bindKey(GLFW.GLFW_KEY_F3));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
+            mDebug.addGui(GuiMenu.GuiItem.divider());
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> showLightMarks =c));
+            mDebug.addGui(GuiMenu.GuiItem.divider());
+            mDebug.addGui(GuiMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
+
+            GuiMenu mPhys = debugMenu.addMenu("Phys", new GuiMenu());
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("BoundingBox", false, c -> GuiDebugPhys.INSTANCE.showBoundingBox=c));
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("Velocities", false, c -> GuiDebugPhys.INSTANCE.showVelocities=c));
+            mPhys.addGui(GuiMenu.GuiItem.bswitch("ContactPoints", false, c -> GuiDebugPhys.INSTANCE.showContactPoints=c));
+            mPhys.addGui(GuiMenu.GuiItem.divider());
+            mPhys.addGui(GuiMenu.GuiItem.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
+        }
+    }
 
     {
         addOnDrawListener(e -> {

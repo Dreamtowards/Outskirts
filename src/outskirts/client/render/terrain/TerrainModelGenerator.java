@@ -5,7 +5,6 @@ import outskirts.client.Outskirts;
 import outskirts.client.material.ModelData;
 import outskirts.client.material.Texture;
 import outskirts.entity.EntityGeoShape;
-import outskirts.entity.EntityMaterialDisplay;
 import outskirts.init.Models;
 import outskirts.init.Textures;
 import outskirts.physics.collision.shapes.concave.TriangleMeshShape;

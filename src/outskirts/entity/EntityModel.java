@@ -6,6 +6,7 @@ import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.extras.quickhull.QuickHull;
 import outskirts.util.vector.Vector3f;
 
+// abstruct class
 public class EntityModel extends Entity {
 
 //    public static EntityModel staticModel(int[] idx, float[] vts) {
