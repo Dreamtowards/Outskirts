@@ -106,7 +106,7 @@ public class OBJLoader {
 
     // when creating new VertexSet, using 'Extend' method.
     private static void addVertex(Vertex bv, int texIdx, int normIdx, List<Vertex> vertices, List<Integer> indices) {
-        if (bv.textureIdx==texIdx || bv.normalIdx==normIdx) {
+        if (bv.textureIdx==texIdx && bv.normalIdx==normIdx) {
             indices.add(bv.extenVertexIdx==-1?bv.positionIdx: bv.extenVertexIdx);
             return;
         }

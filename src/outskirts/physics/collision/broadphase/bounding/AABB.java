@@ -139,10 +139,6 @@ public class AABB {
         return other.max.z > this.min.z && other.min.z < this.max.z;
     }
 
-    public Vector3f getCenter(Vector3f dest) {
-        return dest.set(min).add(max).scale(1/2f);
-    }
-
     public float calculateXConstraint(AABB other, float dx) {
         if (intersectsZ(other) && intersectsY(other)) {
             if (dx > 0.0f && this.max.x <= other.min.x) {
@@ -213,6 +209,15 @@ public class AABB {
         }
         return dest;
     }
+    public static AABB bounding(float[] vertices, AABB dest) {  // wrap
+        if (dest == null)
+            dest = new AABB();
+        dest.set(vertices[0],vertices[1],vertices[2], vertices[0],vertices[1],vertices[2]);
+        for (int i = 0;i < vertices.length/3;i++) {
+            dest.include(vertices[i*3], vertices[i*3+1], vertices[i*3+2]);
+        }
+        return dest;
+    }
 
     public static AABB bounding(AABB aabb1, AABB aabb2, AABB dest) {
         if (dest == null)
@@ -240,6 +245,10 @@ public class AABB {
     // renameTo extent
     public static Vector3f extent(AABB aabb, Vector3f dest) {
         return Vector3f.sub(aabb.max, aabb.min, dest);
+    }
+
+    public static Vector3f center(AABB aabb, Vector3f dest) {
+        return Vector3f.add(aabb.min, aabb.max, dest).scale(1/2f);
     }
 
     public static float volume(AABB aabb) {

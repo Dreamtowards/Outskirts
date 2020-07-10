@@ -24,7 +24,9 @@ import outskirts.init.Models;
 import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
+import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.shapes.convex.*;
+import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.logging.Log;
@@ -239,7 +241,7 @@ public class Outskirts {
         getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(20).setFriction(50.5f).setRestitution(0f);//.setLinearDamping(0.04f);
+        getPlayer().getRigidBody().setMass(20);//.setFriction(0.5f).setRestitution(0f);//.setLinearDamping(0.04f);
 //        getPlayer().getRigidBody().invInertiaTensorLocalDiag = SceneIniter.e.getRigidBody().invInertiaTensorLocalDiag;
 //        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
 
@@ -249,10 +251,13 @@ public class Outskirts {
                 if (e.getKey() == GLFW_KEY_C)
                     GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
-                    INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
+//                    INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
 //                    Matrix4f.translate(new Vector3f(20, 0, 10), INSTANCE.animatedModel.joints[6].currentTransform);
-                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
-                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
+//                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
+//                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
+//                    for (CollisionObject r : Outskirts.getWorld().dynamicsWorld.getCollisionObjects()) {
+//                        ((RigidBody)r).setInertiaTensorLocal(0,0,0);
+//                    }
                 }
                 if (e.getKey() == GLFW_KEY_1) {
 //                    getCamera().getPosition().set(0, 0, 10);

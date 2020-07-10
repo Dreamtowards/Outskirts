@@ -10,6 +10,7 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.logging.Log;
+import outskirts.util.misc.VerticesUtils;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 
@@ -80,15 +81,20 @@ public final class Loader {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
 
-    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
+    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat, boolean toCenter) { // boolean center .?
         try {
             ModelData modeldat = OBJLoader.loadOBJ(inputStream);
             if (mdat != null)
                 mdat[0] = modeldat;
+            if (toCenter)
+                VerticesUtils.alignAabbCenter(modeldat.positions);
             return Loader.loadModelTAN(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);
         }
+    }
+    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
+        return loadOBJ(inputStream, mdat, false);
     }
     public static Model loadOBJ(InputStream inputStream) {
         return loadOBJ(inputStream, null);

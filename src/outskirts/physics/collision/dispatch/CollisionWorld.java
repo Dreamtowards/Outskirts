@@ -47,7 +47,7 @@ public abstract class CollisionWorld {
 
     protected final void updateAABBs() {
         for (CollisionObject body : getCollisionObjects()) {
-            body.getCollisionShape().getAABB(body.getAABB(), body.transform());
+            body.refreshAABB();
 
             broadphase.updateAABB(body);
         }

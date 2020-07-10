@@ -5,12 +5,15 @@ import outskirts.client.material.ModelData;
 import outskirts.client.render.Light;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityModel;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.extras.quickhull.QuickHull;
 import outskirts.util.Identifier;
+import outskirts.util.Transform;
+import outskirts.util.misc.PlacementUtils;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 import outskirts.world.WorldClient;
@@ -35,22 +38,33 @@ public class SceneIniter {
             world.addEntity(planeGround);
             planeGround.getMaterial().setModel(Models.GEO_CUBE).setDiffuseMap(Textures.WOOD1);
             planeGround.tmp_boxSphere_scale.set(100, 10, 100);
-            planeGround.getRigidBody().setCollisionShape(new BoxShape(100, 10, 100)).setMass(0);
+            planeGround.getRigidBody().setCollisionShape(new BoxShape(100, 10, 100)).setMass(0).getGravity().set(0,0,0);
             planeGround.getRigidBody().transform().origin.set(0, -10, 0);
 //
 //
 //        }
 
-//        {
-//            EntityModel gravestone = new EntityModel();
-//            world.addEntity(gravestone);
-//            ModelData[] mdatptr = new ModelData[1];
-//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/gravestone/model.obj").getInputStream(), mdatptr))//.setModel(Models.GEO_CUBE)
-//                                    .setDiffuseMap(Loader.loadTexture(new Identifier("materials/gravestone/diff.png").getInputStream()));
-//            gravestone.getRigidBody().setCollisionShape(new TriangleMeshShape(mdatptr[0].indices, mdatptr[0].positions));
-//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-//            gravestone.getRigidBody().setMass(0);
-//        }
+        {
+            EntityModel gravestone = new EntityModel();
+            world.addEntity(gravestone);
+            ModelData[] mdatptr = new ModelData[1];
+            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("elements/teatable/teatable.obj").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
+                                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/teatable/teatable_diff.png").getInputStream()));
+            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+            gravestone.getRigidBody().setMass(50);
+            gravestone.getRigidBody().transform().origin.set(10, 0, 0);
+            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
+        }
+
+        {
+            EntityModel gravestone = new EntityModel();
+            world.addEntity(gravestone);
+            ModelData[] mdatptr = new ModelData[1];
+            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("elements/stool/stool.obj").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
+                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/stool/stool_diff.png").getInputStream()));
+            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
+        }
 
         {
             // stack tst

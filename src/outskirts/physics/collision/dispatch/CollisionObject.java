@@ -30,8 +30,11 @@ public abstract class CollisionObject {
         return this;
     }
 
-    public AABB getAABB() {
+    public final AABB getAABB() {
         return aabb;
+    }
+    public final AABB refreshAABB() {  // needs.?
+        return getCollisionShape().getAABB(getAABB(), transform());
     }
 
     // should getWorldTransform() ..?
