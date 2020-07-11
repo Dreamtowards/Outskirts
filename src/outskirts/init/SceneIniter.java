@@ -44,40 +44,42 @@ public class SceneIniter {
 //
 //        }
 
-        {
-            EntityModel gravestone = new EntityModel();
-            world.addEntity(gravestone);
-            ModelData[] mdatptr = new ModelData[1];
-            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("elements/teatable/teatable.obj").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
-                                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/teatable/teatable_diff.png").getInputStream()));
-            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-            gravestone.getRigidBody().setMass(50);
-            gravestone.getRigidBody().transform().origin.set(10, 0, 0);
-            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
-        }
-
-        {
-            EntityModel gravestone = new EntityModel();
-            world.addEntity(gravestone);
-            ModelData[] mdatptr = new ModelData[1];
-            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("elements/stool/stool.obj").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
-                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/stool/stool_diff.png").getInputStream()));
-            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
-        }
+//        {
+//            EntityModel gravestone = new EntityModel();
+//            world.addEntity(gravestone);
+//            ModelData[] mdatptr = new ModelData[1];
+//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/exa1.objfx").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
+//                                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/teatable/teatable_diff.png").getInputStream()));
+//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+////            gravestone.getRigidBody().setCollisionShape(new SphereShape(1));
+//            gravestone.getRigidBody().setMass(50);
+//            gravestone.getRigidBody().transform().origin.set(10, 0, 0);
+//            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
+//        }
+//
+//        {
+//            EntityModel gravestone = new EntityModel();
+//            world.addEntity(gravestone);
+//            ModelData[] mdatptr = new ModelData[1];
+//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("elements/stool/stool.obj").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
+//                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/stool/stool_diff.png").getInputStream()));
+//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+//            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
+//        }
 
         {
             // stack tst
 
-//            for (int i = 0;i < 6;i++) {
-//                EntityModel ebox = new EntityModel();
-//                world.addEntity(ebox);
-//                ebox.tmp_boxSphere_scale.set(3-i*0.2f,1, 3-i*0.2f);
+            for (int i = 0;i < 0;i++) {
+                EntityModel ebox = new EntityModel();
+                world.addEntity(ebox);
+                ebox.tmp_boxSphere_scale.set(3-i*0.2f,1, 3-i*0.2f).set(1,1,1).scale(1+i*0.2f);
 //                ebox.getRigidBody().setCollisionShape(new BoxShape(3-i*0.2f,1, 3-i*0.2f)).setMass(40);
-//                ebox.getRigidBody().transform().origin.y = i*2.5f+2;
-//                ebox.getMaterial().setModel(Models.GEO_CUBE).setDiffuseMap(Textures.FLOOR);
-//
-//            }
+                ebox.getRigidBody().setCollisionShape(new SphereShape(1+i*0.2f)).setMass(40);
+                ebox.getRigidBody().transform().origin.y = i*4+1;
+                ebox.getMaterial().setModel(Models.GEO_SPHERE).setDiffuseMap(Textures.FLOOR);
+
+            }
         }
 
 

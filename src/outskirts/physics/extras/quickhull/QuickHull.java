@@ -148,7 +148,7 @@ public class QuickHull {
         Vector3f CP = Vector3f.sub(trig.P, ABCPCenter, null);  // Center->P
 
         for (Vector3f[] e : bEdges) {
-            triangles.add(new Triangle(e[0],e[1],trig.P, Vector3f.trinorm(e[0],e[1],trig.P,CP,null).normalize(), ls));
+            triangles.add(new Triangle(e[0],e[1],trig.P, Vector3f.trinorm(e[0],e[1],trig.P,CP,null, CP).normalize(), ls));
 
             isCanContinue();
         }

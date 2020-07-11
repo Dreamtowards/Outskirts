@@ -59,7 +59,7 @@ import static outskirts.util.logging.Log.LOGGER;
  */
 public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
-    public boolean USE_WARMSTART = false;
+    private static boolean USE_WARMSTART = true;
 
     private static float SLOP_POSITIONAL = 0.005f; // PositionalDirft only applies when penetration > this SLOP. for stability.
     private static float SLOP_RESTITUTION_RV = 0.5f; // Velocity. When relative-velocity-dotN "less" than this SLOP value, not process Restitution. for stability.
@@ -110,6 +110,16 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         cpd.normalEffectiveMass = jac_EffectiveMass(cp.rA, cp.rB, cp.normOnB,
                 bodyA.getInvMass(), bodyB.getInvMass(), bodyA.getInvInertiaTensorWorld(), bodyB.getInvInertiaTensorWorld());
 
+        if (USE_WARMSTART) {
+            // apply previous frames impulse on both bodies
+            // this makes Restitution working WELL.
+            cpd.normalImpulseSum *= 0.8f;
+            Vector3f imp = new Vector3f(cp.normOnB).scale(cpd.normalImpulseSum);
+            bodyA.applyImpulse(imp,          cp.rA);
+            bodyB.applyImpulse(imp.negate(), cp.rB);
+        } else {
+            cpd.normalImpulseSum = 0;
+        }
 
         // Friction-Constraint  /Tangential
 
@@ -121,13 +131,8 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
                 bodyA.getInvMass(), bodyB.getInvMass(), bodyA.getInvInertiaTensorWorld(), bodyB.getInvInertiaTensorWorld());
 
 
-
-        // this makes Restitution working WELL.
-//        Vector3f totalImpulse = new Vector3f(cp.normOnB).scale(cpd.normalImpulseSum);
-//        // apply previous frames impulse on both bodies
-//        bodyA.applyImpulse(totalImpulse, cp.rA);
-//        bodyB.applyImpulse(totalImpulse.negate(), cp.rB);
-        cpd.normalImpulseSum=0;
+        cpd.tangentImpulseSum1=0;
+        cpd.tangentImpulseSum2=0;
     }
 
 

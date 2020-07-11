@@ -1498,3 +1498,19 @@ in that time, the Broadphase is OK, but sometimes, when actually 100% had collis
  in the problem, the Narrowphase had detected new CP, but do not actually add because filter detected too closed to another old CP (baddly detect uses worldspace CP point). then Narrowphase 'result' as no new CP added (even had actually detected new CP), then wrongly as 'No-Collision', then not passed to Collision-Solve, then sometimes jitter...
 Solve: all broadphase manifold just passed to Collision-Solve when manifold.getNumContactPoints() > 0.
 and removed that add-CP distance filter. likes useless filter.
+
+
+
+
+
+Epa MTV
+            Vector3f A=trig.v0.point, B=trig.v1.point, C=trig.v2.point, D=new Vector3f(trig.normal).scale(Vector3f.dot(A, trig.normal));
+            float det = Vector3f.dot(A, Vector3f.cross(B, C, null));
+            if (det == 0)
+                Log.LOGGER.info("det is 0"); // return null
+            float detA = Vector3f.dot(D, Vector3f.cross(B, C, null)); // det(D,B,C)
+            float detB = Vector3f.dot(A, Vector3f.cross(D, C, null));
+            float detC = Vector3f.dot(A, Vector3f.cross(B, D, null));
+            closestPointBarycentricCoordinates.x=detA/det;
+            closestPointBarycentricCoordinates.y=detB/det;
+            closestPointBarycentricCoordinates.z=detC/det;

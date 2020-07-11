@@ -10,6 +10,8 @@ import outskirts.util.Validate;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -86,7 +88,7 @@ public final class CollisionManifold {
         int insertIndex = numContactPoints;
         if (numContactPoints == MAX_CONTACT_POINTS) {
             if (MAX_CONTACT_POINTS >= 4) {
-                insertIndex = sortCachedContactPoints(penetration, Transform.inverseTranform(bodyB.transform(), new Vector3f(pointOnB)));
+                insertIndex = eliminateContactPointForNewCP_MAREA(penetration, Transform.inverseTranform(bodyB.transform(), new Vector3f(pointOnB)));
             } else {
                 insertIndex = 0;
             }
@@ -112,40 +114,46 @@ public final class CollisionManifold {
     }
 
     /**
+     * @return resulting >= 0 is a index of existing CP in the manifold which is max penetration even deeper than the npen. resulting -1 is no CP deeper than the npen.
+     */
+    private int findDeepestPenetrationCP(float npen) {
+        int mxpen_i = -1;
+        float mxpen = npen;
+        for (int i = 0;i < getNumContactPoints();i++) {
+            if (getContactPoint(i).penetration > mxpen) {
+                mxpen_i = i;
+                mxpen = getContactPoint(i).penetration;
+            }
+        }
+        return mxpen_i;
+    }
+
+    /**
      * find 'useless' ContactPoint.
      * @return the index of 'approximaty most useless' ContactPoint.
      */
-    private int sortCachedContactPoints(float cp_penetration, Vector3f cp_localpointB) {
+    private int eliminateContactPointForNewCP_MAREA(float cp_penetration, Vector3f cp_localpointB) {
 
         // keep max penetration Contact-Point alive.
-        int maxpen_i = -1;
-        {   // just find out max_penetration index.
-            float maxpen = cp_penetration;
-            for (int i = 0; i < getNumContactPoints(); i++) {
-                if (contactPoints[i].penetration > maxpen) {
-                    maxpen_i = i;
-                    maxpen = contactPoints[i].penetration;
-                }
-            }
-        }
+        int mxpen_i = findDeepestPenetrationCP(cp_penetration);
 
         float[] areas = new float[4]; // the Areas of 'the area when Not/replace the ContactPoint_i'.
-        if (maxpen_i != 0) {  // if replace old cp0 with the new cp, then (they composed) approximaty area is..:
+        if (mxpen_i != 0) {  // if replace old cp0 with the new cp, then (they composed) approximaty area is..:
             Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[1].localpointB, null); // v1 -> cp
             Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
             areas[0] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-        if (maxpen_i != 1) {
+        if (mxpen_i != 1) {
             Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
             Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[2].localpointB, null); // v2 -> v3
             areas[1] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-        if (maxpen_i != 2) {
+        if (mxpen_i != 2) {
             Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
             Vector3f l2 = Vector3f.sub(contactPoints[3].localpointB, contactPoints[1].localpointB, null); // v1 -> v3
             areas[2] = Vector3f.cross(l1, l2, null).lengthSquared();
         }
-        if (maxpen_i != 3) {
+        if (mxpen_i != 3) {
             Vector3f l1 = Vector3f.sub(              cp_localpointB, contactPoints[0].localpointB, null); // v0 -> cp
             Vector3f l2 = Vector3f.sub(contactPoints[2].localpointB, contactPoints[1].localpointB, null); // v1 -> v2
             areas[3] = Vector3f.cross(l1, l2, null).lengthSquared();
@@ -159,6 +167,7 @@ public final class CollisionManifold {
         return maxarea_i;
     }
 
+
     public final void refreshContactPoints() {
         // update information
         for (int i = 0;i < numContactPoints;i++) {
@@ -168,19 +177,19 @@ public final class CollisionManifold {
             Transform.transform(bodyA.transform(), cp.pointOnA.set(cp.localpointA));
             Transform.transform(bodyB.transform(), cp.pointOnB.set(cp.localpointB));
 
-            // update worldspace relpointOnA/B rA/rB
-            cp.rA.set(cp.pointOnA).sub(bodyA.transform().origin);
-            cp.rB.set(cp.pointOnB).sub(bodyB.transform().origin);
+            // update worldspace relpointOnA/B. rA/rB
+            Vector3f.sub(cp.pointOnA, bodyA.transform().origin, cp.rA);
+            Vector3f.sub(cp.pointOnB, bodyB.transform().origin, cp.rB);
 
             // update penetration
-            Vector3f pBA = Vector3f.sub(cp.pointOnA, cp.pointOnB, null);
-            cp.penetration = -Vector3f.dot(pBA, cp.normOnB);
+            Vector3f pBpA = Vector3f.sub(cp.pointOnA, cp.pointOnB, null);
+            cp.penetration = -Vector3f.dot(pBpA, cp.normOnB);
         }
 
         // check vaild. filter
         for (int i = numContactPoints-1;i >= 0;i--) {
             ContactPoint cp = contactPoints[i];
-            if (cp.penetration < 0) {
+            if (cp.penetration <= 0) {
                 removeContactPoint(i);
             } else {
                 Vector3f stdB = new Vector3f(cp.pointOnA).addScaled(cp.penetration, cp.normOnB); // "expected" pointOnB

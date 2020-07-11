@@ -27,20 +27,20 @@ public class Narrowphase {
 
     // requires immediate speed.
     protected CollisionAlgorithm findAlgorithm(CollisionShape shape1, CollisionShape shape2) {
-//        if (shape1 instanceof SphereShape && shape2 instanceof SphereShape)
-//            return collisionAlgorithmSphereSphere;
-//        if (shape1 instanceof ConvexShape && shape2 instanceof ConvexShape)
+        if (shape1 instanceof SphereShape && shape2 instanceof SphereShape)
+            return collisionAlgorithmSphereSphere;
+        if (shape1 instanceof ConvexShape && shape2 instanceof ConvexShape)
             return collisionAlgorithmConvexConvex;
-//        if ((shape1 instanceof ConvexShape && shape2 instanceof ConcaveShape) || (shape1 instanceof ConcaveShape && shape2 instanceof ConvexShape))
-//            return collisionAlgorithmConvexConcave;
+        if ((shape1 instanceof ConvexShape && shape2 instanceof ConcaveShape) || (shape1 instanceof ConcaveShape && shape2 instanceof ConvexShape))
+            return collisionAlgorithmConvexConcave;
 
-//        return new CollisionAlgorithm() {
+//        return new CollisionAlgorithm() { // not this. when bodies dont needsCollision, just exlusion in Broadphase.
 //            @Override
 //            public void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold) {
 //                // empty
 //            }
 //        };
-//        throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
+        throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
     }
 
     // dispatch narrowphase the really collision detection
@@ -72,7 +72,7 @@ public class Narrowphase {
 
             detectCollision(manifold);
 
-            if (manifold.getNumContactPoints() > 0)
+            if (manifold.getNumContactPoints() > 0)  // or just (i=detectCollision(manifold)) > 0 .?
                 l.add(manifold);
         }
         return l;

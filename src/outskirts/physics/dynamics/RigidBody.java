@@ -46,7 +46,7 @@ public class RigidBody extends CollisionObject {
     private float angularDamping = 0.95f;  // ori 0.5.  or 0.95f.?
 
     private float restitution = 0f; // 0 == non-elastic, 1 == non-cost, always in [0-1]  // (speedaftercollision/speedbeforecollision)
-    private float friction = 0.8f;
+    private float friction = 0.5f;
 
 //    private List<Constraint> constraints = new ArrayList<>();
 

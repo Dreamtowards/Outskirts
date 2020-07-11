@@ -12,7 +12,7 @@ public abstract class CollisionObject {
      * world space/coordinate Transform
      * transform.origin == center of mass
      */
-    protected Transform transform = new Transform();
+    private Transform transform = new Transform();
 
     private CollisionShape collisionShape;
 

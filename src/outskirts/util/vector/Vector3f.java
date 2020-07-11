@@ -162,17 +162,23 @@ public class Vector3f extends Vector {
      * @param v1,v2,v3 the Triangle.
      * @param normdir the angle between Triangle-Normal AND normdir, will keeps in <= 90'. (when > 90', just negated the norm.). Nullable
      */
-    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normdir, Vector3f dest) {
+    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normdir, Vector3f dest, Vector3f defnorm) {
         if (dest == null)
             dest = new Vector3f();
         Vector3f v1v2 = sub(v2, v1, null);
         Vector3f v1v3 = sub(v3, v1, null);
         cross(v1v2, v1v3, dest);
-        if (dest.lengthSquared() == 0)
-            throw new IllegalArgumentException("not a really triangle. (point/line)");
+        if (dest.lengthSquared() == 0) {
+            if (defnorm != null)
+                return dest.set(defnorm);
+            throw new IllegalArgumentException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
+        }
         if (normdir!=null && dot(dest, normdir) < 0)
             dest.negate();
         return dest;
+    }
+    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normdir, Vector3f dest) {
+        return trinorm(v1, v2, v3, normdir, dest, null);
     }
 
     //ext /order: num then vec because num simple, being a lightweight premise, and focus most in the latter vector

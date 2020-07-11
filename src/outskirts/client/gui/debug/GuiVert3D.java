@@ -149,7 +149,6 @@ public class GuiVert3D extends Gui {
                     ex.printStackTrace();
                 }
                 Log.LOGGER.info("Imported.");
-                new Throwable().printStackTrace();
             }
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_P) {
                 int i = 0;
