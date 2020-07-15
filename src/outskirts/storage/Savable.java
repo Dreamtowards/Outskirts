@@ -4,12 +4,8 @@ import java.util.Map;
 
 public interface Savable {
 
-    void onRead(Map mp);
+    void onRead(DataMap mp);
 
-    void onWrite(Map mp);
-
-    default Map onWriteG(Map mp) {
-        onWrite(mp);
-        return mp;
-    }
+    // maybe shoudn't uses "on" because the 'on' like a time-related event, but there are just 'Operations', not events.
+    Map onWrite(DataMap mp);
 }

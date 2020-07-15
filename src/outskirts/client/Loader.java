@@ -17,8 +17,10 @@ import outskirts.util.ogg.OggLoader;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +116,13 @@ public final class Loader {
     public static BufferedImage loadPNG(InputStream inputStream) {
         try {
             return ImageIO.read(inputStream);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to loadPNG().", ex);
+        }
+    }
+    public static void savePNG(BufferedImage bi, OutputStream outputStream) {
+        try {
+            ImageIO.write(bi, "PNG", outputStream);
         } catch (IOException ex) {
             throw new RuntimeException("Failed to loadPNG().", ex);
         }
@@ -285,7 +294,7 @@ public final class Loader {
                 int argb = bufferedImage.getRGB(x, y);
                 int alpha = ((argb >> 24) & 0xFF);
                 if (alpha == 0) {
-                    buffer.put((byte)0).put((byte)0).put((byte)0).put((byte)alpha);
+                    buffer.put((byte)0).put((byte)0).put((byte)0).put((byte)0);
                 } else {
                     buffer.put((byte)((argb >> 16) & 0xFF));  //RED
                     buffer.put((byte)((argb >>  8) & 0xFF));  //GREEN
@@ -297,6 +306,24 @@ public final class Loader {
         buffer.flip();
 
         return buffer;
+    }
+
+    /**
+     * load OBJ-Image from GL bytes pixels data.
+     * @param rgbaGLPixels GL Y-Flipped Pixels.
+     */
+    public static BufferedImage loadImage(ByteBuffer rgbaGLPixels, int width, int height) {
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0;y < height;y++) {
+            for (int x = 0;x < width;x++) {
+                int r = rgbaGLPixels.get((y*width+x)*4)   & 0xFF;
+                int g = rgbaGLPixels.get((y*width+x)*4+1) & 0xFF;
+                int b = rgbaGLPixels.get((y*width+x)*4+2) & 0xFF;
+                int a = rgbaGLPixels.get((y*width+x)*4+3) & 0xFF;
+                bi.setRGB(x, height-1-y, (a << 24) | (r << 16) | (g << 8) | b);
+            }
+        }
+        return bi;
     }
 
     static void destroy() {

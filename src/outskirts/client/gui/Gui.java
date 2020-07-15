@@ -85,7 +85,6 @@ public class Gui {
         return gui;
     }
 
-    // todo: getGui(i) ..?
     public <T extends Gui> T getGui(int index) {
         return (T) children.get(index);
     }

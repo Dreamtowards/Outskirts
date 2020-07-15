@@ -23,7 +23,7 @@ public class OggLoader {
 
         OggData ogg = new OggData();
         ogg.frequency = ogginput.getRate();
-        ogg.data = Loader.loadBuffer(IOUtils.toByteArray(ogginput));
+        ogg.data = Loader.loadBuffer(IOUtils.toByteArray(ogginput)); //todo: opt use StackMem
 
         switch (ogginput.getChannels()) {
             case 1:

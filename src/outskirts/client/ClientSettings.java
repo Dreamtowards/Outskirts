@@ -25,7 +25,6 @@ import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;
 import static outskirts.util.logging.Log.LOGGER;
 
-//todo: ClientSettings
 public final class ClientSettings {
 
     // CommandLineArguments or ProgramArguments ..?
@@ -56,7 +55,7 @@ public final class ClientSettings {
                     case "token":
                         TOKEN = value;
                         break;
-                    case "extensions":
+                    case "mods": // or extensions .?
                         for (String e : StringUtils.explode(value, ";"))
                             if (!e.isEmpty())
                                 EXTENSIONS.add(e);

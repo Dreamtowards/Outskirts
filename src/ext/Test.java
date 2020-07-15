@@ -188,12 +188,12 @@ public class Test {
 //
 //        System.out.println("attrs: "+tn2.getChildren().get(2).getAttributes());
 
-        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae");
+//        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae");
 //
 //        LOGGER.info(DaeLoader.loadDAE(is));
-        Matrix4f transmat = Maths.createModelMatrix(new Vector3f(0, 0, 10), new Vector3f(1,1,1), Matrix3f.rotate(Maths.PI/2, Vector3f.UNIT_Y, null), null);
+//        Matrix4f transmat = Maths.createModelMatrix(new Vector3f(0, 0, 10), new Vector3f(1,1,1), Matrix3f.rotate(Maths.PI/2, Vector3f.UNIT_Y, null), null);
 
-        LOGGER.info(Matrix4f.transform(transmat, new Vector4f(0,0,1, 1)));
+//        LOGGER.info(Matrix4f.transform(transmat, new Vector4f(0,0,1, 1)));
 
 //        LOGGER.info(r==null?"null":s.substring(r[0], r[1]));
 
@@ -215,15 +215,40 @@ public class Test {
 //        s=System.currentTimeMillis();
 //        mdat = OBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
 //        LOGGER.info("OBJLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
+
+        LOGGER.info("returned: {}", func());
     }
 
 
+    public static int func() {
 
-    private static class SomeClas {
+        LOGGER.info("start func");
+
+        try (SomeClas c = SomeClas.nw()) {
+
+            LOGGER.info("before return");
+            return getInt();
+        }
+    }
+    public static int getInt() {
+        LOGGER.info("exec return :getInt");
+        return 5;
+    }
+
+    private static class SomeClas implements AutoCloseable {
 
         public int someInt = 123;
 
         public int metho() {return someInt;}
+
+        public static SomeClas nw() {
+            return new SomeClas();
+        }
+
+        @Override
+        public void close() {
+            LOGGER.info("AutoClosed");
+        }
     }
 
     private static void test_alloc_stack() {

@@ -8,12 +8,9 @@ import outskirts.event.conn.ChannelInactiveEvent;
 import outskirts.network.ChannelHandler;
 import outskirts.network.play.packet.SPacketChatMessage;
 import outskirts.network.play.packet.SPacketDisconnect;
-import outskirts.network.play.packet.SPacketTerrainData;
-import outskirts.network.play.packet.SPacketTerrainUnload;
 import outskirts.util.logging.Log;
 import outskirts.world.World;
 import outskirts.world.WorldClient;
-import outskirts.world.terrain.Terrain;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -25,23 +22,6 @@ public class PacketHandlerPlayClient {
 
     public PacketHandlerPlayClient(ChannelHandler conn) {
         this.connection = conn;
-    }
-
-    @EventHandler(scheduler = Outskirts.class) // tmp update terr model, provideTerrain->postEvent EventBus post exception.
-    private void handleTerrainData(SPacketTerrainData packet) {
-
-        Terrain terrain = Outskirts.getWorld().provideTerrain(packet.getPosLong());
-
-        terrain.readNBT(packet.getTagCompound());
-
-        terrain._update_texture();
-        terrain._update_model();
-    }
-
-    @EventHandler(scheduler = Outskirts.class) // eventbushandlers UnmodificateException
-    private void handleTerrainUnload(SPacketTerrainUnload packet) {
-
-        Outskirts.getWorld().unloadTerrain(packet.getPosLong());
     }
 
     @EventHandler

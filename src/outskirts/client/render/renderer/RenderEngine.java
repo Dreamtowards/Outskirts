@@ -25,7 +25,6 @@ public final class RenderEngine {
     private GuiRenderer guiRenderer = new GuiRenderer();
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
-    private TerrainRenderer terrainRenderer = new TerrainRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
     private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
 
@@ -79,8 +78,6 @@ public final class RenderEngine {
         glEnable(GL_CULL_FACE);
         worldFramebuffer.popFramebuffer();
 
-        terrainRenderer.render(world.getTerrains());
-
 //        skyboxRenderer.render();
     }
 
@@ -104,9 +101,6 @@ public final class RenderEngine {
     }
     public ModelRenderer getModelRenderer() {
         return modelRenderer;
-    }
-    public TerrainRenderer getTerrainRenderer() {
-        return terrainRenderer;
     }
     public ShadowRenderer getShadowRenderer() {
         return shadowRenderer;

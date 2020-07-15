@@ -760,7 +760,7 @@ Gjk
 
 
 
-                    // tmp ext.test: does the Norm facing to inner todo: eval actually ext.test
+                    // tmp ext.test: does the Norm facing to inner tod0: eval actually ext.test
                     Vector3f ABCDCenter = new Vector3f().set(Vector3f.ZERO)
                             .add(simplex.get(A).point).add(simplex.get(B).point).add(simplex.get(C).point).add(simplex.get(D).point).scale(1/4f);
                     Vector3f DCenter = new Vector3f(ABCDCenter).sub(simplex.get(D).point);
@@ -1035,7 +1035,7 @@ re program
             cpd.normalImpulseSum = 0;
         }
 
-        // re-calculate friction direction every frame, todo: check if this is really needed
+        // re-calculate friction direction every frame, tod0: check if this is really needed
         Maths.calculateBasis(cp.normOnB, cpd.frictionTangent1, cpd.frictionTangent2);
 
         // non friction warm-starting

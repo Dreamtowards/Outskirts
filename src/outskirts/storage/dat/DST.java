@@ -1,5 +1,6 @@
-package outskirts.storage.dst;
+package outskirts.storage.dat;
 
+import outskirts.storage.DataMap;
 import outskirts.util.IOUtils;
 
 import java.io.*;
@@ -13,6 +14,35 @@ import static outskirts.util.IOUtils.*;
  * DST Specificated 10 Types Object. 6 Primitives(4INT, 2FLOAT). 1 Stroage(BYTE_ARRAY). 1 String(STRING). 2 Struct(LIST, MAP).
  *
  * ?DAT
+ *
+ * BYTE  { int8 }
+ * SHORT { int16 }
+ * INT   { int32 }
+ * LONG  { int64 }
+ *
+ * FLOAT  { float32 }
+ * DOUBLE { float64 }
+ *
+ * BYTE_ARRAY {
+ *     bytesCount: int32,
+ *     [int8, int8, int8 ...]
+ * }
+ * STRING {
+ *     bytesCount: int16,
+ *     [int8, int8 ...]
+ * }
+ *
+ * LIST {
+ *     size: int16,
+ *     type: int8,
+ *     [{...} ...]
+ * }
+ * MAP {
+ *     size: int16,
+ *     ['STRING', type: int8, {...} ...]
+ * }
+ * goo.des Data Essential Structure
+ *
  */
 public class DST {
 
@@ -63,14 +93,14 @@ public class DST {
                 return ls; }
             case MAP: {
                 int size = readShort(is) & 0xFFFF;
-                Map<String, Object> mp = new HashMap<>();
+                Map<String, Object> mp = new HashMap<>(size);
                 for (int i = 0;i < size;i++) {
                     String k = readUTF(is);
                     byte vType = readByte(is);
                     Object v = DST.read(is, vType);
                     mp.put(k, v);
                 }
-                return mp; }
+                return new DataMap(mp); }
             default:
                 throw new IllegalArgumentException("Illegal type.");
         }
@@ -122,9 +152,13 @@ public class DST {
 
     public static byte type(Object obj) {
         Class<?> cls = obj.getClass();
-        for (byte t = 1;t < TYPES.length;t++) {
+        for (byte t = BYTE;t <= STRING;t++) {
             if (cls == TYPES[t]) return t;
         }
+        if (obj instanceof List)
+            return LIST;
+        if (obj instanceof Map)
+            return MAP;
         throw new IllegalArgumentException("Illegal type.");
     }
 

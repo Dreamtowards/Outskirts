@@ -4,17 +4,13 @@ import outskirts.entity.player.EntityPlayerMP;
 import outskirts.network.ChannelHandler;
 import outskirts.server.OutskirtsServer;
 import outskirts.server.ServerSettings;
-import outskirts.storage.Savable;
-import outskirts.storage.dst.DST;
-import outskirts.storage.dst.DSTUtils;
-import outskirts.util.nbt.NBTTagCompound;
-import outskirts.util.nbt.NBTUtils;
+import outskirts.storage.dat.DSTUtils;
+import outskirts.storage.DataMap;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class PlayerManager {
 
@@ -51,7 +47,7 @@ public class PlayerManager {
         try {
             File playerfile = getPlayerFile(player.getUUID());
 
-            DSTUtils.write(player.onWriteG(new HashMap()), new FileOutputStream(playerfile));
+            DSTUtils.write(player.onWrite(new DataMap()), new FileOutputStream(playerfile));
         } catch (IOException ex) {
             throw new RuntimeException("Failed to save player.", ex);
         }

@@ -108,11 +108,11 @@ public class OutskirtsServer {
             // todo saves players
         }
 
-        Log.info("Saving worlds...");
-        for (WorldServer world : worlds.values()) {
-            Log.info("- saving \"%s\"...", world.getRegistryID());
-            world.unloadAllTerrains();
-        }
+//        Log.info("Saving worlds...");
+//        for (WorldServer world : worlds.values()) {
+//            Log.info("- saving \"%s\"...", world.getRegistryID());
+//            world.unloadAllTerrains();
+//        }
 
         Log.info("Server stopped.");
     }

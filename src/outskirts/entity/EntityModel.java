@@ -1,15 +1,19 @@
 package outskirts.entity;
 
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
-import outskirts.physics.collision.shapes.convex.ConvexHullShape;
-import outskirts.physics.dynamics.RigidBody;
-import outskirts.physics.extras.quickhull.QuickHull;
-import outskirts.util.vector.Vector3f;
+import outskirts.util.Identifier;
 
 // abstruct class
 public class EntityModel extends Entity {
 
-//    public static EntityModel staticModel(int[] idx, float[] vts) {
+    private Identifier resModel, resDiffuseMap;
+
+    public EntityModel() {
+        setRegistryID("modelentity");
+
+
+    }
+
+    //    public static EntityModel staticModel(int[] idx, float[] vts) {
 //        EntityModel entity = new EntityModel();
 //        entity.getRigidBody()
 //                .setMass(0)

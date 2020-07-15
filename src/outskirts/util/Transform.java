@@ -1,9 +1,11 @@
 package outskirts.util;
 
-import outskirts.util.logging.Log;
+import outskirts.storage.Savable;
+import outskirts.storage.DataMap;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Quaternion;
 import outskirts.util.vector.Vector3f;
+
+import java.util.Map;
 
 /**
  * Affine Transformation
@@ -50,10 +52,7 @@ public final class Transform {
 
     @Override
     public String toString() {
-        return "Transform{" +
-                "origin=" + origin +
-                ", basis=" + basis +
-                '}';
+        return "Transform{origin="+origin+", basis="+basis+'}';
     }
 
     public static Vector3f transform(Transform transform, Vector3f dest) {
@@ -76,9 +75,8 @@ public final class Transform {
         trans.origin.addScaled(delta, linvel);
 
         // rot = angvel_deltaRot * rot;
-        float ang = angvel.length();
-        if (!Maths.fuzzyZero(ang)) { // for avoid normalize() zero length err
-            Matrix3f.mul(Matrix3f.rotate(ang * delta, new Vector3f(angvel).normalize(), null), trans.basis, trans.basis);
+        if (!Maths.fuzzyZero(angvel.lengthSquared())) { // for avoid normalize() zero length err
+            Matrix3f.mul(Matrix3f.rotate(angvel.length() * delta, new Vector3f(angvel).normalize(), null), trans.basis, trans.basis);
         }
     }
 }

@@ -9,6 +9,8 @@ import outskirts.util.vector.Vector3f;
 
 import java.util.Arrays;
 
+// todo: CompoundShape
+// todo: BvhTriangleMeshShape.
 /**
  * the Shape just only handles shape itself's features/responsibility
  * Shape even can SingleInstance for one state or applies FlightWeight Pattern,

@@ -1,12 +1,24 @@
 package outskirts.client.material;
 
+import io.netty.buffer.ByteBuf;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import outskirts.client.Loader;
+import outskirts.client.Outskirts;
 import outskirts.util.Colors;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
-import static org.lwjgl.opengl.GL11.glDeleteTextures;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.system.MemoryUtil.memAlloc;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class Texture {
 
@@ -50,4 +62,16 @@ public final class Texture {
         b.setRGB(0, 0, Colors.toARGB(color));
         return b;
     }
+
+    public static BufferedImage glfGetTexImage(Texture tex) {
+        ByteBuffer pixels = memAlloc(tex.getWidth() * tex.getHeight() * 4);
+        try {
+            glBindTexture(GL_TEXTURE_2D, tex.textureID());
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            return Loader.loadImage(pixels, tex.getWidth(), tex.getHeight());
+        } finally {
+            memFree(pixels);
+        }
+    }
+
 }

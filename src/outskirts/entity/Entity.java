@@ -3,7 +3,7 @@ package outskirts.entity;
 import outskirts.client.material.Material;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.Savable;
-import outskirts.storage.SaveUtils;
+import outskirts.storage.DataMap;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Matrix3f;
@@ -12,7 +12,7 @@ import outskirts.world.World;
 
 import java.util.Map;
 
-public abstract class Entity implements Savable, Registrable {
+public class Entity implements Savable, Registrable {
 
     public static final Registry<Class<? extends Entity>> REGISTRY = new Registry.ClassRegistry<>();
 
@@ -34,7 +34,7 @@ public abstract class Entity implements Savable, Registrable {
             throw new RuntimeException("Failed to create Entity.", ex);
         }
     }
-    public static Entity createEntity(Map mpEntity) {
+    public static Entity createEntity(DataMap mpEntity) {
         Entity entity = createEntity((String)mpEntity.get("registryID"));
         entity.onRead(mpEntity);
         return entity;
@@ -65,16 +65,17 @@ public abstract class Entity implements Savable, Registrable {
     }
 
     @Override
-    public void onRead(Map mp) {
-
-        SaveUtils.vector3f(mp.get("position"), getPosition());
+    public void onRead(DataMap mp) {
+        mp.getVector3f("position", getPosition());
 
     }
 
     @Override
-    public void onWrite(Map mp) {
+    public Map onWrite(DataMap mp) {
         mp.put("registryID", registryID);
-        mp.put("position", SaveUtils.vector3f(getPosition()));
+        mp.putVector3f("position", getPosition());
+
+        return mp;
     }
 
     @Override

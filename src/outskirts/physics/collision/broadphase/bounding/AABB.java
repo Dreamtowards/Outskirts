@@ -60,14 +60,6 @@ public class AABB {
         return contains(aabb.min) && contains(aabb.max);
     }
 
-//    public final boolean containsOne(Vector3f... ps) {
-//        for (Vector3f v : ps) {
-//            if (contains(v))
-//                return true;
-//        }
-//        return false;
-//    }
-
     public AABB grow(float x, float y, float z) {
         min.sub(x, y, z);
         max.add(x, y, z);
@@ -114,7 +106,7 @@ public class AABB {
     public final AABB translate(Vector3f trans) {
         return translate(trans.x, trans.y, trans.z);
     }
-    public final AABB translateScaled(float scalar, Vector3f trans) {
+    public final AABB translate(float scalar, Vector3f trans) {  // translateScaled
         return translate(trans.x*scalar, trans.y*scalar, trans.z*scalar);
     }
 
@@ -137,39 +129,6 @@ public class AABB {
 
     public boolean intersectsZ(AABB other) {
         return other.max.z > this.min.z && other.min.z < this.max.z;
-    }
-
-    public float calculateXConstraint(AABB other, float dx) {
-        if (intersectsZ(other) && intersectsY(other)) {
-            if (dx > 0.0f && this.max.x <= other.min.x) {
-                return Maths.absMin(dx, other.min.x - this.max.x);
-            } else if (dx < 0.0f && this.min.x >= other.max.x) {
-                return Maths.absMin(dx, other.max.x - this.min.x);
-            }
-        }
-        return dx;
-    }
-
-    public float calculateYConstraint(AABB other, float dy) {
-        if (intersectsX(other) && intersectsZ(other)) {
-            if (dy > 0.0f && this.max.y <= other.min.y) {
-                return Maths.absMin(dy, other.min.y - this.max.y);
-            } else if (dy < 0.0f && this.min.y >= other.max.y) {
-                return Maths.absMin(dy, other.max.y - this.min.y);
-            }
-        }
-        return dy;
-    }
-
-    public float calculateZConstraint(AABB other, float dz) {
-        if (intersectsX(other) && intersectsY(other)) {
-            if (dz > 0.0f && this.max.z <= other.min.z) {
-                return Maths.absMin(dz, other.min.z - this.max.z);
-            } else if (dz < 0.0f && this.min.z >= other.max.z) {
-                return Maths.absMin(dz, other.max.z - this.min.z);
-            }
-        }
-        return dz;
     }
 
     @Override

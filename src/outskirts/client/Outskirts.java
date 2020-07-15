@@ -1,19 +1,18 @@
 package outskirts.client;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import outskirts.client.animation.AnRenderer;
-import outskirts.client.animation.Animation;
-import outskirts.client.animation.animated.AnimatedModel;
-import outskirts.client.animation.animated.Joint;
-import outskirts.client.animation.dae.DaeLoader;
+import org.lwjgl.system.MemoryUtil;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
+import outskirts.client.material.Texture;
 import outskirts.client.render.Camera;
+import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.event.Events;
@@ -24,26 +23,27 @@ import outskirts.init.Models;
 import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
-import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.shapes.convex.*;
-import outskirts.physics.dynamics.RigidBody;
+import outskirts.storage.dat.DSTUtils;
+import outskirts.storage.DataMap;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.GUI_SCALE;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -131,23 +131,7 @@ public class Outskirts {
         getRootGUI().addGui(GuiDebugCommon.INSTANCE.setVisible(false));
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-
-
-
-
-//        Events.EVENT_BUS.post(new InitializedEvent());
-
-        DaeLoader.DaeData daeData = DaeLoader.loadDAE(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/transres/model.dae"));
-
-        anRenderer = new AnRenderer();
-
-        animatedModel = AnimatedModel.loadModel(daeData);
-
-        animation = AnimatedModel.loadAnim(daeData);
     }
-    AnRenderer anRenderer;
-    AnimatedModel animatedModel;
-    Animation animation;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -158,7 +142,7 @@ public class Outskirts {
         profiler.pop("scheduleTasks");
 
         profiler.push("runTick");
-//        while (timer.pollFullTick())
+        while (timer.pollFullTick())
         {
             this.runTick();
         }
@@ -195,12 +179,16 @@ public class Outskirts {
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
 
-//            animatedModel.update(getDelta());
-//            anRenderer.render(animatedModel);
-
             profiler.pop("gui");
         }
         profiler.pop("render");
+        if (isKeyDown(GLFW_KEY_8)) {
+            BufferedImage bi = Texture.glfGetTexImage(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
+            Loader.savePNG(bi, new FileOutputStream("texOUT.png"));
+            BufferedImage scst = Outskirts.makeScreenshot(0, 0, getWidth()/2, getWidth()/2);
+            Loader.savePNG(scst, new FileOutputStream("texOUT2.png"));
+            LOGGER.info("OK for get and store.");
+        }
 
         profiler.pop("rt");
         profiler.push("updateDisplay");
@@ -212,16 +200,21 @@ public class Outskirts {
         INSTANCE.world = world;
         if (world == null)
             return;
+//        try {
+//            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         SceneIniter.init(world);
 
 //        ModelData[] mdat = new ModelData[1];
-//        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(new Vector3f(100,10,100)));
+//        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(100,10,100));
 //        INSTANCE.world.addEntity(eFloor);
 //        eFloor.tmp_boxSphere_scale.set(1,1,1);
 //        eFloor.getRigidBody().getGravity().set(0,0,0);
 ////        eFloor.getRigidBody().transform().origin.set(0, -10, 0);
-//        eFloor.getRigidBody().setMass(8000*0f).setRestitution(0.1f);
+//        eFloor.getRigidBody().setMass(8000*0f).setRestitution(0.1f).transform().origin.y=5;
 //        eFloor.getMaterial()
 //                .setModel(Loader.loadOBJ(new Identifier("materials/mount/part.obj").getInputStream(), mdat))
 //                .setDiffuseMap(Textures.WOOD1)
@@ -229,10 +222,10 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEO_SPHERE);
+        getPlayer().getMaterial().setModel(Models.GEO_CUBE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
-//        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
-        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));
+        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
+//        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));
 //        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
@@ -260,14 +253,13 @@ public class Outskirts {
                 }
                 if (e.getKey() == GLFW_KEY_1) {
 //                    getCamera().getPosition().set(0, 0, 10);
-                    GuiVert3D.INSTANCE.vertices.clear();
-                    Joint[] jts = INSTANCE.animatedModel.joints;
-                    for (int i = 0;i < jts.length;i++) {
-                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
-                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
-                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
-                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
-                    }
+//                    GuiVert3D.INSTANCE.vertices.clear();
+//                    for (int i = 0;i < jts.length;i++) {
+//                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
+//                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
+//                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
+//                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
+//                    }
                 }
             }
         });
@@ -304,6 +296,14 @@ public class Outskirts {
     }
 
     private void destroy() {
+
+        if (getWorld() != null) {
+            try {
+                DSTUtils.write(getWorld().onWrite(new DataMap()), new FileOutputStream("scen.dat"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
 
         ClientSettings.saveOptions();
 
@@ -433,6 +433,22 @@ public class Outskirts {
     // framebuffer_size = window_size * os_content_scale = (guiCoords * GUI_SCALE)==window_size * os_content_scale
     public static int toFramebufferCoords(float guiCoords) {
         return (int)((guiCoords * GUI_SCALE) * INSTANCE.OS_CONTENT_SCALE);
+    }
+
+    // params: GUI coords.
+    private static BufferedImage makeScreenshot(float gx, float gy, float gwidth, float gheight) {
+        int     wid=toFramebufferCoords(gwidth),
+                hei=toFramebufferCoords(gheight),
+                x=toFramebufferCoords(gx),
+                y=toFramebufferCoords(getHeight()-gy-gheight);
+        ByteBuffer pixels = memAlloc(wid * hei * 4);
+        try {
+            glReadBuffer(GL_BACK);
+            glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            return Loader.loadImage(pixels, wid, hei);
+        } finally {
+            memFree(pixels);
+        }
     }
 
     private void createDisplay() throws IOException {

@@ -11,31 +11,26 @@ import outskirts.util.vector.Matrix3f;
 public final class CollisionAlgorithmConvexConcave extends CollisionAlgorithm {
 
     private TriangleShape trigshape = new TriangleShape();
-    private AABB tmpConcaveSpaceAABB = new AABB();
+    private AABB tmpAabb = new AABB();  // tmpConcaveSpaceAabb
     private int detectedCPs;
 
     @Override
     public void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold) {
-        CollisionObject convexBody, concaveBody;
-        if (bodyA.getCollisionShape() instanceof ConvexShape) { convexBody=bodyA;concaveBody=bodyB; } else { convexBody=bodyB;concaveBody=bodyA; }
+        CollisionObject convexBody, concaveBody; if (bodyA.getCollisionShape() instanceof ConvexShape) { convexBody=bodyA;concaveBody=bodyB; } else { convexBody=bodyB;concaveBody=bodyA; }
         assert concaveBody.transform().basis.equals(Matrix3f.IDENTITY) : "Concave Rotations was not supports.";
-
         ConcaveShape concaveShape = (ConcaveShape)concaveBody.getCollisionShape();
 
-//        GuiScreen3DVertices._TMP_DEF_INST.vertices.clear();
         detectedCPs=0;
         concaveShape.processAllTriangles((trig, idx) -> {
             if (detectedCPs >= CollisionManifold.MAX_CONTACT_POINTS) // sometimes had lots lite triangles. when ContactPoints enought this time , just dosen't needs more detection.
                 return;
 
+            // the Real Worldspace CD.
             concaveBody.setCollisionShape(trigshape.setVertices(trig[0], trig[1], trig[2]));  // tmp set
             int i = manifold.narrowphase.detectCollision(manifold);
             concaveBody.setCollisionShape(concaveShape); // setback
 
             detectedCPs += i;
-//            GuiScreen3DVertices.addTri("", new Vector3f(trig[0]).add(concaveBody.transform().origin), new Vector3f(trig[1]).add(concaveBody.transform().origin), new Vector3f(trig[2]).add(concaveBody.transform().origin), i>0?Colors.YELLOW:Colors.WHITE, null);
-
-        }, tmpConcaveSpaceAABB.set(convexBody.getAABB()).translateScaled(-1f, concaveBody.transform().origin)); // aabb in Concave-Space.
-
+        }, tmpAabb.set(convexBody.getAABB()).translate(-1, concaveBody.transform().origin)); // convexBody aabb to the Concave.Space.
     }
 }

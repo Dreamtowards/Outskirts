@@ -11,6 +11,7 @@ import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
+import outskirts.entity.EntityModel;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
@@ -19,8 +20,6 @@ import outskirts.network.login.packet.SPacketDisconnect;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.packet.SPacketChatMessage;
-import outskirts.network.play.packet.SPacketTerrainData;
-import outskirts.network.play.packet.SPacketTerrainUnload;
 import outskirts.util.Side;
 import outskirts.util.logging.Log;
 
@@ -34,8 +33,6 @@ public final class Init {
         Packet.registerPacket(SPacketLoginSuccess.class);
 
         Packet.registerPacket(outskirts.network.play.packet.SPacketDisconnect.class);
-        Packet.registerPacket(SPacketTerrainData.class);
-        Packet.registerPacket(SPacketTerrainUnload.class);
         Packet.registerPacket(SPacketChatMessage.class);
 
 
@@ -55,6 +52,8 @@ public final class Init {
     private static void registerEntities(Side side) {
 
         Entity.REGISTRY.register(side.isClient() ? EntityPlayerSP.class : EntityPlayerMP.class);
+
+        Entity.REGISTRY.register(EntityModel.class);
     }
 
 

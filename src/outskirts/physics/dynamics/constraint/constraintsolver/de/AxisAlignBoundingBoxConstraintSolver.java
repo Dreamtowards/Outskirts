@@ -6,6 +6,7 @@ import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.dynamics.constraint.Constraint;
 import outskirts.physics.dynamics.constraint.constraintsolver.ConstraintSolver;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
@@ -13,48 +14,39 @@ import java.util.List;
 
 public class AxisAlignBoundingBoxConstraintSolver extends ConstraintSolver {
 
-    private World world;
-
-    public AxisAlignBoundingBoxConstraintSolver(World world) {
-        this.world = world;
-    }
-
     @Override
     public void solveGroup(List<CollisionObject> collisionObjects, List<CollisionManifold> collisionManifolds, List<Constraint> constraints, float delta) {
 
+        for (CollisionManifold mnf : collisionManifolds) {
+            RigidBody bodyA = mnf.bodyA();
+            RigidBody bodyB = mnf.bodyB();
 
-        for (CollisionObject co : collisionObjects) {
-            RigidBody body = (RigidBody)co;
+            Vector3f dPos = new Vector3f(bodyB.getLinearVelocity()).scale(delta);
 
-            Vector3f dPos = new Vector3f(body.getLinearVelocity()).scale(delta);
-            Vector3f dPosOri = new Vector3f(body.getLinearVelocity()).scale(delta);
+            AABB bodyAABB = bodyB.getAABB();
+            AABB otherAABB = bodyA.getAABB();
 
-            AABB bodyAABB = body.getAABB();
+                float x = aabbAxisSepf(bodyAABB, otherAABB, 0);
+                float y = aabbAxisSepf(bodyAABB, otherAABB, 1);
+                float z = aabbAxisSepf(bodyAABB, otherAABB, 2);
 
-            for (AABB aabb : world.getAABBs(new AABB(bodyAABB).expand(dPos))) {
-                if (aabb == bodyAABB)
-                    continue;
+            int mni = Math.abs(x)<Math.abs(y)? Math.abs(x)<Math.abs(z)?0:2 : Math.abs(y)<Math.abs(z)?1:2;
+            Vector3f.set(bodyB.getLinearVelocity(), mni, 0);
+            Vector3f.set(dPos, mni, mni==0?x:mni==1?y:z);
+//            Log.LOGGER.info("x:{}, y:{}, z:{}",x,y,z);
 
-                dPos.x = bodyAABB.calculateXConstraint(aabb, dPos.x);
+            if (mni==1)
+                bodyB.getLinearVelocity().scale(0.91f); //tmp friction
 
-                dPos.z = bodyAABB.calculateZConstraint(aabb, dPos.z);
-
-                dPos.y = bodyAABB.calculateYConstraint(aabb, dPos.y);
-            }
-
-            if (dPosOri.x != dPos.x)
-                body.getLinearVelocity().x = 0;
-            if (dPosOri.y != dPos.y) {
-                body.getLinearVelocity().scale(0.91f); //tmp friction
-                body.getLinearVelocity().y = 0;
-            }
-            if (dPosOri.z != dPos.z)
-                body.getLinearVelocity().z = 0;
-
-//            bodyAABB.translate(dPos);
-            body.getLinearVelocity().addScaled(1f/delta, dPos);
+            bodyB.transform().origin.add(dPos);
         }
 
 
+    }
+
+    private static float aabbAxisSepf(AABB bodyAabb, AABB statiAabb, int axis) {
+        float b2t = Vector3f.get(statiAabb.min, axis) - Vector3f.get(bodyAabb.max, axis); // moDir>0
+        float t2b = Vector3f.get(statiAabb.max, axis) - Vector3f.get(bodyAabb.min, axis);
+        return Math.abs(b2t) < Math.abs(t2b) ? b2t : t2b;
     }
 }

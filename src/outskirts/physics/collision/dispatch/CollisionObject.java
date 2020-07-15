@@ -17,9 +17,9 @@ public abstract class CollisionObject {
     private CollisionShape collisionShape;
 
     //should be keep away in broadphase..?
-    private AABB aabb = new AABB();
+    private AABB aabb = new AABB();  // runtime
 
-    public Object broadphaseAttachment;
+    public Object broadphaseAttachment;  // runtime
 
 
     public CollisionShape getCollisionShape() {

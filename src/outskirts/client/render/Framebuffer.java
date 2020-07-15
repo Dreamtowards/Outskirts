@@ -23,7 +23,7 @@ public class Framebuffer {
 
     private int rbo_depthStencil = -1;
 
-    // there means, not "simply" new, its had a sort of Operations.
+    // there means, not "simply" new, its had a sort of Operations.     glwGenFramebuffer(), or glfGenFramebuffer()
     public static Framebuffer glfGenFramebuffer() {
         return new Framebuffer();
     }

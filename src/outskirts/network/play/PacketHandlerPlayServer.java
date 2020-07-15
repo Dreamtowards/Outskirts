@@ -29,7 +29,7 @@ public class PacketHandlerPlayServer {
 
         OutskirtsServer.getOnlinePlayers().remove(player);
 
-        player.getWorld().getTerrains().forEach(terr -> terr.listeningPlayers.remove(player));
+//        player.getWorld().getTerrains().forEach(terr -> terr.listeningPlayers.remove(player));
         player.getWorld().removeEntity(player);
 
 
