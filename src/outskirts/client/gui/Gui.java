@@ -29,7 +29,9 @@ public class Gui {
     private float width;
     private float height;
 
-    private boolean focused = false;
+    private boolean focused = false;// focusable
+
+    private boolean hovered = false; // isHovering() setHovered()
 
     /** efforts to onClickEvent... */
     private boolean enable = true;

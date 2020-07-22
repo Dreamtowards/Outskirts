@@ -1,2 +1,4 @@
 # Project exclude paths
 /_depracated/
+# Editor-based HTTP Client requests
+/httpRequests/

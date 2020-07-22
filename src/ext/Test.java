@@ -216,7 +216,8 @@ public class Test {
 //        mdat = OBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
 //        LOGGER.info("OBJLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
 
-        LOGGER.info("returned: {}", func());
+        LOGGER.info(StringUtils.compv("1",     "1.0.0"));
+
     }
 
 

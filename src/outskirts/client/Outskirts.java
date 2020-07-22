@@ -437,10 +437,7 @@ public class Outskirts {
 
     // params: GUI coords.
     private static BufferedImage makeScreenshot(float gx, float gy, float gwidth, float gheight) {
-        int     wid=toFramebufferCoords(gwidth),
-                hei=toFramebufferCoords(gheight),
-                x=toFramebufferCoords(gx),
-                y=toFramebufferCoords(getHeight()-gy-gheight);
+        int wid=toFramebufferCoords(gwidth), hei=toFramebufferCoords(gheight), x=toFramebufferCoords(gx), y=toFramebufferCoords(getHeight()-gy-gheight);
         ByteBuffer pixels = memAlloc(wid * hei * 4);
         try {
             glReadBuffer(GL_BACK);

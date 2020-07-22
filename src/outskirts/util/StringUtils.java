@@ -159,4 +159,24 @@ public final class StringUtils {
         }
         return dest;
     }
+
+
+    /**
+     * compare version string
+     * "1.0.0", "1.0.1":    -1
+     * "1.1.0", "1.0.100":   1
+     * "2",     "1.100.100": 1
+     * "1",     "1.0.0":     0
+     * @return 1: v1 bigger than v2.  0: v1 equals v2.  -1:  v1 litter than v2.
+     */
+    public static int compv(String vstr1, String vstr2) {
+        String[] v1cps = StringUtils.explode(vstr1, ".");
+        String[] v2cps = StringUtils.explode(vstr2, ".");
+        for (int i = 0;i < Math.max(v1cps.length, v2cps.length);i++) {
+            int s = (int)Math.signum((i<v1cps.length?Integer.parseInt(v1cps[i]):0) - (i<v2cps.length?Integer.parseInt(v2cps[i]):0));
+            if (s > 0) return 1;
+            if (s < 0) return -1;
+        }
+        return 0;
+    }
 }
