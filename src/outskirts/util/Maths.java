@@ -209,13 +209,13 @@ public final class Maths {
         return v - (Maths.floor(v / b) * b);
     }
 
-    // deprecated. use sequential rotation to get the dir
+    // deprecated. use sequence rotations to get the dir
     /**
      * @param pitch,yaw in radians
      */
     private static Vector3f calculateEulerDirection(float pitch, float yaw) {
-        float f0 = (float)Math.cos(yaw - (float)Math.PI);
-        float f1 = (float)Math.sin(yaw - (float)Math.PI);
+        float f0 = (float)Math.cos(yaw - Maths.PI);
+        float f1 = (float)Math.sin(yaw - Maths.PI);
         float f2 = (float)Math.cos(pitch);
         float f3 = (float)Math.sin(pitch);
         return new Vector3f(f1 * f2, f3, f0 * f2).normalize();
@@ -226,7 +226,7 @@ public final class Maths {
      * @param n normal vector. unit length
      * @param p,q exports dest. tangent/perp of the norm
      */
-    public static void calculateTangentPlane(Vector3f n, Vector3f p, Vector3f q) {
+    public static void computeTangentBasis(Vector3f n, Vector3f p, Vector3f q) {
         if (Math.abs(n.z) > 0.7071067811865475244008443621048490f) { // SIMDSQRT(1/2)
             // choose p in y-z plane
             float a = n.y*n.y + n.z*n.z;
@@ -246,14 +246,25 @@ public final class Maths {
 
     /**
      * calculate a point that on the line segment AND closest to the point.
-     * @param P the target point
+     * @param P the point which needs be closest to.
      * @param A,B the line segment
      */
     public static Vector3f findClosestPointOnLineSegment(Vector3f P, Vector3f A, Vector3f B, Vector3f dest) {
         if (dest == null) dest = new Vector3f();
-        float abX = B.x - A.x, abY = B.y - A.y, abZ = B.z - A.z;
-        float t = Maths.clamp(((P.x - A.x) * abX + (P.y - A.y) * abY + (P.z - A.z) * abZ) / (abX * abX + abY * abY + abZ * abZ), 0.0f, 1.0f);
-        return dest.set(A.x + t*abX, A.y + t*abY, A.z + t*abZ);
+        float abX=B.x-A.x, abY=B.y-A.y, abZ=B.z-A.z; // vec3 AB. A-B.
+        float t = ((P.x-A.x)*abX + (P.y-A.y)*abY + (P.z-A.z)*abZ) / (abX*abX + abY*abY + abZ*abZ); // AP·AB/lenSq(AB).  this t is factor on AB LineSegment, not the actually distance.
+        t = Maths.clamp(t, 0.0f, 1.0f);
+        return dest.set(A).add(t*abX, t*abY, t*abZ);
+    }
+
+    /**
+     * @param P the point which needs be closet to
+     * @param O Ray Origin.
+     * @param R Ray Direction. unit-vector.
+     * @return the t term on ray-equation.
+     */
+    public static float findClosestPointOnRay(Vector3f P, Vector3f O, Vector3f R) {
+        return Vector3f.dot(Vector3f.sub(P, O, null), R);
     }
 
     /**
@@ -311,14 +322,17 @@ public final class Maths {
     }
 
     /**
-     * @return 0 when ray parallel to the plane, > 0 when intersect to normal-size, < 0 when intersect to negate-normal-side.
+     * @param O RayOrigin.
+     * @param R RayDirection
+     * @param A a point on the Plane
+     * @param N PlaneNormal.
+     * @return term t in the ray-equation P=O+tR.
+     *         NaN when parallels to the Plane.
+     *         >0 intersects. <0 non-intersects.
      */
-    public static float intersectRayPlane(Vector3f rayOrigin, Vector3f rayDir, Vector3f planeOrigin, Vector3f planeNormal) {
-        float denom = Vector3f.dot(rayDir, planeNormal); // cos(theta)
-        if (Maths.fuzzyZero(denom)) // ray parallel to the plane
-            return 0;
-        Vector3f raypos2planepos = Vector3f.sub(planeOrigin, rayOrigin, null); //todo opts
-        return Vector3f.dot(raypos2planepos, planeNormal) / denom;
+    public static float intersectRayPlane(Vector3f O, Vector3f R, Vector3f A, Vector3f N) {
+        Vector3f OA = Vector3f.sub(A, O, null); //todo opts
+        return Vector3f.dot(OA, N) / Vector3f.dot(R, N);
     }
 
     /**
@@ -652,7 +666,6 @@ public final class Maths {
     }
 
     private static final class CartesianProduct {
-
         /**
          * @param lists [[1, 2, 3, 4], [a, b], [x, y, z]]
          * @param out [[1, a, x], [1, a, y], [1, a, z], [1, b, x], ...]  total lists[i].size
@@ -664,7 +677,6 @@ public final class Maths {
                 out.add(new ArrayList<>(stack));
                 return;
             }
-
             for (T e : lists.get(i)) {
 
                 stack.add(e); // push(e)

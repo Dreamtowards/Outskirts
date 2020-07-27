@@ -83,6 +83,33 @@ public final class CollectionUtils {
         return indexOf(array, find, 0, array.length);
     }
 
+    public static int indexOf(Object[] array, Object[] search, int fromIndex) {
+        for (int i = fromIndex;i <= array.length-search.length;i++) {
+            boolean found = true;
+            for (int j = 0;j < search.length;j++) {
+                if (!array[i+j].equals(search[j])) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) return i;
+        }
+        return -1;
+    }
+    public static int indexOf(byte[] array, byte[] search, int fromIndex) {
+        for (int i = fromIndex;i <= array.length-search.length;i++) {
+            boolean found = true;
+            for (int j = 0;j < search.length;j++) {
+                if (array[i+j] != search[j]) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) return i;
+        }
+        return -1;
+    }
+
     public static boolean contains(Object[] array, Object find, int fromIndex, int toIndex) {
         return indexOf(array, find, fromIndex, toIndex) != -1;
     }

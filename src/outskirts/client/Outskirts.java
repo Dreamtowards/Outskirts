@@ -173,7 +173,6 @@ public class Outskirts {
             glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
 
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
-
             rootGUI.onDraw();
 
             glEnable(GL_CULL_FACE);
@@ -182,13 +181,6 @@ public class Outskirts {
             profiler.pop("gui");
         }
         profiler.pop("render");
-        if (isKeyDown(GLFW_KEY_8)) {
-            BufferedImage bi = Texture.glfGetTexImage(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
-            Loader.savePNG(bi, new FileOutputStream("texOUT.png"));
-            BufferedImage scst = Outskirts.makeScreenshot(0, 0, getWidth()/2, getWidth()/2);
-            Loader.savePNG(scst, new FileOutputStream("texOUT2.png"));
-            LOGGER.info("OK for get and store.");
-        }
 
         profiler.pop("rt");
         profiler.push("updateDisplay");

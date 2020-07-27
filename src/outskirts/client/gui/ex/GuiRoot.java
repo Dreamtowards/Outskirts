@@ -14,15 +14,15 @@ public class GuiRoot extends Gui {
 
     @Override
     public <T extends Gui> T addGui(T gui, int index) {
-        return updateTopScreen(super.addGui(gui, index));
+        return _AndUpdateCurrentScreen(super.addGui(gui, index));
     }
 
     @Override
     public <T extends Gui> T removeGui(int index) {
-        return updateTopScreen(super.removeGui(index));
+        return _AndUpdateCurrentScreen(super.removeGui(index));
     }
 
-    private <T> T updateTopScreen(T param) {
+    private <T> T _AndUpdateCurrentScreen(T param) {
         GuiScreen g = null;
         for (int i = getChildCount()-1;i >= 0;i--) {
             if (getGui(i) instanceof GuiScreen) {
@@ -36,7 +36,7 @@ public class GuiRoot extends Gui {
     }
 
     public GuiScreen closeScreen() {
-        int i = lastIndexOfGui(currentScreen());
+        int i = getChildren().lastIndexOf(currentScreen());
         if (i == -1) return null;
         return removeGui(i);
     }

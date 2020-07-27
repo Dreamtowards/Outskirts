@@ -6,7 +6,6 @@ import outskirts.client.material.Texture;
 import outskirts.init.Sounds;
 import outskirts.util.Colors;
 import outskirts.util.ResourceLocation;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
 public class GuiButton extends GuiText {

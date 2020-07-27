@@ -5,13 +5,14 @@ import ext.srt.Sort;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.EventHandler;
+import outskirts.event.asminvoke.ASMInvoker;
+import outskirts.event.asminvoke.examp.AnExampEHandlerClass;
 import outskirts.event.client.WindowResizedEvent;
+import outskirts.event.gui.GuiEvent;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 
 import java.io.*;
 import java.util.*;
@@ -216,7 +217,34 @@ public class Test {
 //        mdat = OBJLoader.loadOBJ(new Identifier("materials/aya091/091_W_Aya_30K.obj").getInputStream());
 //        LOGGER.info("OBJLoader: {}ms. idc: {}", System.currentTimeMillis()-s, mdat.indices.length);
 
-        LOGGER.info(StringUtils.compv("1",     "1.0.0"));
+//        float f2 = Maths.sqrt(100f);
+//
+//        f=0;
+//        speed("sqrt(i)", 10_000_000, l -> {
+//            f += Maths.sqrt(l);
+//        });
+//        f=0;
+//        speed("1/i", 10_000_000, l -> {
+//            f += 1f/l;
+//        });
+
+//        Integer[] i1 = {1,2,3,4,5,6,7,8};
+//        Integer[] i2 = {7,8,9};
+//        LOGGER.info(CollectionUtils.insertionSort(i1, i2, 0));
+
+
+
+        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/.idea/out/production/Outskirts/outskirts/event/asminvoke/inst/IvkInstan.class");
+        byte[] bcode = IOUtils.toByteArray(is);
+
+
+
+        while ((bcode=ASMInvoker.replaceBytesOnce(new byte[]{}, new byte[]{}, bcode)) != null);
+
+        Object obj = ASMInvoker.CLSLOADER.define("outskirts.event.asminvoke.inst.IvkInstan", bcode).newInstance();
+
+        ((ASMInvoker)obj)
+                .invoke(new AnExampEHandlerClass(), new GuiEvent());
 
     }
 

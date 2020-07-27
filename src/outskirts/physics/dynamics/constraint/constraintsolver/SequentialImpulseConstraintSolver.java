@@ -123,7 +123,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
 
         // Friction-Constraint  /Tangential
 
-        Maths.calculateTangentPlane(cp.normOnB, cpd.tangent1, cpd.tangent2);  // really needs update every frame.?
+        Maths.computeTangentBasis(cp.normOnB, cpd.tangent1, cpd.tangent2);  // really needs update every frame.?
 
         cpd.tangentEffectiveMass1 = jac_EffectiveMass(cp.rA, cp.rB, cpd.tangent1,
                 bodyA.getInvMass(), bodyB.getInvMass(), bodyA.getInvInertiaTensorWorld(), bodyB.getInvInertiaTensorWorld());

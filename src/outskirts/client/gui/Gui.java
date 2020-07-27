@@ -29,17 +29,17 @@ public class Gui {
     private float width;
     private float height;
 
-    private boolean focused = false;// focusable
+    private boolean focused = false; // focusable
 
-    private boolean hovered = false; // isHovering() setHovered()
+    private boolean hovered = false; // isHovered() setHovered()
 
-    /** efforts to onClickEvent... */
-    private boolean enable = true;
-
-    /** f not VISIBLE, the gui parent will not call onDraw() automatically */
+    /** when not VISIBLE, onDraw() will be not exec. */
     private boolean visible = true;
 
     private boolean clipChildren = false;
+
+    /** efforts to onClickEvent... */
+    private boolean enable = true;
 
     /** just a attachment */
     private Object tag;
@@ -112,26 +112,12 @@ public class Gui {
         return (T) children.remove(index);
     }
     public final void removeGui(Gui g) {
-        removeGui(indexOfGui(g));
+        removeGui(children.indexOf(g));
     }
-
     public final void removeAllGuis() {
         for (int i = getChildCount()-1;i >= 0;i--) {
             removeGui(i);
         }
-    }
-
-    public final int lastIndexOfGui(Gui gui) {
-        for (int i = getChildCount()-1;i >= 0;i--) {
-            if (getGui(i).equals(gui)) return i;
-        }
-        return -1;
-    }
-    public final int indexOfGui(Gui gui) {
-        for (int i = 0;i < getChildCount();i++) {
-            if (getGui(i).equals(gui)) return i;
-        }
-        return -1;
     }
 
     public final <T extends Gui> T getParent() {
@@ -141,6 +127,10 @@ public class Gui {
     }
     public void setParent(Gui parent) {
         this.parent = parent;
+    }
+
+    public final List<Gui> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
 
@@ -244,10 +234,16 @@ public class Gui {
         return (T) this;
     }
 
+    public boolean isHover() {
+        return hovered;
+    }
+    public void setHover(boolean hovered) {
+        this.hovered = hovered;
+    }
+
     @Override
     public String toString() {
-        return getClass().getSimpleName() +
-                "{x=" + getX() + ", y=" + getY() + ", width=" + getWidth() + ", height=" + getHeight() + "}";
+        return getClass().getSimpleName() + "{x=" + getX() + ", y=" + getY() + ", width=" + getWidth() + ", height=" + getHeight() + "}";
     }
 
 
@@ -301,10 +297,6 @@ public class Gui {
         forChildren(visitor, includeChildren, g -> true);
     }
 
-    public final List<Gui> getChildren() {
-        return Collections.unmodifiableList(children);
-    }
-
     //should this..?
     public static void toggleVisible(Gui gui) {
         gui.setVisible(!gui.isVisible());
@@ -335,8 +327,10 @@ public class Gui {
     private void _checks_MouseInOut() {
         boolean isCurrMouseOver = isMouseOver();
         if (isCurrMouseOver && !_isPrevMouseOver) {
+            setHover(true);
             performEvent(new OnMouseInEvent());
         } else if (!isCurrMouseOver && _isPrevMouseOver) {
+            setHover(false);
             performEvent(new OnMouseOutEvent());
         }
         _isPrevMouseOver = isCurrMouseOver;
@@ -479,7 +473,7 @@ public class Gui {
         attachListener(OnDrawEvent.class, listener).priority(priority); return (T)this;
     }
     public final <T extends Gui> T addOnLayoutListener(Consumer<OnDrawEvent> listener) { // the event waiting to do related.
-        attachListener(OnDrawEvent.class, listener).priority(EventPriority.MONITOR); return (T)this;
+        attachListener(OnDrawEvent.class, listener).priority(EventPriority.HIGHEST); return (T)this;
     }
 
     // AlignParentLTRB
