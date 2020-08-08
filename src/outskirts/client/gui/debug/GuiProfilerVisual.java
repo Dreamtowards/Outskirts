@@ -46,7 +46,8 @@ public class GuiProfilerVisual extends Gui {
 
     {
 
-        setWidth(300).setHeight(450);
+        setWidth(300);
+        setHeight(450);
 
         addKeyboardListener(e -> {
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_P) {

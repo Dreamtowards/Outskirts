@@ -137,6 +137,7 @@ public class EventBus {
     /**
      * perform all EventHandler(s) registered on this EventBus that typeof the Event
      * @return if true, the event has be cancelled. (only possible return true when the Event implements Cancellable)
+     * // todo: reaally true==cancelled.?  may false == cancelled better.?
      */
     public boolean post(Event event) {
         List<Handler> handlers = handlersMap.get(event.getClass());

@@ -1,6 +1,7 @@
 package outskirts.client.gui.ex;
 
 import outskirts.client.gui.*;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
 public class GuiTestWindowWidgets extends Gui {
@@ -16,11 +17,9 @@ public class GuiTestWindowWidgets extends Gui {
 
         // scroll
 
-        addGui(new GuiSlider("GuiSlider"));
+        addGui(new GuiSlider());
 
-        addGui(new GuiTextField("GuiTextField"));
-
-        addGui(new GuiTextFieldNumerical());
+        addGui(new GuiTextBox("GuiTextField"));
     }
 
 }

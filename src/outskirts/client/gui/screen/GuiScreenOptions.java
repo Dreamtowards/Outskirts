@@ -7,6 +7,8 @@ import outskirts.client.gui.GuiSlider;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 
+import static java.lang.Float.NaN;
+
 public class GuiScreenOptions extends GuiScreen {
 
     public static final GuiScreenOptions INSTANCE = new GuiScreenOptions();
@@ -19,40 +21,50 @@ public class GuiScreenOptions extends GuiScreen {
         });
     }
 
-    private GuiButton btnDone = addGui(new GuiButton("Done")).addOnClickListener(e -> {
-        Outskirts.closeScreen();
-    }).addOnDrawListener(e -> { // todo: should have a Resize/ AdjustPosition Event. and this OnDraw'll not working in 1st onDraw.  How about "On(Parent)ResizedEvent"? WindowResize->RootGui.setHeight/Width(), but how about Children resized...
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(Outskirts.getHeight()-80);
-    });
+    private GuiButton btnDone = addGui(new GuiButton("Done")); {
+        btnDone.addOnClickListener(e -> {
+            Outskirts.closeScreen();
+        });
+        btnDone.addLayoutorAlignParentRR(0.5f, NaN);
+        btnDone.addLayoutorAlignParentLTRB(NaN, NaN, NaN, 80);
+    }
 
-    private GuiSlider sldFov = addGui(new GuiSlider()).addValueChangedListener(e -> {
-        GuiSlider slider = e.gui();
-        ClientSettings.FOV = (int)slider.getCurrentUserValue();
+    private GuiSlider slFov = addGui(new GuiSlider()); {
+        slFov.addValueChangedListener(e -> {
+            GuiSlider slider = e.gui();
+            ClientSettings.FOV = (int)slider.getCurrentUserValue();
 
-        slider.setText("FOV: " + ClientSettings.FOV);
-    }).setUserMinValue(25).setUserMaxValue(115).setCurrentUserValue(ClientSettings.FOV).addOnDrawListener(e -> {
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(140-60);
-    });
+//            slider.setText("FOV: " + ClientSettings.FOV);
+        });
+        slFov.setUserMinValue(25);
+        slFov.setUserMaxValue(115);
+        slFov.setCurrentUserValue(ClientSettings.FOV);
+        slFov.addOnDrawListener(e -> {
+            slFov.addLayoutorAlignParentRR(0.5f, NaN);
+            slFov.setY(80);
+        });
+    }
 
-    private GuiButton btnMusicAndSounds = addGui(new GuiButton("Music & Sounds...")).addOnDrawListener(e -> {
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(140);
-    });
+    private GuiButton btnMusicAndSounds = addGui(new GuiButton("Music & Sounds...")); {
+        btnMusicAndSounds.addLayoutorAlignParentRR(0.5f, NaN);
+        btnMusicAndSounds.setY(140);
+    }
 
-    private GuiButton btnVideoSettings = addGui(new GuiButton("Video Settings...")).addOnDrawListener(e -> {
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(200);
-    });
+    private GuiButton btnVideoSettings = addGui(new GuiButton("Video Settings...")); {
+        btnVideoSettings.addLayoutorAlignParentRR(0.5f, NaN);
+        btnVideoSettings.setY(200);
+    }
 
-    private GuiSlider sldGuiscale = addGui(new GuiSlider()).addValueChangedListener(e -> {
-        GuiSlider slider = (GuiSlider)e.gui();
-        ClientSettings.GUI_SCALE = Maths.floor(slider.getCurrentUserValue(), 0.1f);
-        slider.setText("GUI_SCALE: " + ClientSettings.GUI_SCALE);
-    }).setUserMinValue(0.5f).setUserMaxValue(4).setCurrentUserValue(ClientSettings.GUI_SCALE).addOnDrawListener(e -> {
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(310+60);
-    });
+    private GuiSlider slGuiscale = addGui(new GuiSlider()); {
+        slGuiscale.addValueChangedListener(e -> {
+            ClientSettings.GUI_SCALE = Maths.floor(slGuiscale.getCurrentUserValue(), 0.1f);
+//            slGuiscale.setText("GUI_SCALE: " + ClientSettings.GUI_SCALE);
+        });
+        slGuiscale.setUserMinValue(0.5f);
+        slGuiscale.setUserMaxValue(4);
+        slGuiscale.setCurrentUserValue(ClientSettings.GUI_SCALE);
+        slGuiscale.addLayoutorAlignParentRR(0.5f, NaN);
+        slGuiscale.setY(370);
+    }
 
 }

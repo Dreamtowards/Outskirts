@@ -4,6 +4,8 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiButton;
 import outskirts.util.vector.Vector4f;
 
+import static java.lang.Float.NaN;
+
 public class GuiScreenPause extends GuiScreen {
 
     public static final GuiScreenPause INSTANCE = new GuiScreenPause();
@@ -45,28 +47,32 @@ public class GuiScreenPause extends GuiScreen {
         drawRect(color, (int)(Outskirts.getWidth()/2 + x*50f), (int)(Outskirts.getHeight()/2 - y*50f), 2, 2);
     }
 
-    private GuiButton btnBack = addGui(new GuiButton("Back")).addOnClickListener(e -> {
-        Outskirts.closeScreen();
-    }).addOnLayoutListener(e -> {
-        e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
-        e.gui().setY(100);
-    });
+    private GuiButton btnBack = addGui(new GuiButton("Back")); {
+        btnBack.addOnClickListener(e -> {
+            Outskirts.closeScreen();
+        });
+        btnBack.addLayoutorAlignParentLTRB(NaN, 100, 20, NaN);
+    }
 
-    private GuiButton btnOptions = addGui(new GuiButton("Options")).addOnClickListener(e -> {
-        Outskirts.startScreen(GuiScreenOptions.INSTANCE);
-    }).addOnLayoutListener(e -> {
-        e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
-        e.gui().setY(160);
-    });
+    private GuiButton btnOptions = addGui(new GuiButton("Options")); {
+        btnOptions.addOnClickListener(e -> {
+            Outskirts.startScreen(GuiScreenOptions.INSTANCE);
+        });
+        btnOptions.addOnLayoutListener(e -> {
+            btnOptions.addLayoutorAlignParentLTRB(NaN, 160, 20, NaN);
+        });
+    }
 
-    private GuiButton btnDisconne = addGui(new GuiButton("Disconne")).addOnClickListener(e -> {
-        Outskirts.setWorld(null);
+    private GuiButton btnDisconne = addGui(new GuiButton("Disconne")); {
+        btnDisconne.addOnClickListener(e -> {
+            Outskirts.setWorld(null);
 //        Outskirts.getPlayer().connection.closeChannel("Dinsconne");  //client ext.test
-        Outskirts.closeScreen();
-        Outskirts.startScreen(GuiScreenMainMenu.INSTANCE);
-    }).addOnLayoutListener(e -> {
-        e.gui().setX(Outskirts.getWidth() - e.gui().getWidth() - 20);
-        e.gui().setY(220);
-    });
+            Outskirts.closeScreen();
+            Outskirts.startScreen(GuiScreenMainMenu.INSTANCE);
+        });
+        btnDisconne.addOnLayoutListener(e -> {
+            btnDisconne.addLayoutorAlignParentLTRB(NaN, 220, 20, NaN);
+        });
+    }
 
 }

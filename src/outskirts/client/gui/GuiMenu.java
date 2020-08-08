@@ -20,7 +20,7 @@ public class GuiMenu extends Gui {
 
         // when mouse-click in outside, hide the menu.
         addMouseButtonListener(e -> {
-            if (lastShowMillis+300 < System.currentTimeMillis() && !isMouseOver()) {  // rem topmenu
+            if (System.currentTimeMillis() > lastShowMillis+300 && !isMouseOver()) {  // rem topmenu
                 hide();
             }
         });
@@ -31,7 +31,9 @@ public class GuiMenu extends Gui {
     }
 
     public final void show(float x, float y) {
-        setX(x).setY(y).setVisible(true);
+        setX(x);
+        setY(y);
+        setVisible(true);
         lastShowMillis = System.currentTimeMillis();
     }
 
@@ -51,7 +53,7 @@ public class GuiMenu extends Gui {
         return false;
     }
 
-    public static class GuiItem extends GuiText {
+    public static class GuiItem extends Gui {
 
         public static GuiItem button(String text) {
             return new GuiItem(text);
@@ -60,40 +62,39 @@ public class GuiMenu extends Gui {
         public static GuiItem bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
             boolean[] checked = {ck};
             if (ck)onSwitch.accept(true);
-            return new GuiItem(text).addOnClickListener(e -> {
+            GuiItem g = new GuiItem(text);
+            g.addOnClickListener(e -> {
                 checked[0] = !checked[0];
                 onSwitch.accept(checked[0]);
-            }).addOnDrawListener(e -> {
+            });
+            g.addOnDrawListener(e -> {
                 if (checked[0]) {
-                    Gui g = e.gui();
                     drawString("✓", g.getX()-12, g.getY(), Colors.WHITE, GuiText.DEFAULT_TEXT_HEIGHT, false, false);
                 }
             });
+            return g;
         }
 
         public static Gui divider() {
-            return new Gui()
-                    .setHeight(14)
-                    .addOnDrawListener(e -> {
-                        Gui g = e.gui();
-                        drawRect(Colors.GRAY, g.getX()-16, g.getY()+6, g.getParent().getWidth(), 2);
-                    });
+            Gui g = new Gui();
+            g.setHeight(14);
+            g.addOnDrawListener(e -> drawRect(Colors.GRAY, g.getX()-16, g.getY()+6, g.getParent().getWidth(), 2));
+            return g;
         }
 
         public static Gui slider(String s, float v, float min, float max, Consumer<Float> onChanged) {
-            return new GuiSlider()
-                    .addValueChangedListener(e -> {
-                        GuiSlider g = e.gui();
-                        g.setText(String.format(s, g.getCurrentUserValue()));
-                        onChanged.accept(g.getCurrentUserValue());
-                    })
-                    .setUserMinMaxValue(min, max)
-                    .setCurrentUserValue(v)
-                    .addLayoutorAlignParentLTRB(16, Float.NaN, 16, Float.NaN)
-                    .addOnDrawListener(e -> {
-                        GuiSlider g = e.gui();
-                        g.getTextOffset().set(g.isMouseOver()?g.getWidth():0, 0);
-                    });
+            GuiSlider g = new GuiSlider();
+            g.addValueChangedListener(e -> {
+//                g.setText(String.format(s, g.getCurrentUserValue()));
+                onChanged.accept(g.getCurrentUserValue());
+            });
+            g.setUserMinMaxValue(min, max);
+            g.setCurrentUserValue(v);
+            g.addLayoutorAlignParentLTRB(16, Float.NaN, 16, Float.NaN);
+//            g.addOnDrawListener(e -> {
+//                g.getTextOffset().set(g.isMouseOver()?g.getWidth():0, 0);
+//            });
+            return g;
         }
 
 //        private static GuiItem menu(String text, GuiMenu menu) {
@@ -106,7 +107,9 @@ public class GuiMenu extends Gui {
 //        private GuiMenu subMenu;
 
         private GuiItem(String s) {
-            super(s);
+            addGui(new GuiText(s));
+            setHeight(16);
+            setWidth(100);
 //            addOnClickListener(e -> {  // when item clicked, dismiss all sup-menu
 //                Gui gui = this;
 //                while ((gui=gui.getParent())!=Gui.EMPTY) {

@@ -80,11 +80,14 @@ public class GuiVert3D extends Gui {
     public List<Vert> vertices = new CopyOnWriteArrayList();//new CopyOnIterateArrayList<>();
 
 
-    private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider())
-            .setUserMinMaxValue(0, 200)
-            .addValueChangedListener(e -> {
-                e.<GuiSlider>gui().setText("DisplayNum: "+(int)e.<GuiSlider>gui().getCurrentUserValue());
-            }).setValue(1f).setWidth(400);
+    private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider()); {
+        _VertDisplayNumControl.setWidth(400);
+        _VertDisplayNumControl.setUserMinMaxValue(0, 200);
+        _VertDisplayNumControl.addValueChangedListener(e -> {
+//            _VertDisplayNumControl.setText("DisplayNum: "+(int)_VertDisplayNumControl.getCurrentUserValue());
+        });
+        _VertDisplayNumControl.setValue(1f);
+    }
 
     public static Vert addVert(String name, Vector3f position, Vector4f color) {
         Vert v = new Vert(name, position, color);

@@ -2,7 +2,7 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiTextField;
+import outskirts.client.gui.GuiTextBox;
 import outskirts.world.WorldClient;
 
 public class GuiScreenMainMenu extends GuiScreen {
@@ -15,6 +15,7 @@ public class GuiScreenMainMenu extends GuiScreen {
 
     public GuiScreenMainMenu() {
         addOnDrawListener(e -> {
+            // todo: use modifier
             int baseLineX = (int)(Outskirts.getWidth() * 0.08f);
             int startY = (int)(Outskirts.getHeight() * 0.45f);
 
@@ -23,35 +24,48 @@ public class GuiScreenMainMenu extends GuiScreen {
 //            tbTitle.setX(baseLineX).setY(64);
             tbTitle.setVisible(false);
 
-            btnMultiplayer.setX(baseLineX).setY(startY+=60);
-            btnOptions.setX(baseLineX).setY(startY+=60);
-            btnExit.setX(baseLineX).setY(startY+=60);
+            btnMultiplayer.setX(baseLineX);
+            btnMultiplayer.setY(startY+=60);
+            btnOptions.setX(baseLineX);
+            btnOptions.setY(startY+=60);
+            btnExit.setX(baseLineX);
+            btnExit.setY(startY+=60);
         });
     }
 
-    private GuiTextField tbTitle = addGui(new GuiTextField()).setTextHeight(32).setText("ots").setHeight(100).setWidth(100);
+    private GuiTextBox tbTitle = addGui(new GuiTextBox()); {
+        tbTitle.getText().setTextHeight(32);
+        tbTitle.getText().setText("ots");
+        tbTitle.setHeight(100);
+        tbTitle.setWidth(100);
+    }
 
-    private GuiButton btnMultiplayer = addGui(new GuiButton("Connection")).addOnClickListener(e -> {
-        if (Outskirts.isShiftKeyDown()) {
+    private GuiButton btnMultiplayer = addGui(new GuiButton("Connection")); {
+        btnMultiplayer.addOnClickListener(e -> {
+            if (Outskirts.isShiftKeyDown()) {
 
-            Outskirts.startScreen(GuiScreenConnecting.connect("localhost:25585"));
+                Outskirts.startScreen(GuiScreenConnecting.connect("localhost:25585"));
+            } else {
 
-        } else {
+                Outskirts.closeAllScreen();
 
-            Outskirts.closeAllScreen();
+                Outskirts.setWorld(new WorldClient());
 
-            Outskirts.setWorld(new WorldClient());
+                Outskirts.getWorld().addEntity(Outskirts.getPlayer());
+            }
+        });
+    }
 
-            Outskirts.getWorld().addEntity(Outskirts.getPlayer());
-        }
-    });
+    private GuiButton btnOptions = addGui(new GuiButton("Options")); {
+        btnOptions.addOnClickListener(e -> {
+            Outskirts.startScreen(GuiScreenOptions.INSTANCE);
+        });
+    }
 
-    private GuiButton btnOptions = addGui(new GuiButton("Options")).addOnClickListener(e -> {
-        Outskirts.startScreen(GuiScreenOptions.INSTANCE);
-    });
-
-    private GuiButton btnExit = addGui(new GuiButton("Exit")).addOnClickListener(e -> {
-        Outskirts.shutdown();
-    });
+    private GuiButton btnExit = addGui(new GuiButton("Exit")); {
+        btnExit.addOnClickListener(e -> {
+            Outskirts.shutdown();
+        });
+    }
 
 }

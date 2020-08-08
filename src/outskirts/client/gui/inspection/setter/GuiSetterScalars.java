@@ -2,7 +2,7 @@ package outskirts.client.gui.inspection.setter;
 
 import javafx.util.Pair;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiTextFieldNumerical;
+import outskirts.client.gui.GuiTextBox;
 import outskirts.util.Colors;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -16,17 +16,17 @@ public class GuiSetterScalars extends Gui {
         setHeight(16);
         float startX = 100;
         for (Pair<Supplier<Float>, Consumer<Float>> pair : fgsetters) {
-            GuiTextFieldNumerical field = addGui(new GuiTextFieldNumerical());
-            field.setWidth(80);
-            field.addOnDrawListener(e -> {
-                if (pair.getKey().get() != field.getValue())
-                    field.setText(String.valueOf(pair.getKey().get()));
+            GuiTextBox g = addGui(new GuiTextBox("0"));
+            g.setWidth(80);
+            g.addOnDrawListener(e -> {
+                if (pair.getKey().get() != Float.parseFloat(g.getText().getText()))
+                    g.getText().setText(String.valueOf(pair.getKey().get()));
             });
-            field.addOnTextChangedListener(e -> {
-                pair.getValue().accept(field.getValue());
+            g.getText().addOnTextChangedListener(e -> {
+                pair.getValue().accept(Float.parseFloat(g.getText().getText()));
             });
-            field.setRelativeX(startX);
-            startX += 8 + field.getWidth();
+            g.setRelativeX(startX);
+            startX += 8 + g.getWidth();
         }
         setWidth(startX);
         setHeight(16);

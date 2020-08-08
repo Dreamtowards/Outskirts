@@ -17,8 +17,8 @@ public final class GuiWindow extends Gui {
     private static final float WIN_HANDLER_HEIGHT = 32;
 
     public GuiWindow(Gui main) {
-        setX(300);
-        setY(300);
+        setX(100+(float)Math.random()*200);
+        setY(100);
         setWidth(400);
         setHeight(400);
         setClipChildren(true);
@@ -59,7 +59,8 @@ public final class GuiWindow extends Gui {
             float SIZER_SZ = 8;
             Gui wSizer = addGui(new Gui());
             wSizer.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, -SIZER_SZ/2f, -SIZER_SZ/2f);
-            wSizer.setWidth(SIZER_SZ).setHeight(SIZER_SZ);
+            wSizer.setWidth(SIZER_SZ);
+            wSizer.setHeight(SIZER_SZ);
             wSizer.addOnDrawListener(e -> {
                 if (wSizer.isMouseOver())
                     drawRectBorder(Colors.WHITE40, wSizer, 1);

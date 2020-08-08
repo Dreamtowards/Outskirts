@@ -3,6 +3,7 @@ package outskirts.client.gui;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiText;
+import outskirts.event.EventBus;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.vector.Vector4f;
@@ -10,58 +11,57 @@ import outskirts.util.vector.Vector4f;
 import java.util.function.Consumer;
 
 // needs a more common-name/settingS. ?
-public class GuiCheckBox extends GuiText {
+public class GuiCheckBox extends Gui {
 
     private boolean checked = false;
 
-    {
-        setWidth(250);
-        setHeight(40);
+    private GuiText text = addGui(new GuiText());
 
-        getTextOffset().set(46, 12);
+
+    public GuiCheckBox(String text) {
+        getText().setText(text);
+        getText().setRelativeXY(32, 8);
+
+        setWidth(150);
+        setHeight(32);
 
         addOnClickListener(e -> {
-            if (isMouseOver()) {
-                toggleChecked();
-                GuiButton.playClickSound();
-            }
+            toggleChecked();
+            GuiButton.playClickSound();
         });
         addOnDrawListener(e -> {
-            drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
-
-            int OUTR_SIZE = 24;
-            int OUTR_THIN = 3;
-            float iconX = 14 +getX();
+            int OUTR_SIZE = 16;
+            int OUTR_THIN = 2;
+            float iconX = 8 +getX();
             float iconY = (getHeight()-OUTR_SIZE)/2 +getY();
-
             drawRectBorder(Colors.GRAY, iconX, iconY, OUTR_SIZE, OUTR_SIZE, OUTR_THIN);
 
             int INNR_BORDER = 2;
             int INNR_SIZE = OUTR_SIZE-2*OUTR_THIN-2*INNR_BORDER;
-            drawRect(isChecked()?Colors.GREEN:isMouseOver()?Colors.WHITE05: Vector4f.ZERO, iconX+OUTR_THIN+INNR_BORDER, iconY+OUTR_THIN+INNR_BORDER, INNR_SIZE, INNR_SIZE);
+            if (isChecked())
+                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, iconX+OUTR_THIN+INNR_BORDER, iconY+OUTR_THIN+INNR_BORDER, INNR_SIZE, INNR_SIZE);
         });
     }
 
-    public GuiCheckBox(String text) {
-        super(text);
+    public GuiText getText() {
+        return text;
     }
 
     public boolean isChecked() {
         return checked;
     }
-    public <T extends GuiCheckBox> T setChecked(boolean checked) {
+    public void setChecked(boolean checked) {
         this.checked = checked;
-        performEvent(new OnCheckedChangedEvent());
-        return (T)this;
+        performEvent(new CheckedEvent());
     }
 
     private void toggleChecked() {
         setChecked(!isChecked());
     }
 
-    public final <T extends GuiCheckBox> T addOnCheckedChangedListener(Consumer<OnCheckedChangedEvent> lsr) {
-        attachListener(OnCheckedChangedEvent.class, lsr); return (T)this;
+    public final EventBus.Handler addOnCheckedChangedListener(Consumer<CheckedEvent> lsr) {
+        return attachListener(CheckedEvent.class, lsr);
     }
 
-    public static class OnCheckedChangedEvent extends GuiEvent { }
+    public static class CheckedEvent extends GuiEvent { }
 }

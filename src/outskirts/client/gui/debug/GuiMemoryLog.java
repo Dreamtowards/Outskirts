@@ -16,7 +16,8 @@ public class GuiMemoryLog extends Gui {
     private int writePointer;
 
     {
-        setWidth(600).setHeight(300);
+        setWidth(600);
+        setHeight(300);
 
         addOnDrawListener(e -> {
             SystemUtils.updateMemoryInfo(); // Utils supports..  // updates states

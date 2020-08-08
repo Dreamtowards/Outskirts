@@ -21,6 +21,10 @@ import java.util.function.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+/**
+ * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
+ * we reduce "return (T)this".
+ */
 
 public class Gui {
 
@@ -63,43 +67,45 @@ public class Gui {
 
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
-            if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState())
-                setFocused(isMouseOver());
+            if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState()) {
+                boolean f = isMouseOver();
+                if (isFocused() != f) {
+                    setFocused(f);
+                }
+            }
         });
         // OnClickEvent
         addMouseButtonListener(e -> {
-            if (isVisible() && isEnable() && e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && isMouseOver()) {
+            if (isVisible() && isEnable() && e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && Gui.isMouseOver(this)) {
                 performEvent(new OnClickEvent());
             }
         });
     }
 
     /**
-     * @return the Gui which added
+     * @return the Gui which added //todo: should make Create and Add in one Line .?
      */
-    public final <T extends Gui> T addGui(T gui) {
-        return addGui(gui, getChildCount());
-    }
-
     public <T extends Gui> T addGui(T gui, int index) {
         gui.setParent(this);
         children.add(index, gui);
         return gui;
     }
-
-    public <T extends Gui> T getGui(int index) {
-        return (T) children.get(index);
+    public final <T extends Gui> T addGui(T gui) {
+        return addGui(gui, getChildCount());
     }
 
-    public final <T extends Gui> T setGui(int index, Gui gui) {
+    public <T extends Gui> T getGui(int index) {
+        return (T)children.get(index);
+    }
+
+    public final void setGui(int index, Gui gui) {
         if (index < getChildCount()) {
             removeGui(index);
         }
         addGui(gui, index);
-        return (T)this;
     }
 
-    // size() .?
+    // size() .? childCount()
     public int getChildCount() {
         return children.size();
     }
@@ -141,17 +147,20 @@ public class Gui {
     public float getRelativeX() {
         return this.x;
     }
-    public <T extends Gui> T setRelativeX(float x) {
+    public void setRelativeX(float x) {
         this.x = x;
-        return  (T) this;
     }
 
     public float getRelativeY() {
         return this.y;
     }
-    public <T extends Gui> T setRelativeY(float y) {
+    public void setRelativeY(float y) {
         this.y = y;
-        return  (T) this;
+    }
+
+    public final void setRelativeXY(float x, float y) {  // TOOL METHOD
+        setRelativeX(x);
+        setRelativeY(y);
     }
 
     /**
@@ -160,35 +169,31 @@ public class Gui {
     public float getX() {
         return getParent().getX() + x;
     }
-    public <T extends Gui> T setX(float x) {
+    public void setX(float x) {
         setRelativeX(x - getParent().getX());
-        return (T) this;
     }
 
     public float getY() {
         return getParent().getY() + y;
     }
-    public <T extends Gui> T setY(float y) {
+    public void setY(float y) {
         setRelativeY(y - getParent().getY());
-        return  (T) this;
     }
 
     public float getWidth() {
         if (!isVisible()) return 0;
         return width;
     }
-    public <T extends Gui> T setWidth(float width) {
+    public void setWidth(float width) {
         this.width = width;
-        return (T) this;
     }
 
     public float getHeight() {
         if (!isVisible()) return 0;
         return height;
     }
-    public <T extends Gui> T setHeight(float height) {
+    public void setHeight(float height) {
         this.height = height;
-        return (T) this;
     }
 
 
@@ -198,43 +203,39 @@ public class Gui {
     public boolean isFocused() {
         return focused;
     }
-    public <T extends Gui> T setFocused(boolean focused) {
+    public void setFocused(boolean focused) {
         this.focused = focused;
-        return (T) this;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
     public boolean isEnable() {
         return enable;
+    }
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     public boolean isVisible() {
         return visible;
     }
-    public <T extends Gui> T setVisible(boolean visible) {
+    public void setVisible(boolean visible) {
         this.visible = visible;
-        return (T) this;
     }
 
     public boolean isClipChildren() {
         return clipChildren;
     }
-    public <T extends Gui> T setClipChildren(boolean clipChildren) {
+    public void setClipChildren(boolean clipChildren) {
         this.clipChildren = clipChildren;
-        return (T) this;
     }
 
     public Object getTag() {
         return tag;
     }
-    public <T extends Gui> T setTag(Object tag) {
+    public void setTag(Object tag) {
         this.tag = tag;
-        return (T) this;
     }
 
-    public boolean isHover() {
+    public boolean isHover() { // isHovering
         return hovered;
     }
     public void setHover(boolean hovered) {
@@ -328,7 +329,7 @@ public class Gui {
 
     private boolean _isPrevMouseOver = false;
     private void _checks_MouseInOut() {
-        boolean isCurrMouseOver = isMouseOver();
+        boolean isCurrMouseOver = Gui.isMouseOver(this);
         if (isCurrMouseOver && !_isPrevMouseOver) {
             setHover(true);
             performEvent(new OnMouseInEvent());
@@ -417,8 +418,8 @@ public class Gui {
      * @param applicator the transformation interpolation value applicator
      * @param interpolator the interpolation value generator
      */
-    public final <T extends Gui> T attachTransform(float from, float to, float duration, BiConsumer<Gui, Float> applicator, Function<Float, Float> interpolator, int easeMode, float pass) {
-        return addOnDrawListener(new Consumer<OnDrawEvent>() {
+    public final void attachTransform(float from, float to, float duration, BiConsumer<Gui, Float> applicator, Function<Float, Float> interpolator, int easeMode, float pass) {
+        addOnDrawListener(new Consumer<OnDrawEvent>() {
             private float passed = pass;
             @Override
             public void accept(OnDrawEvent e) {
@@ -441,47 +442,44 @@ public class Gui {
     }
 
 
-    public final <T extends Gui> T addOnClickListener(Consumer<OnClickEvent> listener) {
-        attachListener(OnClickEvent.class, listener); return (T)this;
+    public final EventBus.Handler addOnClickListener(Consumer<OnClickEvent> listener) {
+        return attachListener(OnClickEvent.class, listener);
     }
 
-    // Global/ Events
-    public final <T extends Gui> T addMouseButtonListener(Consumer<MouseButtonEvent> listener) {
-        attachListener(MouseButtonEvent.class, listener); return (T)this;
+    // Global/ Events   //todo: is these really needs.? the global events, not GuiEvent s.
+    public final EventBus.Handler addMouseButtonListener(Consumer<MouseButtonEvent> listener) {
+        return attachListener(MouseButtonEvent.class, listener);
     }
-    public final <T extends Gui> T addMouseMoveListener(Consumer<MouseMoveEvent> listener) {
-        attachListener(MouseMoveEvent.class, listener); return (T)this;
+    public final EventBus.Handler addMouseMoveListener(Consumer<MouseMoveEvent> listener) {
+        return attachListener(MouseMoveEvent.class, listener);
     }
-    public final <T extends Gui> T addKeyboardListener(Consumer<KeyboardEvent> listener) {
-        attachListener(KeyboardEvent.class, listener); return (T)this;
+    public final EventBus.Handler addKeyboardListener(Consumer<KeyboardEvent> listener) {
+        return attachListener(KeyboardEvent.class, listener);
     }
-    public final <T extends Gui> T addCharInputListener(Consumer<CharInputEvent> listener) {
-        attachListener(CharInputEvent.class, listener); return (T)this;
+    public final EventBus.Handler addCharInputListener(Consumer<CharInputEvent> listener) {
+        return attachListener(CharInputEvent.class, listener);
     }
-    public final <T extends Gui> T addMouseScrollListener(Consumer<MouseScrollEvent> listener) {
-        attachListener(MouseScrollEvent.class, listener); return (T)this;
+    public final EventBus.Handler addMouseScrollListener(Consumer<MouseScrollEvent> listener) {
+        return attachListener(MouseScrollEvent.class, listener);
     }
 
 
-    public final <T extends Gui> T addOnMouseInListener(Consumer<OnMouseInEvent> listener) {
-        attachListener(OnMouseInEvent.class, listener); return (T)this;
+    public final EventBus.Handler addOnMouseInListener(Consumer<OnMouseInEvent> listener) {
+        return attachListener(OnMouseInEvent.class, listener);
     }
-    public final <T extends Gui> T addOnMouseOutListener(Consumer<OnMouseOutEvent> listener) {
-        attachListener(OnMouseOutEvent.class, listener); return (T)this;
+    public final EventBus.Handler addOnMouseOutListener(Consumer<OnMouseOutEvent> listener) {
+        return attachListener(OnMouseOutEvent.class, listener);
     }
-    public final <T extends Gui> T addOnDrawListener(Consumer<OnDrawEvent> listener) {
-        attachListener(OnDrawEvent.class, listener); return (T)this;
+    public final EventBus.Handler addOnDrawListener(Consumer<OnDrawEvent> listener) {
+        return attachListener(OnDrawEvent.class, listener);
     }
-    public final <T extends Gui> T addOnDrawListener(Consumer<OnDrawEvent> listener, int priority) {
-        attachListener(OnDrawEvent.class, listener).priority(priority); return (T)this;
-    }
-    public final <T extends Gui> T addOnLayoutListener(Consumer<OnDrawEvent> listener) { // the event waiting to do related.
-        attachListener(OnDrawEvent.class, listener).priority(EventPriority.HIGHEST); return (T)this;
+    public final EventBus.Handler addOnLayoutListener(Consumer<OnDrawEvent> listener) { // the event waiting to do related.
+        return attachListener(OnDrawEvent.class, listener).priority(EventPriority.HIGHEST);
     }
 
     // AlignParentLTRB
-    public final <T extends Gui> T addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
-        return addOnLayoutListener(e -> {
+    public final void addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
+        addOnLayoutListener(e -> {
             if (!Float.isNaN(left)) setRelativeX(left);
             if (!Float.isNaN(top)) setRelativeY(top);
 
@@ -495,24 +493,27 @@ public class Gui {
             }
         });
     }
-    public final <T extends Gui> T addLayoutorAlignParentRR(float rrx, float rry) { // RestRatio. 0:left, 0.5f:mid, 1:right
-        return addOnLayoutListener(e -> {
-            setRelativeX((getParent().getWidth()-getWidth())*rrx);
-            setRelativeY((getParent().getHeight()-getHeight())*rry);
+    public final void addLayoutorAlignParentRR(float rrx, float rry) { // RestRatio. 0:left, 0.5f:mid, 1:right
+        addOnLayoutListener(e -> {
+            if (!Float.isNaN(rrx))
+                setRelativeX((getParent().getWidth()-getWidth())*rrx);
+            if (!Float.isNaN(rry))
+                setRelativeY((getParent().getHeight()-getHeight())*rry);
         });
     }
-    public final <T extends Gui> T addLayoutorLayoutLinear(Vector2f dir) {
-        return addOnLayoutListener(e -> {
+    public final void addLayoutorLayoutLinear(Vector2f dir) {
+        addOnLayoutListener(e -> {
             float rx=0, ry=0;
             for (Gui g : getChildren()) {
-                g.setRelativeX(rx).setRelativeY(ry);
+                g.setRelativeX(rx);
+                g.setRelativeY(ry);
                 rx += dir.x * g.getWidth();
                 ry += dir.y * g.getHeight();
             }
         });
     }
-    public final <T extends Gui> T addLayoutorWrapChildren(float pleft, float ptop, float pright, float pbottom) {
-        return addOnLayoutListener(e -> {
+    public final void addLayoutorWrapChildren(float pleft, float ptop, float pright, float pbottom) {
+        addOnLayoutListener(e -> {
             float mxRelRight=0, mxRelBottom=0, mnRelX=Float.MAX_VALUE, mnRelY=Float.MAX_VALUE;
             for (Gui g : getChildren()) {
                 mxRelRight = Math.max(mxRelRight, g.getRelativeX()+g.getWidth());
@@ -524,11 +525,12 @@ public class Gui {
                 g.setRelativeX(g.getRelativeX()-mnRelX+pleft);
                 g.setRelativeY(g.getRelativeY()-mnRelY+ptop);
             }
-            setWidth(mxRelRight-mnRelX+pleft+pright).setHeight(mxRelBottom-mnRelY+ptop+pbottom);
+            setWidth(mxRelRight-mnRelX+pleft+pright);
+            setHeight(mxRelBottom-mnRelY+ptop+pbottom);
         });
     }
-    public final <T extends Gui> T addLayoutorWrapChildren() {
-        return addLayoutorWrapChildren(0,0,0,0);
+    public final void addLayoutorWrapChildren() {
+        addLayoutorWrapChildren(0,0,0,0);
     }
     /**
      * A module tool for Mouse-Dragging
@@ -540,13 +542,13 @@ public class Gui {
      * cause f mouse move too fast, the tricking will be lose,
      * and this way f mouse out gui border, mouse will not be tricking continue
      */
-    public final <T extends Gui> T addOnDraggingListener(BiConsumer<Float, Float> ondragging, Consumer<Boolean> ondragstatechanged, Predicate<MouseButtonEvent> predictCanDrag) {
+    public final void addOnDraggingListener(BiConsumer<Float, Float> ondragging, Consumer<Boolean> ondragstatechanged, Predicate<MouseButtonEvent> predictCanDrag) {
 //        checkTrigger_OnDragging();
 //        attachListener(OnDraggingEvent.class, listener);
         boolean[] dragging = {false};
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                if (e.getButtonState() && isMouseOver() && (predictCanDrag==null || predictCanDrag.test(e))) {
+                if (e.getButtonState() && isHover() && (predictCanDrag==null || predictCanDrag.test(e))) {
                     dragging[0] = true;
                     if (ondragstatechanged!=null)ondragstatechanged.accept(true);
                 } else if (dragging[0] && !e.getButtonState()) {
@@ -560,10 +562,9 @@ public class Gui {
                 ondragging.accept(Outskirts.getMouseDX(), Outskirts.getMouseDY());  // todo had not ext.test yet
             }
         });
-        return (T)this;
     }
-    public final <T extends Gui> T addOnDraggingListener(BiConsumer<Float, Float> ondragging) {
-        return addOnDraggingListener(ondragging, null, null);
+    public final void addOnDraggingListener(BiConsumer<Float, Float> ondragging) {
+        addOnDraggingListener(ondragging, null, null);
     }
 
     protected static class OnMouseOutEvent extends GuiEvent { }

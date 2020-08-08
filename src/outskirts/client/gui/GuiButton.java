@@ -8,7 +8,7 @@ import outskirts.util.Colors;
 import outskirts.util.ResourceLocation;
 import outskirts.util.vector.Vector4f;
 
-public class GuiButton extends GuiText {
+public class GuiButton extends Gui {
 
     private static AudioSource BUTTON_AUDIO = AudioSource.alfGenSource();
 
@@ -16,7 +16,13 @@ public class GuiButton extends GuiText {
     static Texture TEXTURE_BUTTON_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_hover.png").getInputStream());
     static Texture TEXTURE_BUTTON_DISABLE = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_disable.png").getInputStream());
 
-    {
+    private GuiText text = addGui(new GuiText());
+
+    // tmp tool constructor
+    public GuiButton(String text) {
+        getText().setText(text);
+        getText().addLayoutorAlignParentRR(0.5f, 0.5f);
+
         setWidth(100); //250
         setHeight(32); //40
 
@@ -25,12 +31,11 @@ public class GuiButton extends GuiText {
         });
 
         addOnDrawListener(e -> {
-
             Vector4f color = Colors.WHITE;
             Texture tex = TEXTURE_BUTTON_NORMAL;
 
             if (isEnable()) {
-                if (isMouseOver()) {
+                if (isHover()) {
                     color = Colors.YELLOW;
                     tex = TEXTURE_BUTTON_HOVER;
                 }
@@ -39,16 +44,14 @@ public class GuiButton extends GuiText {
                 tex = TEXTURE_BUTTON_DISABLE;
             }
 
-            getTextColor().set(color);
+            getText().getTextColor().set(color);
             drawButtonTexture(tex, getX(), getY(), getWidth(), getHeight());
 
         });
     }
 
-    // tmp tool constructor
-    public GuiButton(String text) {
-        super(text);
-        updateTextToCenter(this);
+    public GuiText getText() {
+        return text;
     }
 
     public static void playClickSound() {

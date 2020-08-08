@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class GuiTextField extends GuiText {
+public class GuiTextBox extends Gui {
 
     private int cursorPosition;
 
@@ -21,13 +21,24 @@ public class GuiTextField extends GuiText {
 
     private long lastFocusedTime;
 
-    private Gui cursorGui = addGui(new Gui()).addOnDrawListener(e -> {
-        if (isFocused() && ((System.currentTimeMillis() / 500) % 2 == 0 || lastFocusedTime > System.currentTimeMillis() - 600)) {
-            drawRect(Colors.WHITE, e.gui().getX(), e.gui().getY(), e.gui().getWidth(), getTextHeight());
-        }
-    }).setWidth(3);
+    private GuiText text = addGui(new GuiText());
 
-    {
+    private Gui cursor = addGui(new Gui()); {
+        cursor.setWidth(3);
+        cursor.setHeight(getText().getTextHeight());
+        cursor.addOnDrawListener(e -> {
+            if (isFocused() && ((System.currentTimeMillis() / 500) % 2 == 0 || lastFocusedTime > System.currentTimeMillis() - 600)) {
+                drawRect(Colors.WHITE, cursor);
+            }
+        });
+    }
+
+
+    public GuiTextBox() {}
+
+    public GuiTextBox(String s) {
+        getText().setText(s);
+
         setWidth(120);
         setHeight(16);
 
@@ -80,7 +91,7 @@ public class GuiTextField extends GuiText {
                 } else if (Outskirts.isCtrlKeyDown()) {
                     if (keyCode == GLFW_KEY_A) {
                         setSelectionBegin(0);
-                        setSelectionEnd(getText().length());
+                        setSelectionEnd(texts().length());
                     } else if (keyCode == GLFW_KEY_C) {
                         if (isSelectedText()) {
                             Outskirts.setClipboard(getSelectedText());
@@ -106,60 +117,58 @@ public class GuiTextField extends GuiText {
         addOnDrawListener(e -> {
             drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
 
-            if (getCursorPosition() > getText().length())
+            if (getCursorPosition() > texts().length())
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
 
             // set cursor display position
-            Vector2i cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(getText(), getTextHeight(), getCursorPosition(), null);
-            cursorGui.setX(getX() + getTextOffset().x + cursorPos.x)
-                    .setY(getY() + getTextOffset().y + cursorPos.y);
+            Vector2i cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), null);
+            cursor.setX(getText().getX() + cursorPos.x);
+            cursor.setY(getText().getY() + cursorPos.y);
 
             // draw selection
             Vector2i TMP_CACHE = new Vector2i();
             for (int i = getMinSelection();i < getMaxSelection();i++) {
-                Vector2i pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(getText(), getTextHeight(), i, TMP_CACHE);
-                int charWidth = (int)(Outskirts.renderEngine.getFontRenderer().charWidth(getText().charAt(i)) * getTextHeight());
-                drawRect(Colors.WHITE20, getX() + getTextOffset().x + pos.x, getY() + getTextOffset().y + pos.y, charWidth + FontRenderer.GAP_CHAR, getTextHeight());
+                Vector2i pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
+                int charWidth = (int)(Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight());
+                drawRect(Colors.WHITE20, getX() + getText().getRelativeX() + pos.x, getY() + getText().getRelativeY() + pos.y, charWidth + FontRenderer.GAP_CHAR, getText().getTextHeight());
             }
         });
 
-        addOnTextChangedListener(e -> {
-
-            setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, getText().length()-1));
-            setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, getText().length()-1));
+        getText().addOnTextChangedListener(e -> {
+            setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, texts().length()-1));
+            setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, texts().length()-1));
         });
     }
 
-    public GuiTextField() {}
-
-    public GuiTextField(String s) {
-        setText(s);
+    private int calculateCurrentCursorPosition() {
+        return Outskirts.renderEngine.getFontRenderer().calculateTextIndex(texts(), getText().getTextHeight(),
+                Outskirts.getMouseX() - getText().getX(),
+                Outskirts.getMouseY() - getText().getY());
     }
 
-    private int calculateCurrentCursorPosition() {
-        return Outskirts.renderEngine.getFontRenderer().calculateTextIndex(getText(), getTextHeight(),
-                Outskirts.getMouseX() - getX() - getTextOffset().x,
-                Outskirts.getMouseY() - getY() - getTextOffset().y);
+    public GuiText getText() {
+        return text;
+    }
+    private String texts() {
+        return getText().getText();
     }
 
     public void insertText(String text) {
-        if (performEvent(new TextInsertedEvent(text)))
-            return;
         if (isSelectedText()) {
-            setText(getText().substring(0, getMinSelection()) + text + getText().substring(getMaxSelection()));
+            getText().setText(texts().substring(0, getMinSelection()) + text + texts().substring(getMaxSelection()));
             setCursorPosition(getMinSelection() + text.length());
 
             setSelectionEmpty();
         } else {
-            setText(getText().substring(0, getCursorPosition()) + text + getText().substring(getCursorPosition()));
+            getText().setText(texts().substring(0, getCursorPosition()) + text + texts().substring(getCursorPosition()));
             setCursorPosition(getCursorPosition() + text.length());
         }
     }
 
     @Override
-    public <T extends Gui> T setFocused(boolean focused) {
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
         lastFocusedTime = System.currentTimeMillis();
-        return super.setFocused(focused);
     }
 
     public int getCursorPosition() {
@@ -168,7 +177,7 @@ public class GuiTextField extends GuiText {
 
     public void setCursorPosition(int cursorPosition) {
         setFocused(true);
-        this.cursorPosition = Maths.clamp(cursorPosition, 0, getText().length());
+        this.cursorPosition = Maths.clamp(cursorPosition, 0, texts().length());
     }
 
     public int getSelectionBegin() {
@@ -200,23 +209,7 @@ public class GuiTextField extends GuiText {
         return getSelectionBegin() != getSelectionEnd();
     }
     public String getSelectedText() {
-        return getText().substring(getMinSelection(), getMaxSelection());
+        return texts().substring(getMinSelection(), getMaxSelection());
     }
 
-    public final <T extends GuiTextField> T addOnTextInsertedListener(Consumer<TextInsertedEvent> listener) {
-        attachListener(TextInsertedEvent.class, listener); return (T)this;
-    }
-
-    //todo: reduce. really needs..   ?
-    public static class TextInsertedEvent extends GuiEvent implements Cancellable { // should be TextChangeEvent, lots times text changed but not insert anything
-        private String insertedText;
-
-        public TextInsertedEvent(String insertedText) {
-            this.insertedText = insertedText;
-        }
-
-        public String getInsertedText() {
-            return insertedText;
-        }
-    }
 }

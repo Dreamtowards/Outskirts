@@ -8,12 +8,12 @@ import outskirts.util.logging.Log;
 //todo GuiScreenMessage/Alert/Confirm..?
 public class GuiScreenDisconnect extends GuiScreen {
 
-    private GuiButton btnBackToTitle = addGui(new GuiButton("Done")).addOnClickListener(e -> {
-        Outskirts.closeScreen();
-    }).addOnDrawListener(e -> {
-        e.gui().setX(Outskirts.getWidth()/2 - e.gui().getWidth()/2);
-        e.gui().setY(Outskirts.getHeight()/5*3);
-    });
+    private GuiButton btnBackToTitle = addGui(new GuiButton("Done")); {
+        btnBackToTitle.addOnClickListener(e -> {
+            Outskirts.closeScreen();
+        });
+        btnBackToTitle.addLayoutorAlignParentRR(0.5f, 0.6f);
+    }
 
     public GuiScreenDisconnect(String disonnectMessage) {
         addOnDrawListener(e -> {

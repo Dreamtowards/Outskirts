@@ -130,7 +130,7 @@ public class Outskirts {
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        getRootGUI().addGui(GuiDebugCommon.INSTANCE.setVisible(false));
+        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
         getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
@@ -180,7 +180,7 @@ public class Outskirts {
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onDraw();
 
-            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 48);
+            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 45);
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);

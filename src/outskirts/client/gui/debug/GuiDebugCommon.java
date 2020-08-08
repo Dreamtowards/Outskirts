@@ -37,11 +37,20 @@ public class GuiDebugCommon extends Gui {
     {
         addGui(GuiDebugPhys.INSTANCE);
 
-        Gui MEMLOG = addGui(new GuiMemoryLog()).setVisible(false).addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
-        Gui PROFILERV = addGui(new GuiProfilerVisual()).setVisible(false).addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
-        Gui VERT3D = addGui(GuiVert3D.INSTANCE).setVisible(false).setRelativeY(32);
+        Gui MEMLOG = addGui(new GuiMemoryLog());
+        MEMLOG.setVisible(false);
+        MEMLOG.addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
 
-        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE)).setVisible(false);
+        Gui PROFILERV = addGui(new GuiProfilerVisual());
+        PROFILERV.setVisible(false);
+        PROFILERV.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
+
+        Gui VERT3D = addGui(GuiVert3D.INSTANCE);
+        VERT3D.setVisible(false);
+        VERT3D.setRelativeY(32);
+
+        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE));
+//        GuiInspEntity.INSTANCE.setVisible(true);
 
         debugMenu.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
         {

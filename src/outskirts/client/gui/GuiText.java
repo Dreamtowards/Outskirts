@@ -2,6 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
 import outskirts.event.Cancellable;
+import outskirts.event.EventBus;
 import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.vector.Vector2f;
@@ -11,7 +12,7 @@ import outskirts.util.vector.Vector4f;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class GuiText extends Gui {
+public final class GuiText extends Gui {
 
     public static int DEFAULT_TEXT_HEIGHT = 16;
 
@@ -23,36 +24,38 @@ public class GuiText extends Gui {
 
     private Vector2f textOffset = new Vector2f();
 
-    {
-        addOnDrawListener(e -> {
-
-            drawString(text, getX() + textOffset.x, getY() + textOffset.y, textColor, textHeight);
-        }, EventPriority.LOW); // let text always overlay
-
+    public GuiText() {
+        this("");
     }
-
-    public GuiText() { }
 
     public GuiText(String t) {
         setText(t);
         updateTextBound(this);
+
+        addOnDrawListener(e -> {
+            drawString(text, getX() + textOffset.x, getY() + textOffset.y, textColor, textHeight);
+        }).priority(EventPriority.LOW); // let text always overlay
     }
 
-    public final <T extends GuiText> T setText(String text) {
-        if (this.text.equals(text)) return (T)this;
+    //todo: just set(s)
+    public final void setText(String text) {
+        if (this.text.equals(text))
+            return;
         if (performEvent(new TextChangeEvent(text)))
-            return (T)this; // cancelled.
+            return; // cancelled.
+
         this.text = text;
+
         performEvent(new TextChangedEvent());
-        return (T)this;
+
+        updateTextBound(this);
     }
     public final String getText() {
         return text;
     }
 
-    public <T extends GuiText> T setTextHeight(int textHeight) {
+    public void setTextHeight(int textHeight) {
         this.textHeight = textHeight;
-        return (T)this;
     }
     public int getTextHeight() {
         return textHeight;
@@ -69,21 +72,22 @@ public class GuiText extends Gui {
     public static void updateTextBound(GuiText guiText) {
         Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
 
-        guiText.setWidth(bound.x).setHeight(bound.y);
+        guiText.setWidth(bound.x);
+        guiText.setHeight(bound.y);
     }
 
     public static void updateTextToCenter(GuiText guiText) {
-        Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
-
-        guiText.getTextOffset().set((guiText.getWidth() - bound.x) / 2, (guiText.getHeight() - bound.y) / 2);
+//        Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
+//
+//        guiText.getTextOffset().set((guiText.getWidth() - bound.x) / 2, (guiText.getHeight() - bound.y) / 2);
     }
 
-    public final <T extends GuiText> T addOnTextChangeListener(Consumer<TextChangeEvent> listener) {
-        attachListener(TextChangeEvent.class, listener);return (T)this;
+    public final EventBus.Handler addOnTextChangeListener(Consumer<TextChangeEvent> listener) {
+        return attachListener(TextChangeEvent.class, listener);
     }
 
-    public final <T extends GuiText> T addOnTextChangedListener(Consumer<TextChangedEvent> listener) {
-        attachListener(TextChangedEvent.class, listener);return (T)this;
+    public final EventBus.Handler addOnTextChangedListener(Consumer<TextChangedEvent> listener) {
+        return attachListener(TextChangedEvent.class, listener);
     }
 
     // "Changed" listener -> e.g. in UpdateTextInfo/OffsetCenterBound
