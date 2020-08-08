@@ -156,7 +156,7 @@ public class Gui {
 
     /**
      * Get absolute x position.
-     */
+     */// todo: every time get coordinate needs a series recursolve call.? may should had a local cache
     public float getX() {
         return getParent().getX() + x;
     }
@@ -250,11 +250,14 @@ public class Gui {
 
 
 
-
+    // todo: deperecate instance method: always not supports for mul layers GUI, instead uses hover field.
     public final boolean isMouseOver() {
-        return isMouseOver(getX(), getY(), getWidth(), getHeight());
+        return Gui.isMouseOver(getX(), getY(), getWidth(), getHeight());
     }
 
+    public static boolean isMouseOver(Gui g) {
+        return Gui.isMouseOver(g.getX(), g.getY(), g.getWidth(), g.getHeight());
+    }
     public static boolean isMouseOver(float x, float y, float width, float height) {
         return Outskirts.getMouseX() >= x && Outskirts.getMouseX() < x + width && Outskirts.getMouseY() >= y && Outskirts.getMouseY() < y + height;
     }
@@ -648,6 +651,19 @@ public class Gui {
     }
     public static void drawRectBorder(Vector4f color, Gui g, float thickness) {
         drawRectBorder(color, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
+    }
+
+    /**
+     * @param thickness corner size.
+     */
+    public static void drawCornerStretchTexture(Texture texture, float x, float y, float width, float height, float thickness) {
+
+        Gui.drawTexture(texture, x, y, thickness, thickness, 0, 0, 0.5f, 0.5f); // Left-Top
+        Gui.drawTexture(texture, x+width-thickness, y, thickness, thickness, 0.5f, 0, 0.5f, 0.5f); // Right-Top
+        Gui.drawTexture(texture, x, y+height-thickness, thickness, thickness, 0, 0.5f, 0.5f, 0.5f); // Left-Bottom
+        Gui.drawTexture(texture, x+width-thickness, y+height-thickness, thickness, thickness, 0.5f, 0.5f, 0.5f, 0.5f); // Left-Bottom
+
+
     }
 
 

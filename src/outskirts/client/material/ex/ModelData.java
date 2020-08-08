@@ -1,4 +1,4 @@
-package outskirts.client.material;
+package outskirts.client.material.ex;
 
 public final class ModelData {
 

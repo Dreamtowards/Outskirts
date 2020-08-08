@@ -36,7 +36,8 @@ public class GuiRenderer extends Renderer {
 
     /**
      * @param x,y,width,height sometimes xywh should be floatpoint. in highDPI screen, in 1 pixel-screen-coords can actually display/draws 1+ actually pixels (1px[coords]=1px|4px[actuallydraw]
-     * @param texOffsetX,texOffsetY Window/Display Coords. 0-1 from left-top to right-bottom
+     * @param texOffsetX,texOffsetY 0-1 from left-top to right-bottom
+     * @param texScaleX,texScaleY 0-1 for 0%-100%
      */
     public void render(Model model, Texture texture, float x, float y, float width, float height, float texOffsetX, float texOffsetY, float texScaleX, float texScaleY) {
 

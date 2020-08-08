@@ -1,6 +1,7 @@
 package outskirts.entity;
 
 import outskirts.client.material.Material;
+import outskirts.client.material.Model;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.Savable;
 import outskirts.storage.DataMap;
@@ -18,9 +19,10 @@ public class Entity implements Savable, Registrable {
 
     private String registryID;
 
-    private RigidBody rigidBody = new RigidBody();
+    private RigidBody rigidbody = new RigidBody();
 
     private Material material = new Material();
+    private Model model = Model.glfGenVertexArrays();
 
     // ref to the world
     private World world;
@@ -44,23 +46,30 @@ public class Entity implements Savable, Registrable {
         return material;
     }
 
+    public final Model getModel() {
+        return model;
+    }
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
     public final RigidBody getRigidBody() {
-        return rigidBody;
+        return rigidbody;
     }
 
+    // dep.?
     public final Vector3f getPosition() {
-        return rigidBody.transform().origin;
+        return rigidbody.transform().origin;
     }
-
     public final Matrix3f getRotation() {
-        return rigidBody.transform().basis;
+        return rigidbody.transform().basis;
     }
 
     public World getWorld() {
         return world;
     }
 
-    public void setWorld(World world) {
+    public final void setWorld(World world) {
         this.world = world;
     }
 
@@ -79,7 +88,7 @@ public class Entity implements Savable, Registrable {
     }
 
     @Override
-    public String getRegistryID() {
+    public final String getRegistryID() {
         return registryID;
     }
 }

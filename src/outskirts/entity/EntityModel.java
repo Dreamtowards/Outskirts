@@ -1,6 +1,10 @@
 package outskirts.entity;
 
+import outskirts.storage.DataMap;
+import outskirts.storage.SAVERS;
 import outskirts.util.Identifier;
+
+import java.util.Map;
 
 // abstruct class
 public class EntityModel extends Entity {
@@ -9,6 +13,7 @@ public class EntityModel extends Entity {
 
     public EntityModel() {
         setRegistryID("modelentity");
+
 
 
     }
@@ -29,4 +34,19 @@ public class EntityModel extends Entity {
 //    }
 
 
+    @Override
+    public void onRead(DataMap mp) {
+        super.onRead(mp);
+
+        SAVERS.MODEL.read(getModel(), (DataMap)mp.get("model"));
+    }
+
+    @Override
+    public Map onWrite(DataMap mp) {
+        super.onWrite(mp);
+
+        mp.put("model", SAVERS.MODEL.write(getModel(), new DataMap()));
+
+        return mp;
+    }
 }

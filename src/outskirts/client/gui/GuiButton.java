@@ -10,7 +10,7 @@ import outskirts.util.vector.Vector4f;
 
 public class GuiButton extends GuiText {
 
-    private static AudioSource BUTTON_AUDIO = AudioSource.allocSource();
+    private static AudioSource BUTTON_AUDIO = AudioSource.alfGenSource();
 
     public static Texture TEXTURE_BUTTON_NORMAL = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_normal.png").getInputStream());
     static Texture TEXTURE_BUTTON_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_hover.png").getInputStream());
@@ -58,6 +58,7 @@ public class GuiButton extends GuiText {
         BUTTON_AUDIO.play();
     }
 
+    // needs a rename.?
     public static void drawButtonTexture(Texture texture, float x, float y, float width, float height) {
         float halfWidth = width/2;
 

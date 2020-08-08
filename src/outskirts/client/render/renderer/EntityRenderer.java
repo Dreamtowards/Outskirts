@@ -93,11 +93,11 @@ public class EntityRenderer extends Renderer {
         for (Entity entity : entities) {
             if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
                 continue;
-
-            Material material = entity.getMaterial();
-            Model model = material.getModel();
+            Model model = entity.getModel();
 
             glBindVertexArray(model.vaoID());
+
+            Material material = entity.getMaterial();
 
             shader.setFloat("material.specularStrength", material.getSpecularStrength());
             shader.setFloat("material.shininess", material.getShininess());

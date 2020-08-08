@@ -64,8 +64,8 @@ public class ShadowRenderer extends Renderer {
 
             shader.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), null));
 
-            glBindVertexArray(entity.getMaterial().getModel().vaoID());
-            glDrawElements(GL_TRIANGLES, entity.getMaterial().getModel().vertexCount(), GL_UNSIGNED_INT, 0);
+            glBindVertexArray(entity.getModel().vaoID());
+            glDrawElements(GL_TRIANGLES, entity.getModel().vertexCount(), GL_UNSIGNED_INT, 0);
         }
 //        glCullFace(GL_BACK);
 

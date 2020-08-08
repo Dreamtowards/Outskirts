@@ -4,10 +4,12 @@ import javafx.util.Pair;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiCollapse;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.inspection.setter.GuiSetterScalars;
 import outskirts.entity.Entity;
+import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.CollisionShape;
+import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2f;
@@ -17,15 +19,16 @@ import outskirts.world.World;
 public class GuiInspEntity extends Gui {
 
     public static Entity NULL_ENTITY = new Entity() { };
+    static {
+        NULL_ENTITY.getRigidBody().setCollisionShape(new SphereShape(0));
+    }
 
     public static GuiInspEntity INSTANCE = new GuiInspEntity();
 
     public Entity currentEntity = NULL_ENTITY;
 
     {
-        GuiCollapse collapseGui = addGui(new GuiCollapse());
-
-        collapseGui.getTitleGui().addGui(new GuiText("˅ RigidBody"));
+        Gui rigidbodyInsp = addGui(new Gui());
 
         {
             GuiSetterScalars rbOrigin = GuiSetterScalars.forVector3f("Origin", () -> currentEntity.getRigidBody().transform().origin);
@@ -35,13 +38,13 @@ public class GuiInspEntity extends Gui {
             GuiSetterScalars rbFriction = new GuiSetterScalars("Friction", new Pair<>(() -> currentEntity.getRigidBody().getFriction(), f -> currentEntity.getRigidBody().setFriction(f)));
 
 
-            collapseGui.getBodyGui().addLayoutorLayoutLinear(new Vector2f(0, 1.2f));
-            collapseGui.getBodyGui().addLayoutorWrapChildren(4,4,4,4);
-            collapseGui.getBodyGui().addGui(rbOrigin);
-            collapseGui.getBodyGui().addGui(rbGravity);
-            collapseGui.getBodyGui().addGui(rbMass);
-            collapseGui.getBodyGui().addGui(rbRestitution);
-            collapseGui.getBodyGui().addGui(rbFriction);
+            rigidbodyInsp.addLayoutorLayoutLinear(new Vector2f(0, 1.2f));
+            rigidbodyInsp.addLayoutorWrapChildren(4,4,4,4);
+            rigidbodyInsp.addGui(rbOrigin);
+            rigidbodyInsp.addGui(rbGravity);
+            rigidbodyInsp.addGui(rbMass);
+            rigidbodyInsp.addGui(rbRestitution);
+            rigidbodyInsp.addGui(rbFriction);
         }
 
     }
@@ -53,11 +56,14 @@ public class GuiInspEntity extends Gui {
         addOnDrawListener(e -> {
             if (Outskirts.isKeyDown(GLFW.GLFW_KEY_P)) {  // picking
                 Vector3f ray = Maths.calculateWorldRay(Outskirts.getMouseX(), Outskirts.getMouseY(), Outskirts.getWidth(), Outskirts.getHeight(), Outskirts.renderEngine.getProjectionMatrix(), Outskirts.renderEngine.getViewMatrix());
-
+                float mndist = Float.MAX_VALUE;
+                Vector2f rg = new Vector2f();
                 for (Entity entity : Outskirts.getWorld().getEntities()) {
-                    if (Maths.intersectRayAabb(Outskirts.getCamera().getPosition(), ray, entity.getRigidBody().getAABB(), new Vector2f())) {
-                        currentEntity = entity;
-                        break;
+                    if (Maths.intersectRayAabb(Outskirts.getCamera().getPosition(), ray, entity.getRigidBody().getAABB(), rg)) {
+                        if (rg.x < mndist) {
+                            currentEntity = entity;
+                            mndist = rg.x;
+                        }
                     }
                 }
             }

@@ -4,7 +4,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL;
 import outskirts.client.material.Model;
-import outskirts.client.material.ModelData;
+import outskirts.client.material.ex.ModelData;
 import outskirts.client.material.Texture;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
@@ -17,10 +17,7 @@ import outskirts.util.ogg.OggLoader;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +65,8 @@ public final class Loader {
      * @param attrvsz_vdat [vertexSize:int, VAOAttributeData:float[]]
      */
     public static Model loadModel(int[] indices, Object... attrvsz_vdat) {
-        Model model = Model.glwGenVertexArrays();
-        model.bindVertexArray();
-        model.createElementBuffer(indices);
+        Model model = Model.glfGenVertexArrays();
+        model.createEBO(indices);
 
         for (int i = 0;i < attrvsz_vdat.length/2;i++) {
             int attrp_i = i*2;
@@ -120,6 +116,9 @@ public final class Loader {
             throw new RuntimeException("Failed to loadPNG().", ex);
         }
     }
+    public static BufferedImage loadPNG(byte[] bytes) {
+        return Loader.loadPNG(new ByteArrayInputStream((bytes)));
+    }
     public static void savePNG(BufferedImage bi, OutputStream outputStream) {
         try {
             ImageIO.write(bi, "PNG", outputStream);
@@ -127,19 +126,25 @@ public final class Loader {
             throw new RuntimeException("Failed to loadPNG().", ex);
         }
     }
+    public static byte[] savePNG(BufferedImage bi) { // TOOL METHOD
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Loader.savePNG(bi, baos);
+        return baos.toByteArray();
+    }
+    public static byte[] savePNG(Texture texture) {  // TOOL METHOD
+        return Loader.savePNG(Texture.glfGetTexImage(texture));
+    }
 
-    public static Texture loadTexture(InputStream inputStream) {
-        try {
-            return loadTexture(Loader.loadPNG(inputStream));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed loadTexture().", ex);
-        }
+    public static Texture loadTexture(InputStream pngInputStream) {
+        return loadTexture(Loader.loadPNG(pngInputStream));
+    }
+    public static Texture loadTexture(byte[] pngBytes) { // TOOL METHOD
+        return Loader.loadTexture(Loader.loadPNG(pngBytes));
     }
 
     public static Texture loadTexture(BufferedImage bufferedImage) {
         return loadTexture(null, bufferedImage);
     }
-
     public static Texture loadTexture(@Nullable Texture dest, BufferedImage bufferedImage) {
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();

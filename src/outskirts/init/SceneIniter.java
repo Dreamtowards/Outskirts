@@ -1,22 +1,17 @@
 package outskirts.init;
 
 import outskirts.client.Loader;
-import outskirts.client.material.ModelData;
+import outskirts.client.material.ex.ModelData;
 import outskirts.client.render.Light;
-import outskirts.entity.Entity;
 import outskirts.entity.EntityModel;
-import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.extras.quickhull.QuickHull;
-import outskirts.util.Identifier;
-import outskirts.util.Transform;
 import outskirts.util.misc.PlacementUtils;
-import outskirts.util.vector.Vector3f;
-import outskirts.world.World;
 import outskirts.world.WorldClient;
+
+import java.io.FileInputStream;
 
 public class SceneIniter {
 
@@ -36,7 +31,8 @@ public class SceneIniter {
 //        {
             EntityModel planeGround = new EntityModel();
             world.addEntity(planeGround);
-            planeGround.getMaterial().setModel(Models.GEO_CUBE).setDiffuseMap(Textures.WOOD1);
+            planeGround.setModel(Models.GEO_CUBE);
+            planeGround.getMaterial().setDiffuseMap(Textures.WOOD1);
             planeGround.tmp_boxSphere_scale.set(100, 10, 100);
             planeGround.getRigidBody().setCollisionShape(new BoxShape(100, 10, 100)).setMass(0).getGravity().set(0,0,0);
             planeGround.getRigidBody().transform().origin.set(0, -10, 0);
@@ -44,18 +40,20 @@ public class SceneIniter {
 //
 //        }
 
-//        {
-//            EntityModel gravestone = new EntityModel();
-//            world.addEntity(gravestone);
-//            ModelData[] mdatptr = new ModelData[1];
-//            gravestone.getMaterial().setModel(Loader.loadOBJ(new Identifier("materials/exa1.objfx").getInputStream(), mdatptr, true))//.setModel(Models.GEO_CUBE)
-//                                    .setDiffuseMap(Loader.loadTexture(new Identifier("elements/teatable/teatable_diff.png").getInputStream()));
-//            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
-////            gravestone.getRigidBody().setCollisionShape(new SphereShape(1));
-//            gravestone.getRigidBody().setMass(50);
-//            gravestone.getRigidBody().transform().origin.set(10, 0, 0);
-//            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
-//        }
+        try {
+            EntityModel gravestone = new EntityModel();
+            world.addEntity(gravestone);
+            ModelData[] mdatptr = new ModelData[1];
+            gravestone.setModel(Loader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/cbin.obj"), mdatptr, true));//.setModel(Models.GEO_CUBE)
+            gravestone.getMaterial().setDiffuseMap(Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/cbin_diff.png")));
+            gravestone.getRigidBody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(mdatptr[0].positions)));
+//            gravestone.getRigidBody().setCollisionShape(new SphereShape(1));
+            gravestone.getRigidBody().setMass(50);
+            gravestone.getRigidBody().transform().origin.set(10, 0, 0);
+            PlacementUtils.setOnTopOf(gravestone.getRigidBody(), planeGround.getRigidBody());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 //
 //        {
 //            EntityModel gravestone = new EntityModel();
@@ -77,8 +75,8 @@ public class SceneIniter {
 //                ebox.getRigidBody().setCollisionShape(new BoxShape(3-i*0.2f,1, 3-i*0.2f)).setMass(40);
                 ebox.getRigidBody().setCollisionShape(new SphereShape(1+i*0.2f)).setMass(40);
                 ebox.getRigidBody().transform().origin.y = i*4+1;
-                ebox.getMaterial().setModel(Models.GEO_SPHERE).setDiffuseMap(Textures.FLOOR);
-
+                ebox.setModel(Models.GEO_SPHERE);
+                ebox.getMaterial().setDiffuseMap(Textures.FLOOR);
             }
         }
 

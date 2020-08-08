@@ -19,7 +19,7 @@ public class AudioSource {
         alSourcef(sourceID, AL_REFERENCE_DISTANCE, 3);
     }
 
-    public static AudioSource allocSource() {
+    public static AudioSource alfGenSource() {
         return new AudioSource();
     }
 

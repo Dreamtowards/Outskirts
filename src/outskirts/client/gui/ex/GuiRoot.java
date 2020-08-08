@@ -4,7 +4,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.screen.GuiScreen;
 
-public class GuiRoot extends Gui {
+public final class GuiRoot extends Gui {
 
     private GuiScreen currentScreen;  // top screen
 

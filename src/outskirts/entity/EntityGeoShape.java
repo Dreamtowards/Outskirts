@@ -15,10 +15,10 @@ public class EntityGeoShape extends Entity {
         if (Side.CURRENT == Side.CLIENT) {
             getMaterial().setDiffuseMap(Texture.UNIT);
             if (shape instanceof BoxShape) {
-                getMaterial().setModel(Models.GEO_CUBE);
+                setModel(Models.GEO_CUBE);
                 tmp_boxSphere_scale.set(((BoxShape)shape).getHalfExtent());
             } else if (shape instanceof SphereShape) {
-                getMaterial().setModel(Models.GEO_SPHERE);
+                setModel(Models.GEO_SPHERE);
                 tmp_boxSphere_scale.scale(((SphereShape)shape).getRadius());
             }
         }

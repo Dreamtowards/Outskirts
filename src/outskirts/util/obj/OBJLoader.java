@@ -1,6 +1,6 @@
 package outskirts.util.obj;
 
-import outskirts.client.material.ModelData;
+import outskirts.client.material.ex.ModelData;
 import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;

@@ -12,9 +12,9 @@ import outskirts.util.Colors;
  * should not be a Entity Window.
  * should needs a Registry, in the "Window" title, switch to other func-window.
  */
-public class GuiWindow extends Gui {
+public final class GuiWindow extends Gui {
 
-    private static final float WIN_HANDLER_HEIGHT = 16;
+    private static final float WIN_HANDLER_HEIGHT = 32;
 
     public GuiWindow(Gui main) {
         setX(300);
@@ -36,19 +36,19 @@ public class GuiWindow extends Gui {
                 drawRect(Colors.WHITE10, wHandler);
                 drawRect(Colors.WHITE40, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), 1);
 //                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), wHandler.getHeight());
-                drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY(), Colors.GRAY, 16, true, false);
+                drawString(title, wHandler.getX()+wHandler.getWidth()/2, wHandler.getY()+8, Colors.GRAY, 16, true, false);
             });
             {
                 Gui gClose = wHandler.addGui(new Gui());
                 gClose.addLayoutorAlignParentLTRB(Float.NaN, 0, 0, 0);
-                gClose.setWidth(12);
+                gClose.setWidth(25);
                 gClose.addOnClickListener(e -> {
                     Outskirts.getRootGUI().removeGui(this);
                 });
                 gClose.addOnDrawListener(e -> {
                     if (gClose.isMouseOver())
                         drawRect(Colors.WHITE20, gClose);
-                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY(), gClose.isMouseOver()?Colors.RED:Colors.GRAY, 16, true, false);
+                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY()+8, gClose.isMouseOver()?Colors.RED:Colors.GRAY, 16, true, false);
                 });
             }
         }

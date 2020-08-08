@@ -1,22 +1,13 @@
 package outskirts.client.material;
 
-import io.netty.buffer.ByteBuf;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
 import outskirts.util.Colors;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.system.MemoryUtil.memAlloc;
 import static org.lwjgl.system.MemoryUtil.memFree;
 

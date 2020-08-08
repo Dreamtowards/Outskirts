@@ -2,6 +2,7 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import org.json.JSONObject;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.EventHandler;
@@ -234,18 +235,33 @@ public class Test {
 
 
 
-        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/.idea/out/production/Outskirts/outskirts/event/asminvoke/inst/IvkInstan.class");
-        byte[] bcode = IOUtils.toByteArray(is);
+//        InputStream is = new FileInputStream("/Users/dreamtowards/Projects/Outskirts/.idea/out/production/Outskirts/outskirts/event/asminvoke/inst/IvkInstan.class");
+//        byte[] bcode = IOUtils.toByteArray(is);
 
 
 
-        while ((bcode=ASMInvoker.replaceBytesOnce(new byte[]{}, new byte[]{}, bcode)) != null);
+//        while ((bcode=ASMInvoker.replaceBytesOnce(new byte[]{}, new byte[]{}, bcode)) != null);
 
-        Object obj = ASMInvoker.CLSLOADER.define("outskirts.event.asminvoke.inst.IvkInstan", bcode).newInstance();
+//        Object obj = ASMInvoker.CLSLOADER.define("outskirts.event.asminvoke.inst.IvkInstan", bcode).newInstance();
+//
+//        ((ASMInvoker)obj)
+//                .invoke(new AnExampEHandlerClass(), new GuiEvent());
+//
+//
+//        LOGGER.info(
+//                new JSONObject(
+//                        "{akey: 12.3i}"
+//                )
+//        );
 
-        ((ASMInvoker)obj)
-                .invoke(new AnExampEHandlerClass(), new GuiEvent());
+        int index = 8; // 从0开始数的index 8就是加上0 第一行最后一个 "地9个"
+        final int WIDTH = 9;
 
+        int y = index/WIDTH; // 从0
+        int x = index%WIDTH;
+
+        LOGGER.info("x: {}, y: {}", x, y);
+        LOGGER.info("x: {}, y: {} which num starts from 1.", x+1, y+1); // 从1开始数的情况
     }
 
 

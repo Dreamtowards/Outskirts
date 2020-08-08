@@ -1,8 +1,7 @@
 package outskirts.client.material;
 
+//todo: problem: Texture/Model should like Vector/mat that 100% reuseable.? or just Unmodifiable...
 public final class Material {
-
-    private Model model;     // the model actualy is not really a part of Material.
 
     private Texture diffuseMap = Texture.UNIT; // Diffuse Map. the Surface Texture.
     private Texture emissionMap = Texture.ZERO;
@@ -14,14 +13,6 @@ public final class Material {
 
     private Texture displacementMap = Texture.ZERO;  // Parallax Impl. actually is a DepthMap. displacement'll not Convex up, but Concave down.
     private float displacementScale = 0.1f;
-
-    public Model getModel() {
-        return model;
-    }
-    public Material setModel(Model model) {
-        this.model = model;
-        return this;
-    }
 
     public Texture getDiffuseMap() {
         return diffuseMap;
@@ -86,7 +77,6 @@ public final class Material {
     }
 
     public final Material set(Material m) {
-        setModel(m.getModel());
 
         setDiffuseMap(m.getDiffuseMap());
         setEmissionMap(m.getEmissionMap());

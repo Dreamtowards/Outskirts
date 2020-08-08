@@ -9,6 +9,8 @@ import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
+import outskirts.client.gui.ex.GuiTestWindowWidgets;
+import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Camera;
@@ -131,7 +133,10 @@ public class Outskirts {
         getRootGUI().addGui(GuiDebugCommon.INSTANCE.setVisible(false));
         startScreen(GuiScreenMainMenu.INSTANCE);
 
+        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
+        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Downloads/tmptex.jpeg"));
     }
+    private Texture tmpTex;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -175,6 +180,8 @@ public class Outskirts {
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onDraw();
 
+            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 48);
+
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
 
@@ -214,7 +221,7 @@ public class Outskirts {
 //        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
 
 
-        getPlayer().getMaterial().setModel(Models.GEO_CUBE);
+        getPlayer().setModel(Models.GEO_CUBE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
         getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
 //        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));

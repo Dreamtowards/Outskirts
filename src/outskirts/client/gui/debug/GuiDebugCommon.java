@@ -50,7 +50,7 @@ public class GuiDebugCommon extends Gui {
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Memlog window", false, MEMLOG::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Profile window", false, PROFILERV::setVisible));
             mDebug.addGui(GuiMenu.GuiItem.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
-//            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
+            mDebug.addGui(GuiMenu.GuiItem.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
             mDebug.addGui(GuiMenu.GuiItem.divider());
             mDebug.addGui(GuiMenu.GuiItem.bswitch("Show Lights Marks", true, c -> showLightMarks =c));
             mDebug.addGui(GuiMenu.GuiItem.divider());

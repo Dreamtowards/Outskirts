@@ -78,7 +78,7 @@ public class ModelRenderer extends Renderer {
     }
 
     public void drawTriangleFace(Vector3f v0, Vector3f v1, Vector3f v2, Vector4f color) {
-        MODEL_TRIANGLE.setAttributeSubData(0, new float[]{v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z}); // test
+        MODEL_TRIANGLE.attribute(0).setBufferSubData(new float[]{v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z}); // test
         render(MODEL_TRIANGLE, Texture.UNIT, Vector3f.ZERO, Vector3f.ONE, Matrix3f.IDENTITY, color, true, true, GL_TRIANGLES);
     }
 

@@ -44,6 +44,69 @@ import static outskirts.util.IOUtils.*;
  * goo.des Data Essential Structure
  *
  */
+
+/*
+
+        dreamtowards.apt
+        dreamtowards.pax
+
+
+
+
+
+
+
+
+
+
+        dreamtowards.playerdata.gem
+        dreamtowards.gem GEM
+        dreamtowards.gel GEL
+        dreamtowards.gum GUM
+        dreamtowards.jam JAM
+        dreamtowards.jet JET
+        dreamtowards.vet VET
+        dreamtowards.jab JAB
+        dreamtowards.ivy IVY
+        dreamtowards.ode ODE
+        dreamtowards.pat PAT
+        dreamtowards.apo APO
+        dreamtowards.bln BLN -
+        dreamtowards.det DET
+        dreamtowards.dex DEX
+        dreamtowards.jim JIM
+        dreamtowards.lum LUM -lw
+        dreamtowards.lym LYM
+        dreamtowards.obe OBE
+        dreamtowards.obv OBV
+        dreamtowards.oca OCA
+        dreamtowards.ods ODS -norm
+        dreamtowards.odd ODD
+        dreamtowards.ope OPE -norm
+        dreamtowards.obb OBB
+        dreamtowards.oxy OXY -other field
+        dreamtowards.rav RAV -of
+        dreamtowards.rax RAX -of
+        dreamtowards.rya RYA
+        dreamtowards.tav TAV -sub
+        dreamtowards.vae VAE
+        dreamtowards.vax VAX
+        dreamtowards.zek ZEK  APOObject
+
+
+
+        dreamtowards.sap SAP -
+        dreamtowards.jay JAY -
+        dreamtowards.bal BAL -
+        dreamtowards.oba OBA -rou
+        dreamtowards.ken KEN -usrnm
+
+        dreamtowards.nux NUX
+        dreamtowards.vag VAG
+
+        dreamtowards.lar LAR
+        dreamtowards.olm OLM
+ */
 public class DST {
 
     private static final int VERS = 9;
