@@ -1,4 +1,6 @@
 package outskirts.event.client;
 
-public class ClientTickEvent {
+import outskirts.event.Event;
+
+public class ClientTickEvent extends Event {
 }

@@ -1,9 +1,5 @@
 package outskirts.client.gui;
 
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiMenu;
-import outskirts.client.gui.GuiText;
 import outskirts.util.Colors;
 import outskirts.util.vector.Vector2f;
 
@@ -20,7 +16,7 @@ public class GuiMenubar extends Gui {
         });
     }
 
-    public GuiMenu addMenu(String name, GuiMenu menu) {
+    public GuiPopupMenu addMenu(String name, GuiPopupMenu menu) {
 
         Gui btn = addGui(new GuiText("  "+name+"  "));
         btn.addOnClickListener(e -> {

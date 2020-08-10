@@ -6,7 +6,9 @@ import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.ReflectionUtils;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,36 +20,35 @@ public class EventBus {
 
     private static final Comparator<Handler> COMP_HANDLER_PRIORITY_DESC = Collections.reverseOrder(Comparator.comparingInt(Handler::priority));
 
-    //          Event  Handler[]
-    private Map<Class, List<Handler>> handlersMap = new HashMap<>();
+    private List<Handler> handlers;
 
+    public EventBus() {
+        this(ArrayList::new);
+    }
 
     /**
+     * @param handlerListFactory:
      *  for normal, just use default ArrayList for high-speed handler read/iteration.
      *  f needs dynamics register/unregister when handler is executing, can use CopyOnIterateArrayList..
      *  not use Suppler-Function-Factory because that though more convenient for init EventBus,
      *  but that'll make EventBus some little loose - misc field/setter. but inheritment
      */
-    private Supplier<List<Handler>> handlerListFactory = ArrayList::new;
+    public EventBus(Supplier<List> handlerListFactory) {
+        this.handlers = handlerListFactory.get();
+    }
 
-    public final EventBus listFactory(Supplier<List<Handler>> handlerListFactory) {
-        this.handlerListFactory = handlerListFactory;
-        return this;
+    public List<Handler> handlers() {
+        return Collections.unmodifiableList(handlers);
     }
 
     /**
      * the Mainly method of EventBus.
      * register a EventHandler as unit by a Lambda-Function(interface Consumer)
-     * @param eventClass a target event's class which you want receives
+     * @param eventclass the target event-class which you want to subscribe
      * @param function the handler
      */
-    public <E extends Event> Handler register(Class<E> eventClass, Consumer<E> function) {
-        List<Handler> handlers = handlersMap.get(eventClass);
-        if (handlers == null) {
-            handlersMap.put(eventClass, handlers = handlerListFactory.get());
-        }
-
-        Handler handler = new Handler(function);
+    public <E extends Event> Handler register(Class<E> eventclass, Consumer<E> function) {
+        Handler handler = new Handler(eventclass, function); handler.ptrbus = this;
         handlers.add(handler);
 
         //f last 2 handler had different priority
@@ -57,10 +58,12 @@ public class EventBus {
         }
         return handler;
     }
+    // unsafe when using (Event e) -> { accessing externalstackvari }.
     public final <E extends Event> Handler register(Consumer<E> function) {
-        // crazy powerful function..
-        Class eventClass = TypeResolver.resolveRawArguments(Consumer.class, function.getClass())[0];
-        return register(eventClass, function);
+        // crazy powerful func..
+        Class eventclass = TypeResolver.resolveRawArguments(Consumer.class, function.getClass())[0];
+        Log.LOGGER.info(eventclass);
+        return register(eventclass, function);
     }
 
     // for supports static class/methods, that may have some problem about unnecessary complexity
@@ -82,10 +85,10 @@ public class EventBus {
             if (annotation != null) {
                 Validate.isTrue(!Modifier.isStatic(method.getModifiers()), "static method is unsupported. (method: %s)", method.getName());
                 Validate.isTrue(method.getParameterCount() == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0]),
-                        "EventHandler method require only-one <? extends Event> param (method: %s)", method.getName());
+                        "EventHandler method requires only-one <? extends Event> param. (method: %s)", method.getName());
 
                 // EventHandler Info
-                Class eventClass = method.getParameterTypes()[0];
+                Class eventclass = method.getParameterTypes()[0];
                 int priority = annotation.priority();
                 boolean ignoreCancelled = annotation.ignoreCancelled();
                 Scheduler scheduler = resolveScheduler(annotation);
@@ -100,7 +103,7 @@ public class EventBus {
                     }
                 };
 
-                register(eventClass, function)
+                register(eventclass, function)
                         .priority(priority)
                         .ignoreCancelled(ignoreCancelled)
                         .unregisterTag(owner)
@@ -123,14 +126,8 @@ public class EventBus {
      * @throws IllegalStateException when nothing been unregistered
      */
     public EventBus unregister(Object functionOrUnregisterTag) {
-        boolean removed = false;
-        for (List<Handler> handlers : handlersMap.values()) {
-            if (handlers.removeIf(handler -> handler.function == functionOrUnregisterTag || handler.unregisterTag == functionOrUnregisterTag))
-                removed = true;
-        }
-        if (!removed) {
-            throw new IllegalStateException("Failed to unregister: not found an EventHandler that matches the function/unregisterTag ("+functionOrUnregisterTag.getClass()+").");
-        }
+        if (!handlers.removeIf(handler -> handler.function == functionOrUnregisterTag || handler.unregisterTag == functionOrUnregisterTag))
+            throw new IllegalStateException("Failed to unregister: not found a Handler that matches the function/unregisterTag. ("+functionOrUnregisterTag.getClass()+").");
         return this;
     }
 
@@ -140,13 +137,12 @@ public class EventBus {
      * // todo: reaally true==cancelled.?  may false == cancelled better.?
      */
     public boolean post(Event event) {
-        List<Handler> handlers = handlersMap.get(event.getClass());
-        if (handlers == null) // quick exit. if there are no handlers for this Event
-            return false;
+        Class eventclass = event.getClass();
 
-        for (Handler handler : handlers)
-        {
-            handler.invoke(event);
+        for (Handler handler : handlers) {
+            if (handler.eventclass == eventclass || handler.eventclass.isAssignableFrom(eventclass)) {
+                handler.invoke(event);
+            }
         }
 
         return Cancellable.isCancelled(event);
@@ -156,20 +152,22 @@ public class EventBus {
     public static final class Handler {
 
         private final Consumer function; // the handler execution function. Consumer<? extends Event>
+        private final Class eventclass;
         private int priority = EventHandler.DEF_PRIORITY; // bigger number, higher priority
         private boolean ignoreCancelled = EventHandler.DEF_IGNORE_CANCELLED; // if true, the handler'll receives cancelled events.
+        private EventBus ptrbus;
 
         private Scheduler scheduler = null; // if non-null, the handler'll be perform postpone/inside the scheduler thread.
         private Object unregisterTag = null;  // only for unregister search. you can unregister this handler by using the tag object to calls unregister() method
 
-        private Handler(Consumer function) {
+        private Handler(Class eventclass, Consumer function) {
+            this.eventclass = eventclass;
             this.function = function;
         }
 
         private void invoke(Event event) {
-            if (!ignoreCancelled && (event instanceof Cancellable) && ((Cancellable)event).isCancelled()) {
+            if (!ignoreCancelled && Cancellable.isCancelled(event))
                 return;
-            }
             if (scheduler == null || scheduler.inSchedulerThread())
             {
                 doInvoke(event);
@@ -196,7 +194,10 @@ public class EventBus {
         }
 
         public Handler priority(int priority) {
-            this.priority = priority;
+            if (this.priority != priority) {
+                this.priority = priority;
+                CollectionUtils.insertionSort(ptrbus.handlers, COMP_HANDLER_PRIORITY_DESC); // light weight sort.
+            }
             return this;
         }
         public Handler ignoreCancelled(boolean ignoreCancelled) {

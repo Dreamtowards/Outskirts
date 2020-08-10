@@ -1,5 +1,6 @@
 package outskirts.client.gui;
 
+import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Events;
 import outskirts.event.client.input.KeyboardEvent;
 import outskirts.util.Colors;
@@ -8,15 +9,28 @@ import outskirts.util.vector.Vector2f;
 import java.util.function.Consumer;
 
 //PopupMenu
-public class GuiMenu extends Gui {
+public class GuiPopupMenu extends Gui {
 
     private long lastShowMillis;
 
-    public GuiMenu() {
+    private GuiLayoutLinear itemlist;
+
+    {   setWrapChildren(true);
+
+        GuiPadding gPadding = addGui(new GuiPadding());
+        gPadding.getPadding().set(0, 6, 0, 6);
+        {
+            itemlist = gPadding.addGui(new GuiLayoutLinear(Vector2f.UNIT_Y));
+            itemlist.setWrapChildren(true);
+        }
+    }
+
+    public GuiPopupMenu() {
         hide();
 
-        addLayoutorLayoutLinear(Vector2f.UNIT_Y);
-        addLayoutorWrapChildren(16, 4, 16, 4);
+
+//        addLayoutorLayoutLinear(Vector2f.UNIT_Y);
+//        addLayoutorWrapChildren(16, 4, 16, 4);
 
         // when mouse-click in outside, hide the menu.
         addMouseButtonListener(e -> {
@@ -26,7 +40,7 @@ public class GuiMenu extends Gui {
         });
 
         addOnDrawListener(e -> {
-            drawRect(Colors.BLACK80, this);
+            drawRect(Colors.WHITE40, this);
         });
     }
 
@@ -41,7 +55,14 @@ public class GuiMenu extends Gui {
         setVisible(false);
     }
 
-    private static boolean isMouseInMenu(GuiMenu menu) {
+
+    public void addItem(Item guiItem) {
+
+        itemlist.addGui(guiItem);
+
+    }
+
+    private static boolean isMouseInMenu(GuiPopupMenu menu) {
         for (Gui item : menu.getChildren()) {
             if (item.isMouseOver()) {
                 return true;
@@ -53,16 +74,16 @@ public class GuiMenu extends Gui {
         return false;
     }
 
-    public static class GuiItem extends Gui {
+    public static class Item extends Gui {
 
-        public static GuiItem button(String text) {
-            return new GuiItem(text);
+        public static Item button(String text) {
+            return new Item(text);
         }
 
-        public static GuiItem bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
+        public static Item bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
             boolean[] checked = {ck};
             if (ck)onSwitch.accept(true);
-            GuiItem g = new GuiItem(text);
+            Item g = new Item(text);
             g.addOnClickListener(e -> {
                 checked[0] = !checked[0];
                 onSwitch.accept(checked[0]);
@@ -106,7 +127,7 @@ public class GuiMenu extends Gui {
 //        }
 //        private GuiMenu subMenu;
 
-        private GuiItem(String s) {
+        private Item(String s) {
             addGui(new GuiText(s));
             setHeight(16);
             setWidth(100);
@@ -144,7 +165,7 @@ public class GuiMenu extends Gui {
             });
         }
 
-        public GuiItem bindKey(int key) {
+        public Item bindKey(int key) {
             Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
                 if (e.getKeyState() && e.getKey() == key) {
                     performEvent(new OnClickEvent());

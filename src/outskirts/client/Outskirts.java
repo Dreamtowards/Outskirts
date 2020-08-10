@@ -1,12 +1,11 @@
 package outskirts.client;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.debug.*;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.ex.GuiTestWindowWidgets;
@@ -14,9 +13,9 @@ import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Camera;
-import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
+import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
@@ -30,12 +29,10 @@ import outskirts.storage.dat.DSTUtils;
 import outskirts.storage.DataMap;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -135,6 +132,46 @@ public class Outskirts {
 
         getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
         tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Downloads/tmptex.jpeg"));
+
+        Gui gParent = getRootGUI().addGui(new Gui());
+        gParent.addOnDrawListener(e -> Gui.drawRect(Colors.RED, gParent));
+        gParent.setWidth(100);
+        gParent.setHeight(100);
+        gParent.setX(100);
+        gParent.setY(100);
+        gParent.addLayoutorWrapChildren(1,1,1,1);
+
+        Gui gChild = gParent.addGui(new Gui());
+        gChild.addOnDrawListener(e -> Gui.drawRect(Colors.GREEN, gChild));
+        gChild.setWidth(50);
+        gChild.setHeight(50);
+        gChild.addLayoutorAlignParentLTRB(1, Float.NaN, 1, Float.NaN);
+
+        GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
+        menu.addItem(GuiPopupMenu.Item.button("Op1"));
+        menu.addItem(GuiPopupMenu.Item.button("Op2"));
+        menu.addItem(GuiPopupMenu.Item.button("Op3"));
+        menu.addItem(GuiPopupMenu.Item.button("Op4"));
+        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel1", true, b -> {}));
+        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel2", true, b -> {}));
+        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel3", true, b -> {}));
+
+        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
+
+            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
+
+
+                LOGGER.info("Show");
+
+                menu.show(getMouseX(), getMouseY());
+
+            }
+        });
+
+        Events.EVENT_BUS.register(Event.class, e -> {
+
+            LOGGER.info("Event: {}", e.getClass());
+        });
     }
     private Texture tmpTex;
 
@@ -166,6 +203,7 @@ public class Outskirts {
         profiler.push("render");
         {
             renderEngine.prepare();
+//            SystemUtils.sleep(1000);
 
             profiler.push("world");
             if (world != null) {
@@ -178,9 +216,10 @@ public class Outskirts {
             glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
 
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
+            rootGUI.onLayout();
             rootGUI.onDraw();
 
-            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 45);
+//            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 45);
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);

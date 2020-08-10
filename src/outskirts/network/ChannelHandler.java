@@ -30,7 +30,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<Packet> {
     /**
      * Packet EventBus in this Channel
      */
-    private EventBus eventBus = new EventBus().listFactory(CopyOnIterateArrayList::new);
+    private EventBus eventBus = new EventBus(CopyOnIterateArrayList::new);
 
     private String terminationReason = "Unknwon Reason.";
 

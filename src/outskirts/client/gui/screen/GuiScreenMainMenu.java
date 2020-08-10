@@ -1,8 +1,11 @@
 package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiTextBox;
+import outskirts.client.render.renderer.gui.GuiRenderer;
+import outskirts.util.Colors;
 import outskirts.world.WorldClient;
 
 public class GuiScreenMainMenu extends GuiScreen {
@@ -19,10 +22,11 @@ public class GuiScreenMainMenu extends GuiScreen {
             int baseLineX = (int)(Outskirts.getWidth() * 0.08f);
             int startY = (int)(Outskirts.getHeight() * 0.45f);
 
-//            GuiRenderer.PARAM_roundradius = 2;
-//            Gui.drawRect(Colors.BLACK, baseLineX-45, 10, 100, 100);
-//            tbTitle.setX(baseLineX).setY(64);
-            tbTitle.setVisible(false);
+            GuiRenderer.OP_roundradius = 2;
+            Gui.drawRect(Colors.BLACK, baseLineX-45, 10, 100, 100);
+            tbTitle.setX(baseLineX);
+            tbTitle.setY(64);
+//            tbTitle.setVisible(false);
 
             btnMultiplayer.setX(baseLineX);
             btnMultiplayer.setY(startY+=60);

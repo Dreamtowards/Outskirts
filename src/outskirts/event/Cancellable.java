@@ -11,6 +11,6 @@ public interface Cancellable {
     }
 
     static boolean isCancelled(Event event) {
-        return event instanceof Cancellable && ((Cancellable)event).isCancelled();
+        return event instanceof Cancellable && event.cancelled; // ((Cancellable)event).isCancelled();
     }
 }

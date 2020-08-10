@@ -15,7 +15,6 @@ import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.*;
 
@@ -37,7 +36,7 @@ public class Gui {
 
     private boolean hovered = false; // isHovered() setHovered()
 
-    /** when not VISIBLE, onDraw() will be not exec. */
+    /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
 
     private boolean clipChildren = false;
@@ -48,12 +47,15 @@ public class Gui {
     /** just a attachment */
     private Object tag;
 
+    /** size just fits can wrap all direct-children. */
+    private boolean wrapChildren = false;
+
     //they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
 
     private Gui parent;
     private List<Gui> children = new ArrayList<>();
 
-    private EventBus eventBus = new EventBus().listFactory(CopyOnIterateArrayList::new);
+    private EventBus eventBus = new EventBus(CopyOnIterateArrayList::new);
 
     public Gui() {
         this(0, 0, 0, 0);
@@ -180,6 +182,11 @@ public class Gui {
         setRelativeY(y - getParent().getY());
     }
 
+    public final void setXY(float x, float y) {  // TOOL METHOD
+        setX(x);
+        setY(y);
+    }
+
     public float getWidth() {
         if (!isVisible()) return 0;
         return width;
@@ -240,6 +247,13 @@ public class Gui {
     }
     public void setHover(boolean hovered) {
         this.hovered = hovered;
+    }
+
+    public boolean isWrapChildren() {
+        return wrapChildren;
+    }
+    public void setWrapChildren(boolean wrapChildren) {
+        this.wrapChildren = wrapChildren;
     }
 
     @Override
@@ -343,9 +357,27 @@ public class Gui {
 
 
     public final void onLayout() {
+        if (!isVisible()) return;
 
+        // layout children first or layout 'this' first.?
+        // cuz sometimes this size dependents children, but sometimes this size dependents parent.
+        performEvent(new OnLayoutEvent());
 
+        for (Gui child : children)
+            child.onLayout();
 
+        if (isWrapChildren())
+            _doSizeWrapChildren();
+    }
+
+    private void _doSizeWrapChildren() {
+        float mxxs=0, mxys=0;
+        for (Gui g : children) {
+            mxxs = Math.max(mxxs, g.getRelativeX()+g.getWidth());
+            mxys = Math.max(mxys, g.getRelativeY()+g.getHeight());
+        }
+        setWidth(mxxs);
+        setHeight(mxys);
     }
 
 
@@ -473,8 +505,8 @@ public class Gui {
     public final EventBus.Handler addOnDrawListener(Consumer<OnDrawEvent> listener) {
         return attachListener(OnDrawEvent.class, listener);
     }
-    public final EventBus.Handler addOnLayoutListener(Consumer<OnDrawEvent> listener) { // the event waiting to do related.
-        return attachListener(OnDrawEvent.class, listener).priority(EventPriority.HIGHEST);
+    public final EventBus.Handler addOnLayoutListener(Consumer<OnLayoutEvent> listener) {
+        return attachListener(OnLayoutEvent.class, listener);
     }
 
     // AlignParentLTRB
@@ -573,6 +605,8 @@ public class Gui {
 
     public static class OnDrawEvent extends GuiEvent { }
 
+    public static class OnLayoutEvent extends GuiEvent { }
+
     public static class OnClickEvent extends GuiEvent { }
 
 
@@ -665,6 +699,7 @@ public class Gui {
         Gui.drawTexture(texture, x+width-thickness, y+height-thickness, thickness, thickness, 0.5f, 0.5f, 0.5f, 0.5f); // Left-Bottom
 
 
+
     }
 
 
@@ -672,5 +707,34 @@ public class Gui {
     //////////////////////////// END GLOBAL DRAW ////////////////////////////
 
 
+
+
+    public static final class Insets {
+
+        public static final Insets ZERO = new Insets(0, 0, 0, 0);
+
+        public float left;
+        public float top;
+        public  float right;
+        public float bottom;
+
+        public Insets() {}
+
+        public Insets(float left, float top, float right, float bottom) {
+            set(left, top, right, bottom);
+        }
+
+        public Insets set(float left, float top, float right, float bottom) {
+            this.left = left;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+            return this;
+        }
+
+        public Insets set(Insets src) {
+            return set(src.left, src.top, src.right, src.bottom);
+        }
+    }
 
 }

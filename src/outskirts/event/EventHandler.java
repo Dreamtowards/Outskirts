@@ -11,7 +11,7 @@ public @interface EventHandler {
 
     int DEF_PRIORITY = EventPriority.NORMAL;
     boolean DEF_IGNORE_CANCELLED = false;
-    Class<?> DEF_SCHEDULER = Class.class;
+    Class<?> DEF_SCHEDULER = Void.class;
 
     int priority() default DEF_PRIORITY;
 
@@ -20,6 +20,6 @@ public @interface EventHandler {
     /**
      * which Class had { public static Scheduler getScheduler() } method.
      */
-    Class<?> scheduler() default Class.class; // DEF_SCHEDULER
+    Class<?> scheduler() default Void.class; // DEF_SCHEDULER
 
 }
