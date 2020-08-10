@@ -1,7 +1,10 @@
 
-.idea/out/
-.idea/workspace.xml
-logs/
-
 *.class
 *.DS_Store
+
+logs/
+.idea/out/
+.idea/workspace.xml
+
+Thumbs.db
+

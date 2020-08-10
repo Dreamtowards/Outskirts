@@ -7,8 +7,8 @@ java
 -DsocksProxyHost=localhost
 -DsocksProxyPort=1080
 -Djava.library.path=libraries/platform/mac
--XstartOnFirstThread
--Djava.awt.headless=true
+// OP OSX -XstartOnFirstThread
+// OP OSX -Djava.awt.headless=true
 -Xms1024M
 -Xmx1024M
 -cp ".idea/out/production/Outskirts"
