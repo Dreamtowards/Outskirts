@@ -9,6 +9,7 @@ import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2i;
 
 import java.util.function.Consumer;
@@ -143,8 +144,8 @@ public class GuiTextBox extends Gui {
         });
 
         getText().addOnTextChangedListener(e -> {
-            setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, texts().length()-1));
-            setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, texts().length()-1));
+            setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, texts().length()));
+            setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, texts().length()));
         });
     }
 
