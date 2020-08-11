@@ -87,38 +87,43 @@ public class FontRenderer extends Renderer {
     }
 
     public Vector2i calculateBound(String texts, int textHeight) {
+        int maxX = 0;
         int startX = 0;
         int startY = 0;
         for (int i = 0;i < texts.length();i++) {
             char ch = texts.charAt(i);
-            float widthRatio = charWidth(ch);
-            startX += (int)(widthRatio * textHeight) + GAP_CHAR;
+            float charWidth = charWidth(ch) * textHeight;
+            startX += (int)charWidth + GAP_CHAR;
             if (ch == '\n') {
+                maxX = Math.max(maxX, startX);
                 startX=0;
                 startY+=textHeight+GAP_LINE;
             }
         }
         startY += textHeight;
-        return new Vector2i(startX, startY);
+        maxX = Math.max(maxX, startX); // for supports single line. (no '\n')
+        return new Vector2i(maxX, startY);
     }
 
     /**
      * calculate text index by text-display position.
-     * @param posX,posY relative point position on text.
-     * @return 0 - text.length [0, max+1]
+     * @param pX,pY relative point on text.
+     * @return [0, text.length] or say [0, max+1]
      */
-    public int calculateTextIndex(String text, float textHeight, float posX, float posY) {
+    public int calculateTextIndex(String text, float textHeight, float pX, float pY) {
+        if (pY < 0) return 0;
         int pointerX = 0;
         int pointerY = 0;
         for (int i = 0;i < text.length();i++) {
             char ch = text.charAt(i);
-
             float charWidth = charWidth(ch) * textHeight;
 
-            if (posY >= pointerY && posY < pointerY + textHeight + GAP_LINE) { // in curr line
-                if (posX >= pointerX && posX <= pointerX + charWidth/2) { // in curr char left-half
+            if (pY >= pointerY && pY < pointerY + textHeight + GAP_LINE) { // on the line
+                if (pointerX == 0 && pX < 0) return i;
+                else if (ch == '\n' && pX > pointerX) return i;
+                if (pX >= pointerX && pX <= pointerX + charWidth/2) { // in curr char left-half
                     return i;
-                } else if (posX > pointerX + charWidth/2 && posX < pointerX + charWidth + GAP_CHAR) {
+                } else if (pX > pointerX + charWidth/2 && pX < pointerX + charWidth + GAP_CHAR) {
                     return i+1;
                 }
             }
@@ -130,7 +135,7 @@ public class FontRenderer extends Renderer {
                 pointerX += charWidth + GAP_CHAR;
             }
         }
-        return -1;
+        return text.length();
     }
 
     /**
