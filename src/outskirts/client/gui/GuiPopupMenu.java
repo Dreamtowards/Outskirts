@@ -1,6 +1,5 @@
 package outskirts.client.gui;
 
-import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Events;
 import outskirts.event.client.input.KeyboardEvent;
 import outskirts.util.Colors;
@@ -13,14 +12,13 @@ public class GuiPopupMenu extends Gui {
 
     private long lastShowMillis;
 
-    private GuiLayoutLinear itemlist;
+    private GuiLinearLayout itemlist;
 
     {   setWrapChildren(true);
 
-        GuiPadding gPadding = addGui(new GuiPadding());
-        gPadding.getPadding().set(0, 6, 0, 6);
+        GuiPadding gPadding = addGui(new GuiPadding(new Insets(0, 6, 0, 6)));
         {
-            itemlist = gPadding.addGui(new GuiLayoutLinear(Vector2f.UNIT_Y));
+            itemlist = gPadding.addGui(new GuiLinearLayout(Vector2f.UNIT_Y));
             itemlist.setWrapChildren(true);
         }
     }

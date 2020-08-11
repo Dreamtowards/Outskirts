@@ -1,20 +1,14 @@
 package outskirts.physics.dynamics.constraint.constraintsolver;
 
-import outskirts.client.Outskirts;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.physics.dynamics.constraint.Constraint;
-import outskirts.util.Colors;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
 import java.util.List;
-
-import static outskirts.util.logging.Log.LOGGER;
 
 /**
  * 1. Preparation the Positional Constration Equation.

@@ -1,10 +1,13 @@
 package outskirts.client.gui;
 
+import outskirts.client.Loader;
 import outskirts.client.Outskirts;
+import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
+import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2i;
 
@@ -13,6 +16,8 @@ import java.util.function.Consumer;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GuiTextBox extends Gui {
+
+    private static final Texture TEX_BACKGROUND_NORMAL = Loader.loadTexture(new Identifier("textures/gui/textbox/indent.png").getInputStream());
 
     private int cursorPosition;
 
@@ -115,7 +120,7 @@ public class GuiTextBox extends Gui {
         });
 
         addOnDrawListener(e -> {
-            drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
+            drawTexture(TEX_BACKGROUND_NORMAL, this);
 
             if (getCursorPosition() > texts().length())
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...

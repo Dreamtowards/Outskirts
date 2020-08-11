@@ -6,16 +6,15 @@ import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.debug.*;
-import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.gui.ex.GuiTestWindowWidgets;
-import outskirts.client.gui.ex.GuiWindow;
+import outskirts.client.gui.ui.debug.*;
+import outskirts.client.gui.ui.ex.GuiRoot;
+import outskirts.client.gui.ui.ex.GuiTestWindowWidgets;
+import outskirts.client.gui.ui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Camera;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
-import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
@@ -131,7 +130,7 @@ public class Outskirts {
         startScreen(GuiScreenMainMenu.INSTANCE);
 
         getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
-        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Downloads/tmptex.jpeg"));
+        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/textures/gui/bg/book_back.png"));
 
         GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
         menu.addItem(GuiPopupMenu.Item.button("Op1"));
@@ -199,7 +198,7 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
 
-//            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 100, 100, 45);
+            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 400, 400, 80);
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);

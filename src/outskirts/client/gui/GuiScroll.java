@@ -6,6 +6,7 @@ import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.vector.Vector2f;
 
+// GuiScrollBox
 public class GuiScroll extends Gui {
 
     /**

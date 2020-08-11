@@ -5,7 +5,7 @@ import outskirts.util.vector.Vector2f;
 
 public class GuiMenubar extends Gui {
 
-    private GuiLayoutLinear menus = addGui(new GuiLayoutLinear(Vector2f.UNIT_X)); {
+    private GuiLinearLayout menus = addGui(new GuiLinearLayout(Vector2f.UNIT_X)); {
         menus.setWrapChildren(true);
         menus.setRelativeX(12); // just take a start space.
     }

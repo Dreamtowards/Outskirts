@@ -656,8 +656,15 @@ public class Gui {
         Gui.drawTexture(texture, x, y+height-thickness, thickness, thickness, 0, 0.5f, 0.5f, 0.5f); // Left-Bottom
         Gui.drawTexture(texture, x+width-thickness, y+height-thickness, thickness, thickness, 0.5f, 0.5f, 0.5f, 0.5f); // Left-Bottom
 
+        Gui.drawTexture(texture, x, y+thickness, thickness, height-thickness-thickness, 0, 0.5f, 0.5f, 0f); // Left
+        Gui.drawTexture(texture, x+thickness, y, width-thickness-thickness, thickness, 0.5f, 0, 0, 0.5f); // Top
+        Gui.drawTexture(texture, x+width-thickness, y+thickness, thickness, height-thickness-thickness, 0.5f, 0.5f, 0.5f, 0); // Right
+        Gui.drawTexture(texture, x+thickness, y+height-thickness, width-thickness-thickness, thickness, 0.5f, 0.5f, 0, 0.5f); // Bottom
 
-
+        Gui.drawTexture(texture, x+thickness, y+thickness, width-thickness-thickness, height-thickness-thickness, 0.5f, 0.5f, 0, 0); // Center
+    }
+    public static void drawCornerStretchTexture(Texture texture, Gui g, float thickness) {
+        drawCornerStretchTexture(texture, g.getX(), g.getY(), g.getWidth(), g.getHeight(), thickness);
     }
 
 

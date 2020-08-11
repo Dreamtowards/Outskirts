@@ -1,6 +1,6 @@
 package outskirts.physics.extras.quickhull;
 
-import outskirts.client.gui.debug.GuiVert3D;
+import outskirts.client.gui.ui.debug.GuiVert3D;
 import outskirts.util.*;
 import outskirts.util.vector.Vector3f;
 
