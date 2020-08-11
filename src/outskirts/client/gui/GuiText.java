@@ -33,7 +33,7 @@ public final class GuiText extends Gui {
         updateTextBound(this);
 
         addOnDrawListener(e -> {
-            drawString(text, getX() + textOffset.x, getY() + textOffset.y, textColor, textHeight);
+            drawString(text, getX(), getY(), textColor, textHeight);
         }).priority(EventPriority.LOW); // let text always overlay
     }
 
@@ -63,10 +63,6 @@ public final class GuiText extends Gui {
 
     public Vector4f getTextColor() {
         return textColor;
-    }
-
-    public Vector2f getTextOffset() {
-        return textOffset;
     }
 
     public static void updateTextBound(GuiText guiText) {

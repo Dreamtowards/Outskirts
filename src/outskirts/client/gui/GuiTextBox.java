@@ -30,7 +30,6 @@ public class GuiTextBox extends Gui {
 
     private Gui cursor = addGui(new Gui()); {
         cursor.setWidth(3);
-        cursor.setHeight(getText().getTextHeight());
         cursor.addOnDrawListener(e -> {
             if (isFocused() && ((System.currentTimeMillis() / 500) % 2 == 0 || lastFocusedTime > System.currentTimeMillis() - 600)) {
                 drawRect(Colors.WHITE, cursor);
@@ -39,13 +38,16 @@ public class GuiTextBox extends Gui {
     }
 
 
-    public GuiTextBox() {}
+    public GuiTextBox() {
+        this("");
+    }
 
     public GuiTextBox(String s) {
         getText().setText(s);
+        getText().setRelativeXY(8, 8);
 
-        setWidth(120);
-        setHeight(16);
+        setWidth(180);
+        setHeight(32);
 
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && isMouseOver()) {
@@ -120,7 +122,7 @@ public class GuiTextBox extends Gui {
         });
 
         addOnDrawListener(e -> {
-            drawTexture(TEX_BACKGROUND_NORMAL, this);
+            drawCornerStretchTexture(TEX_BACKGROUND_NORMAL, this, 8);
 
             if (getCursorPosition() > texts().length())
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
@@ -129,13 +131,14 @@ public class GuiTextBox extends Gui {
             Vector2i cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), null);
             cursor.setX(getText().getX() + cursorPos.x);
             cursor.setY(getText().getY() + cursorPos.y);
+            cursor.setHeight(getText().getTextHeight());
 
             // draw selection
             Vector2i TMP_CACHE = new Vector2i();
             for (int i = getMinSelection();i < getMaxSelection();i++) {
                 Vector2i pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
                 int charWidth = (int)(Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight());
-                drawRect(Colors.WHITE20, getX() + getText().getRelativeX() + pos.x, getY() + getText().getRelativeY() + pos.y, charWidth + FontRenderer.GAP_CHAR, getText().getTextHeight());
+                drawRect(Colors.WHITE20, getText().getX() + pos.x, getText().getY() + pos.y, charWidth + FontRenderer.GAP_CHAR, getText().getTextHeight());
             }
         });
 

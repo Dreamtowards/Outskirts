@@ -198,7 +198,7 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
 
-            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 400, 400, 80);
+//            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 400, 400, 80);
 
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
