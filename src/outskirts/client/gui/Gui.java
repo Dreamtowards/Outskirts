@@ -533,37 +533,6 @@ public class Gui {
                 setRelativeY((getParent().getHeight()-getHeight())*rry);
         });
     }
-    public final void addLayoutorLayoutLinear(Vector2f dir) {
-        addOnLayoutListener(e -> {
-            float rx=0, ry=0;
-            for (Gui g : getChildren()) {
-                g.setRelativeX(rx);
-                g.setRelativeY(ry);
-                rx += dir.x * g.getWidth();
-                ry += dir.y * g.getHeight();
-            }
-        });
-    }
-    public final void addLayoutorWrapChildren(float pleft, float ptop, float pright, float pbottom) {
-        addOnLayoutListener(e -> {
-            float mxRelRight=0, mxRelBottom=0, mnRelX=Float.MAX_VALUE, mnRelY=Float.MAX_VALUE;
-            for (Gui g : getChildren()) {
-                mxRelRight = Math.max(mxRelRight, g.getRelativeX()+g.getWidth());
-                mxRelBottom = Math.max(mxRelBottom, g.getRelativeY()+g.getHeight());
-                mnRelX = Math.min(mnRelX, g.getRelativeX());
-                mnRelY = Math.min(mnRelY, g.getRelativeY());
-            }
-            for (Gui g : getChildren()) {
-                g.setRelativeX(g.getRelativeX()-mnRelX+pleft);
-                g.setRelativeY(g.getRelativeY()-mnRelY+ptop);
-            }
-            setWidth(mxRelRight-mnRelX+pleft+pright);
-            setHeight(mxRelBottom-mnRelY+ptop+pbottom);
-        });
-    }
-    public final void addLayoutorWrapChildren() {
-        addLayoutorWrapChildren(0,0,0,0);
-    }
     /**
      * A module tool for Mouse-Dragging
      * onDragging() when MouseOver-pressed AND moving until release pressing

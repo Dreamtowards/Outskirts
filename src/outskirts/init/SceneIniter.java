@@ -8,7 +8,7 @@ import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.extras.quickhull.QuickHull;
-import outskirts.util.misc.PlacementUtils;
+import outskirts.util.mex.PlacementUtils;
 import outskirts.world.WorldClient;
 
 import java.io.FileInputStream;

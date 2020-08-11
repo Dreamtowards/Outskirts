@@ -133,20 +133,6 @@ public class Outskirts {
         getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
         tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Downloads/tmptex.jpeg"));
 
-        Gui gParent = getRootGUI().addGui(new Gui());
-        gParent.addOnDrawListener(e -> Gui.drawRect(Colors.RED, gParent));
-        gParent.setWidth(100);
-        gParent.setHeight(100);
-        gParent.setX(100);
-        gParent.setY(100);
-        gParent.addLayoutorWrapChildren(1,1,1,1);
-
-        Gui gChild = gParent.addGui(new Gui());
-        gChild.addOnDrawListener(e -> Gui.drawRect(Colors.GREEN, gChild));
-        gChild.setWidth(50);
-        gChild.setHeight(50);
-        gChild.addLayoutorAlignParentLTRB(1, Float.NaN, 1, Float.NaN);
-
         GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
         menu.addItem(GuiPopupMenu.Item.button("Op1"));
         menu.addItem(GuiPopupMenu.Item.button("Op2"));
@@ -166,11 +152,6 @@ public class Outskirts {
                 menu.show(getMouseX(), getMouseY());
 
             }
-        });
-
-        Events.EVENT_BUS.register(Event.class, e -> {
-
-            LOGGER.info("Event: {}", e.getClass());
         });
     }
     private Texture tmpTex;
@@ -203,7 +184,6 @@ public class Outskirts {
         profiler.push("render");
         {
             renderEngine.prepare();
-//            SystemUtils.sleep(1000);
 
             profiler.push("world");
             if (world != null) {

@@ -7,19 +7,19 @@ import outskirts.util.vector.Vector2f;
 public class GuiTestWindowWidgets extends Gui {
 
     {
-        addLayoutorLayoutLinear(new Vector2f(0, 2));
+        GuiLayoutLinear linear = addGui(new GuiLayoutLinear(Vector2f.UNIT_Y, new Vector2f(0, 10)));
 
-        addGui(new GuiButton("GuiButton Text"));
+        linear.addGui(new GuiButton("Text"));
 
-        addGui(new GuiCheckBox("GuiCheckBox"));
+        linear.addGui(new GuiCheckBox("CheckBox"));
 
         // menu, menubar
 
         // scroll
 
-        addGui(new GuiSlider());
+        linear.addGui(new GuiSlider());
 
-        addGui(new GuiTextBox("GuiTextField"));
+        linear.addGui(new GuiTextBox("GuiTextBox"));
     }
 
 }

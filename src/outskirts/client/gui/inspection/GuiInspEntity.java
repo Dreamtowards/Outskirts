@@ -4,6 +4,8 @@ import javafx.util.Pair;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiLayoutLinear;
+import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.inspection.setter.GuiSetterScalars;
 import outskirts.entity.Entity;
@@ -25,33 +27,17 @@ public class GuiInspEntity extends Gui {
 
     public static GuiInspEntity INSTANCE = new GuiInspEntity();
 
+
+
+
     public Entity currentEntity = NULL_ENTITY;
 
+    private GuiLayoutLinear terms;
+
     {
-        Gui rigidbodyInsp = addGui(new Gui());
-
-        {
-            GuiSetterScalars rbOrigin = GuiSetterScalars.forVector3f("Origin", () -> currentEntity.getRigidBody().transform().origin);
-            GuiSetterScalars rbGravity = GuiSetterScalars.forVector3f("Gravity", () -> currentEntity.getRigidBody().getGravity());
-            GuiSetterScalars rbMass = new GuiSetterScalars("Mass", new Pair<>(() -> currentEntity.getRigidBody().getMass(), f -> currentEntity.getRigidBody().setMass(f)));
-            GuiSetterScalars rbRestitution = new GuiSetterScalars("Restitution", new Pair<>(() -> currentEntity.getRigidBody().getRestitution(), f -> currentEntity.getRigidBody().setRestitution(f)));
-            GuiSetterScalars rbFriction = new GuiSetterScalars("Friction", new Pair<>(() -> currentEntity.getRigidBody().getFriction(), f -> currentEntity.getRigidBody().setFriction(f)));
-
-
-            rigidbodyInsp.addLayoutorLayoutLinear(new Vector2f(0, 1.2f));
-            rigidbodyInsp.addLayoutorWrapChildren(4,4,4,4);
-            rigidbodyInsp.addGui(rbOrigin);
-            rigidbodyInsp.addGui(rbGravity);
-            rigidbodyInsp.addGui(rbMass);
-            rigidbodyInsp.addGui(rbRestitution);
-            rigidbodyInsp.addGui(rbFriction);
-        }
-
-    }
-//    private GuiText entityinfo = addGui(new GuiText().setHeight(16));
-    {
-        addLayoutorLayoutLinear(new Vector2f(0, 1.2f));
-        addLayoutorWrapChildren(8, 8, 8, 8);
+        terms = addGui(new GuiPadding(new Insets(8, 8, 8, 8)))
+                .addGui(new GuiLayoutLinear(new Vector2f(0, 1.2f)));
+        terms.setWrapChildren(true);
 
         addOnDrawListener(e -> {
             if (Outskirts.isKeyDown(GLFW.GLFW_KEY_P)) {  // picking
@@ -73,6 +59,26 @@ public class GuiInspEntity extends Gui {
 
 //            entityinfo.setText(String.format("currentEntity: [%s] %s", currentEntity.getRegistryID(), currentEntity.getClass().getSimpleName()));
         });
+
+        {
+            Gui inspRigidbody = terms.addGui(new GuiPadding(new Insets(4, 4, 4, 4)))
+                    .addGui(new GuiLayoutLinear(new Vector2f(0, 1.2f)));
+            inspRigidbody.setWrapChildren(true);
+
+            GuiSetterScalars rbOrigin = GuiSetterScalars.forVector3f("Origin", () -> currentEntity.getRigidBody().transform().origin);
+            GuiSetterScalars rbGravity = GuiSetterScalars.forVector3f("Gravity", () -> currentEntity.getRigidBody().getGravity());
+            GuiSetterScalars rbMass = new GuiSetterScalars("Mass", new Pair<>(() -> currentEntity.getRigidBody().getMass(), f -> currentEntity.getRigidBody().setMass(f)));
+            GuiSetterScalars rbRestitution = new GuiSetterScalars("Restitution", new Pair<>(() -> currentEntity.getRigidBody().getRestitution(), f -> currentEntity.getRigidBody().setRestitution(f)));
+            GuiSetterScalars rbFriction = new GuiSetterScalars("Friction", new Pair<>(() -> currentEntity.getRigidBody().getFriction(), f -> currentEntity.getRigidBody().setFriction(f)));
+
+            inspRigidbody.addGui(rbOrigin);
+            inspRigidbody.addGui(rbGravity);
+            inspRigidbody.addGui(rbMass);
+            inspRigidbody.addGui(rbRestitution);
+            inspRigidbody.addGui(rbFriction);
+
+        }
+
     }
 
 }

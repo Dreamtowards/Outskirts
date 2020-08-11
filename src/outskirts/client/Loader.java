@@ -10,7 +10,7 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.logging.Log;
-import outskirts.util.misc.VerticesUtils;
+import outskirts.util.mex.VerticesUtils;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 

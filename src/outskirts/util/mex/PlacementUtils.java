@@ -1,4 +1,4 @@
-package outskirts.util.misc;
+package outskirts.util.mex;
 
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.RigidBody;

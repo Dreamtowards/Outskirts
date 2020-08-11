@@ -1,6 +1,5 @@
 package outskirts.client.gui;
 
-import outskirts.event.EventPriority;
 import outskirts.util.vector.Vector2f;
 
 public class GuiLayoutLinear extends Gui {
