@@ -27,7 +27,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Gui {
 
-    private float x; //actually is relative-x   should use vector.?
+    private float x; // actually is relative-x   should use vector.?
     private float y;
     private float width;
     private float height;
@@ -279,17 +279,6 @@ public class Gui {
 
     public static boolean isPointOver(int pointX, int pointY, Gui gui) {
         return pointX >= gui.getX() && pointX < gui.getX() + gui.getWidth() && pointY >= gui.getY() && pointY < gui.getY() + gui.getHeight();
-    }
-
-    public static Vector2f calculateChildrenBound(Gui parent) {
-        Vector2f bound = new Vector2f();
-        for (int i = 0;i < parent.getChildCount();i++) {
-            Gui child = parent.getGui(i);
-
-            bound.x = Math.max(bound.x, child.getRelativeX() + child.getWidth());
-            bound.y = Math.max(bound.y, child.getRelativeY() + child.getHeight());
-        }
-        return bound;
     }
 
     /**
