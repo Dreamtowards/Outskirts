@@ -30,7 +30,6 @@ public final class GuiText extends Gui {
 
     public GuiText(String t) {
         setText(t);
-        updateTextBound(this);
 
         addOnDrawListener(e -> {
             drawString(text, getX(), getY(), textColor, textHeight);
@@ -65,17 +64,11 @@ public final class GuiText extends Gui {
         return textColor;
     }
 
-    public static void updateTextBound(GuiText guiText) {
+    private static void updateTextBound(GuiText guiText) {
         Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
 
         guiText.setWidth(bound.x);
         guiText.setHeight(bound.y);
-    }
-
-    public static void updateTextToCenter(GuiText guiText) {
-//        Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
-//
-//        guiText.getTextOffset().set((guiText.getWidth() - bound.x) / 2, (guiText.getHeight() - bound.y) / 2);
     }
 
     public final EventBus.Handler addOnTextChangeListener(Consumer<TextChangeEvent> listener) {

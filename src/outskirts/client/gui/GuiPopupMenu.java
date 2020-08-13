@@ -26,7 +26,6 @@ public class GuiPopupMenu extends Gui {
     public GuiPopupMenu() {
         hide();
 
-
 //        addLayoutorLayoutLinear(Vector2f.UNIT_Y);
 //        addLayoutorWrapChildren(16, 4, 16, 4);
 

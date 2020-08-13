@@ -51,7 +51,7 @@ public class FontRenderer extends Renderer {
 
     public void renderString(String text, float x, float y, int textHeight, Vector4f color, boolean renderShadow) {
         if (renderShadow) {
-            int off = textHeight / 8;
+            int off = textHeight / 10; // 8
             renderString(text, x+off, y+off, textHeight, Colors.BLACK40, false);
         }
         Vector2f pointer = new Vector2f(x, y);

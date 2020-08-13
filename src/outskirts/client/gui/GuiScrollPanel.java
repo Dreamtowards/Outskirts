@@ -1,13 +1,11 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
-import outskirts.util.Colors;
-import outskirts.util.Maths;
-import outskirts.util.Validate;
+import outskirts.util.*;
 import outskirts.util.vector.Vector2f;
 
 // GuiScrollBox
-public class GuiScroll extends Gui {
+public class GuiScrollPanel extends Gui {
 
     /**
      * scroll value. xy <= 0
@@ -16,7 +14,7 @@ public class GuiScroll extends Gui {
 
     private float scrollSensitivity = 1f;
 
-    public GuiScroll() {
+    public GuiScrollPanel() {
         setContentGui(new Gui());
 
         setScrollHandlerGui(GuiScrollHandle.AXIS_X, new GuiScrollHandle(GuiScrollHandle.AXIS_X));
@@ -44,8 +42,8 @@ public class GuiScroll extends Gui {
 
     private void clampScrollOffset() {
         Gui contentGui = getContentGui();
-        scrollOffset.x = Maths.clamp(scrollOffset.x, Math.min(getWidth() - contentGui.getWidth(), 0), 0);
-        scrollOffset.y = Maths.clamp(scrollOffset.y, Math.min(getHeight() - contentGui.getHeight(), 0), 0);
+        scrollOffset.x = Maths.clamp(scrollOffset.x, -Math.max(contentGui.getWidth() - getWidth(), 0), 0);
+        scrollOffset.y = Maths.clamp(scrollOffset.y, -Math.max(contentGui.getHeight() - getHeight(), 0), 0);
     }
 
     public Vector2f getScrollOffset() {
@@ -94,7 +92,7 @@ public class GuiScroll extends Gui {
             this.axis = axis;
 
             addOnDraggingListener((dx, dy) -> {
-                GuiScroll owner = getParent();
+                GuiScrollPanel owner = getParent();
                 Gui contentGui = owner.getContentGui();
 
                 if (axis == AXIS_X) {
@@ -109,7 +107,7 @@ public class GuiScroll extends Gui {
             });
 
             addOnDrawListener(e -> {
-                GuiScroll owner = getParent();
+                GuiScrollPanel owner = getParent();
                 Gui contentGui = owner.getContentGui();
                 if (axis == AXIS_X) {
                     float viewPercentX = owner.getWidth() / contentGui.getWidth();

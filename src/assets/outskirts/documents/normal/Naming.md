@@ -1,6 +1,0 @@
-
-## Naming
-
-#### "Plural" Secondary
-
-#### 

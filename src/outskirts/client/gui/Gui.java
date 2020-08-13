@@ -78,7 +78,7 @@ public class Gui {
         });
         // OnClickEvent
         addMouseButtonListener(e -> {
-            if (isVisible() && isEnable() && e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && Gui.isMouseOver(this)) {
+            if (isVisible() && isEnable() && !e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && Gui.isMouseOver(this)) {
                 performEvent(new OnClickEvent());
             }
         });
@@ -530,7 +530,7 @@ public class Gui {
      * if (isMouseOver()) position += mouse.deltaXY;
      *
      * cause f mouse move too fast, the tricking will be lose,
-     * and this way f mouse out gui border, mouse will not be tricking continue
+     * and this way f mouse out gui border, mouse will not be tricking continue.
      */
     public final void addOnDraggingListener(BiConsumer<Float, Float> ondragging, Consumer<Boolean> ondragstatechanged, Predicate<MouseButtonEvent> predictCanDrag) {
 //        checkTrigger_OnDragging();

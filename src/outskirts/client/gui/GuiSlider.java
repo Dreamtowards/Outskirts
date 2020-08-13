@@ -18,10 +18,9 @@ public class GuiSlider extends Gui {
     private float userMinValue = 0;
     private float userMaxValue = 100;
 
-    private Gui dragGui = addGui(new Gui()); {
-        dragGui.addOnDraggingListener((dx, dy) -> {
+    private GuiDrag dragGui = addGui(new GuiDrag()); {
+        dragGui.addOnDraggingListener(e -> {
             setValue(calculateCurrentCursorValue());
-            dragGui.setRelativeX( value*(getWidth()-dragGui.getWidth()) );
         });
         dragGui.setWidth(10);
         dragGui.setHeight(16);
@@ -31,10 +30,15 @@ public class GuiSlider extends Gui {
         setWidth(100);
         setHeight(16);
 
-        addOnClickListener(e -> {
-            GuiButton.playClickSound();
-            setValue(calculateCurrentCursorValue());
+        GuiButton.initOnMouseDownClickSound(this);
+
+        addMouseButtonListener(e -> {
+            if (e.getMouseButton() == 0 && e.getButtonState() && isHover()) {
+                dragGui.setDragging(true);
+                setValue(calculateCurrentCursorValue());
+            }
         });
+
         addOnDrawListener(e -> {
 //            GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_DISABLE, getX(), getY(), getWidth(), getHeight());
             drawRect(isMouseOver()?Colors.GRAY:Colors.BLACK, getX(), getY()+7, getWidth(), 2);
@@ -42,8 +46,8 @@ public class GuiSlider extends Gui {
 //                drawRect(Colors.WHITE05, getX(), getY(), getWidth(), getHeight());
 
             // draw dragGui
-            GuiButton.drawButtonTexture(dragGui.isMouseOver()?GuiButton.TEXTURE_BUTTON_HOVER:GuiButton.TEXTURE_BUTTON_NORMAL,
-                    dragGui.getX(), dragGui.getY(), dragGui.getWidth(), dragGui.getHeight());
+            drawCornerStretchTexture(isHover()?GuiButton.TEX_BUTTON_BACKGROUND_HOVER:GuiButton.TEX_BUTTON_BACKGROUND,
+                    dragGui, 6);
         });
     }
 
@@ -83,6 +87,8 @@ public class GuiSlider extends Gui {
         this.value = Maths.clamp(value, 0.0f, 1.0f);
         if (oldValue != this.value) {
             performEvent(new ValueChangedEvent());
+
+            dragGui.setRelativeX( value*(getWidth()-dragGui.getWidth()) );
         }
     }
 

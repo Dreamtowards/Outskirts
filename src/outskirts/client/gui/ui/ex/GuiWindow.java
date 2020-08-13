@@ -2,8 +2,10 @@ package outskirts.client.gui.ui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiScroll;
+import outskirts.client.gui.GuiDrag;
+import outskirts.client.gui.GuiScrollPanel;
 import outskirts.util.Colors;
+import outskirts.util.Maths;
 
 /**
  * should not be a Entity Window.
@@ -14,7 +16,7 @@ public final class GuiWindow extends Gui {
     private static final float WIN_HANDLER_HEIGHT = 32;
 
     public GuiWindow(Gui main) {
-        setX(100+(float)Math.random()*200);
+        setX(100+ Maths.floor((float)Math.random()*200));
         setY(100);
         setWidth(400);
         setHeight(400);
@@ -22,12 +24,12 @@ public final class GuiWindow extends Gui {
         String title = main.getClass().getSimpleName();
 
         {
-            Gui wHandler = addGui(new Gui());
+            GuiDrag wHandler = addGui(new GuiDrag());
             wHandler.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
             wHandler.setHeight(WIN_HANDLER_HEIGHT);
-            wHandler.addOnDraggingListener((dx, dy) -> {
-                setX(getX()+dx);
-                setY(getY()+dy);
+            wHandler.addOnDraggingListener(e -> {
+                setX(getX()+e.dx);
+                setY(getY()+e.dy);
             });
             wHandler.addOnDrawListener(e -> {
                 drawRect(Colors.WHITE10, wHandler);
@@ -50,11 +52,11 @@ public final class GuiWindow extends Gui {
             }
         }
         {
-            addGui(new GuiScroll().setContentGui(main)).addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
+            addGui(new GuiScrollPanel().setContentGui(main)).addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
         }
         {
             float SIZER_SZ = 8;
-            Gui wSizer = addGui(new Gui());
+            GuiDrag wSizer = addGui(new GuiDrag());
             wSizer.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, -SIZER_SZ/2f, -SIZER_SZ/2f);
             wSizer.setWidth(SIZER_SZ);
             wSizer.setHeight(SIZER_SZ);
@@ -62,9 +64,9 @@ public final class GuiWindow extends Gui {
                 if (wSizer.isMouseOver())
                     drawRectBorder(Colors.WHITE40, wSizer, 1);
             });
-            wSizer.addOnDraggingListener((dx, dy) -> {
-                setWidth(getWidth()+dx);
-                setHeight(getHeight()+dy);
+            wSizer.addOnDraggingListener(e -> {
+                setWidth(getWidth()+e.dx);
+                setHeight(getHeight()+e.dy);
             });
         }
 

@@ -1,6 +1,8 @@
 package outskirts.client.gui;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
+import outskirts.client.Outskirts;
 import outskirts.client.audio.AudioSource;
 import outskirts.client.material.Texture;
 import outskirts.init.Sounds;
@@ -12,9 +14,9 @@ public class GuiButton extends Gui {
 
     private static AudioSource BUTTON_AUDIO = AudioSource.alfGenSource();
 
-    public static Texture TEXTURE_BUTTON_NORMAL = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_normal.png").getInputStream());
-    static Texture TEXTURE_BUTTON_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_hover.png").getInputStream());
-    static Texture TEXTURE_BUTTON_DISABLE = Loader.loadTexture(new ResourceLocation("textures/gui/weights/button_disable.png").getInputStream());
+    static Texture TEX_BUTTON_BACKGROUND = Loader.loadTexture(new ResourceLocation("textures/gui/button/background.png").getInputStream());
+    static Texture TEX_BUTTON_BACKGROUND_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover.png").getInputStream());
+    static Texture TEX_BUTTON_BACKGROUND_HOVER_PRESS = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover_press.png").getInputStream());
 
     private GuiText text = addGui(new GuiText());
 
@@ -26,27 +28,15 @@ public class GuiButton extends Gui {
         setWidth(100); //250
         setHeight(32); //40
 
-        addOnClickListener(e -> {
-            playClickSound();
-        });
+        initOnMouseDownClickSound(this);
 
         addOnDrawListener(e -> {
-            Vector4f color = Colors.WHITE;
-            Texture tex = TEXTURE_BUTTON_NORMAL;
 
-            if (isEnable()) {
-                if (isHover()) {
-                    color = Colors.YELLOW;
-                    tex = TEXTURE_BUTTON_HOVER;
-                }
-            } else {
-                color = Colors.GRAY;
-                tex = TEXTURE_BUTTON_DISABLE;
-            }
-
-            getText().getTextColor().set(color);
-            drawButtonTexture(tex, getX(), getY(), getWidth(), getHeight());
-
+            getText().getTextColor().set(isHover() && !Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? Colors.YELLOW : Colors.WHITE);
+            drawCornerStretchTexture(
+                    isHover() && Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? TEX_BUTTON_BACKGROUND_HOVER_PRESS :
+                            isHover() ? TEX_BUTTON_BACKGROUND_HOVER :
+                                    TEX_BUTTON_BACKGROUND, this, 6);
         });
     }
 
@@ -59,6 +49,13 @@ public class GuiButton extends Gui {
         BUTTON_AUDIO.unqueueAllBuffers();
         BUTTON_AUDIO.queueBuffers(Sounds.GUI_CLICK);
         BUTTON_AUDIO.play();
+    }
+
+    public static void initOnMouseDownClickSound(Gui g) {
+        g.addMouseButtonListener(e -> {
+            if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && g.isHover())
+                playClickSound();
+        });
     }
 
     // needs a rename.?
