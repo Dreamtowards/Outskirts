@@ -83,9 +83,9 @@ public class GuiVert3D extends Gui {
     private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider()); {
         _VertDisplayNumControl.setWidth(400);
         _VertDisplayNumControl.setUserMinMaxValue(0, 200);
-        _VertDisplayNumControl.addValueChangedListener(e -> {
+//        _VertDisplayNumControl.addOnValueChangedListener(e -> {
 //            _VertDisplayNumControl.setText("DisplayNum: "+(int)_VertDisplayNumControl.getCurrentUserValue());
-        });
+//        });
         _VertDisplayNumControl.setValue(1f);
     }
 

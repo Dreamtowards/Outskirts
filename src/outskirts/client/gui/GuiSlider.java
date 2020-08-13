@@ -86,15 +86,15 @@ public class GuiSlider extends Gui {
         float oldValue = this.value;
         this.value = Maths.clamp(value, 0.0f, 1.0f);
         if (oldValue != this.value) {
-            performEvent(new ValueChangedEvent());
+            performEvent(new OnValueChangedEvent());
 
             dragGui.setRelativeX( value*(getWidth()-dragGui.getWidth()) );
         }
     }
 
-    public final EventBus.Handler addValueChangedListener(Consumer<ValueChangedEvent> listener) {
-        return attachListener(ValueChangedEvent.class, listener);
+    public final EventBus.Handler addOnValueChangedListener(Consumer<OnValueChangedEvent> listener) {
+        return attachListener(OnValueChangedEvent.class, listener);
     }
 
-    public static class ValueChangedEvent extends GuiEvent { }
+    public static class OnValueChangedEvent extends GuiEvent { }
 }

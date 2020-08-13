@@ -30,9 +30,8 @@ public class GuiScreenOptions extends GuiScreen {
     }
 
     private GuiSlider slFov = addGui(new GuiSlider()); {
-        slFov.addValueChangedListener(e -> {
-            GuiSlider slider = e.gui();
-            ClientSettings.FOV = (int)slider.getCurrentUserValue();
+        slFov.addOnValueChangedListener(e -> {
+            ClientSettings.FOV = (int)slFov.getCurrentUserValue();
 
 //            slider.setText("FOV: " + ClientSettings.FOV);
         });
@@ -56,7 +55,7 @@ public class GuiScreenOptions extends GuiScreen {
     }
 
     private GuiSlider slGuiscale = addGui(new GuiSlider()); {
-        slGuiscale.addValueChangedListener(e -> {
+        slGuiscale.addOnValueChangedListener(e -> {
             ClientSettings.GUI_SCALE = Maths.floor(slGuiscale.getCurrentUserValue(), 0.1f);
 //            slGuiscale.setText("GUI_SCALE: " + ClientSettings.GUI_SCALE);
         });

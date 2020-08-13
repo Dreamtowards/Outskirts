@@ -66,7 +66,7 @@ public class GuiCheckBox extends Gui {
         setChecked(!isChecked());
     }
 
-    public final EventBus.Handler addOnCheckedChangedListener(Consumer<CheckedEvent> lsr) {
+    public final EventBus.Handler addOnCheckedListener(Consumer<CheckedEvent> lsr) {
         return attachListener(CheckedEvent.class, lsr);
     }
 

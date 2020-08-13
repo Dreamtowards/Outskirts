@@ -102,7 +102,7 @@ public class GuiPopupMenu extends Gui {
 
         public static Gui slider(String s, float v, float min, float max, Consumer<Float> onChanged) {
             GuiSlider g = new GuiSlider();
-            g.addValueChangedListener(e -> {
+            g.addOnValueChangedListener(e -> {
 //                g.setText(String.format(s, g.getCurrentUserValue()));
                 onChanged.accept(g.getCurrentUserValue());
             });
