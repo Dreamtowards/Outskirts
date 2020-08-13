@@ -20,7 +20,6 @@ public final class GuiWindow extends Gui {
         setY(100);
         setWidth(400);
         setHeight(400);
-        setClipChildren(true);
         String title = main.getClass().getSimpleName();
 
         {
@@ -52,7 +51,10 @@ public final class GuiWindow extends Gui {
             }
         }
         {
-            addGui(new GuiScrollPanel().setContentGui(main)).addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
+            GuiScrollPanel mainPanel = addGui(new GuiScrollPanel());
+            mainPanel.setContentGui(main);
+            mainPanel.addLayoutorAlignParentLTRB(0, WIN_HANDLER_HEIGHT, 0, 0);
+            mainPanel.setClipChildren(true);
         }
         {
             float SIZER_SZ = 8;

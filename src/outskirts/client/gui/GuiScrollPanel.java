@@ -7,127 +7,75 @@ import outskirts.util.vector.Vector2f;
 // GuiScrollBox
 public class GuiScrollPanel extends Gui {
 
-    /**
-     * scroll value. xy <= 0
-     */
-    private Vector2f scrollOffset = new Vector2f();
+    private static float MOUSE_SENSTIVITY = 2.5f;
+    private static float SCROLLBAR_THICKNESS = 14;
 
-    private float scrollSensitivity = 1f;
+    private Gui contentGui;
+
+    // todo the Drag, not Mid-Drag..
+    private GuiScrollbar hScrollbar = addGui(new GuiScrollbar(GuiScrollbar.HORIZONTAL));
+    private GuiScrollbar vScrollbar = addGui(new GuiScrollbar(GuiScrollbar.VERTICAL)); {
+        hScrollbar.addOnValueChangedListener(e -> {
+            if (contentGui.getWidth() > getWidth())
+                contentGui.setRelativeX(hScrollbar.getValue() * -(contentGui.getWidth()-getWidth()));
+        });
+        vScrollbar.addOnValueChangedListener(e -> {
+            if (contentGui.getHeight() > getHeight())
+                contentGui.setRelativeY(vScrollbar.getValue() * -(contentGui.getHeight()-getHeight()));
+        });
+    }
 
     public GuiScrollPanel() {
-        setContentGui(new Gui());
+        setContentGui(Gui.EMPTY);
 
-        setScrollHandlerGui(GuiScrollHandle.AXIS_X, new GuiScrollHandle(GuiScrollHandle.AXIS_X));
-        setScrollHandlerGui(GuiScrollHandle.AXIS_Y, new GuiScrollHandle(GuiScrollHandle.AXIS_Y));
+        addOnLayoutListener(e -> {
+            // Position
+            hScrollbar.setWidth(getWidth()-SCROLLBAR_THICKNESS);
+            hScrollbar.setHeight(SCROLLBAR_THICKNESS);
+            hScrollbar.setRelativeXY(0, getHeight() - hScrollbar.getHeight());
+
+            vScrollbar.setWidth(SCROLLBAR_THICKNESS);
+            vScrollbar.setHeight(getHeight()-SCROLLBAR_THICKNESS);
+            vScrollbar.setRelativeXY(getWidth() - vScrollbar.getWidth(), 0);
+
+            // Handler Size
+            hScrollbar.setHandlerSize(contentGui.getWidth() < getWidth() ? 0 : getWidth() / contentGui.getWidth());
+            vScrollbar.setHandlerSize(contentGui.getHeight() < getHeight() ? 0 : getHeight() / contentGui.getHeight());
+
+            // Scroll Value
+            hScrollbar.setValue(contentGui.getRelativeX() / -(contentGui.getWidth()-getWidth()));
+            vScrollbar.setValue(contentGui.getRelativeY() / -(contentGui.getHeight()-getHeight()));
+
+            clampScrollOffset();
+        });
 
         addMouseScrollListener(e -> {
-            if (isMouseOver()) {
+            if (isHover()) {
+                Gui gContent = getContentGui();
 
                 if (Outskirts.isShiftKeyDown()) {
-                    scrollOffset.x += Outskirts.getDScroll() * scrollSensitivity;
+                    gContent.setRelativeX(gContent.getRelativeX() + Outskirts.getDScroll() * MOUSE_SENSTIVITY);
                 } else {
-                    scrollOffset.y += Outskirts.getDScroll() * scrollSensitivity;
+                    gContent.setRelativeY(gContent.getRelativeY() + Outskirts.getDScroll() * MOUSE_SENSTIVITY);
                 }
 
                 clampScrollOffset();
             }
         });
-        addOnDrawListener(e -> {
-            Gui contentGui = getContentGui();
-
-            contentGui.setRelativeX((int)scrollOffset.x);
-            contentGui.setRelativeY((int)scrollOffset.y);
-        });
     }
 
     private void clampScrollOffset() {
-        Gui contentGui = getContentGui();
-        scrollOffset.x = Maths.clamp(scrollOffset.x, -Math.max(contentGui.getWidth() - getWidth(), 0), 0);
-        scrollOffset.y = Maths.clamp(scrollOffset.y, -Math.max(contentGui.getHeight() - getHeight(), 0), 0);
+        Gui gContent = getContentGui();
+        gContent.setRelativeX(Maths.clamp(gContent.getRelativeX(), -Math.max(contentGui.getWidth() - getWidth(), 0), 0));
+        gContent.setRelativeY(Maths.clamp(gContent.getRelativeY(), -Math.max(contentGui.getHeight() - getHeight(), 0), 0));
     }
 
-    public Vector2f getScrollOffset() {
-        return scrollOffset;
+    public Gui getContentGui() {
+        return contentGui;
     }
-
-    public float getScrollSensitivity() {
-        return scrollSensitivity;
-    }
-
-    public void setScrollSensitivity(float scrollSensitivity) {
-        this.scrollSensitivity = scrollSensitivity;
-    }
-
-    public <T extends Gui> T setContentGui(Gui contentGui) {
-        Validate.notNull(contentGui, "ContentGui can't be null");
-        setGui(0, contentGui);
-        return (T)this;
-    }
-
-    private void setScrollHandlerGui(int axis, Gui gui) {
-        switch (axis) {
-            case GuiScrollHandle.AXIS_X:
-                setGui(1, gui);
-                break;
-            case GuiScrollHandle.AXIS_Y:
-                setGui(2, gui);
-                break;
-            default:
-                throw new IllegalArgumentException("Illegal handler axis");
-        }
-    }
-
-    public <T extends Gui> T getContentGui() {
-        return getGui(0);
-    }
-
-    public static class GuiScrollHandle extends Gui {
-
-        public static final int AXIS_X = 0, AXIS_Y = 1;
-
-        private int axis = AXIS_X;
-        private int handleSize = 5;
-
-        public GuiScrollHandle(int axis) {
-            this.axis = axis;
-
-            addOnDraggingListener((dx, dy) -> {
-                GuiScrollPanel owner = getParent();
-                Gui contentGui = owner.getContentGui();
-
-                if (axis == AXIS_X) {
-                    float scrollRatioX = contentGui.getWidth() / owner.getWidth();
-                    owner.getScrollOffset().x += -scrollRatioX * dx;
-                } else if (axis == AXIS_Y) {
-                    float scrollRatioY = contentGui.getHeight() / owner.getHeight();
-                    owner.getScrollOffset().y += -scrollRatioY * dy;
-                }
-
-                owner.clampScrollOffset();
-            });
-
-            addOnDrawListener(e -> {
-                GuiScrollPanel owner = getParent();
-                Gui contentGui = owner.getContentGui();
-                if (axis == AXIS_X) {
-                    float viewPercentX = owner.getWidth() / contentGui.getWidth();
-                    setWidth(viewPercentX >= 1 ? 0 : Maths.ceil(owner.getWidth() * viewPercentX));
-                    setHeight(handleSize);
-
-                    float offsetPercentX = -owner.getScrollOffset().x / contentGui.getWidth();
-                    setX(owner.getX() + (int)(owner.getWidth() * offsetPercentX));
-                    setY(owner.getY() + owner.getHeight() - handleSize);
-                } else if (axis == AXIS_Y) {
-                    float viewPercentY = owner.getHeight() / contentGui.getHeight();
-                    setHeight(viewPercentY >= 1 ? 0 : Maths.ceil(owner.getHeight() * viewPercentY));
-                    setWidth(handleSize);
-
-                    float offsetPercentY = -owner.getScrollOffset().y / contentGui.getHeight();
-                    setY(owner.getY() + (int)(owner.getHeight() * offsetPercentY));
-                    setX(owner.getX() + owner.getWidth() - handleSize);
-                }
-                drawRect(Colors.WHITE20, this);
-            });
-        }
+    public void setContentGui(Gui g) {
+        removeGui(this.contentGui);
+        addGui(g, 0);
+        this.contentGui = g;
     }
 }

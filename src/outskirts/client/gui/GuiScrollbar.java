@@ -1,9 +1,14 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
+import outskirts.event.EventBus;
+import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
+import outskirts.util.logging.Log;
+
+import java.util.function.Consumer;
 
 public class GuiScrollbar extends Gui {
 
@@ -15,14 +20,34 @@ public class GuiScrollbar extends Gui {
     /** scroll percentage. [0, 1] */
     private float value;
 
-    private float handlerSize;
+    /** [0, 1] */
+    private float handlerSize = 0.1f;
 
+    private float _OnDraggingMouseInHandlerPercen;
     private GuiDrag handlerGui = addGui(new GuiDrag()); {
         handlerGui.addOnDrawListener(e -> {
             drawRect(Colors.WHITE, handlerGui);
         });
+        handlerGui.addOnDraggingStateChangedListener(e -> {
+            _OnDraggingMouseInHandlerPercen = getOrientation() == HORIZONTAL ?
+                    (Outskirts.getMouseX() - handlerGui.getX()) / handlerGui.getWidth() :
+                    (Outskirts.getMouseY() - handlerGui.getY()) / handlerGui.getHeight();
+        });
         handlerGui.addOnDraggingListener(e -> {
-            setValue(currMouseValue());
+            setValue(currMouseValue(_OnDraggingMouseInHandlerPercen));
+        });
+        handlerGui.addOnLayoutListener(e -> {
+            if (getOrientation() == HORIZONTAL) {
+                handlerGui.setWidth(getWidth() * getHandlerSize());
+                handlerGui.setHeight(getHeight());
+                handlerGui.setRelativeX(getValue() * (getWidth() - handlerGui.getWidth()));
+                handlerGui.setRelativeY(0);
+            } else {
+                handlerGui.setWidth(getWidth());
+                handlerGui.setHeight(getHeight() * getHandlerSize());
+                handlerGui.setRelativeX(0);
+                handlerGui.setRelativeY(getValue() * (getHeight() - handlerGui.getHeight()));
+            }
         });
     }
 
@@ -31,8 +56,9 @@ public class GuiScrollbar extends Gui {
 
         addMouseButtonListener(e -> {
             if (e.getButtonState() && e.getMouseButton() == 0 && isHover()) {
+                if (!handlerGui.isHover())
+                    setValue(currMouseValue(0.5f));
                 handlerGui.setDragging(true);
-                setValue(currMouseValue());
             }
         });
 
@@ -43,10 +69,10 @@ public class GuiScrollbar extends Gui {
 
     }
 
-    private float currMouseValue() {
+    private float currMouseValue(float inHandlerPercentage) {
         float v = getOrientation() == HORIZONTAL ?
-                (Outskirts.getMouseX() - getX() - handlerGui.getWidth()/2f) / (getWidth() - handlerGui.getWidth()) :
-                (Outskirts.getMouseY() - getY() - handlerGui.getHeight()/2f) / (getHeight() - handlerGui.getHeight());
+                (Outskirts.getMouseX() - handlerGui.getWidth()*inHandlerPercentage - getX()) / (getWidth() - handlerGui.getWidth()) :
+                (Outskirts.getMouseY() - handlerGui.getHeight()*inHandlerPercentage - getY()) / (getHeight() - handlerGui.getHeight());
         return Maths.clamp(v, 0.0f, 1.0f);
     }
 
@@ -63,17 +89,8 @@ public class GuiScrollbar extends Gui {
     }
     public void setValue(float value) {
         this.value = value;
-        if (getOrientation() == HORIZONTAL) {
-            handlerGui.setWidth(getWidth() * getHandlerSize());
-            handlerGui.setHeight(getHeight());
-            handlerGui.setRelativeX(getValue() * (getWidth() - handlerGui.getWidth()));
-            handlerGui.setRelativeY(0);
-        } else {
-            handlerGui.setWidth(getWidth());
-            handlerGui.setHeight(getHeight() * getHandlerSize());
-            handlerGui.setRelativeX(0);
-            handlerGui.setRelativeY(getValue() * (getHeight() - handlerGui.getHeight()));
-        }
+        handlerGui.onLayout();
+        performEvent(new OnValueChangedEvent());
     }
 
     public float getHandlerSize() {
@@ -82,4 +99,10 @@ public class GuiScrollbar extends Gui {
     public void setHandlerSize(float handlerSize) {
         this.handlerSize = handlerSize;
     }
+
+    public final EventBus.Handler addOnValueChangedListener(Consumer<OnValueChangedEvent> lsr) {
+        return attachListener(OnValueChangedEvent.class, lsr);
+    }
+
+    public static class OnValueChangedEvent extends GuiEvent { }
 }

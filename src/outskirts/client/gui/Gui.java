@@ -18,6 +18,7 @@ import outskirts.util.vector.Vector4f;
 import java.util.*;
 import java.util.function.*;
 
+import static java.lang.Float.NaN;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
@@ -61,11 +62,10 @@ public class Gui {
         this(0, 0, 0, 0);
     }
 
-    public Gui(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public Gui(int rx, int ry, int width, int height) {
+        setRelativeXY(rx, ry);
+        setWidth(width);
+        setHeight(height);
 
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
@@ -119,8 +119,11 @@ public class Gui {
         getGui(index).setParent(null);
         return (T) children.remove(index);
     }
-    public final void removeGui(Gui g) {
-        removeGui(children.indexOf(g));
+    public final boolean removeGui(Gui g) {
+        int i = children.indexOf(g);
+        if (i == -1) return false;
+        removeGui(i);
+        return true;
     }
     public final void removeAllGuis() {
         for (int i = getChildCount()-1;i >= 0;i--) {
@@ -514,13 +517,20 @@ public class Gui {
             }
         });
     }
-    public final void addLayoutorAlignParentRR(float rrx, float rry) { // RestRatio. 0:left, 0.5f:mid, 1:right
+    public final void addLayoutorAlignParentRR(float rx, float ry, float rwidth, float rheight) { // RestRatio. 0:left, 0.5f:mid, 1:right
         addOnLayoutListener(e -> {
-            if (!Float.isNaN(rrx))
-                setRelativeX((getParent().getWidth()-getWidth())*rrx);
-            if (!Float.isNaN(rry))
-                setRelativeY((getParent().getHeight()-getHeight())*rry);
+            if (!Float.isNaN(rx))
+                setRelativeX((getParent().getWidth()-getWidth())*rx);
+            if (!Float.isNaN(ry))
+                setRelativeY((getParent().getHeight()-getHeight())*ry);
+            if (!Float.isNaN(rwidth))
+                setWidth(getParent().getWidth() * rwidth);
+            if (!Float.isNaN(rheight))
+                setHeight(getParent().getHeight() * rheight);
         });
+    }
+    public final void addLayoutorAlignParentRR(float rx, float ry) {
+        addLayoutorAlignParentRR(rx, ry, NaN, NaN);
     }
     /**
      * A module tool for Mouse-Dragging

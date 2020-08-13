@@ -33,14 +33,21 @@ public class GuiDrag extends Gui {
     }
     public void setDragging(boolean dragging) {
         isDragging = dragging;
+        performEvent(new OnDraggingStateChangedEvent());
     }
 
     public final EventBus.Handler addOnDraggingListener(Consumer<OnDraggingEvent> lsr) {
         return attachListener(OnDraggingEvent.class, lsr);
     }
 
+    public final EventBus.Handler addOnDraggingStateChangedListener(Consumer<OnDraggingStateChangedEvent> lsr) {
+        return attachListener(OnDraggingStateChangedEvent.class, lsr);
+    }
+
     public static class OnDraggingEvent extends GuiEvent {
         public float dx, dy;
         public OnDraggingEvent(float dx, float dy) { this.dx = dx; this.dy = dy; }
     }
+
+    public static class OnDraggingStateChangedEvent extends GuiEvent { }
 }
