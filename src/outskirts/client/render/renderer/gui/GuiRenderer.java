@@ -93,28 +93,44 @@ public class GuiRenderer extends Renderer {
     /**
      * this is for supports multi-level(layer) scissor
      */
-    private static final LinkedList<Vector4i> scissorStack = new LinkedList<>();
+    private static final LinkedList<Vector4f> scissorStack = new LinkedList<>();
 
     public static void pushScissor(float x, float y, float width, float height) {
         if (scissorStack.size() == 0) {
             glEnable(GL_SCISSOR_TEST);
         }
-        Vector4i sc = new Vector4i(
-                Outskirts.toFramebufferCoords(x),
-                Outskirts.toFramebufferCoords(Outskirts.getHeight()-y-height),
-                Outskirts.toFramebufferCoords(width),
-                Outskirts.toFramebufferCoords(height));
+        // do the UnionArea (max(a.min, b.min), min(a.max, b.max), and ensure min < max.)
+        float endX = x+width, endY = y+height;
+        for (Vector4f area : scissorStack) {
+            x = Math.max(x, area.x);
+            y = Math.max(y, area.y);
+            endX = Math.min(endX, area.x+area.z);
+            endY = Math.min(endY, area.y+area.w);
+        }
+        width = endX -x;
+        height = endY - y;
+        if (width < 0) x = width = 0;
+        if (height < 0) y = height = 0;
+        // push scissor.
+        Vector4f sc = new Vector4f(x, y, width, height);
         scissorStack.push(sc);
-        glScissor(sc.x, sc.y, sc.z, sc.w);
+        glfScissor(sc.x, sc.y, sc.z, sc.w);
     }
     public static void popScissor() {
         scissorStack.pop();
         if (scissorStack.size() == 0) {
             glDisable(GL_SCISSOR_TEST);
         } else {
-            Vector4i sc = scissorStack.peek();
-            glScissor(sc.x, sc.y, sc.z, sc.w);
+            Vector4f sc = scissorStack.peek();
+            glfScissor(sc.x, sc.y, sc.z, sc.w);
         }
+    }
+
+    private static void glfScissor(float x, float y, float width, float height) {
+        glScissor(Outskirts.toFramebufferCoords(x),
+                  Outskirts.toFramebufferCoords(Outskirts.getHeight()-y-height),
+                  Outskirts.toFramebufferCoords(width),
+                  Outskirts.toFramebufferCoords(height));
     }
 
     /**

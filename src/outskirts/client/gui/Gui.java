@@ -25,7 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
  * we reduce "return (T)this".
  */
-
+//todo: do the Right' Click, Hover.
 public class Gui {
 
     private float x; // actually is relative-x   should use vector.?

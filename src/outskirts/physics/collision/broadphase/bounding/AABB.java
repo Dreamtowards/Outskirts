@@ -98,6 +98,20 @@ public class AABB {
         return include(aabb.min).include(aabb.max);
     }
 
+    public AABB union(AABB aabb) { // not test yet
+        min.x = Math.max(min.x, aabb.min.x);
+        min.y = Math.max(min.y, aabb.min.y);
+        min.z = Math.max(min.z, aabb.min.z);
+        max.x = Math.min(max.x, aabb.max.x);
+        max.y = Math.min(max.y, aabb.max.y);
+        max.z = Math.min(max.z, aabb.max.z);
+        // check AABB illegal. (ensure min < max
+        if (min.x > max.x) min.x = max.x = 0;
+        if (min.y > max.y) min.y = max.y = 0;
+        if (min.z > max.z) min.z = max.z = 0;
+        return this;
+    }
+
     public AABB translate(float x, float y, float z) {
         min.add(x, y, z);
         max.add(x, y, z);

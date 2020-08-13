@@ -8,11 +8,10 @@ import outskirts.util.vector.Vector2f;
 public class GuiScrollPanel extends Gui {
 
     private static float MOUSE_SENSTIVITY = 2.5f;
-    private static float SCROLLBAR_THICKNESS = 14;
+    private static float SCROLLBAR_THICKNESS = 10;
 
     private Gui contentGui;
 
-    // todo the Drag, not Mid-Drag..
     private GuiScrollbar hScrollbar = addGui(new GuiScrollbar(GuiScrollbar.HORIZONTAL));
     private GuiScrollbar vScrollbar = addGui(new GuiScrollbar(GuiScrollbar.VERTICAL)); {
         hScrollbar.addOnValueChangedListener(e -> {
