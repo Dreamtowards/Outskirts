@@ -1,17 +1,16 @@
-package outskirts.client.gui.ui.debug;
+package outskirts.client.gui.debug;
 
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.GuiMenubar;
-import outskirts.client.gui.ui.ex.GuiWindow;
-import outskirts.client.gui.ui.inspection.GuiInspEntity;
+import outskirts.client.gui.ex.GuiWindow;
+import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.entity.player.EntityPlayer;
-import outskirts.init.Textures;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.SystemUtils;
@@ -49,7 +48,7 @@ public class GuiDebugCommon extends Gui {
         VERT3D.setVisible(false);
         VERT3D.setRelativeY(32);
 
-        Gui ENTITYINSP = Outskirts.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE));
+        Gui ENTITYINSP = addGui(new GuiWindow(GuiInspEntity.INSTANCE));
 //        GuiInspEntity.INSTANCE.setVisible(true);
 
         debugMenu.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);

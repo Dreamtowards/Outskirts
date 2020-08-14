@@ -1,4 +1,4 @@
-package outskirts.client.gui.ui.debug;
+package outskirts.client.gui.debug;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

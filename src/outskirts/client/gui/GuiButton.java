@@ -5,6 +5,7 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.audio.AudioSource;
 import outskirts.client.material.Texture;
+import outskirts.event.EventHandler;
 import outskirts.init.Sounds;
 import outskirts.util.Colors;
 import outskirts.util.ResourceLocation;
@@ -34,7 +35,7 @@ public class GuiButton extends Gui {
 
             getText().getTextColor().set(isHover() && !Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? Colors.YELLOW : Colors.WHITE);
             drawCornerStretchTexture(
-                    isHover() && Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? TEX_BUTTON_BACKGROUND_HOVER_PRESS :
+                    isPressed() ? TEX_BUTTON_BACKGROUND_HOVER_PRESS :
                             isHover() ? TEX_BUTTON_BACKGROUND_HOVER :
                                     TEX_BUTTON_BACKGROUND, this, 6);
         });
@@ -52,7 +53,7 @@ public class GuiButton extends Gui {
     }
 
     public static void initOnMouseDownClickSound(Gui g) {
-        g.addMouseButtonListener(e -> {
+        g.addMouseButtonListener(e -> { // OnPressedListener .?
             if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && g.isHover())
                 playClickSound();
         });

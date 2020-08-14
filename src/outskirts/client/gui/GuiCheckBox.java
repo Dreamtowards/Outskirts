@@ -20,6 +20,7 @@ public class GuiCheckBox extends Gui {
 
     private static final Texture TEX_CHECKBOX_BACKGROUND = Loader.loadTexture(new Identifier("textures/gui/checkbox/background.png").getInputStream());
     private static final Texture TEX_CHECKBOX_BACKGROUND_HOVER = Loader.loadTexture(new Identifier("textures/gui/checkbox/background_hover.png").getInputStream());
+    private static final Texture TEX_CHECKBOX_BACKGROUND_PRESSED = Loader.loadTexture(new Identifier("textures/gui/checkbox/background_pressed.png").getInputStream());
     private static final Texture TEX_CHECKBOX_ICON_CHECK = Loader.loadTexture(new Identifier("textures/gui/checkbox/check.png").getInputStream());
 
     private boolean checked = false;
@@ -40,10 +41,7 @@ public class GuiCheckBox extends Gui {
         GuiButton.initOnMouseDownClickSound(this);
 
         addOnDrawListener(e -> {
-            drawTexture(isHover() ? TEX_CHECKBOX_BACKGROUND_HOVER : TEX_CHECKBOX_BACKGROUND, getX()+8, getY(), 20, 20);
-
-            if (isHover() && Outskirts.isMouseDown(0))
-                drawRect(Colors.WHITE20, getX()+8, getY(), 20, 20);
+            drawTexture(isPressed() ? TEX_CHECKBOX_BACKGROUND_PRESSED : isHover() ? TEX_CHECKBOX_BACKGROUND_HOVER : TEX_CHECKBOX_BACKGROUND, getX()+8, getY(), 20, 20);
 
             if (isChecked())
                 drawTexture(TEX_CHECKBOX_ICON_CHECK, getX()+8, getY(), 20, 20);

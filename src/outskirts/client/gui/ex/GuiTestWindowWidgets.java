@@ -1,8 +1,9 @@
-package outskirts.client.gui.ui.ex;
+package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
 import outskirts.init.Textures;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
 import static java.lang.Float.NaN;
@@ -15,7 +16,10 @@ public class GuiTestWindowWidgets extends Gui {
         GuiLinearLayout linear = addGui(new GuiLinearLayout(Vector2f.UNIT_Y, new Vector2f(0, 10)));
         linear.setWrapChildren(true);
 
-        linear.addGui(new GuiButton("Text"));
+        GuiButton button = linear.addGui(new GuiButton("Text"));
+        button.addOnClickListener(e -> {
+            Log.LOGGER.info("OnClick");
+        });
 
         linear.addGui(new GuiCheckBox("CheckBox"));
 

@@ -1,8 +1,16 @@
-package outskirts.client.gui.ui.ex;
+package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.screen.GuiScreen;
+import outskirts.event.EventHandler;
+import outskirts.event.client.input.MouseMoveEvent;
+import outskirts.util.Colors;
+import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector4f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class GuiRoot extends Gui {
 
@@ -61,5 +69,47 @@ public final class GuiRoot extends Gui {
     @Override
     public float getHeight() {
         return Outskirts.getHeight();
+    }
+
+    private static Gui findHoveredChild(Gui parent) {
+        Gui hovered = null;
+        for (Gui child : parent.getChildren()) {
+            if (Gui.isMouseOver(child)) {
+                hovered = child;
+                Gui childHovered = findHoveredChild(child);
+                if (childHovered != null)
+                    hovered = childHovered;
+            }
+        }
+        return hovered;
+    }
+
+
+    {
+        addOnPostDrawListener(this::onPostDlaw);
+    }
+
+    @EventHandler
+    private void onPostDlaw(OnPostDrawEvent event) {
+
+        Gui hoveredGui = findHoveredChild(Outskirts.getRootGUI());
+        List<Gui> hoveredGuis = new ArrayList<>();
+
+        if (hoveredGui != null) {
+
+            Gui.forParents(hoveredGui, g -> {
+                g.setHover(true);
+                hoveredGuis.add(g);
+            }, true);
+
+//        drawRect(Colors.WHITE20, hoveredGui);
+//        Log.LOGGER.info("dp: "+depth(g) + ", "+g.getClass());
+        }
+
+        Gui.forChildren(Outskirts.getRootGUI(), g -> {
+            if (!hoveredGuis.contains(g))
+                g.setHover(false);
+        }, true);
+
     }
 }

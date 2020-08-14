@@ -1,4 +1,4 @@
-package outskirts.client.gui.ui.ex;
+package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
@@ -44,9 +44,9 @@ public final class GuiWindow extends Gui {
                     Outskirts.getRootGUI().removeGui(this);
                 });
                 gClose.addOnDrawListener(e -> {
-                    if (gClose.isMouseOver())
+                    if (gClose.isHover())
                         drawRect(Colors.WHITE20, gClose);
-                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY()+8, gClose.isMouseOver()?Colors.RED:Colors.GRAY, 16, true, false);
+                    drawString("x", gClose.getX()+gClose.getWidth()/2, gClose.getY()+8, gClose.isHover()?Colors.RED:Colors.GRAY, 16, true, false);
                 });
             }
         }
@@ -63,7 +63,7 @@ public final class GuiWindow extends Gui {
             wSizer.setWidth(SIZER_SZ);
             wSizer.setHeight(SIZER_SZ);
             wSizer.addOnDrawListener(e -> {
-                if (wSizer.isMouseOver())
+                if (wSizer.isHover())
                     drawRectBorder(Colors.WHITE40, wSizer, 1);
             });
             wSizer.addOnDraggingListener(e -> {

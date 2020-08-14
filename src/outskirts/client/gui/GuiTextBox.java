@@ -51,8 +51,8 @@ public class GuiTextBox extends Gui {
         setWidth(180);
         setHeight(32);
 
-        addMouseButtonListener(e -> {
-            if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && isMouseOver()) {
+        addMouseButtonListener(e -> { // todo OnPressed
+            if (isPressed()) {
                 int cursorPos = calculateCurrentCursorPosition();
                 if (cursorPos != -1) {
                     setCursorPosition(cursorPos);
@@ -63,7 +63,7 @@ public class GuiTextBox extends Gui {
         });
 
         addMouseMoveListener(e -> {
-            if (Outskirts.isMouseDown(GLFW_MOUSE_BUTTON_LEFT) && isMouseOver()) {  // || (e.getMouseButton() == 0 && !e.getButtonState())
+            if (isPressed()) {  // || (e.getMouseButton() == 0 && !e.getButtonState())
                 int cursorPos = calculateCurrentCursorPosition();
                 if (cursorPos != -1) {
                     setCursorPosition(cursorPos);

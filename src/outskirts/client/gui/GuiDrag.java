@@ -6,6 +6,16 @@ import outskirts.event.gui.GuiEvent;
 
 import java.util.function.Consumer;
 
+/**
+ * A module tool for Mouse-Dragging
+ * onDragging() when MouseOver-pressed AND moving until release pressing
+ *
+ * mouse dragging shouldn't use this way:
+ * if (isMouseOver()) position += mouse.deltaXY;
+ *
+ * cause f mouse move too fast, the tricking will be lose,
+ * and this way f mouse out gui border, mouse will not be tricking continue.
+ */
 public class GuiDrag extends Gui {
 
     private boolean isDragging = false;

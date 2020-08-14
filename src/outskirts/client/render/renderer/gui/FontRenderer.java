@@ -7,6 +7,7 @@ import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.*;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector4f;
@@ -111,21 +112,20 @@ public class FontRenderer extends Renderer {
      * @return [0, text.length] or say [0, max+1]
      */
     public int calculateTextIndex(String text, float textHeight, float pX, float pY) {
-        if (pY < 0) return 0;
         int pointerX = 0;
         int pointerY = 0;
+        float textsMaxPtrY = (StringUtils.count(text, "\n"))*(textHeight+GAP_LINE);
         for (int i = 0;i < text.length();i++) {
             char ch = text.charAt(i);
             float charWidth = charWidth(ch) * textHeight;
 
-            if (pY >= pointerY && pY < pointerY + textHeight + GAP_LINE) { // on the line
-                if (pointerX == 0 && pX < 0) return i;
-                else if (ch == '\n' && pX > pointerX) return i;
-                if (pX >= pointerX && pX <= pointerX + charWidth/2) { // in curr char left-half
-                    return i;
-                } else if (pX > pointerX + charWidth/2 && pX < pointerX + charWidth + GAP_CHAR) {
-                    return i+1;
-                }
+            if (pY < pointerY + textHeight + GAP_LINE || pointerY == textsMaxPtrY) { // "on the line" or on tail line.
+                if (pointerX == 0 && pX < 0) return i; // line head
+                else if (ch == '\n' && pX > pointerX) return i; // multi line tile
+                else if (i==text.length()-1 && pX > pointerX + charWidth/2f) return i+1; // single line tail
+
+                else if (pX >= pointerX && pX <= pointerX + charWidth/2) return i; // in curr char left-half
+                else if (pX > pointerX + charWidth/2 && pX < pointerX + charWidth + GAP_CHAR) return i+1; // curr char right-half.
             }
 
             if (ch == '\n') {
@@ -135,7 +135,7 @@ public class FontRenderer extends Renderer {
                 pointerX += charWidth + GAP_CHAR;
             }
         }
-        return text.length();
+        throw new RuntimeException("No possible exception.");
     }
 
     /**

@@ -179,4 +179,15 @@ public final class StringUtils {
         }
         return 0;
     }
+
+    public static int count(String s, String search) {
+        int num = 0, idx = 0;
+        while (true) {
+            int i = s.indexOf(search, idx);
+            if (i == -1) break;
+            idx = i+search.length();
+            num++;
+        }
+        return num;
+    }
 }

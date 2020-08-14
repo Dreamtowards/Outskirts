@@ -1,4 +1,4 @@
-package outskirts.client.gui.ui.inspection;
+package outskirts.client.gui.inspection;
 
 import javafx.util.Pair;
 import org.lwjgl.glfw.GLFW;
@@ -6,7 +6,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiLinearLayout;
 import outskirts.client.gui.GuiPadding;
-import outskirts.client.gui.ui.inspection.setter.GuiSetterScalars;
+import outskirts.client.gui.inspection.setter.GuiSetterScalars;
 import outskirts.entity.Entity;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.util.Colors;

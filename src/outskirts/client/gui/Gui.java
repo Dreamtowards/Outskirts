@@ -37,6 +37,9 @@ public class Gui {
 
     private boolean hovered = false; // isHovered() setHovered()
 
+    private boolean pressed = false;
+    // isPressed .? for OnClick Render...
+
     /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
 
@@ -70,16 +73,26 @@ public class Gui {
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState()) {
-                boolean f = isMouseOver();
+                boolean f = isHover();
                 if (isFocused() != f) {
                     setFocused(f);
                 }
             }
         });
-        // OnClickEvent
+        // todo: OnClick should dispatch from outside, go trough to parents.
+        // OnClickEvent (before PressedTrigger) //todo: Click required MouseDown isHovering.
         addMouseButtonListener(e -> {
-            if (isVisible() && isEnable() && !e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && Gui.isMouseOver(this)) {
+            if (!e.getButtonState() && e.getMouseButton() == 0 && isEnable() && isPressed() && isHover()) {
                 performEvent(new OnClickEvent());
+            }
+        });
+        addMouseButtonListener(e -> {
+            if (e.getMouseButton() == 0) {
+                if (e.getButtonState() && isHover()) {
+                    setPressed(true);
+                } else if (isPressed() && !e.getButtonState()) {
+                    setPressed(false);
+                }
             }
         });
     }
@@ -249,7 +262,13 @@ public class Gui {
         return hovered;
     }
     public void setHover(boolean hovered) {
+        boolean oldHovered = this.hovered;
         this.hovered = hovered;
+        if (!oldHovered && hovered) {
+            performEvent(new OnMouseInEvent());
+        } else if (oldHovered && !hovered) {
+            performEvent(new OnMouseOutEvent());
+        }
     }
 
     public boolean isWrapChildren() {
@@ -257,6 +276,13 @@ public class Gui {
     }
     public void setWrapChildren(boolean wrapChildren) {
         this.wrapChildren = wrapChildren;
+    }
+
+    public boolean isPressed() {
+        return pressed;
+    }
+    public void setPressed(boolean pressed) {
+        this.pressed = pressed;
     }
 
     @Override
@@ -290,21 +316,34 @@ public class Gui {
      * and {for size: get} is original method.
      * cause always use and have multi params, so not use static.
      */
-    public final void forChildren(Consumer<Gui> visitor, boolean includeChildren, Predicate<Gui> eachpredicate) {
+    public static void forChildren(Gui parent, Consumer<Gui> visitor, boolean recursion, Predicate<Gui> eachpredicate) {
         // if iterating children use index, probably skip/repeat iteration-item when the list been edit(add/remove)
-        for (int i = 0;i < getChildCount();i++) {
-            Gui child = getGui(i);
+        for (int i = 0;i < parent.getChildCount();i++) {
+            Gui child = parent.getGui(i);
             if (!eachpredicate.test(child)) continue;
 
             visitor.accept(child);
 
-            if (includeChildren && child.getChildCount() > 0) {
-                child.forChildren(visitor, true, eachpredicate);
+            if (recursion && child.getChildCount() > 0) {
+                Gui.forChildren(child, visitor, true, eachpredicate);
             }
         }
     }
-    public final void forChildren(Consumer<Gui> visitor, boolean includeChildren) {
-        forChildren(visitor, includeChildren, g -> true);
+    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursion) {
+        Gui.forChildren(gfrom, visitor, recursion, g -> true);
+    }
+
+    public static void forParents(Gui gfrom, Consumer<Gui> visitor, boolean includeSelf) {
+        if (includeSelf) visitor.accept(gfrom);
+        Gui g = gfrom;
+        while ((g=g.getParent()) != Gui.EMPTY) {
+            visitor.accept(g);
+        }
+    }
+    private static int calcDepth(Gui g) {
+        int i = 0;
+        while ((g=g.getParent()) != Gui.EMPTY) i++;
+        return i;
     }
 
     //should this..?
@@ -317,7 +356,7 @@ public class Gui {
 
     public final void onDraw() {
         if (!isVisible()) return;
-        _checks_MouseInOut();
+//        _checks_MouseInOut();
 
         boolean isClip = isClipChildren(); // avoid field dynamic changed
 
@@ -331,6 +370,8 @@ public class Gui {
 
         if (isClip)
             GuiRenderer.popScissor();
+
+        performEvent(new OnPostDrawEvent());
     }
 
     private boolean _isPrevMouseOver = false;
@@ -390,9 +431,9 @@ public class Gui {
         return eventBus.post(event);
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui
-        forChildren(c -> {
-            c.performEvent(event);
-        }, true, Gui::isVisible); // Only Post to !isVisible() Guis.
+        Gui.forChildren(this, g -> {
+            g.performEvent(event);
+        }, true, Gui::isVisible); // Only Post to isVisible() Guis.
         return Cancellable.isCancelled(event);
     }
 
@@ -497,6 +538,9 @@ public class Gui {
     public final EventBus.Handler addOnDrawListener(Consumer<OnDrawEvent> listener) {
         return attachListener(OnDrawEvent.class, listener);
     }
+    public final EventBus.Handler addOnPostDrawListener(Consumer<OnPostDrawEvent> listener) {
+        return attachListener(OnPostDrawEvent.class, listener);
+    }
     public final EventBus.Handler addOnLayoutListener(Consumer<OnLayoutEvent> listener) {
         return attachListener(OnLayoutEvent.class, listener);
     }
@@ -532,46 +576,14 @@ public class Gui {
     public final void addLayoutorAlignParentRR(float rx, float ry) {
         addLayoutorAlignParentRR(rx, ry, NaN, NaN);
     }
-    /**
-     * A module tool for Mouse-Dragging
-     * onDragging() when MouseOver-pressed AND moving until release pressing
-     *
-     * mouse dragging shouldn't use this way:
-     * if (isMouseOver()) position += mouse.deltaXY;
-     *
-     * cause f mouse move too fast, the tricking will be lose,
-     * and this way f mouse out gui border, mouse will not be tricking continue.
-     */
-    public final void addOnDraggingListener(BiConsumer<Float, Float> ondragging, Consumer<Boolean> ondragstatechanged, Predicate<MouseButtonEvent> predictCanDrag) {
-//        checkTrigger_OnDragging();
-//        attachListener(OnDraggingEvent.class, listener);
-        boolean[] dragging = {false};
-        addMouseButtonListener(e -> {
-            if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                if (e.getButtonState() && isHover() && (predictCanDrag==null || predictCanDrag.test(e))) {
-                    dragging[0] = true;
-                    if (ondragstatechanged!=null)ondragstatechanged.accept(true);
-                } else if (dragging[0] && !e.getButtonState()) {
-                    dragging[0] = false;
-                    if (ondragstatechanged!=null)ondragstatechanged.accept(false);
-                }
-            }
-        });
-        addMouseMoveListener(e -> {
-            if (dragging[0]) {
-                ondragging.accept(Outskirts.getMouseDX(), Outskirts.getMouseDY());  // todo had not ext.test yet
-            }
-        });
-    }
-    public final void addOnDraggingListener(BiConsumer<Float, Float> ondragging) {
-        addOnDraggingListener(ondragging, null, null);
-    }
 
     protected static class OnMouseOutEvent extends GuiEvent { }
 
     protected static class OnMouseInEvent extends GuiEvent { }
 
     public static class OnDrawEvent extends GuiEvent { }
+
+    public static class OnPostDrawEvent extends GuiEvent { }
 
     public static class OnLayoutEvent extends GuiEvent { }
 
