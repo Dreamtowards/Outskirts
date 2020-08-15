@@ -41,7 +41,7 @@ public class GuiSlider extends Gui {
 
         addOnDrawListener(e -> {
 //            GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_DISABLE, getX(), getY(), getWidth(), getHeight());
-            drawRect(isMouseOver()?Colors.GRAY:Colors.BLACK, getX(), getY()+7, getWidth(), 2);
+            drawRect(isHover()?Colors.GRAY:Colors.BLACK, getX(), getY()+7, getWidth(), 2);
 //            if (isMouseOver())
 //                drawRect(Colors.WHITE05, getX(), getY(), getWidth(), getHeight());
 

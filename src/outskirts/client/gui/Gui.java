@@ -1,31 +1,34 @@
 package outskirts.client.gui;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
 import outskirts.event.EventBus;
-import outskirts.event.EventPriority;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.*;
-import outskirts.util.vector.Vector2f;
+import outskirts.util.CopyOnIterateArrayList;
+import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static java.lang.Float.NaN;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 /**
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
  * we reduce "return (T)this".
  */
-//todo: do the Right' Click, Hover.
+
 public class Gui {
 
     private float x; // actually is relative-x   should use vector.?
@@ -80,9 +83,8 @@ public class Gui {
             }
         });
         // todo: OnClick should dispatch from outside, go trough to parents.
-        // OnClickEvent (before PressedTrigger) //todo: Click required MouseDown isHovering.
-        addMouseButtonListener(e -> {
-            if (!e.getButtonState() && e.getMouseButton() == 0 && isEnable() && isPressed() && isHover()) {
+        addOnReleasedListener(e -> {
+            if (isEnable() && isHover()) {
                 performEvent(new OnClickEvent());
             }
         });
@@ -198,10 +200,10 @@ public class Gui {
         setRelativeY(y - getParent().getY());
     }
 
-    public final void setXY(float x, float y) {  // TOOL METHOD
-        setX(x);
-        setY(y);
-    }
+//    public final void setXY(float x, float y) {  // TOOL METHOD
+//        setX(x);
+//        setY(y);
+//    }
 
     public float getWidth() {
         if (!isVisible()) return 0;
@@ -282,7 +284,13 @@ public class Gui {
         return pressed;
     }
     public void setPressed(boolean pressed) {
+        boolean oldPressed = this.pressed;
         this.pressed = pressed;
+        if (!oldPressed && pressed) {
+            performEvent(new OnPressedEvent());
+        } else if (oldPressed && !pressed) {
+            performEvent(new OnReleasedEvent());
+        }
     }
 
     @Override
@@ -294,18 +302,16 @@ public class Gui {
 
 
 
-    // todo: deperecate instance method: always not supports for mul layers GUI, instead uses hover field.
     public final boolean isMouseOver() {
-        return Gui.isMouseOver(getX(), getY(), getWidth(), getHeight());
+        throw new UnsupportedOperationException();
+//        return Gui.isMouseOver(getX(), getY(), getWidth(), getHeight());
     }
-
     public static boolean isMouseOver(Gui g) {
         return Gui.isMouseOver(g.getX(), g.getY(), g.getWidth(), g.getHeight());
     }
     public static boolean isMouseOver(float x, float y, float width, float height) {
         return Outskirts.getMouseX() >= x && Outskirts.getMouseX() < x + width && Outskirts.getMouseY() >= y && Outskirts.getMouseY() < y + height;
     }
-
     public static boolean isPointOver(int pointX, int pointY, Gui gui) {
         return pointX >= gui.getX() && pointX < gui.getX() + gui.getWidth() && pointY >= gui.getY() && pointY < gui.getY() + gui.getHeight();
     }
@@ -373,20 +379,6 @@ public class Gui {
 
         performEvent(new OnPostDrawEvent());
     }
-
-    private boolean _isPrevMouseOver = false;
-    private void _checks_MouseInOut() {
-        boolean isCurrMouseOver = Gui.isMouseOver(this);
-        if (isCurrMouseOver && !_isPrevMouseOver) {
-            setHover(true);
-            performEvent(new OnMouseInEvent());
-        } else if (!isCurrMouseOver && _isPrevMouseOver) {
-            setHover(false);
-            performEvent(new OnMouseOutEvent());
-        }
-        _isPrevMouseOver = isCurrMouseOver;
-    }
-
 
 
     public final void onLayout() {
@@ -529,12 +521,6 @@ public class Gui {
     }
 
 
-    public final EventBus.Handler addOnMouseInListener(Consumer<OnMouseInEvent> listener) {
-        return attachListener(OnMouseInEvent.class, listener);
-    }
-    public final EventBus.Handler addOnMouseOutListener(Consumer<OnMouseOutEvent> listener) {
-        return attachListener(OnMouseOutEvent.class, listener);
-    }
     public final EventBus.Handler addOnDrawListener(Consumer<OnDrawEvent> listener) {
         return attachListener(OnDrawEvent.class, listener);
     }
@@ -543,6 +529,18 @@ public class Gui {
     }
     public final EventBus.Handler addOnLayoutListener(Consumer<OnLayoutEvent> listener) {
         return attachListener(OnLayoutEvent.class, listener);
+    }
+    public final EventBus.Handler addOnMouseInListener(Consumer<OnMouseInEvent> listener) {
+        return attachListener(OnMouseInEvent.class, listener);
+    }
+    public final EventBus.Handler addOnMouseOutListener(Consumer<OnMouseOutEvent> listener) {
+        return attachListener(OnMouseOutEvent.class, listener);
+    }
+    public final EventBus.Handler addOnPressedListener(Consumer<OnPressedEvent> lsr) {
+        return attachListener(OnPressedEvent.class, lsr);
+    }
+    public final EventBus.Handler addOnReleasedListener(Consumer<OnReleasedEvent> lsr) {
+        return attachListener(OnReleasedEvent.class, lsr);
     }
 
     // AlignParentLTRB
@@ -577,9 +575,14 @@ public class Gui {
         addLayoutorAlignParentRR(rx, ry, NaN, NaN);
     }
 
-    protected static class OnMouseOutEvent extends GuiEvent { }
+    protected static class OnMouseInEvent extends GuiEvent { } // setHover() false -> true.
 
-    protected static class OnMouseInEvent extends GuiEvent { }
+    protected static class OnMouseOutEvent extends GuiEvent { }  // setHover() true -> false.
+
+
+    public static class OnPressedEvent extends GuiEvent { }  // setPressed() false -> true.
+
+    public static class OnReleasedEvent extends GuiEvent { } /// setPressed() true -> false.
 
     public static class OnDrawEvent extends GuiEvent { }
 

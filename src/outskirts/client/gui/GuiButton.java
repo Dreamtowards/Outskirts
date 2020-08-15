@@ -53,9 +53,8 @@ public class GuiButton extends Gui {
     }
 
     public static void initOnMouseDownClickSound(Gui g) {
-        g.addMouseButtonListener(e -> { // OnPressedListener .?
-            if (e.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && e.getButtonState() && g.isHover())
-                playClickSound();
+        g.addOnPressedListener(e -> {
+            playClickSound();
         });
     }
 

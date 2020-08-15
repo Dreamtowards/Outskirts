@@ -31,7 +31,7 @@ public class GuiPopupMenu extends Gui {
 
         // when mouse-click in outside, hide the menu.
         addMouseButtonListener(e -> {
-            if (System.currentTimeMillis() > lastShowMillis+300 && !isMouseOver()) {  // rem topmenu
+            if (System.currentTimeMillis() > lastShowMillis+300 && !isHover()) {  // rem topmenu
                 hide();
             }
         });
@@ -57,18 +57,6 @@ public class GuiPopupMenu extends Gui {
 
         itemlist.addGui(guiItem);
 
-    }
-
-    private static boolean isMouseInMenu(GuiPopupMenu menu) {
-        for (Gui item : menu.getChildren()) {
-            if (item.isMouseOver()) {
-                return true;
-            }
-//            else if (item.subMenu != null && item.subMenu.isVisible()) {
-//                return isMouseInMenu(item.subMenu);
-//            }
-        }
-        return false;
     }
 
     public static class Item extends Gui {
@@ -152,7 +140,7 @@ public class GuiPopupMenu extends Gui {
 
             addOnDrawListener(e -> {
                 Gui paren = getParent();
-                if (isMouseOver(paren.getX(), getY(), paren.getWidth(), getHeight())) {
+                if (isHover()) {
                     drawRect(Colors.BLACK40, paren.getX(), getY(), paren.getWidth(), getHeight());
 //                    drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
                 }

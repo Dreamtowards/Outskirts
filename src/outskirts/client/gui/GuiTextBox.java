@@ -51,14 +51,12 @@ public class GuiTextBox extends Gui {
         setWidth(180);
         setHeight(32);
 
-        addMouseButtonListener(e -> { // todo OnPressed
-            if (isPressed()) {
-                int cursorPos = calculateCurrentCursorPosition();
-                if (cursorPos != -1) {
-                    setCursorPosition(cursorPos);
-                    setSelectionBegin(cursorPos);
-                    setSelectionEnd(cursorPos);
-                }
+        addOnPressedListener(e -> {
+            int cursorPos = calculateCurrentCursorPosition();
+            if (cursorPos != -1) {
+                setCursorPosition(cursorPos);
+                setSelectionBegin(cursorPos);
+                setSelectionEnd(cursorPos);
             }
         });
 

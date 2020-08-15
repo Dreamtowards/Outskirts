@@ -58,7 +58,6 @@ public class ConeShape extends ConvexShape {
                 .grow(radius, halfHeight, radius);
     }
 
-    //todo: tests uses Box-InertiaTensor.?
     /**
      * Right Circular Cone. Bottom.
      * I_xz = 1/10mh^2 + 3/20mr^2
