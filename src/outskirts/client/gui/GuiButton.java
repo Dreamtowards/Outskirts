@@ -17,7 +17,7 @@ public class GuiButton extends Gui {
 
     static Texture TEX_BUTTON_BACKGROUND = Loader.loadTexture(new ResourceLocation("textures/gui/button/background.png").getInputStream());
     static Texture TEX_BUTTON_BACKGROUND_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover.png").getInputStream());
-    static Texture TEX_BUTTON_BACKGROUND_PRESSED = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover_press.png").getInputStream());
+    static Texture TEX_BUTTON_BACKGROUND_PRESSED = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_pressed.png").getInputStream());
 
     private GuiText text = addGui(new GuiText());
 

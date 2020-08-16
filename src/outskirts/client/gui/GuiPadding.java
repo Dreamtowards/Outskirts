@@ -2,6 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.util.Validate;
 
+// WrapChild-Padding.
 /**
  * GuiPadding always should had only one child.
  * GuiPadding moves the child position, and self size(width/height) to fit the padding.

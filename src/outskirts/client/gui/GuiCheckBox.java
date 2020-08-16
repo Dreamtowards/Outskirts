@@ -16,7 +16,7 @@ import outskirts.util.vector.Vector4f;
 import java.util.function.Consumer;
 
 // needs a more common-name/settingS. ?
-public class GuiCheckBox extends Gui {
+public class GuiCheckBox extends Gui implements Gui.Checkable {
 
     private static final Texture TEX_CHECKBOX_BACKGROUND = Loader.loadTexture(new Identifier("textures/gui/checkbox/background.png").getInputStream());
     private static final Texture TEX_CHECKBOX_BACKGROUND_HOVER = Loader.loadTexture(new Identifier("textures/gui/checkbox/background_hover.png").getInputStream());
@@ -52,9 +52,11 @@ public class GuiCheckBox extends Gui {
         return text;
     }
 
+    @Override
     public boolean isChecked() {
         return checked;
     }
+    @Override
     public void setChecked(boolean checked) {
         this.checked = checked;
         performEvent(new CheckedEvent());

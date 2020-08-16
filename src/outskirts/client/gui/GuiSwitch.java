@@ -4,7 +4,7 @@ import outskirts.client.Loader;
 import outskirts.client.material.Texture;
 import outskirts.util.Identifier;
 
-public class GuiSwitch extends Gui {
+public class GuiSwitch extends Gui implements Gui.Checkable {
 
     private static final Texture TEX_SWITCH_OFF = Loader.loadTexture(new Identifier("textures/gui/switch/toggle_off.png").getInputStream());
     private static final Texture TEX_SWITCH_OFF_HOVER = Loader.loadTexture(new Identifier("textures/gui/switch/toggle_off_hover.png").getInputStream());
@@ -30,9 +30,11 @@ public class GuiSwitch extends Gui {
         });
     }
 
+    @Override
     public boolean isChecked() {
         return checked;
     }
+    @Override
     public void setChecked(boolean checked) {
         this.checked = checked;
     }

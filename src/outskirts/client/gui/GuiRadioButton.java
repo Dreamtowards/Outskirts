@@ -5,8 +5,7 @@ import outskirts.client.material.Texture;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 
-// todo: Checkable .?
-public class GuiRadioButton extends Gui {
+public class GuiRadioButton extends Gui implements Gui.Checkable {
 
     private static final Texture TEX_RADIO_OFF = Loader.loadTexture(new Identifier("textures/gui/radio_button/radio_off.png").getInputStream());
     private static final Texture TEX_RADIO_OFF_HOVER = Loader.loadTexture(new Identifier("textures/gui/radio_button/radio_off_hover.png").getInputStream());
@@ -34,18 +33,13 @@ public class GuiRadioButton extends Gui {
 
         addOnClickListener(e -> {
             setChecked(true);
-            for (Gui g : getParent().getChildren()) {
-                if (g != this && g instanceof GuiRadioButton) {
-                    ((GuiRadioButton)g).setChecked(false);
-                }
-            }
         });
 
         addOnDrawListener(e -> {
             drawTexture(isChecked()? isHover()?TEX_RADIO_ON_HOVER:TEX_RADIO_ON :
                                      isHover()?TEX_RADIO_OFF_HOVER:TEX_RADIO_OFF, getX(), getY(), 20, 20);
             if (isPressed()) {
-                drawRect(Colors.BLACK05, getX(), getY(), 20, 20);
+                drawRect(Colors.WHITE10, getX(), getY(), 20, 20);
             }
         });
     }
@@ -54,10 +48,19 @@ public class GuiRadioButton extends Gui {
         return text;
     }
 
+    @Override
     public boolean isChecked() {
         return checked;
     }
+    @Override
     public void setChecked(boolean checked) {
         this.checked = checked;
+        if (checked) {
+            for (Gui sibling : getParent().getChildren()) {
+                if (sibling != this && sibling instanceof GuiRadioButton) {
+                    ((GuiRadioButton)sibling).setChecked(false);
+                }
+            }
+        }
     }
 }

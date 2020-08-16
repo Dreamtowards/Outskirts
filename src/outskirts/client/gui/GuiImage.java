@@ -2,7 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.client.material.Texture;
 
-public class GuiTexture extends Gui {
+public class GuiImage extends Gui {
 
     private Texture texture = Texture.UNIT;
 

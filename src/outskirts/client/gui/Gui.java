@@ -46,6 +46,7 @@ public class Gui {
     /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
 
+    // split out to height/width
     private boolean clipChildren = false;
 
     /** efforts to onClickEvent... */
@@ -711,6 +712,15 @@ public class Gui {
 
 
 
+    public interface Checkable {
+
+        boolean isChecked();
+
+        void setChecked(boolean checked);
+
+    }
+
+
 
     public static final class Insets {
 
@@ -718,7 +728,7 @@ public class Gui {
 
         public float left;
         public float top;
-        public  float right;
+        public float right;
         public float bottom;
 
         public Insets() {}

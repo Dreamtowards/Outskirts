@@ -70,7 +70,12 @@ public class GuiSlider extends Gui {
             }
 
             // draw dragGui
-            GuiButton.drawButtonBackground(dragGui);
+//            GuiButton.drawButtonBackground(dragGui);
+            drawCornerStretchTexture(isPressed()||dragGui.isHover()? GuiButton.TEX_BUTTON_BACKGROUND_HOVER : GuiButton.TEX_BUTTON_BACKGROUND, dragGui, 6);
+
+            if (isPressed()) {
+                drawRect(Colors.WHITE10, dragGui);
+            }
 
 //            if (dragGui.isHover())drawString(getCurrentUserValue()+"", dragGui.getX()+dragGui.getWidth()/2, getY()-20, Colors.WHITE, 16, true);
         });
