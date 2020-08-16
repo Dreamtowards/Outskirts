@@ -6,6 +6,8 @@ import outskirts.init.Textures;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
+import java.util.Arrays;
+
 import static java.lang.Float.NaN;
 
 public class GuiTestWindowWidgets extends Gui {
@@ -15,6 +17,7 @@ public class GuiTestWindowWidgets extends Gui {
 
         GuiLinearLayout linear = addGui(new GuiLinearLayout(Vector2f.UNIT_Y, new Vector2f(0, 10)));
         linear.setWrapChildren(true);
+        linear.setRelativeXY(2,2);
 
         GuiButton button = linear.addGui(new GuiButton("Text"));
         button.addOnClickListener(e -> {
@@ -23,22 +26,27 @@ public class GuiTestWindowWidgets extends Gui {
 
         linear.addGui(new GuiCheckBox("CheckBox"));
 
-        linear.addGui(new GuiComboBox());
+        GuiComboBox comboBox = linear.addGui(new GuiComboBox());
+        comboBox.getOptions().add(new GuiText("Option001"));
+        comboBox.getOptions().add(new GuiText("Option.002"));
+        comboBox.getOptions().add(new GuiText("Op03"));
+        comboBox.getOptions().add(new GuiText("Forth Option."));
 
-        GuiLinearLayout groupRB = linear.addGui(new GuiLinearLayout(Vector2f.UNIT_X));
-        groupRB.addGui(new GuiRadioButton());
-        groupRB.addGui(new GuiRadioButton());
-        groupRB.addGui(new GuiRadioButton());
+        GuiLinearLayout groupRB = linear.addGui(new GuiLinearLayout(Vector2f.UNIT_X, new Vector2f(10, 0)));
+        groupRB.setWrapChildren(true);
+        groupRB.addGui(new GuiRadioButton("RadBtn-01"));
+        groupRB.addGui(new GuiRadioButton("RB2"));
+        groupRB.addGui(new GuiRadioButton("BTN3"));
 
-        GuiScrollbar gScrollbarH = linear.addGui(new GuiScrollbar(GuiScrollbar.HORIZONTAL));
-        gScrollbarH.setWidth(200);
-        gScrollbarH.setHeight(10);
-        GuiScrollbar gScrollbarV = linear.addGui(new GuiScrollbar(GuiScrollbar.VERTICAL));
-        gScrollbarV.setWidth(10);
-        gScrollbarV.setHeight(200);
-        gScrollbarV.addOnLayoutListener(e -> {
-            gScrollbarV.setHeight(Outskirts.getHeight() * 0.2f);
-        });
+        GuiSwitch swc = linear.addGui(new GuiSwitch());
+
+        // menu, menubar
+
+        GuiSlider slider = linear.addGui(new GuiSlider());
+        slider.setUserMinMaxValue(0, 100);
+        slider.getUserOptionalValues().addAll(Arrays.asList(25f, 50f, 75f));
+
+        linear.addGui(new GuiTextBox("GuiTextBox"));
 
         GuiScrollPanel scrollPanel = linear.addGui(new GuiScrollPanel());
         scrollPanel.setContentGui(new Gui(0, 0, 500, 500) {{
@@ -47,14 +55,6 @@ public class GuiTestWindowWidgets extends Gui {
         scrollPanel.setClipChildren(true);
         scrollPanel.setWidth(200);
         scrollPanel.setHeight(200);
-
-        // menu, menubar
-
-        // scroll
-
-        linear.addGui(new GuiSlider());
-
-        linear.addGui(new GuiTextBox("GuiTextBox"));
     }
 
 }

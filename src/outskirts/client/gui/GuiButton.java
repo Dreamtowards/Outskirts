@@ -17,7 +17,7 @@ public class GuiButton extends Gui {
 
     static Texture TEX_BUTTON_BACKGROUND = Loader.loadTexture(new ResourceLocation("textures/gui/button/background.png").getInputStream());
     static Texture TEX_BUTTON_BACKGROUND_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover.png").getInputStream());
-    static Texture TEX_BUTTON_BACKGROUND_HOVER_PRESS = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover_press.png").getInputStream());
+    static Texture TEX_BUTTON_BACKGROUND_PRESSED = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover_press.png").getInputStream());
 
     private GuiText text = addGui(new GuiText());
 
@@ -34,10 +34,8 @@ public class GuiButton extends Gui {
         addOnDrawListener(e -> {
 
             getText().getTextColor().set(isHover() && !Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? Colors.YELLOW : Colors.WHITE);
-            drawCornerStretchTexture(
-                    isPressed() ? TEX_BUTTON_BACKGROUND_HOVER_PRESS :
-                            isHover() ? TEX_BUTTON_BACKGROUND_HOVER :
-                                    TEX_BUTTON_BACKGROUND, this, 6);
+
+            drawButtonBackground(this);
         });
     }
 
@@ -56,6 +54,13 @@ public class GuiButton extends Gui {
         g.addOnPressedListener(e -> {
             playClickSound();
         });
+    }
+
+    public static void drawButtonBackground(Gui g) {
+        drawCornerStretchTexture(
+                g.isPressed() ? TEX_BUTTON_BACKGROUND_PRESSED :
+                        g.isHover() ? TEX_BUTTON_BACKGROUND_HOVER :
+                                TEX_BUTTON_BACKGROUND, g, 6);
     }
 
     // needs a rename.?

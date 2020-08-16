@@ -68,7 +68,7 @@ public class Gui {
         this(0, 0, 0, 0);
     }
 
-    public Gui(int rx, int ry, int width, int height) {
+    public Gui(float rx, float ry, float width, float height) {
         setRelativeXY(rx, ry);
         setWidth(width);
         setHeight(height);
@@ -76,18 +76,15 @@ public class Gui {
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState()) {
-                boolean f = isHover();
-                if (isFocused() != f) {
-                    setFocused(f);
-                }
+                setFocused(isHover());
             }
         });
-        // todo: OnClick should dispatch from outside, go trough to parents.
-        addOnReleasedListener(e -> {
-            if (isEnable() && isHover()) {
-                performEvent(new OnClickEvent());
-            }
-        });
+//        // todo: OnClick should dispatch from outside, go trough to parents.
+//        addOnReleasedListener(e -> {
+//            if (isEnable() && isHover()) {
+//                performEvent(new OnClickEvent());
+//            }
+//        });
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == 0) {
                 if (e.getButtonState() && isHover()) {
@@ -229,7 +226,11 @@ public class Gui {
         return focused;
     }
     public void setFocused(boolean focused) {
+        boolean oldFocused = this.focused;
         this.focused = focused;
+        if (oldFocused != focused) {
+            performEvent(new OnFocusChangedEvent());
+        }
     }
 
     public boolean isEnable() {
@@ -357,6 +358,12 @@ public class Gui {
         gui.setVisible(!gui.isVisible());
     }
 
+    /**
+     * for "Tooltip" Gui popup. actually dosen't think unlaw-putting is good. the Tooltip should tends just stay in themself place.
+     */
+    public static Gui getRootGUI() {
+        return Outskirts.getRootGUI();
+    }
 
 
 
@@ -422,7 +429,8 @@ public class Gui {
             ((GuiEvent)event)._gui=this;
         return eventBus.post(event);
     }
-    public final boolean broadcaseEvent(Event event) { // post to all children gui
+    public final boolean broadcaseEvent(Event event) { // post to all children gui{
+        this.performEvent(event);
         Gui.forChildren(this, g -> {
             g.performEvent(event);
         }, true, Gui::isVisible); // Only Post to isVisible() Guis.
@@ -542,6 +550,9 @@ public class Gui {
     public final EventBus.Handler addOnReleasedListener(Consumer<OnReleasedEvent> lsr) {
         return attachListener(OnReleasedEvent.class, lsr);
     }
+    public final EventBus.Handler addOnFocusChangedListener(Consumer<OnFocusChangedEvent> lsr) {
+        return attachListener(OnFocusChangedEvent.class, lsr);
+    }
 
     // AlignParentLTRB
     public final void addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
@@ -575,6 +586,14 @@ public class Gui {
         addLayoutorAlignParentRR(rx, ry, NaN, NaN);
     }
 
+    public static class OnDrawEvent extends GuiEvent { }
+
+    public static class OnPostDrawEvent extends GuiEvent { }
+
+    public static class OnLayoutEvent extends GuiEvent { }
+
+    public static class OnClickEvent extends GuiEvent { }
+
     protected static class OnMouseInEvent extends GuiEvent { } // setHover() false -> true.
 
     protected static class OnMouseOutEvent extends GuiEvent { }  // setHover() true -> false.
@@ -584,13 +603,7 @@ public class Gui {
 
     public static class OnReleasedEvent extends GuiEvent { } /// setPressed() true -> false.
 
-    public static class OnDrawEvent extends GuiEvent { }
-
-    public static class OnPostDrawEvent extends GuiEvent { }
-
-    public static class OnLayoutEvent extends GuiEvent { }
-
-    public static class OnClickEvent extends GuiEvent { }
+    public static class OnFocusChangedEvent extends GuiEvent { }
 
 
 

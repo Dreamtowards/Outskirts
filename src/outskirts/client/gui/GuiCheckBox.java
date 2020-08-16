@@ -30,7 +30,7 @@ public class GuiCheckBox extends Gui {
 
     public GuiCheckBox(String text) {
         getText().setText(text);
-        getText().setRelativeXY(34, 2);
+        getText().setRelativeXY(26, 2);
 
         setWrapChildren(true);
 
@@ -41,10 +41,10 @@ public class GuiCheckBox extends Gui {
         GuiButton.initOnMouseDownClickSound(this);
 
         addOnDrawListener(e -> {
-            drawTexture(isPressed() ? TEX_CHECKBOX_BACKGROUND_PRESSED : isHover() ? TEX_CHECKBOX_BACKGROUND_HOVER : TEX_CHECKBOX_BACKGROUND, getX()+8, getY(), 20, 20);
+            drawTexture(isPressed() ? TEX_CHECKBOX_BACKGROUND_PRESSED : isHover() ? TEX_CHECKBOX_BACKGROUND_HOVER : TEX_CHECKBOX_BACKGROUND, getX(), getY(), 20, 20);
 
             if (isChecked())
-                drawTexture(TEX_CHECKBOX_ICON_CHECK, getX()+8, getY(), 20, 20);
+                drawTexture(TEX_CHECKBOX_ICON_CHECK, getX(), getY(), 20, 20);
         });
     }
 

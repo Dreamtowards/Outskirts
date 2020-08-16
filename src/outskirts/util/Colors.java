@@ -18,6 +18,7 @@ public final class Colors {
     public static final Vector4f BLACK80 = new Vector4f(0, 0, 0, 0.8f);
     public static final Vector4f BLACK40 = new Vector4f(0, 0, 0, 0.4f);
     public static final Vector4f BLACK10 = new Vector4f(0, 0, 0, 0.1f);
+    public static final Vector4f BLACK05 = new Vector4f(0, 0, 0, 0.05f);
 
     public static final Vector4f BRIGHTNESS15 = new Vector4f(0.15f, 0.15f, 0.15f, 1f);
 
@@ -64,7 +65,7 @@ public final class Colors {
         );
     }
 
-    private static Vector4f fromRGB(int r, int g, int b) {
+    public static Vector4f fromRGB(int r, int g, int b) {
         return new Vector4f(r / 255f, g / 255f, b / 255f, 1);
     }
 

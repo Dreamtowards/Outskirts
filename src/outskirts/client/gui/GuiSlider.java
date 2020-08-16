@@ -5,10 +5,19 @@ import outskirts.event.EventBus;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector4f;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class GuiSlider extends Gui {
+
+    private static final Vector4f COLOR_FILLED = Colors.fromRGB(127, 127, 127);
+    private static final Vector4f COLOR_UNFILLED = Colors.fromRGB(64, 64, 64);
 
     /**
      * between 0.0 - 1.0
@@ -18,41 +27,57 @@ public class GuiSlider extends Gui {
     private float userMinValue = 0;
     private float userMaxValue = 100;
 
+    private Set<Float> userOptionalValues = new HashSet<>();
+
     private GuiDrag dragGui = addGui(new GuiDrag()); {
         dragGui.addOnDraggingListener(e -> {
-            setValue(calculateCurrentCursorValue());
+            float f = calculateCurrentCursorValue();
+            for (float v : getUserOptionalValues()) {
+                float percen = Maths.inverseLerp(v, getUserMinValue(), getUserMaxValue());
+                if (Math.abs(percen*getWidth() - f*getWidth()) < 9)
+                    f = percen;
+            }
+            setValue(f);
         });
-        dragGui.setWidth(10);
-        dragGui.setHeight(16);
+        dragGui.addOnLayoutListener(e -> {
+            dragGui.setWidth(getHeight()*0.64f);
+            dragGui.setHeight(getHeight());
+        });
     }
 
     public GuiSlider() {
-        setWidth(100);
-        setHeight(16);
+        setWidth(180);
+        setHeight(28);
 
         GuiButton.initOnMouseDownClickSound(this);
 
-        addMouseButtonListener(e -> {
-            if (e.getMouseButton() == 0 && e.getButtonState() && isHover()) {
-                dragGui.setDragging(true);
-                setValue(calculateCurrentCursorValue());
-            }
+        addOnPressedListener(e -> {
+            dragGui.setDragging(true);
+            dragGui.setPressed(true);
+            setValue(calculateCurrentCursorValue());
         });
 
         addOnDrawListener(e -> {
-//            GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_DISABLE, getX(), getY(), getWidth(), getHeight());
-            drawRect(isHover()?Colors.GRAY:Colors.BLACK, getX(), getY()+7, getWidth(), 2);
-//            if (isMouseOver())
-//                drawRect(Colors.WHITE05, getX(), getY(), getWidth(), getHeight());
+            drawRect(isHover()||isPressed()?Colors.WHITE:Colors.BLACK, getX(), getY()+4, getWidth(), getHeight()-8); // Background Border
+            drawRect(COLOR_UNFILLED, getX()+2, getY()+6, getWidth()-4, getHeight()-12); // Unfilled Background
+            drawRect(COLOR_FILLED, getX()+2, getY()+6, dragGui.getRelativeX(), getHeight()-12);  // Filled
+
+            // User Optional Values
+            for (float v : getUserOptionalValues()) {
+                float WIDTH = 4;
+                float percen = Maths.inverseLerp(v, getUserMinValue(), getUserMaxValue());
+                drawRect(percen<getValue()?Colors.BLACK40:Colors.WHITE40, getX()+ percen*(getWidth()-dragGui.getWidth())-WIDTH/2+dragGui.getWidth()/2, getY()+9, WIDTH, getHeight()-18);
+            }
 
             // draw dragGui
-            drawCornerStretchTexture(isHover()?GuiButton.TEX_BUTTON_BACKGROUND_HOVER:GuiButton.TEX_BUTTON_BACKGROUND,
-                    dragGui, 6);
+            GuiButton.drawButtonBackground(dragGui);
+
+//            if (dragGui.isHover())drawString(getCurrentUserValue()+"", dragGui.getX()+dragGui.getWidth()/2, getY()-20, Colors.WHITE, 16, true);
         });
     }
 
     private float calculateCurrentCursorValue() {
-        return (Outskirts.getMouseX() - getX() - dragGui.getWidth()/2) / (getWidth()-dragGui.getWidth());
+        return (Outskirts.getMouseX() - dragGui.getWidth()/2 - getX()) / (getWidth()-dragGui.getWidth());
     }
 
     public float getUserMaxValue() {
@@ -88,8 +113,12 @@ public class GuiSlider extends Gui {
         if (oldValue != this.value) {
             performEvent(new OnValueChangedEvent());
 
-            dragGui.setRelativeX( value*(getWidth()-dragGui.getWidth()) );
+            dragGui.setRelativeX( getValue()*(getWidth()-dragGui.getWidth()) );
         }
+    }
+
+    public Set<Float> getUserOptionalValues() {
+        return userOptionalValues;
     }
 
     public final EventBus.Handler addOnValueChangedListener(Consumer<OnValueChangedEvent> listener) {

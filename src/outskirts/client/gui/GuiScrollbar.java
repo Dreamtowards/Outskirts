@@ -1,9 +1,12 @@
 package outskirts.client.gui;
 
+import outskirts.client.Loader;
 import outskirts.client.Outskirts;
+import outskirts.client.material.Texture;
 import outskirts.event.EventBus;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
+import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
 import outskirts.util.logging.Log;
@@ -11,6 +14,9 @@ import outskirts.util.logging.Log;
 import java.util.function.Consumer;
 
 public class GuiScrollbar extends Gui {
+
+    private static final Texture TEX_SCROLL_HANDLER = Loader.loadTexture(new Identifier("textures/gui/scrollbar/ScrollBox.png").getInputStream());
+    private static final Texture TEX_SCROLL_GUTTER = Loader.loadTexture(new Identifier("textures/gui/scrollbar/ScrollGutterWithBG.png").getInputStream());
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -26,7 +32,7 @@ public class GuiScrollbar extends Gui {
     private float _OnDraggingMouseInHandlerPercen;
     private GuiDrag handlerGui = addGui(new GuiDrag()); {
         handlerGui.addOnDrawListener(e -> {
-            drawRect(Colors.WHITE, handlerGui);
+            drawCornerStretchTexture(TEX_SCROLL_HANDLER, handlerGui, 3);
         });
         handlerGui.addOnDraggingStateChangedListener(e -> {
             _OnDraggingMouseInHandlerPercen = getOrientation() == HORIZONTAL ?
@@ -64,7 +70,7 @@ public class GuiScrollbar extends Gui {
 
         addOnDrawListener(e -> {
 
-            drawRect(Colors.BLACK40, this);
+            drawCornerStretchTexture(TEX_SCROLL_GUTTER, this, 3);
         });
 
     }

@@ -45,6 +45,9 @@ public class GuiScrollPanel extends Gui {
             hScrollbar.setValue(contentGui.getRelativeX() / -(contentGui.getWidth()-getWidth()));
             vScrollbar.setValue(contentGui.getRelativeY() / -(contentGui.getHeight()-getHeight()));
 
+            hScrollbar.setVisible(contentGui.getWidth() > getWidth());
+            vScrollbar.setVisible(contentGui.getHeight() > getHeight());
+
             clampScrollOffset();
         });
 

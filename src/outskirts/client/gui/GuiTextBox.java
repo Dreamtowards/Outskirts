@@ -122,7 +122,7 @@ public class GuiTextBox extends Gui {
         });
 
         addOnDrawListener(e -> {
-            drawCornerStretchTexture(isFocused() ? TEX_TEXTBOX_BACKGROUND_HOVER : TEX_TEXTBOX_BACKGROUND, this, 8);
+            drawCornerStretchTexture(isFocused() ? TEX_TEXTBOX_BACKGROUND_HOVER : TEX_TEXTBOX_BACKGROUND, this, 6); // 8
 
             if (getCursorPosition() > texts().length())
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
