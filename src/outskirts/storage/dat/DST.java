@@ -93,6 +93,9 @@ import static outskirts.util.IOUtils.*;
         dreamtowards.vax VAX
         dreamtowards.zek ZEK  APOObject
 
+        dreamtowards.deo
+        dreamtowards.dem
+        dreamtowards.bin
 
 
         dreamtowards.sap SAP -
@@ -111,7 +114,7 @@ public class DST {
 
     private static final int VERS = 9;
 
-    public static final String[] TYPE_NAME = {null, "BYTE", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE", "BYTE_ARRAY", "STRING", "LIST", "MAP"};
+    public static final String[] TYPES_NAME = {null, "BYTE", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE", "BYTE_ARRAY", "STRING", "LIST", "MAP"};
 
     public static final Class<?>[] TYPES = {null, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, byte[].class, String.class, List.class, Map.class};
 
@@ -225,6 +228,9 @@ public class DST {
         throw new IllegalArgumentException("Illegal type.");
     }
 
+    public static String toString(Object obj) {
+        return obj.getClass() == TYPES[BYTE_ARRAY] ? Arrays.toString((byte[])obj) : obj.toString();
+    }
 
 
 

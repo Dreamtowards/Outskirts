@@ -133,6 +133,18 @@ public class GuiDebugCommon extends Gui {
         );
     }
 
+
+    private static void renderAnimationDebug() {
+
+//                    GuiVert3D.INSTANCE.vertices.clear();
+//                    for (int i = 0;i < jts.length;i++) {
+//                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
+//                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
+//                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
+//                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
+//                    }
+    }
+
     @Override
     public float getWidth() {
         return Outskirts.getWidth();

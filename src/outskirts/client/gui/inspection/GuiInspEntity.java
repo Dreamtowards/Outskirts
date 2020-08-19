@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiLinearLayout;
-import outskirts.client.gui.GuiPadding;
+import outskirts.client.gui.GuiContainer;
 import outskirts.client.gui.inspection.setter.GuiSetterScalars;
 import outskirts.entity.Entity;
 import outskirts.physics.collision.shapes.convex.SphereShape;
@@ -28,12 +28,12 @@ public class GuiInspEntity extends Gui {
 
     public Entity currentEntity = NULL_ENTITY;
 
-    private GuiLinearLayout terms;
+    private GuiLinearLayout inspectionFields;
 
     {
-        terms = addGui(new GuiPadding(new Insets(8, 8, 8, 8)))
+        inspectionFields = addGui(new GuiContainer(new Insets(8, 8, 8, 8)))
                 .addGui(new GuiLinearLayout(new Vector2f(0, 1.2f)));
-        terms.setWrapChildren(true);
+        inspectionFields.setWrapChildren(true);
 
         addOnDrawListener(e -> {
             if (Outskirts.isKeyDown(GLFW.GLFW_KEY_P)) {  // picking
@@ -57,7 +57,7 @@ public class GuiInspEntity extends Gui {
         });
 
         {
-            Gui inspRigidbody = terms.addGui(new GuiPadding(new Insets(4, 4, 4, 4)))
+            Gui inspRigidbody = inspectionFields.addGui(new GuiContainer(new Insets(4, 4, 4, 4)))
                     .addGui(new GuiLinearLayout(new Vector2f(0, 1.2f)));
             inspRigidbody.setWrapChildren(true);
 

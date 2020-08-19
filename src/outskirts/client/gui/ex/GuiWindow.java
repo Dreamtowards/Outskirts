@@ -4,12 +4,10 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiDrag;
-import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiScrollPanel;
 import outskirts.client.material.Texture;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
-import outskirts.util.Maths;
 
 /**
  * should not be a Entity Window.

@@ -3,20 +3,21 @@ package outskirts.client.gui;
 import outskirts.util.Validate;
 
 // WrapChild-Padding.
+// GuiWrapper
 /**
  * GuiPadding always should had only one child.
  * GuiPadding moves the child position, and self size(width/height) to fit the padding.
  * if needs multi children, or child needs align parent, should have a Gui to wrap them.
  */
-public class GuiPadding extends Gui {
+public class GuiContainer extends Gui {
 
     private Insets padding = new Insets(); // LTRB
 
-    public GuiPadding() {
+    public GuiContainer() {
         this(Insets.ZERO);
     }
 
-    public GuiPadding(Insets paddingIn) {
+    public GuiContainer(Insets paddingIn) {
         getPadding().set(paddingIn);
 
         addOnLayoutListener(e -> {

@@ -29,6 +29,7 @@ import outskirts.storage.dat.DSTUtils;
 import outskirts.storage.DataMap;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -261,22 +262,10 @@ public class Outskirts {
                 if (e.getKey() == GLFW_KEY_C)
                     GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
-//                    INSTANCE.animatedModel.animator.doAnimation(INSTANCE.animation);
-//                    Matrix4f.translate(new Vector3f(20, 0, 10), INSTANCE.animatedModel.joints[6].currentTransform);
 //                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
 //                    for (CollisionObject r : Outskirts.getWorld().dynamicsWorld.getCollisionObjects()) {
 //                        ((RigidBody)r).setInertiaTensorLocal(0,0,0);
-//                    }
-                }
-                if (e.getKey() == GLFW_KEY_1) {
-//                    getCamera().getPosition().set(0, 0, 10);
-//                    GuiVert3D.INSTANCE.vertices.clear();
-//                    for (int i = 0;i < jts.length;i++) {
-//                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
-//                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
-//                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
-//                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
 //                    }
                 }
             }
@@ -318,6 +307,7 @@ public class Outskirts {
         if (getWorld() != null) {
             try {
                 DSTUtils.write(getWorld().onWrite(new DataMap()), new FileOutputStream("scen.dat"));
+                LOGGER.info("Flushed to scen.dat");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

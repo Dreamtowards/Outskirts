@@ -16,7 +16,7 @@ public class GuiPopupMenu extends Gui {
 
     {   setWrapChildren(true);
 
-        GuiPadding gPadding = addGui(new GuiPadding(new Insets(0, 6, 0, 6)));
+        GuiContainer gPadding = addGui(new GuiContainer(new Insets(0, 6, 0, 6)));
         {
             itemlist = gPadding.addGui(new GuiLinearLayout(Vector2f.UNIT_Y));
             itemlist.setWrapChildren(true);

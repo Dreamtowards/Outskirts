@@ -46,7 +46,6 @@ public class Gui {
     /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
 
-    // split out to height/width
     private boolean clipChildren = false;
 
     /** efforts to onClickEvent... */
@@ -55,8 +54,13 @@ public class Gui {
     /** just a attachment */
     private Object tag;
 
+    // split out to height/width
     /** size just fits can wrap all direct-children. */
     private boolean wrapChildren = false;
+    public int heightRule;
+    public int widthRule;
+    public static final int RULE_WRAP_CHILDREN = 1;
+    public static final int RULE_MATCH_PARENT = 2;
 
     //they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
 
@@ -304,10 +308,10 @@ public class Gui {
 
 
 
-    public final boolean isMouseOver() {
-        throw new UnsupportedOperationException();
-//        return Gui.isMouseOver(getX(), getY(), getWidth(), getHeight());
-    }
+//    public final boolean isMouseOver() {
+//        throw new UnsupportedOperationException();
+////        return Gui.isMouseOver(getX(), getY(), getWidth(), getHeight());
+//    }
     public static boolean isMouseOver(Gui g) {
         return Gui.isMouseOver(g.getX(), g.getY(), g.getWidth(), g.getHeight());
     }
@@ -399,7 +403,6 @@ public class Gui {
         for (Gui child : children)
             child.onLayout();
 
-        if (isWrapChildren())
             _doSizeWrapChildren();
     }
 
@@ -409,7 +412,9 @@ public class Gui {
             mxxs = Math.max(mxxs, g.getRelativeX()+g.getWidth());
             mxys = Math.max(mxys, g.getRelativeY()+g.getHeight());
         }
+        if (isWrapChildren() || widthRule == RULE_WRAP_CHILDREN)
         setWidth(mxxs);
+        if (isWrapChildren() || heightRule == RULE_WRAP_CHILDREN)
         setHeight(mxys);
     }
 
