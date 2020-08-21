@@ -1,18 +1,15 @@
 package outskirts.entity;
 
-import outskirts.storage.DataMap;
+import outskirts.storage.dat.DATObject;
 import outskirts.storage.SAVERS;
-import outskirts.util.Identifier;
 
 import java.util.Map;
 
 // abstruct class
 public class EntityModel extends Entity {
 
-    private Identifier resModel, resDiffuseMap;
-
     public EntityModel() {
-        setRegistryID("modelentity");
+        setRegistryID("jusmodel");
 
 
 
@@ -35,17 +32,21 @@ public class EntityModel extends Entity {
 
 
     @Override
-    public void onRead(DataMap mp) {
+    public void onRead(DATObject mp) {
         super.onRead(mp);
 
-        SAVERS.MODEL.read(getModel(), (DataMap)mp.get("model"));
+        SAVERS.MODEL.read(getModel(), (DATObject)mp.get("model"));
+
+        SAVERS.MATERIAL.read(getMaterial(), (DATObject)mp.get("material"));
     }
 
     @Override
-    public Map onWrite(DataMap mp) {
+    public Map onWrite(DATObject mp) {
         super.onWrite(mp);
 
-        mp.put("model", SAVERS.MODEL.write(getModel(), new DataMap()));
+        mp.put("model", SAVERS.MODEL.write(getModel(), new DATObject()));
+
+        mp.put("material", SAVERS.MATERIAL.write(getMaterial(), new DATObject()));
 
         return mp;
     }

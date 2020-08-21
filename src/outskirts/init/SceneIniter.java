@@ -12,6 +12,7 @@ import outskirts.util.mex.PlacementUtils;
 import outskirts.world.WorldClient;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class SceneIniter {
 
@@ -19,22 +20,18 @@ public class SceneIniter {
 
 
 
-        Light lightSun = new Light();
-        lightSun.getPosition().set(100, 100, 100);
-        lightSun.getDirection().set(-1, -1, -1).normalize();
-        lightSun.getColor().set(1, 1, 1).scale(1);
-//        Light.calculateApproximateAttenuation(1000, lightSun.getAttenuation());
-        lightSun.getAttenuation().set(1,0,0);
-        world.lights.add(lightSun);
-
 
 //        {
             EntityModel planeGround = new EntityModel();
             world.addEntity(planeGround);
-            planeGround.setModel(Models.GEO_CUBE);
-            planeGround.getMaterial().setDiffuseMap(Textures.WOOD1);
-            planeGround.tmp_boxSphere_scale.set(100, 10, 100);
-            planeGround.getRigidBody().setCollisionShape(new BoxShape(100, 10, 100)).setMass(0).getGravity().set(0,0,0);
+        try {
+            planeGround.setModel(Loader.loadOBJ(new FileInputStream("big_ground_cube.obj")));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        planeGround.getMaterial().setDiffuseMap(Textures.WOOD1);
+//            planeGround.tmp_boxSphere_scale.set(100, 10, 100);
+            planeGround.getRigidBody().setCollisionShape(new BoxShape(100, 1, 100)).setMass(0).getGravity().set(0,0,0);
             planeGround.getRigidBody().transform().origin.set(0, -10, 0);
 //
 //

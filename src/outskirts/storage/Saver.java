@@ -1,9 +1,11 @@
 package outskirts.storage;
 
+import outskirts.storage.dat.DATObject;
+
 public abstract class Saver<T> {
 
-    public abstract void read(T obj, DataMap mp);
+    public abstract void read(T obj, DATObject mp);
 
-    public abstract DataMap write(T obj, DataMap mp);
+    public abstract DATObject write(T obj, DATObject mp);
 
 }

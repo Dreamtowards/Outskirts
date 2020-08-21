@@ -9,7 +9,10 @@ public class BoxShape extends ConvexShape {
     // needs a more clear name..?
     private Vector3f halfExtent = new Vector3f();
 
+    public BoxShape() { }
+
     // can be simpleimize, this constructor may is not necessary
+    // should uses vec3 instead of 3 float params.?
     public BoxShape(float hx, float hy, float hz) {
         getHalfExtent().set(hx, hy, hz);
     }

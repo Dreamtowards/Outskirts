@@ -2,10 +2,15 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import org.json.JSONObject;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.event.Event;
 import outskirts.event.EventHandler;
 import outskirts.event.client.ClientTickEvent;
+import outskirts.physics.collision.shapes.convex.BoxShape;
+import outskirts.physics.dynamics.RigidBody;
+import outskirts.storage.dat.DATObject;
+import outskirts.storage.SAVERS;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
@@ -251,6 +256,13 @@ public class Test {
 //        );
 
 
+//        RigidBody rb = new RigidBody();
+//        rb.setCollisionShape(new BoxShape(1,2,3));
+//        rb.transform().origin.y = 100;
+//
+//        Map mp = SAVERS.RIGIDBODY.write(rb, new DATObject());
+//
+//        System.out.println(new JSONObject(mp).toString(4));
     }
 
     @EventHandler

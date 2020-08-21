@@ -1,6 +1,5 @@
 package outskirts.storage.dat;
 
-import outskirts.storage.DataMap;
 import outskirts.util.IOUtils;
 
 import java.io.*;
@@ -156,7 +155,7 @@ public class DST {
                 for (int i = 0;i < size;i++) {
                     ls.add(DST.read(is, lsType));
                 }
-                return ls; }
+                return new DATArray(ls); }
             case MAP: {
                 int size = readShort(is) & 0xFFFF;
                 Map<String, Object> mp = new HashMap<>(size);
@@ -166,7 +165,7 @@ public class DST {
                     Object v = DST.read(is, vType);
                     mp.put(k, v);
                 }
-                return new DataMap(mp); }
+                return new DATObject(mp); }
             default:
                 throw new IllegalArgumentException("Illegal type.");
         }
@@ -232,7 +231,13 @@ public class DST {
         return obj.getClass() == TYPES[BYTE_ARRAY] ? Arrays.toString((byte[])obj) : obj.toString();
     }
 
+    public static boolean isPrimitive(byte type) {
+        return false;
+    }
 
+    public static boolean isStruct(byte type) {
+        return type==LIST || type==MAP;
+    }
 
 
 

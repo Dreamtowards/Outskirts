@@ -1,6 +1,6 @@
 package outskirts.util.tools;
 
-import outskirts.storage.DataMap;
+import outskirts.storage.dat.DATObject;
 import outskirts.storage.dat.DST;
 import outskirts.storage.dat.DSTUtils;
 import outskirts.util.logging.Log;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class DATBrowser extends JFrame {
 
-    private DefaultMutableTreeNode topNode = new DefaultMutableTreeNode(new NodeData(new DataMap(), "Just drop file here"));
+    private DefaultMutableTreeNode topNode = new DefaultMutableTreeNode(new NodeData(new DATObject(), "Just drop file here"));
     private JTree treeView = new JTree(topNode);
     private DefaultMutableTreeNode selectedNode;
 

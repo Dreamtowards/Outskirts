@@ -7,13 +7,11 @@ import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.debug.GuiDebugCommon;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.gui.ex.GuiTestWindowWidgets;
-import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Camera;
+import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.event.Events;
@@ -26,10 +24,9 @@ import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.storage.dat.DSTUtils;
-import outskirts.storage.DataMap;
+import outskirts.storage.dat.DATObject;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -131,8 +128,8 @@ public class Outskirts {
         getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
-        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/textures/gui/bg/book_back.png"));
+//        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
+//        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/textures/gui/bg/book_back.png"));
 
         GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
         menu.addItem(GuiPopupMenu.Item.button("Op1"));
@@ -219,13 +216,23 @@ public class Outskirts {
         INSTANCE.world = world;
         if (world == null)
             return;
-//        try {
-//            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
 
-        SceneIniter.init(world);
+//        SceneIniter.init(world);
+
+
+        Light lightSun = new Light();
+        lightSun.getPosition().set(100, 100, 100);
+        lightSun.getDirection().set(-1, -1, -1).normalize();
+        lightSun.getColor().set(1, 1, 1).scale(1);
+//        Light.calculateApproximateAttenuation(1000, lightSun.getAttenuation());
+        lightSun.getAttenuation().set(1,0,0);
+        world.lights.add(lightSun);
+
 
 //        ModelData[] mdat = new ModelData[1];
 //        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(100,10,100));
@@ -259,14 +266,9 @@ public class Outskirts {
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState()) {
-                if (e.getKey() == GLFW_KEY_C)
-                    GuiVert3D.INSTANCE.vertices.clear();
                 if (e.getKey() == GLFW_KEY_T) {
 //                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
 //                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
-//                    for (CollisionObject r : Outskirts.getWorld().dynamicsWorld.getCollisionObjects()) {
-//                        ((RigidBody)r).setInertiaTensorLocal(0,0,0);
-//                    }
                 }
             }
         });
@@ -306,9 +308,9 @@ public class Outskirts {
 
         if (getWorld() != null) {
             try {
-                DSTUtils.write(getWorld().onWrite(new DataMap()), new FileOutputStream("scen.dat"));
+                DSTUtils.write(getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
                 LOGGER.info("Flushed to scen.dat");
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

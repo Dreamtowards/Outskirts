@@ -6,7 +6,8 @@ import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.storage.Savable;
-import outskirts.storage.DataMap;
+import outskirts.storage.dat.DATArray;
+import outskirts.storage.dat.DATObject;
 import outskirts.util.GameTimer;
 import outskirts.util.logging.Log;
 
@@ -47,27 +48,31 @@ public abstract class World implements Savable { // impl Tickable ..?
     }
 
     @Override
-    public void onRead(DataMap mp) {
+    public void onRead(DATObject mp) {
         // clear first.?
 
         List lsEntities = (List)mp.get("entities");
         for (Object o : lsEntities) {
-            entities.add(Entity.createEntity((DataMap)o));
+            addEntity(Entity.createEntity((DATObject)o));
         }
         Log.LOGGER.info("read entities: {}", lsEntities.size());
 
     }
 
     @Override
-    public Map onWrite(DataMap mp) {
-        List lsEntities = new ArrayList();
+    public Map onWrite(DATObject mp) {
+        DATArray lsEntities = new DATArray();
         for (Entity entity : entities) {
             if (entity instanceof EntityPlayer)
                 continue;
-            lsEntities.add(entity.onWrite(new DataMap()));
+            lsEntities.add(entity.onWrite(new DATObject()));
         }
-        Log.LOGGER.info("write entities: {}", lsEntities.size());
         mp.put("entities", lsEntities);
+        Log.LOGGER.info("write entities: {}", lsEntities.size());
+
+        DATObject mpMetadata = new DATObject();
+        mpMetadata.put("modify_time", System.currentTimeMillis());
+        mp.put("metadata", mpMetadata);
 
         return mp;
     }

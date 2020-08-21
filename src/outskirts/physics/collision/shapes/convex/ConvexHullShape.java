@@ -14,7 +14,10 @@ import java.util.Set;
 // note that in the physSystem, the actually Center of Mass are in the local-Origin. so the custom shape should tends makes the CoM in Origin
 public class ConvexHullShape extends ConvexShape {
 
+    // really calls "vertices" .? or should be "points set" .?
     private Set<Vector3f> vertices = new HashSet<>();  // non duplicated point set.
+
+    public ConvexHullShape() { }
 
     public ConvexHullShape(Iterable<Vector3f> vts) {
         for (Vector3f v : vts) {
@@ -23,6 +26,7 @@ public class ConvexHullShape extends ConvexShape {
         }
     }
 
+    // now supports dynamicly-modifies.
     public Set<Vector3f> getVertices() {
         return vertices;
     }

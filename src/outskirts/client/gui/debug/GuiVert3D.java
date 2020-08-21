@@ -79,7 +79,7 @@ public class GuiVert3D extends Gui {
 
     public List<Vert> vertices = new CopyOnWriteArrayList();//new CopyOnIterateArrayList<>();
 
-
+    // todo: add "clear" btn
     private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider()); {
         _VertDisplayNumControl.setWidth(400);
         _VertDisplayNumControl.setUserMinMaxValue(0, 200);

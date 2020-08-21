@@ -49,7 +49,7 @@ public class GuiDebugCommon extends Gui {
         VERT3D.setRelativeY(32);
 
         Gui ENTITYINSP = addGui(new GuiWindow(GuiInspEntity.INSTANCE));
-//        GuiInspEntity.INSTANCE.setVisible(true);
+        ENTITYINSP.setVisible(true);
 
         debugMenu.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
         {

@@ -1,10 +1,11 @@
-package outskirts.storage;
+package outskirts.storage.dat;
 
 
 import outskirts.storage.dat.DST;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 
 import java.util.*;
 
@@ -12,37 +13,41 @@ import java.util.*;
  * An Util-Integrated HashMap.
  */
 
-public class DataMap implements Map<String, Object> {
+public class DATObject implements Map<String, Object> {
 
     private Map mp;
 
-    public DataMap(Map mp) {
+    public DATObject(Map mp) {
         this.mp = mp;
     }
-    public DataMap() {
+    public DATObject() {
         this.mp = new HashMap();
     }
 
     public void putVector3f(String key, Vector3f vec) {
-        put(key, Arrays.asList(vec.x, vec.y, vec.z));
+        put(key, DATArray.fromVector3f(vec));
     }
     public Vector3f getVector3f(String key, Vector3f dest) {
-        if (dest == null) dest = new Vector3f();
-        List<Float> l = (List)get(key);
-        return dest.set(l.get(0), l.get(1), l.get(2));
+        return DATArray.toVector3f((List<Float>)get(key), dest);
+    }
+
+    public void putVector4f(String key, Vector4f vec) {
+        put(key, DATArray.fromVector4f(vec));
+    }
+    public Vector4f getVector4f(String key, Vector4f dest) {
+        return DATArray.toVector4f((List<Float>)get(key), dest);
     }
 
     public void putMatrix3f(String key, Matrix3f mat) {
-        put(key, Arrays.asList(mat.m00, mat.m01, mat.m02,
-                               mat.m10, mat.m11, mat.m12,
-                               mat.m20, mat.m21, mat.m22));
+        put(key, DATArray.fromMatrix3f(mat));
     }
     public Matrix3f getMatrix3f(String key, Matrix3f dest) {
-        if (dest == null) dest = new Matrix3f();
-        List<Float> l = (List)get(key);
-        return dest.set(l.get(0), l.get(1), l.get(2), l.get(3), l.get(4), l.get(5), l.get(6), l.get(7), l.get(8));
+        return DATArray.toMatrix3f((List<Float>)get(key), dest);
     }
 
+    public DATArray getArray(String key) {
+        return (DATArray)get(key);
+    }
 
 
 

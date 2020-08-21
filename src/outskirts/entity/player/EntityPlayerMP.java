@@ -2,7 +2,7 @@ package outskirts.entity.player;
 
 import outskirts.network.play.packet.SPacketDisconnect;
 import outskirts.server.OutskirtsServer;
-import outskirts.storage.DataMap;
+import outskirts.storage.dat.DATObject;
 import outskirts.world.WorldServer;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class EntityPlayerMP extends EntityPlayer {
     }
 
     @Override
-    public void onRead(DataMap mp) {
+    public void onRead(DATObject mp) {
 
         if (mp.containsKey("world"))
             setWorld(OutskirtsServer.getWorlds().get((String)mp.get("world")));  // probably null. when saves curr not exists
@@ -29,7 +29,7 @@ public class EntityPlayerMP extends EntityPlayer {
     }
 
     @Override
-    public Map onWrite(DataMap mp) {
+    public Map onWrite(DATObject mp) {
 
         if (getWorld() != null)  // when is null ..?
             mp.put("world", getWorld().getRegistryID());

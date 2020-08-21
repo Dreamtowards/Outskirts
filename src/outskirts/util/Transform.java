@@ -1,11 +1,7 @@
 package outskirts.util;
 
-import outskirts.storage.Savable;
-import outskirts.storage.DataMap;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
-
-import java.util.Map;
 
 /**
  * Affine Transformation

@@ -11,6 +11,10 @@ import java.util.Arrays;
 
 // todo: CompoundShape
 // todo: BvhTriangleMeshShape.
+
+// is there really good for split Shapes into multi packages.? thats good classification,
+// more clear. but the Shape-Class-Name(with package) may was not privemately enough.
+// todo: (?also) can not uses these packages to "classificate" shapes.
 /**
  * the Shape just only handles shape itself's features/responsibility
  * Shape even can SingleInstance for one state or applies FlightWeight Pattern,
