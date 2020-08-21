@@ -135,6 +135,7 @@ public class GuiRenderer extends Renderer {
 
     /**
      * a full square rectangle start from NDC center to right-bottom
+     * 2D vertix pos coords.
      *
      *  1     0,5
      *  +-----+

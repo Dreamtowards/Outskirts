@@ -10,6 +10,7 @@ import outskirts.client.gui.debug.GuiDebugCommon;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
+import outskirts.client.particle.Particle;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
@@ -154,6 +155,7 @@ public class Outskirts {
     }
     private Texture tmpTex;
 
+
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
         timer.update();
@@ -196,6 +198,11 @@ public class Outskirts {
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
             rootGUI.onDraw();
+
+            Particle p = new Particle();
+            p.getPosition().set(getPlayer().getPosition());
+            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
+            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
 
 //            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 400, 400, 80);
 

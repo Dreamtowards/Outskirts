@@ -7,6 +7,7 @@ import outskirts.client.animation.AnRenderer;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
+import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
@@ -27,6 +28,7 @@ public final class RenderEngine {
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
     private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
+    private ParticleRenderer particleRenderer = new ParticleRenderer();
 
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -108,7 +110,9 @@ public final class RenderEngine {
     public SkyboxRenderer getSkyboxRenderer() {
         return skyboxRenderer;
     }
-
+    public ParticleRenderer getParticleRenderer() {
+        return particleRenderer;
+    }
 
     public Framebuffer getWorldFramebuffer() {
         return worldFramebuffer;
