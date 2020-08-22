@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
+import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.util.Colors;
 import outskirts.util.StringUtils;
 import outskirts.util.profiler.Profiler;

@@ -263,6 +263,24 @@ public class Test {
 //        Map mp = SAVERS.RIGIDBODY.write(rb, new DATObject());
 //
 //        System.out.println(new JSONObject(mp).toString(4));
+
+        List<String> found = new ArrayList<>();
+        FileUtils.walk(new File("/Users/dreamtowards/Downloads"), f -> {
+            if (f.isDirectory())
+                LOGGER.info("walk: " + f.getAbsolutePath());
+            if (f.getName().endsWith(".vcf")) {
+                found.add(f.getAbsolutePath());
+
+                LOGGER.info("found +1 ("+found+")");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        LOGGER.info("Found: " + found);
     }
 
     @EventHandler

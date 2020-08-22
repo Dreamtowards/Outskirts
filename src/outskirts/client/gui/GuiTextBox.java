@@ -10,6 +10,7 @@ import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector2i;
 
 import java.util.function.Consumer;
@@ -120,6 +121,7 @@ public class GuiTextBox extends Gui {
                 insertText(Character.toString(e.getChar()));
             }
         });
+        Vector2f TMP_CACHE = new Vector2f();
 
         addOnDrawListener(e -> {
             drawCornerStretchTexture(isFocused() ? TEX_TEXTBOX_BACKGROUND_HOVER : TEX_TEXTBOX_BACKGROUND, this, 6); // 8
@@ -128,17 +130,16 @@ public class GuiTextBox extends Gui {
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
 
             // set cursor display position
-            Vector2i cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), null);
+            Vector2f cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), TMP_CACHE);
             cursor.setX(getText().getX() + cursorPos.x);
             cursor.setY(getText().getY() + cursorPos.y);
             cursor.setHeight(getText().getTextHeight());
 
             // draw selection
-            Vector2i TMP_CACHE = new Vector2i();
             for (int i = getMinSelection();i < getMaxSelection();i++) {
-                Vector2i pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
-                int charWidth = (int)(Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight());
-                drawRect(Colors.WHITE20, getText().getX() + pos.x, getText().getY() + pos.y, charWidth + FontRenderer.GAP_CHAR, getText().getTextHeight());
+                Vector2f pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
+                float charWidth = Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight();
+                drawRect(Colors.WHITE20, getText().getX() + pos.x, getText().getY() + pos.y, charWidth + FontRenderer.OP_CHAR_GAP, getText().getTextHeight()+FontRenderer.OP_LINE_GAP);
             }
         });
 
@@ -184,6 +185,8 @@ public class GuiTextBox extends Gui {
     }
 
     public void setCursorPosition(int cursorPosition) {
+        if (this.cursorPosition == cursorPosition)
+            return;
         setFocused(true);
         this.cursorPosition = Maths.clamp(cursorPosition, 0, texts().length());
     }

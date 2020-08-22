@@ -2,6 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
+import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
@@ -633,12 +634,12 @@ public class Gui {
 //        return Outskirts.renderEngine.getFontRenderer().drawString(texts, x, y, height, color, true);
 //    }
 
-    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal, boolean drawShadow) {
+    public static void drawString(String text, float x, float y, Vector4f color, int textHeight, boolean centerHorizontal, boolean drawShadow) {
         if (centerHorizontal) { // shoulddo tex_x = t * (max_width - tex_width)
-            int textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, height).x;
+            float textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, textHeight).x;
             x -= textWidth/2f;
         }
-        Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, height, color, drawShadow);
+        Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, textHeight, color, drawShadow);
     }
     public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal) {
         drawString(text, x, y, color, height, centerHorizontal, true);

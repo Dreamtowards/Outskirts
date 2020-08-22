@@ -62,7 +62,7 @@ public class FontBitmapGenerator {
                 g.drawString(Character.toString(ch), startX, startY + metrics.getAscent());
 
                 float widthRatio = (float) metrics.charWidth(ch) / charSize;
-                glyphs[ch] = (byte)((int)(widthRatio * FontRenderer.GLYPH_WIDTH_MAX) & 0xFF);
+                glyphs[ch] = (byte)((int)(widthRatio * FontRenderer.GLYPH_WIDTHS_MAXV) & 0xFF);
 
                 counter++;
             }

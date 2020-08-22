@@ -1,6 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
+import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.EventBus;
 import outskirts.event.EventPriority;
@@ -21,8 +22,6 @@ public final class GuiText extends Gui {
     private int textHeight = DEFAULT_TEXT_HEIGHT;
 
     private Vector4f textColor = new Vector4f(1, 1, 1, 1);
-
-    private Vector2f textOffset = new Vector2f();
 
     public GuiText() {
         this("");
@@ -64,11 +63,10 @@ public final class GuiText extends Gui {
         return textColor;
     }
 
-    private static void updateTextBound(GuiText guiText) {
-        Vector2i bound = Outskirts.renderEngine.getFontRenderer().calculateBound(guiText.getText(), guiText.getTextHeight());
-
-        guiText.setWidth(bound.x);
-        guiText.setHeight(bound.y);
+    private static void updateTextBound(GuiText g) {
+        Vector2f bound = Outskirts.renderEngine.getFontRenderer().calculateBound(g.getText(), g.getTextHeight());
+        g.setWidth(bound.x);
+        g.setHeight(bound.y);
     }
 
     public final EventBus.Handler addOnTextChangeListener(Consumer<TextChangeEvent> listener) {
