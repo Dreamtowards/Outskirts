@@ -1,6 +1,5 @@
 package outskirts.entity.player;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
 import outskirts.network.ChannelHandler;

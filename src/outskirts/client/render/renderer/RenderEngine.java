@@ -1,6 +1,7 @@
 package outskirts.client.render.renderer;
 
 import org.lwjgl.Version;
+import org.lwjgl.opengl.GLUtil;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.animation.AnRenderer;
@@ -10,6 +11,7 @@ import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
 
@@ -62,6 +64,8 @@ public final class RenderEngine {
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+        checkGlError("prepare");
+
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
         Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
@@ -83,6 +87,13 @@ public final class RenderEngine {
 //        skyboxRenderer.render();
     }
 
+    public static void checkGlError(String msg) {
+        int i = glGetError();
+        if (i != 0) {
+            LOGGER.warn("######## GL Error ########");
+            LOGGER.warn("{}: {}.", msg, i);
+        }
+    }
 
     public Matrix4f getViewMatrix() {
         return viewMatrix;

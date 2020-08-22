@@ -8,6 +8,8 @@ import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.debug.GuiDebugCommon;
 import outskirts.client.gui.ex.GuiRoot;
+import outskirts.client.gui.ex.GuiTestWindowWidgets;
+import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.material.Texture;
 import outskirts.client.particle.Particle;
@@ -76,6 +78,8 @@ public class Outskirts {
 
     private Profiler profiler = new Profiler();
 
+    public static long numFrames;
+
     public void run() {
         try
         {
@@ -111,49 +115,36 @@ public class Outskirts {
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
 
-        {   // set window to screen center and perform init-onResize()
-            GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
-            int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
-            glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
-            glfwSetWindowSize(window, wWidth, wHeight); // for init onResize() in macOS
-            glfwShowWindow(window);
-
-            this.updateDisplay(); // update CONTENT_SCALE for correct init viewport (before init-round onResize()/glfwPollEvents()
-        }
+        this.initWindowFurther();
 
         Init.registerAll(Side.CLIENT);
 
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
 
-        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
+        player.setName("Player215");
+
+//        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-//        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
-//        tmpTex = Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/textures/gui/bg/book_back.png"));
+        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
 
-        GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
-        menu.addItem(GuiPopupMenu.Item.button("Op1"));
-        menu.addItem(GuiPopupMenu.Item.button("Op2"));
-        menu.addItem(GuiPopupMenu.Item.button("Op3"));
-        menu.addItem(GuiPopupMenu.Item.button("Op4"));
-        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel1", true, b -> {}));
-        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel2", true, b -> {}));
-        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel3", true, b -> {}));
-
-        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
-
-            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
-
-
-                LOGGER.info("Show");
-
-                menu.show(getMouseX(), getMouseY());
-
-            }
-        });
+//        GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
+//        menu.addItem(GuiPopupMenu.Item.button("Op1"));
+//        menu.addItem(GuiPopupMenu.Item.button("Op2"));
+//        menu.addItem(GuiPopupMenu.Item.button("Op3"));
+//        menu.addItem(GuiPopupMenu.Item.button("Op4"));
+//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel1", true, b -> {}));
+//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel2", true, b -> {}));
+//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel3", true, b -> {}));
+//
+//        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
+//            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
+//                LOGGER.info("Show");
+//                menu.show(getMouseX(), getMouseY());
+//            }
+//        });
     }
-    private Texture tmpTex;
 
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
@@ -176,7 +167,6 @@ public class Outskirts {
         profiler.pop("glfwPollEvents");
 
         camera.getCameraUpdater().update();
-
         if (world != null)
             rayPicker.update();
 
@@ -193,22 +183,23 @@ public class Outskirts {
 
             profiler.push("gui");
             glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
+//            glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
 
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
             rootGUI.onDraw();
 
-            Particle p = new Particle();
-            p.getPosition().set(getPlayer().getPosition());
-            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
-            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
+            Gui.drawWorldpoint(player.getPosition(), (x, y) -> {
+                Gui.drawString(player.getName(), x, y, Colors.GRAY);
+            });
 
-//            Gui.drawCornerStretchTexture(tmpTex, 100, 100, 400, 400, 80);
+//            Particle p = new Particle();
+//            p.getPosition().set(getPlayer().getPosition());
+//            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
+//            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
 
-            glEnable(GL_CULL_FACE);
+//            glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
-
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -217,6 +208,7 @@ public class Outskirts {
         profiler.push("updateDisplay");
         this.updateDisplay();
         profiler.pop("updateDisplay");
+        numFrames++;
     }
 
     public static void setWorld(WorldClient world) {
@@ -483,7 +475,7 @@ public class Outskirts {
 
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-        window = glfwCreateWindow(1, 1, "ENGINE", NULL, NULL);
+        window = glfwCreateWindow(1, 1, "ENGNE", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create window.");
 
@@ -534,6 +526,16 @@ public class Outskirts {
         // Display.sync(GameSettings.FPS_CAPACITY);
     }
 
+    private void initWindowFurther() {
+        // set window to screen center and perform init-onResize()
+        GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
+        int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
+        glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
+        glfwSetWindowSize(window, wWidth, wHeight); // for init onResize() in macOS
+        glfwShowWindow(window);
+
+        this.updateDisplay(); // update CONTENT_SCALE for correct init viewport (before init-round onResize()/glfwPollEvents()
+    }
 
     /**
      * Window Creation, Window Resized, Window toggleFullscreen

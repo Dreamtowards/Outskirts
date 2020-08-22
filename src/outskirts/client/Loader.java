@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL;
 import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
 import outskirts.client.material.Texture;
+import outskirts.client.render.renderer.RenderEngine;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
@@ -30,6 +31,7 @@ import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
+import static outskirts.util.logging.Log.LOGGER;
 
 public final class Loader {
 
@@ -175,9 +177,9 @@ public final class Loader {
      */
     public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage[] bufferedImages) {
         Validate.isTrue(bufferedImages.length == 6, "Texture CubeMap requires 6 faces.");
+
         int width = bufferedImages[0].getWidth();
         int height = bufferedImages[0].getHeight();
-
         for (BufferedImage bi : bufferedImages) {
             Validate.isTrue(bi.getWidth()==width && bi.getHeight()==height, "Texuure CubeMap faces required same size.");
         }
@@ -190,10 +192,10 @@ public final class Loader {
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
+        boolean initTex = width != dest.getWidth() || height != dest.getHeight(); // flag for all 6 faces.
         for (int i = 0;i < 6;i++) {
             ByteBuffer buffer = Loader.loadTextureData(bufferedImages[i], false);
-
-            if (width != dest.getWidth() || height != dest.getHeight()) {
+            if (initTex) {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
                 dest.setWidth(width).setHeight(height);
             } else {
@@ -256,8 +258,9 @@ public final class Loader {
 
                 float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
                 glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+                LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
             } else {
-                Log.info("Unable to init Texture_Filter_Anisotropic. Device unsupported.");
+                LOGGER.info("Unable to init Texture_Filter_Anisotropic. Device unsupported.");
             }
         }
     }
