@@ -183,7 +183,6 @@ public class Outskirts {
 
             profiler.push("gui");
             glDisable(GL_DEPTH_TEST);
-//            glDisable(GL_CULL_FACE);  // gui face flip render requires. (negatives width/height)
 
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
@@ -198,7 +197,6 @@ public class Outskirts {
 //            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
 //            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
 
-//            glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
         }
