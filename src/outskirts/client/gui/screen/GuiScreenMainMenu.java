@@ -55,7 +55,6 @@ public class GuiScreenMainMenu extends GuiScreen {
 
                 Outskirts.setWorld(new WorldClient());
 
-                Outskirts.getWorld().addEntity(Outskirts.getPlayer());
             }
         });
     }

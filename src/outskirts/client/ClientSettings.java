@@ -141,6 +141,14 @@ public final class ClientSettings {
         if (keyState)
             Gui.toggleVisible(GuiDebugCommon.instance);
     });
+    private static final KeyBinding KEY_DEBUGOP = new KeyBinding("key.debug.op", GLFW_KEY_F4, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
+        if (keyState) {
+            if (GuiIDebugOp.debugMenu.isVisible())
+                GuiIDebugOp.debugMenu.hide();
+            else
+                GuiIDebugOp.debugMenu.show(40, 40);
+        }
+    });
 
 
     public static final KeyBinding KEY_ESC = new KeyBinding("key.esc", GLFW_KEY_ESCAPE, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {

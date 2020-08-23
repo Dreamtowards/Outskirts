@@ -26,7 +26,7 @@ public class GuiScrollbar extends Gui {
     /** scroll percentage. [0, 1] */
     private float value;
 
-    /** [0, 1] */
+    /** [0, 1] main axis size. */
     private float handlerSize = 0.1f;
 
     private float _OnDraggingMouseInHandlerPercen;

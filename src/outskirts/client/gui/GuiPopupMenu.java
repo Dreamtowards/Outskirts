@@ -90,6 +90,12 @@ public class GuiPopupMenu extends Gui {
         public static GuiItem button(String text, Runnable onClick) {
             GuiItem g = new GuiItem(new GuiText(text));
             g.addOnClickListener(e -> onClick.run());
+//            g.addOnClickListener(e -> {  // when item clicked, dismiss all sup-popupmenus
+//                Gui.forParents(g, pa -> {
+//                    if (pa instanceof GuiPopupMenu)
+//                        ((GuiPopupMenu)pa).hide();
+//                }, false);
+//            });
             return g;
         }
 
@@ -133,12 +139,6 @@ public class GuiPopupMenu extends Gui {
             content.addLayoutorAlignParentLTRB(8, Float.NaN, 8, Float.NaN);
             setHeight(38);
             setWidth(190);
-//            addOnClickListener(e -> {  // when item clicked, dismiss all sup-popupmenus
-//                Gui.forParents(this, g -> {
-//                    if (g instanceof GuiPopupMenu)
-//                        ((GuiPopupMenu)g).hide();
-//                }, false);
-//            });
 //            Consumer lsr = e -> {
 //                Gui.forChildren(getParent(), g -> {
 //                    GuiItem item = (GuiItem)g;

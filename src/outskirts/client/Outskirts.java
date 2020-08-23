@@ -122,21 +122,10 @@ public class Outskirts {
 //        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-//        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
 
-//        GuiPopupMenu menu = GuiIDebugOp.debugMenu;//new GuiPopupMenu();
-//        menu.addItem(GuiPopupMenu.GuiItem.button("Op1", ()->{}));
-//        menu.addItem(GuiPopupMenu.GuiItem.button("Op2", ()->{}));
-//        menu.addItem(GuiPopupMenu.GuiItem.button("Op3", ()->{}));
-//        menu.addItem(GuiPopupMenu.GuiItem.button("Op4", ()->{}));
-//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel1", true, b -> {}));
-//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel2", true, b -> {}));
-//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel3", true, b -> {}));
         Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
             if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
-                LOGGER.info("Show");
-//                menu.show(getMouseX(), getMouseY());
-                GuiIDebugOp.debugMenu.show(Outskirts.getMouseX(), Outskirts.getMouseY());
+
             }
         });
     }
@@ -182,7 +171,8 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
 
-            Gui.drawWorldpoint(player.getPosition(), (x, y) -> {
+            if (getWorld() != null)
+            Gui.drawWorldpoint(getWorld().getEntities().get(1).getPosition(), (x, y) -> {
                 Gui.drawString(player.getName(), x, y, Colors.GRAY);
             });
 
@@ -253,6 +243,7 @@ public class Outskirts {
         getPlayer().getRigidBody().setMass(20);//.setFriction(0.5f).setRestitution(0f);//.setLinearDamping(0.04f);
 //        getPlayer().getRigidBody().invInertiaTensorLocalDiag = SceneIniter.e.getRigidBody().invInertiaTensorLocalDiag;
 //        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
+        Outskirts.getWorld().addEntity(Outskirts.getPlayer());
 
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
