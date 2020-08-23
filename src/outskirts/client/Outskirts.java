@@ -176,6 +176,10 @@ public class Outskirts {
                 Gui.drawString(player.getName(), x, y, Colors.GRAY);
             });
 
+            // Pointer. this actually not belong Debug.
+            int POINTER_SIZE = 4;
+            Gui.drawRect(Colors.WHITE, Outskirts.getWidth()/2f-POINTER_SIZE/2f, Outskirts.getHeight()/2f-POINTER_SIZE/2f, POINTER_SIZE, POINTER_SIZE);
+
 //            Particle p = new Particle();
 //            p.getPosition().set(getPlayer().getPosition());
 //            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));

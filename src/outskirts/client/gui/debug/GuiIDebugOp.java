@@ -43,7 +43,7 @@ public class GuiIDebugOp {
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp WD", () -> {
                 Gui.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE));
             }));
-            mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> GuiDebugCommon.instance.showLightMarks =c));
+            mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> {}));
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());
             mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
         }
@@ -65,5 +65,19 @@ public class GuiIDebugOp {
     private static void toggleShow(Gui g, boolean show) {
         if (show) Gui.getRootGUI().addGui(g);
         else Gui.getRootGUI().removeGui(g);
+    }
+
+
+
+
+    private static void renderAnimationDebug() {
+
+//                    GuiVert3D.INSTANCE.vertices.clear();
+//                    for (int i = 0;i < jts.length;i++) {
+//                        Vector4f vo = Matrix4f.transform(jts[i]._bindTransform, new Vector4f(0,0,0,1));
+//                        Vector4f vc = Matrix4f.transform(jts[i].currentTransform, new Vector4f(0,0,0,1));
+//                        GuiVert3D.addVert("jo-"+jts[i].name, new Vector3f(vo.x, vo.y, vo.z), Colors.GREEN, i==0?new String[0]:new String[]{"jo-"+jts[jts[i].parentIdx].name});
+//                        GuiVert3D.addVert("jc-"+jts[i].name, new Vector3f(vc.x, vc.y, vc.z), Colors.RED, i==0?new String[0]:new String[]{"jc-"+jts[jts[i].parentIdx].name});
+//                    }
     }
 }

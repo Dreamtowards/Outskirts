@@ -138,8 +138,8 @@ public final class ClientSettings {
     });
 
     private static final KeyBinding KEY_COMMDEBUG = new KeyBinding("key.debug.comm", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
-        if (keyState)
-            Gui.toggleVisible(GuiDebugCommon.instance);
+//        if (keyState)
+//
     });
     private static final KeyBinding KEY_DEBUGOP = new KeyBinding("key.debug.op", GLFW_KEY_F4, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
         if (keyState) {
