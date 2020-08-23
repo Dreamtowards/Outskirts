@@ -64,7 +64,7 @@ public final class RenderEngine {
 
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        checkGlError("prepare");
+        RenderEngine.checkGlError("prepare");
 
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).

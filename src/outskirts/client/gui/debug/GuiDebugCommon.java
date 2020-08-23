@@ -1,16 +1,10 @@
 package outskirts.client.gui.debug;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.GuiMenubar;
-import outskirts.client.gui.ex.GuiWindow;
-import outskirts.client.gui.inspection.GuiInspEntity;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.ModelRenderer;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.SystemUtils;
@@ -22,9 +16,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class GuiDebugCommon extends Gui {
 
-    public static final GuiDebugCommon INSTANCE = new GuiDebugCommon();
-
-    public GuiMenubar debugMenu = addGui(new GuiMenubar());
+    public static final GuiDebugCommon instance = new GuiDebugCommon();
 
     public boolean showCambasisAndInfos;
     public boolean showLightMarks;
@@ -35,42 +27,6 @@ public class GuiDebugCommon extends Gui {
 
     {
         addGui(GuiDebugPhys.INSTANCE);
-
-        Gui MEMLOG = addGui(new GuiMemoryLog());
-        MEMLOG.setVisible(false);
-        MEMLOG.addLayoutorAlignParentLTRB(0, Float.NaN, Float.NaN, 0);
-
-        Gui PROFILERV = addGui(new GuiProfilerVisual());
-        PROFILERV.setVisible(false);
-        PROFILERV.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 10, 10);
-
-        Gui VERT3D = addGui(GuiVert3D.INSTANCE);
-        VERT3D.setVisible(false);
-        VERT3D.setRelativeY(32);
-
-        Gui ENTITYINSP = addGui(new GuiWindow(GuiInspEntity.INSTANCE));
-        ENTITYINSP.setVisible(true);
-
-        debugMenu.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
-        {
-            GuiPopupMenu mDebug = debugMenu.addMenu("DebugV", new GuiPopupMenu());
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("Infos display", false, c -> GuiDebugCommon.INSTANCE.showCambasisAndInfos =c).bindKey(GLFW.GLFW_KEY_F3));
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("Memlog window", false, MEMLOG::setVisible));
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("Profile window", false, PROFILERV::setVisible));
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("3DVertices window", false, VERT3D::setVisible).bindKey(GLFW.GLFW_KEY_V));
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("Entity Insp", false, ENTITYINSP::setVisible).bindKey(GLFW.GLFW_KEY_I)); //ENTITYINSP::setVisible
-            mDebug.addGui(GuiPopupMenu.Item.divider());
-            mDebug.addGui(GuiPopupMenu.Item.bswitch("Show Lights Marks", true, c -> showLightMarks =c));
-            mDebug.addGui(GuiPopupMenu.Item.divider());
-            mDebug.addGui(GuiPopupMenu.Item.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
-
-            GuiPopupMenu mPhys = debugMenu.addMenu("Phys", new GuiPopupMenu());
-            mPhys.addGui(GuiPopupMenu.Item.bswitch("BoundingBox", false, c -> GuiDebugPhys.INSTANCE.showBoundingBox=c));
-            mPhys.addGui(GuiPopupMenu.Item.bswitch("Velocities", false, c -> GuiDebugPhys.INSTANCE.showVelocities=c));
-            mPhys.addGui(GuiPopupMenu.Item.bswitch("ContactPoints", false, c -> GuiDebugPhys.INSTANCE.showContactPoints=c));
-            mPhys.addGui(GuiPopupMenu.Item.divider());
-            mPhys.addGui(GuiPopupMenu.Item.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
-        }
     }
 
     {

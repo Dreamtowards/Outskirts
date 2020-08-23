@@ -1,8 +1,10 @@
 package outskirts.client.gui;
 
-import outskirts.event.Events;
-import outskirts.event.client.input.KeyboardEvent;
+import outskirts.client.Loader;
+import outskirts.client.material.Texture;
 import outskirts.util.Colors;
+import outskirts.util.Identifier;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
 import java.util.function.Consumer;
@@ -10,15 +12,18 @@ import java.util.function.Consumer;
 //PopupMenu todo: Schedule todo.
 public class GuiPopupMenu extends Gui {
 
+    private static final Texture TEX_SUBMENU_ARROW = Loader.loadTexture(new Identifier("textures/gui/popupmenu/arrow.png").getInputStream());
+
     private long lastShowMillis;
 
     private GuiLinearLayout itemlist;
 
     {   setWrapChildren(true);
 
-        GuiContainer gPadding = addGui(new GuiContainer(new Insets(0, 6, 0, 6)));
+//        GuiContainer gPadding = addGui(new GuiContainer(new Insets(0, 6, 0, 6)));
         {
-            itemlist = gPadding.addGui(new GuiLinearLayout(Vector2f.UNIT_Y));
+            itemlist = //gPadding.
+                    addGui(new GuiLinearLayout(Vector2f.UNIT_Y));
             itemlist.setWrapChildren(true);
         }
     }
@@ -26,137 +31,154 @@ public class GuiPopupMenu extends Gui {
     public GuiPopupMenu() {
         hide();
 
-//        addLayoutorLayoutLinear(Vector2f.UNIT_Y);
-//        addLayoutorWrapChildren(16, 4, 16, 4);
-
         // when mouse-click in outside, hide the menu.
         addMouseButtonListener(e -> {
-            if (System.currentTimeMillis() > lastShowMillis+300 && !isHover()) {  // rem topmenu
+            if (System.currentTimeMillis() > lastShowMillis+300 && !isMenuHover()) {  // rem topmenu
                 hide();
             }
         });
 
         addOnDrawListener(e -> {
-            drawRect(Colors.WHITE40, this);
+            drawRect(Colors.BLACK, this);
         });
     }
 
     public final void show(float x, float y) {
-        setX(x);
-        setY(y);
-        setVisible(true);
+        setX(x); setY(y);
         lastShowMillis = System.currentTimeMillis();
+        if (isVisible())return;
+        setVisible(true);
+        Gui.getRootGUI().addGui(this);
+//        Log.LOGGER.info("Show Menu");
     }
 
     public final void hide() {
+        if (!isVisible())return;
         setVisible(false);
+        Gui.getRootGUI().removeGui(this);
+        // recursive hide sub menus..
+        for (Gui g : itemlist.getChildren()) {
+            if (g instanceof GuiItem && ((GuiItem)g).submenu != null)
+                ((GuiItem)g).submenu.hide();
+        }
+
+//        Log.LOGGER.info("Hide Menu");
     }
 
+    // indicates sub-item menus...
+    private boolean isMenuHover() {
+        if (isHover())
+            return true;
+        for (Gui g : itemlist.getChildren()) {
+            if (g instanceof GuiItem) {
+                GuiPopupMenu submenu = ((GuiItem)g).submenu;
+                if (submenu != null && submenu.isMenuHover())
+                    return true;
+            }
+        }
+        return false;
+    }
 
-    public void addItem(Item guiItem) {
+    public void addItem(Gui guiItem) {
 
         itemlist.addGui(guiItem);
 
     }
 
-    public static class Item extends Gui {
+    public static class GuiItem extends Gui {
 
-        public static Item button(String text) {
-            return new Item(text);
+        public static GuiItem button(String text, Runnable onClick) {
+            GuiItem g = new GuiItem(new GuiText(text));
+            g.addOnClickListener(e -> onClick.run());
+            return g;
         }
 
-        public static Item bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
-            boolean[] checked = {ck};
-            if (ck)onSwitch.accept(true);
-            Item g = new Item(text);
-            g.addOnClickListener(e -> {
-                checked[0] = !checked[0];
-                onSwitch.accept(checked[0]);
+        public static GuiItem bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
+            GuiCheckBox sw = new GuiCheckBox(text);
+            sw.setChecked(ck);
+            sw.addOnCheckedListener(e -> {
+                onSwitch.accept(sw.isChecked());
             });
-            g.addOnDrawListener(e -> {
-                if (checked[0]) {
-                    drawString("✓", g.getX()-12, g.getY(), Colors.WHITE, GuiText.DEFAULT_TEXT_HEIGHT, false, false);
-                }
-            });
-            return g;
+            return new GuiItem(sw);
         }
 
         public static Gui divider() {
             Gui g = new Gui();
-            g.setHeight(14);
-            g.addOnDrawListener(e -> drawRect(Colors.GRAY, g.getX()-16, g.getY()+6, g.getParent().getWidth(), 2));
+            g.setHeight(6);
+//            g.addOnDrawListener(e -> drawRect(Colors.BLACK, g.getX(), g.getY(), g.getParent().getWidth(), 6));
+            g.addOnDrawListener(e -> drawRect(Colors.WHITE, g.getX(), g.getY()+1, g.getParent().getWidth(), 4));
             return g;
         }
 
         public static Gui slider(String s, float v, float min, float max, Consumer<Float> onChanged) {
             GuiSlider g = new GuiSlider();
             g.addOnValueChangedListener(e -> {
-//                g.setText(String.format(s, g.getCurrentUserValue()));
                 onChanged.accept(g.getCurrentUserValue());
             });
             g.setUserMinMaxValue(min, max);
             g.setCurrentUserValue(v);
-            g.addLayoutorAlignParentLTRB(16, Float.NaN, 16, Float.NaN);
-//            g.addOnDrawListener(e -> {
-//                g.getTextOffset().set(g.isMouseOver()?g.getWidth():0, 0);
-//            });
-            return g;
+            return new GuiItem(g);
         }
 
-//        private static GuiItem menu(String text, GuiMenu menu) {
-//            GuiItem g = new GuiItem();
-//            g.setText(text);
-//            g.subMenu=menu;
-//            g.addGui(menu);
-//            return g;
-//        }
-//        private GuiMenu subMenu;
+        public static GuiItem menu(String text, GuiPopupMenu menu) {
+            GuiItem g = new GuiItem(new GuiText(text));
+            g.submenu =menu;
+            return g;
+        }
+        private GuiPopupMenu submenu;
 
-        private Item(String s) {
-            addGui(new GuiText(s));
-            setHeight(16);
-            setWidth(100);
-//            addOnClickListener(e -> {  // when item clicked, dismiss all sup-menu
-//                Gui gui = this;
-//                while ((gui=gui.getParent())!=Gui.EMPTY) {
-//                    if (gui instanceof GuiMenu) ((GuiMenu)gui).hide();
-//                }
+        private GuiItem(Gui content) {
+            addGui(content);
+            content.addLayoutorAlignParentRR(Float.NaN, 0.45f);
+            content.addLayoutorAlignParentLTRB(8, Float.NaN, 8, Float.NaN);
+            setHeight(38);
+            setWidth(190);
+//            addOnClickListener(e -> {  // when item clicked, dismiss all sup-popupmenus
+//                Gui.forParents(this, g -> {
+//                    if (g instanceof GuiPopupMenu)
+//                        ((GuiPopupMenu)g).hide();
+//                }, false);
 //            });
 //            Consumer lsr = e -> {
-//                for (int i = 0;i < getParent().getChildCount();i++) {
-//                    Gui item = getParent().getChildAt(i);
+//                Gui.forChildren(getParent(), g -> {
+//                    GuiItem item = (GuiItem)g;
 //                    if (item.subMenu != null) {
-//                        if (item.isMouseOver()) {
+//                        if (item.isHover()) {
 //                            item.subMenu.setX(getX() + getWidth()).setY(getY());
 //                            item.subMenu.setVisible(true);
 //                        } else if (item.subMenu.isVisible() && !isMouseInMenu(item.subMenu)) {
 //                            item.subMenu.hide();
 //                        }
 //                    }
-//                }
+//                }, false);
 //            };
-//            addOnMouseExitedListener(lsr);
-//            addOnMouseEnteredListener(lsr);
+            Consumer lsrOpenMenu = e -> {
+                Gui.forChildren(getParent(), g -> {
+                    if (g instanceof GuiItem && ((GuiItem)g).submenu != null)
+                        ((GuiItem)g).submenu.hide();
+                }, false);
+                if (submenu != null) {
+                    submenu.show(getX()+getWidth(), getY());
+                }
+            };
+            addOnMouseInListener(lsrOpenMenu);
+            addOnPressedListener(lsrOpenMenu);
+            addOnClickListener(lsrOpenMenu);
+            addOnMouseOutListener(e -> {
+                if (submenu != null && !submenu.isMenuHover()) {
+                    submenu.hide();
+                }
+            });
 
             addOnDrawListener(e -> {
-                Gui paren = getParent();
+                drawCornerStretchTexture(GuiButton.TEX_BUTTON_BACKGROUND, this, 3);
                 if (isHover()) {
-                    drawRect(Colors.BLACK40, paren.getX(), getY(), paren.getWidth(), getHeight());
-//                    drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());
+                    drawRect(Colors.BLACK10, this);
                 }
-//                if (subMenu != null) {
-//                    drawRect(Colors.GREEN, paren.getX() + paren.getWidth() - 5, getY(), 5, getHeight());
-//                }
-            });
-        }
-
-        public Item bindKey(int key) {
-            Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-                if (e.getKeyState() && e.getKey() == key) {
-                    performEvent(new OnClickEvent());
+                if (submenu != null) {
+                    drawTexture(TEX_SUBMENU_ARROW, getX()+getWidth() - 20, getY()+(getHeight()-14)/2, 14, 14);
                 }
             });
-            return this;
         }
     }
 

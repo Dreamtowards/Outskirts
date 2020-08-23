@@ -6,13 +6,9 @@ import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.debug.GuiDebugCommon;
+import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.gui.ex.GuiTestWindowWidgets;
-import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
-import outskirts.client.material.Texture;
-import outskirts.client.particle.Particle;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
@@ -22,7 +18,6 @@ import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
 import outskirts.init.Models;
-import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
@@ -127,23 +122,23 @@ public class Outskirts {
 //        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
         startScreen(GuiScreenMainMenu.INSTANCE);
 
-        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
+//        getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
 
-//        GuiPopupMenu menu = getRootGUI().addGui(new GuiPopupMenu());
-//        menu.addItem(GuiPopupMenu.Item.button("Op1"));
-//        menu.addItem(GuiPopupMenu.Item.button("Op2"));
-//        menu.addItem(GuiPopupMenu.Item.button("Op3"));
-//        menu.addItem(GuiPopupMenu.Item.button("Op4"));
-//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel1", true, b -> {}));
-//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel2", true, b -> {}));
-//        menu.addItem(GuiPopupMenu.Item.bswitch("OpSel3", true, b -> {}));
-//
-//        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
-//            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
-//                LOGGER.info("Show");
+//        GuiPopupMenu menu = GuiIDebugOp.debugMenu;//new GuiPopupMenu();
+//        menu.addItem(GuiPopupMenu.GuiItem.button("Op1", ()->{}));
+//        menu.addItem(GuiPopupMenu.GuiItem.button("Op2", ()->{}));
+//        menu.addItem(GuiPopupMenu.GuiItem.button("Op3", ()->{}));
+//        menu.addItem(GuiPopupMenu.GuiItem.button("Op4", ()->{}));
+//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel1", true, b -> {}));
+//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel2", true, b -> {}));
+//        menu.addItem(GuiPopupMenu.GuiItem.bswitch("OpSel3", true, b -> {}));
+        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
+            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
+                LOGGER.info("Show");
 //                menu.show(getMouseX(), getMouseY());
-//            }
-//        });
+                GuiIDebugOp.debugMenu.show(Outskirts.getMouseX(), Outskirts.getMouseY());
+            }
+        });
     }
 
 
@@ -183,7 +178,6 @@ public class Outskirts {
 
             profiler.push("gui");
             glDisable(GL_DEPTH_TEST);
-
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
             rootGUI.onDraw();

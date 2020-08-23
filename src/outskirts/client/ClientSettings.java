@@ -4,12 +4,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.GuiDebugCommon;
+import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.client.gui.screen.GuiScreenPause;
 import outskirts.util.IOUtils;
 import outskirts.util.KeyBinding;
 import outskirts.util.StringUtils;
+import outskirts.util.logging.Log;
 
 import java.io.*;
 import java.lang.annotation.ElementType;
@@ -137,7 +139,7 @@ public final class ClientSettings {
 
     private static final KeyBinding KEY_COMMDEBUG = new KeyBinding("key.debug.comm", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
         if (keyState)
-            Gui.toggleVisible(GuiDebugCommon.INSTANCE);
+            Gui.toggleVisible(GuiDebugCommon.instance);
     });
 
 
