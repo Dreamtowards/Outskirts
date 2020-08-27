@@ -64,6 +64,13 @@ public final class ReflectionUtils {
         }
     }
 
+    public static <T> T newInstance(Class<T> cls) {
+        try {
+            return cls.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throw new RuntimeException("Failed to newInstance.", ex);
+        }
+    }
 
     // speed too low...
     /**

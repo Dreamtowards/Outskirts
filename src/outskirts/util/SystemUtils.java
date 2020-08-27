@@ -2,6 +2,7 @@ package outskirts.util;
 
 import outskirts.client.Outskirts;
 import outskirts.util.logging.Log;
+import sun.misc.Unsafe;
 
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -11,6 +12,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -141,6 +143,26 @@ public final class SystemUtils {
         MEM_USED = MEM_TOTAL - Runtime.getRuntime().freeMemory();
     }
 
+
+
+
+    public static ASMClassLoader ASMCLASSLOADER = new ASMClassLoader();
+    public static class ASMClassLoader extends ClassLoader {
+        public Class<?> define(String name, byte[] bytes) {
+            return defineClass(name, bytes, 0, bytes.length);
+        }
+    }
+
+    public static sun.misc.Unsafe UNSAFE;
+    static {
+        try {
+            Field f = Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            UNSAFE = (Unsafe)f.get(null);
+        } catch (IllegalAccessException | NoSuchFieldException ex) {
+            throw new RuntimeException("Failed to get UNSAFE field.", ex);
+        }
+    }
 
     public static void debugCanContinue() {
         while (true) {

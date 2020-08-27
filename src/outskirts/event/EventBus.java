@@ -1,14 +1,12 @@
 package outskirts.event;
 
 import net.jodah.typetools.TypeResolver;
+import outskirts.event._asminvok.ASMInvoker;
 import outskirts.util.CollectionUtils;
-import outskirts.util.CopyOnIterateArrayList;
-import outskirts.util.ReflectionUtils;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.logging.Log;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,10 +14,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-//todo: ASM Invoker
 public class EventBus {
 
     private static final Comparator<Handler> COMP_HANDLER_PRIORITY_DESC = Collections.reverseOrder(Comparator.comparingInt(Handler::priority));
+
+    private static boolean USE_ASM_OHINVOKER = false;
 
     private List<Handler> handlers;
 
@@ -93,16 +92,24 @@ public class EventBus {
                 int priority = annotation.priority();
                 boolean ignoreCancelled = annotation.ignoreCancelled();
                 Scheduler scheduler = resolveScheduler(annotation);
+                Consumer function;
 
-                method.setAccessible(true);
-
-                Consumer function = event -> {
-                    try {
-                        method.invoke(owner, event);
-                    } catch (IllegalAccessException | InvocationTargetException ex) {
-                        throw new RuntimeException("Failed to invoke this Method EventHandler.", ex);
-                    }
-                };
+                if (USE_ASM_OHINVOKER) {
+                    assert Modifier.isPublic(method.getModifiers());
+                    ASMInvoker asmi = ASMInvoker.create(method);
+                    function = event -> {
+                        asmi.invoke(owner, event);
+                    };
+                } else {
+                    method.setAccessible(true);
+                    function = event -> {
+                        try {
+                            method.invoke(owner, event);
+                        } catch (IllegalAccessException | InvocationTargetException ex) {
+                            throw new RuntimeException("Failed to invoke this Method EventHandler.", ex);
+                        }
+                    };
+                }
 
                 register(eventclass, function)
                         .priority(priority)

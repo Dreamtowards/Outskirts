@@ -2,21 +2,9 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import org.json.JSONObject;
-import outskirts.client.gui.debug.GuiVert3D;
-import outskirts.event.Event;
-import outskirts.event.EventHandler;
-import outskirts.event.client.ClientTickEvent;
-import outskirts.physics.collision.shapes.convex.BoxShape;
-import outskirts.physics.dynamics.RigidBody;
-import outskirts.storage.dat.DATObject;
-import outskirts.storage.SAVERS;
-import outskirts.util.*;
 import outskirts.util.logging.Log;
-import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
-import java.io.*;
 import java.util.*;
 import java.util.function.LongConsumer;
 
@@ -264,138 +252,11 @@ public class Test {
 //
 //        System.out.println(new JSONObject(mp).toString(4));
 
-        List<String> found = new ArrayList<>();
-        FileUtils.walk(new File("/Users/dreamtowards/Downloads"), f -> {
-            if (f.isDirectory())
-                LOGGER.info("walk: " + f.getAbsolutePath());
-            if (f.getName().endsWith(".vcf")) {
-                found.add(f.getAbsolutePath());
-
-                LOGGER.info("found +1 ("+found+")");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        LOGGER.info("Found: " + found);
-    }
-
-    @EventHandler
-    private void f1(Event event) {
-//        LOGGER.info("ALL The Events Listener: Event:{}", event.getClass());
 
     }
 
-    @EventHandler
-    private void f2(ClientTickEvent event) {
-//        LOGGER.info("CliTkEvent");
-    }
-
-    public static int func() {
-
-        LOGGER.info("start func");
-
-        try (SomeClas c = SomeClas.nw()) {
-
-            LOGGER.info("before return");
-            return getInt();
-        }
-    }
-    public static int getInt() {
-        LOGGER.info("exec return :getInt");
-        return 5;
-    }
-
-    private static class SomeClas implements AutoCloseable {
-
-        public int someInt = 123;
-
-        public int metho() {return someInt;}
-
-        public static SomeClas nw() {
-            return new SomeClas();
-        }
-
-        @Override
-        public void close() {
-            LOGGER.info("AutoClosed");
-        }
-    }
-
-    private static void test_alloc_stack() {
-
-        long sum = 0;
-
-        long s = System.currentTimeMillis();
-
-        for(int i=0;i<1_000_000_00;i++){
-            Matrix3f m1 = new Matrix3f();
-            m1.m00 = 2;
-            Matrix3f m2 = new Matrix3f();
-            m2.m00 = 1;
-            Matrix3f mr = Matrix3f.sub(m1, m2, null);
-
-            sum += (long)mr.m00;
-//            stObj[0] = m1;
-        }
-
-        System.out.println(System.currentTimeMillis() - s);
-        System.out.println(sum);
-    }
-    static class vec3 {
-        float x, y, z;
-        vec3(float x, float y, float z) {this.x = x; this.y = y; this.z = z;}
-    }
-
-    /**
-     * r = d+ -(d•n)*2*n
-     */
-    public static vec3 reflect(vec3 norm, vec3 vec) {
-        float t = -(vec.x*norm.x + vec.y*norm.y + vec.z*norm.z); // -(d•n)
-        return new vec3(
-                vec.x + t*2*norm.x,
-                vec.y + t*2*norm.y,
-                vec.z + t*2*norm.z
-        );
-    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private static void writeVerts(Iterable<GuiVert3D.Vert> verts) throws IOException {
-        IOUtils.write(
-                new ByteArrayInputStream(GuiVert3D.Vert.writeToJSON(verts).toString(4).getBytes()),
-                new FileOutputStream("vert.json"));
-    }
-
-
-
-    private static float rand() {
-        return (float)random();
-    }
-
-
-//    @EventHandler(scheduler = Outskirts.class)
-//    public void abc(WindowResizedEvent event) {
-//
-//        Log.info("Resized. " + Thread.currentThread());
-//    }
 
 
     private static void sorttest() {
@@ -420,7 +281,9 @@ public class Test {
     }
 
     private static void speed(String name, long N, LongConsumer func) {
-        func.accept(1); //warm up
+        for (int i = 0;i < Math.max(1, (int)(N/10));i++) {
+            func.accept(1); //warm up
+        }
         long s = System.nanoTime();
         for (long i = 0;i < N;i++) {
             func.accept(i);
