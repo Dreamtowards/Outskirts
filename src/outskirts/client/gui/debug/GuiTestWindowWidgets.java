@@ -1,4 +1,4 @@
-package outskirts.client.gui.ex;
+package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;

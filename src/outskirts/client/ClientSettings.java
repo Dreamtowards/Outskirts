@@ -3,7 +3,6 @@ package outskirts.client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.debug.GuiDebugCommon;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.screen.GuiScreenMainMenu;

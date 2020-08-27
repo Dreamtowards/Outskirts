@@ -6,6 +6,7 @@ import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiScrollPanel;
 import outskirts.client.material.Texture;
+import outskirts.event.EventPriority;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 
@@ -17,6 +18,7 @@ public final class GuiWindow extends Gui {
 
     private static final Texture TEX_BG = Loader.loadTexture(new Identifier("textures/gui/bg/dialog_background_opaque.png").getInputStream());
     private static final Texture TEX_INDENT = Loader.loadTexture(new Identifier("textures/gui/bg/indent.png").getInputStream());
+    private static final Texture TEX_SHADOW = Loader.loadTexture(new Identifier("textures/gui/shadow.png").getInputStream());
 
     private static final float WIN_HANDLER_HEIGHT = 32;
 
@@ -86,5 +88,20 @@ public final class GuiWindow extends Gui {
             drawCornerStretchTexture(TEX_BG, this, 16);
 //            drawRectBorder(Colors.BLACK, this, -1);
         });
+
+        GuiWindow.dropShadow(this, 32, 16, 2);
+    }
+
+    /**
+     * @param radius radius of extra of gui bound.
+     * @param yoff y offset, positives number let shadow offset 'downwards'
+     * @param thin 0-1 or lite bigger. for more bigger, shadow more 'transparent'
+     */
+    public static void dropShadow(Gui g, float radius, float yoff, float thin) {
+        g.addOnDrawListener(e -> {
+
+            drawCornerStretchTexture(TEX_SHADOW, g.getX()-radius, g.getY()-radius+yoff, g.getWidth()+2*radius, g.getHeight()+2*radius, radius*thin);
+
+        }).priority(EventPriority.HIGH);
     }
 }

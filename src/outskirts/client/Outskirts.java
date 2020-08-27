@@ -5,8 +5,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.debug.GuiIDebugOp;
+import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
@@ -109,25 +108,18 @@ public class Outskirts {
 
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
-
         this.initWindowFurther();
 
         Init.registerAll(Side.CLIENT);
 
         player = new EntityPlayerSP();
         camera.getCameraUpdater().setOwnerEntity(player);
-
         player.setName("Player215");
 
-//        getRootGUI().addGui(GuiDebugCommon.INSTANCE); GuiDebugCommon.INSTANCE.setVisible(false);
-        startScreen(GuiScreenMainMenu.INSTANCE);
+        getRootGUI().addGui(new GuiIngame());
+        getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
 
-        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
-            if (e.getButtonState() && e.getMouseButton() == GLFW_MOUSE_BUTTON_RIGHT) {
-
-            }
-        });
     }
 
 
@@ -170,15 +162,6 @@ public class Outskirts {
             Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
             rootGUI.onDraw();
-
-            if (getWorld() != null)
-            Gui.drawWorldpoint(getWorld().getEntities().get(1).getPosition(), (x, y) -> {
-                Gui.drawString(player.getName(), x, y, Colors.GRAY);
-            });
-
-            // Pointer. this actually not belong Debug.
-            int POINTER_SIZE = 4;
-            Gui.drawRect(Colors.WHITE, Outskirts.getWidth()/2f-POINTER_SIZE/2f, Outskirts.getHeight()/2f-POINTER_SIZE/2f, POINTER_SIZE, POINTER_SIZE);
 
 //            Particle p = new Particle();
 //            p.getPosition().set(getPlayer().getPosition());

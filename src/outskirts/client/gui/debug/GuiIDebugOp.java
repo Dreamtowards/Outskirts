@@ -3,13 +3,10 @@ package outskirts.client.gui.debug;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.ex.GuiTestWindowWidgets;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiInspEntity;
-import outskirts.client.gui.screen.GuiScreen;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 
 public class GuiIDebugOp {
