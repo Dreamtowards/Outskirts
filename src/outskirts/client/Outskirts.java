@@ -159,15 +159,8 @@ public class Outskirts {
 
             profiler.push("gui");
             glDisable(GL_DEPTH_TEST);
-            Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), getRootGUI());
             rootGUI.onLayout();
             rootGUI.onDraw();
-
-//            Particle p = new Particle();
-//            p.getPosition().set(getPlayer().getPosition());
-//            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
-//            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
-
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
         }

@@ -6,18 +6,20 @@ import outskirts.util.ReflectionUtils;
 import outskirts.util.SystemUtils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Opcodes.RETURN;
 
 public abstract class ASMInvoker {
 
-    private static final String BASECNAME = ASMInvoker.class.getCanonicalName().replace(".", "/"); // "outskirts/event/asminvoke/ASMInvoker"
 
-    public abstract void invoke(Object owner, Object param);
+    public abstract void invoke(Object obj, Object param0);
 
 
-    private static long nextClassId = 0;
+    private static String _INVOKER_BASE = ASMInvoker.class.getCanonicalName().replace(".", "/"); // "outskirts/event/asminvoke/ASMInvoker"
+
+    private static long _nextClassId = 0;
 
     /**
      * public class IvkInstan extends ASMInvoker {
@@ -27,26 +29,24 @@ public abstract class ASMInvoker {
      *     }
      * }
      */
-    public static ASMInvoker create(Method method) {
-        return ASMInvoker.create(
-                method.getDeclaringClass().getCanonicalName().replace(".", "/"),
-                method.getParameterTypes()[0].getCanonicalName().replace(".", "/"),
-                method.getName());
-    }
     // ownerclass(outskirts/event/asminvoke/examp/AnExampEHandlerClass)  paramclass(outskirts/event/gui/GuiEvent)  methodname(anHander)
-    public static ASMInvoker create(String ownerclass, String paramclass, String methodname) {
-        final String instName = "outskirts/event/_asminvok/inst/MethodInvokeInstance" +(nextClassId++);
+    public static ASMInvoker create(Method method) {
+        final String instname = "outskirts/event/_asminvok/inst/MethodInvokeInstance" +(_nextClassId++);
+        String ownerclass = method.getDeclaringClass().getCanonicalName().replace(".", "/");
+        String paramclass = method.getParameterTypes()[0].getCanonicalName().replace(".", "/");
+        String methodname = method.getName();
+        boolean isPublic = Modifier.isPublic(method.getModifiers());
 
         ClassWriter cw = new ClassWriter(0);
         MethodVisitor mv;
 
-        cw.visit(52, ACC_PUBLIC + ACC_SUPER, instName, null, BASECNAME, null);
+        cw.visit(52, ACC_PUBLIC + ACC_SUPER, instname, null, _INVOKER_BASE, null);
 
         {
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, BASECNAME, "<init>", "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, _INVOKER_BASE, "<init>", "()V", false);
             mv.visitInsn(RETURN);
             mv.visitMaxs(1, 1);
             mv.visitEnd();
@@ -66,8 +66,9 @@ public abstract class ASMInvoker {
         cw.visitEnd();
 
         byte[] b = cw.toByteArray();
-        Class<?> clazz = SystemUtils.ASMCLASSLOADER.define(instName.replace("/", "."), b);
-        // SystemUtils.UNSAFE.defineAnonymousClass(ASMInvoker.class, b, null);
+        Class<?> clazz =
+                isPublic ? ReflectionUtils.UNSAFE.defineClass(instname.replace("/", "."), b, 0, b.length, ClassLoader.getSystemClassLoader(), null)
+                         : ReflectionUtils.UNSAFE.defineAnonymousClass(method.getDeclaringClass(), b, null);
         return (ASMInvoker)ReflectionUtils.newInstance(clazz);
     }
 

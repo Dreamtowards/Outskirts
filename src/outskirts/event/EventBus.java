@@ -18,7 +18,12 @@ public class EventBus {
 
     private static final Comparator<Handler> COMP_HANDLER_PRIORITY_DESC = Collections.reverseOrder(Comparator.comparingInt(Handler::priority));
 
-    private static boolean USE_ASM_OHINVOKER = false;
+    /**
+     * Java1.4+ reflection. actually got a little better effective than just ASM call.
+     * espetually in first several calls. they switch to uses ASM caller after '16' VM calls,
+     * then get the effective equality with original java.
+     */
+    private static boolean USE_ASMINVOKER = false;
 
     private List<Handler> handlers;
 
@@ -94,8 +99,7 @@ public class EventBus {
                 Scheduler scheduler = resolveScheduler(annotation);
                 Consumer function;
 
-                if (USE_ASM_OHINVOKER) {
-                    assert Modifier.isPublic(method.getModifiers());
+                if (USE_ASMINVOKER) {
                     ASMInvoker asmi = ASMInvoker.create(method);
                     function = event -> {
                         asmi.invoke(owner, event);

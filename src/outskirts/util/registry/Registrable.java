@@ -23,7 +23,7 @@ public interface Registrable {
     default <T extends Registrable> T setRegistryID(String registryID) {
         try {
             //impl class's 'registryID' field.
-            Field f = ReflectionUtils.getField(getClass(), "registryID", true,
+            Field f = ReflectionUtils.findFieldUpward(getClass(), "registryID",
                     clz -> CollectionUtils.contains(clz.getInterfaces(), Registrable.class));
             Validate.notNull(f, "'registryID' field is not found.");
 

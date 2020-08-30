@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GLUtil;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.animation.AnRenderer;
+import outskirts.client.gui.Gui;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
@@ -62,14 +63,14 @@ public final class RenderEngine {
         glCullFace(GL_BACK); // DEF
         glFrontFace(GL_CCW); // DEF
 
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         RenderEngine.checkGlError("prepare");
 
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
         Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
-//        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth(), Outskirts.getHeight(), 1000, renderEngine.getProjectionMatrix());
+        // Maths.createOrthographicProjectionMatrix(Outskirts.getWidth(), Outskirts.getHeight(), 1000, renderEngine.getProjectionMatrix());
     }
 
     public void render(World world) {
@@ -80,9 +81,18 @@ public final class RenderEngine {
         worldFramebuffer.bindPushFramebuffer();
         prepare();
         glDisable(GL_CULL_FACE);
+
         entityRenderer.render(world.getEntities(), world.lights);
+
+//            Particle p = new Particle();
+//            p.getPosition().set(getPlayer().getPosition());
+//            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
+//            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
+
         glEnable(GL_CULL_FACE);
         worldFramebuffer.popFramebuffer();
+
+        Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), Outskirts.getRootGUI());
 
 //        skyboxRenderer.render();
     }

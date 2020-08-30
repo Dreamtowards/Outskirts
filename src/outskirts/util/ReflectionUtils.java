@@ -1,11 +1,13 @@
 package outskirts.util;
 
+import sun.misc.Unsafe;
 import sun.reflect.ReflectionFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -13,26 +15,26 @@ import java.util.function.Predicate;
  */
 public final class ReflectionUtils {
 
-    public static Field getField(Class<?> sourceClass, String fieldname, boolean findUpward, Predicate<Class<?>> predicate) {
-        Field field = null;
-        for (Class clazz = sourceClass;clazz != Object.class;clazz = clazz.getSuperclass()) {
+    public static sun.misc.Unsafe UNSAFE = ReflectionUtils.getFieldValue(Objects.requireNonNull(getField(Unsafe.class, "theUnsafe")), null);
+
+
+    public static Field findFieldUpward(Class<?> fromclass, String fieldname, Predicate<Class<?>> predicate) {
+        for (Class clazz = fromclass;clazz != Object.class;clazz = clazz.getSuperclass()) {
             if (predicate.test(clazz)) {
-                try {
-                    field = clazz.getDeclaredField(fieldname);
-                } catch (NoSuchFieldException ex) { }
-            }
-            if (!findUpward || field != null) {
-                break;
+                Field f = ReflectionUtils.getField(clazz, fieldname);
+                if (f != null)
+                    return f;
             }
         }
-        if (field != null) {
-            field.setAccessible(true);
-        }
-        return field;
+        return null;
     }
 
-    public static Field getField(Class<?> sourceClass, String fieldname) {
-        return getField(sourceClass, fieldname, false, c -> true);
+    public static Field getField(Class<?> clazz, String fieldname) {
+        try {
+            return clazz.getDeclaredField(fieldname);
+        } catch (NoSuchFieldException ex) {
+            return null;
+        }
     }
 
     public static <T> T getFieldValue(Field field, Object owner) {
@@ -72,28 +74,17 @@ public final class ReflectionUtils {
         }
     }
 
-    // speed too low...
     /**
-     * @param clazz the class type be instanced
-     * @param parent "parent"'s default constructor will be calls for creating the "clazz"'s instance
-     */
-    private static <T> T allocInstance(Class<T> clazz, Class<? super T> parent) {
-        try {
-            Constructor parentCon = parent.getDeclaredConstructor();
-
-            Constructor actuallyCon = ReflectionFactory.getReflectionFactory()
-                    .newConstructorForSerialization(clazz, parentCon);
-
-            return clazz.cast(actuallyCon.newInstance());
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
-            throw new RuntimeException("Failed to create instance.", ex);
-        }
-    }
-
-    /**
-     * just new instance without calling the type(class/object)'s constructor
+     * UNSAFE. just allocate instance without calling the class's constructor
      */
     private static <T> T allocInstance(Class<T> clazz) {
-        return allocInstance(clazz, Object.class);
+        try {
+            return (T)UNSAFE.allocateInstance(clazz);
+        } catch (InstantiationException ex) {
+            throw new RuntimeException("Failed to allocate this instance.");
+        }
+    }
+    private static Class<?> defineClass(String name, byte[] bytes) {
+        return UNSAFE.defineClass(name, bytes, 0, bytes.length, ClassLoader.getSystemClassLoader(), null);
     }
 }
