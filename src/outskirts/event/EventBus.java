@@ -1,7 +1,7 @@
 package outskirts.event;
 
 import net.jodah.typetools.TypeResolver;
-import outskirts.event._asminvok.ASMInvoker;
+import outskirts.event.asminvok.ASMInvoker;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;

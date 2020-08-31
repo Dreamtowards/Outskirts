@@ -10,11 +10,12 @@ import outskirts.util.Colors;
 import outskirts.util.vector.Vector3f;
 
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 
 /**
  * Dynamic-Bounding-Volume-Tree.
  *
- * Maintain a Bvh struct. AABB Tree.
+ * Maintain a dynamic Bvh struct. AABB Tree.
  *
  * https://box2d.org/files/ErinCatto_DynamicBVH_GDC2019.pdf
  */
@@ -34,6 +35,8 @@ public class BroadphaseDbvt extends Broadphase {
     @Override
     public void removeObject(CollisionObject body) {
         removeLeaf((DbvtNode)body.broadphaseAttachment);
+        body.broadphaseAttachment = null;
+        removePairsContainingBody(body);
     }
 
     @Override
@@ -46,10 +49,13 @@ public class BroadphaseDbvt extends Broadphase {
         if (rootNode==null || rootNode.isLeaf())
             return;
 
-        getOverlappingPairs().clear();
-
+        // collide whole Dbvt. keep/addnew all intersecting pairs. (pairs add only)
         collideNode(rootNode, null);
 
+        // remove non-intersecting paris. (pairs remove only).
+        getOverlappingPairs().removeIf(
+                mf -> !AABB.intersects(mf.bodyA().getAABB(), mf.bodyB().getAABB())
+        );
     }
 
 //    {
@@ -89,7 +95,10 @@ public class BroadphaseDbvt extends Broadphase {
                 collideNode(nodeA, nodeB.child[0]);
                 collideNode(nodeA, nodeB.child[1]);
             } else if (nodeA.isLeaf() && nodeB.isLeaf()) {
-                getOverlappingPairs().add(new CollisionManifold((RigidBody)nodeA.body, (RigidBody)nodeB.body));
+                // add (new) Manifold if not extsting the (persistent) manifold.
+                if (CollisionManifold.indexOf(getOverlappingPairs(), nodeA.body, nodeB.body) == -1) {
+                    getOverlappingPairs().add(new CollisionManifold((RigidBody)nodeA.body, (RigidBody)nodeB.body));
+                }
             }
         }
     }
@@ -139,10 +148,10 @@ public class BroadphaseDbvt extends Broadphase {
 
     /**
      * updating tree (Movement Objects).
-     * the updateing-method of Rebuild-sup-nodes-volumes is not ok. that'll leads to low quality trees.
-     * i.e. the Tree is lost control, when a leaf's body moveing fast, the leaf may not closed to the actually sibling/group anymore.
-     * then we uses -- Remove/re-insert.
-     * this makes updating Correctly-Perform. the movement/updating Leaf, been remove, and put in "Correct" place by insertLeaf().
+     * the updateing-method of Rebuild-sup-nodes-volumes(without 'rotate' tree) is not ok. that'll leads to low quality trees.
+     * i.e. the Tree is lost control, when a leaf's body moveing fast / far away, the leaf is not actually closed to the current (fixed) sibling anymore. broke rule.
+     * we uses -- Remove/re-insert.
+     * this makes updating Correctly-Perform. when movement/updating Leafs, remove it first, and then put it in "Correct" place by insertLeaf().
      */
     private void updateLeaf(DbvtNode leaf, AABB newVolume) {
         if (leaf.volume.contains(newVolume))
@@ -157,10 +166,10 @@ public class BroadphaseDbvt extends Broadphase {
 
 
     private final static class DbvtNode {
-        private AABB volume = new AABB();  // actually final.
+        private AABB volume = new AABB();
         private DbvtNode parent;
-        private DbvtNode[] child; // size=2
-        private CollisionObject body;  // body/data==null. or child[1,2]==null
+        private DbvtNode[] child;      // non-null when is Internal-node. size=2
+        private CollisionObject body;  // non-null when is Leaf-node.
 
         public static DbvtNode newLeaf(CollisionObject body) {  // leaf
             DbvtNode n = new DbvtNode();

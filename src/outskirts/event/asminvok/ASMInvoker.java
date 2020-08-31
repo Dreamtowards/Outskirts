@@ -1,9 +1,8 @@
-package outskirts.event._asminvok;
+package outskirts.event.asminvok;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import outskirts.util.ReflectionUtils;
-import outskirts.util.SystemUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,7 +30,7 @@ public abstract class ASMInvoker {
      */
     // ownerclass(outskirts/event/asminvoke/examp/AnExampEHandlerClass)  paramclass(outskirts/event/gui/GuiEvent)  methodname(anHander)
     public static ASMInvoker create(Method method) {
-        final String instname = "outskirts/event/_asminvok/inst/MethodInvokeInstance" +(_nextClassId++);
+        final String instname = "outskirts/event/asminvok/inst/MethodInvokeInstance" +(_nextClassId++);
         String ownerclass = method.getDeclaringClass().getCanonicalName().replace(".", "/");
         String paramclass = method.getParameterTypes()[0].getCanonicalName().replace(".", "/");
         String methodname = method.getName();

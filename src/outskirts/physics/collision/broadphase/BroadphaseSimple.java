@@ -4,6 +4,7 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.dynamics.RigidBody;
+import outskirts.util.logging.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class BroadphaseSimple extends Broadphase {
     @Override
     public void removeObject(CollisionObject body) {
         broadphaseObjects.remove(body);
+        removePairsContainingBody(body);
     }
 
     @Override
@@ -36,6 +38,7 @@ public class BroadphaseSimple extends Broadphase {
                         getOverlappingPairs().add(new CollisionManifold((RigidBody)body1, (RigidBody)body2));
                 } else if (idx != -1) {
                     getOverlappingPairs().remove(idx);
+                    Log.LOGGER.info("rem pair");
                 }
             }
         }

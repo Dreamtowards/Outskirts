@@ -4,7 +4,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.ex.GuiWindow;
-import outskirts.client.gui.inspection.GuiInspEntity;
+import outskirts.client.gui.inspection.GuiInspectionEntity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
 import outskirts.util.vector.Matrix3f;
@@ -38,7 +38,7 @@ public class GuiIDebugOp {
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("Insp", mInsp));
         {
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp WD", () -> {
-                Gui.getRootGUI().addGui(new GuiWindow(GuiInspEntity.INSTANCE));
+                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> {}));
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());

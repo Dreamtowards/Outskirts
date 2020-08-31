@@ -161,6 +161,8 @@ public class Outskirts {
             glDisable(GL_DEPTH_TEST);
             rootGUI.onLayout();
             rootGUI.onDraw();
+            if (rayPicker.getCurrentEntity() != null)
+                Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().getRigidBody().getAABB(), Colors.RED);
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
         }
@@ -268,14 +270,14 @@ public class Outskirts {
 
     private void destroy() {
 
-        if (getWorld() != null) {
-            try {
-                DSTUtils.write(getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
-                LOGGER.info("Flushed to scen.dat");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+//        if (getWorld() != null) {
+//            try {
+//                DSTUtils.write(getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
+//                LOGGER.info("Flushed to scen.dat");
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
 
         ClientSettings.saveOptions();
 

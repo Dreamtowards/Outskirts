@@ -37,4 +37,8 @@ public abstract class Broadphase {
         return overlappingPairs;
     }
 
+    // always call on removeObject().
+    protected final void removePairsContainingBody(CollisionObject body) {
+        getOverlappingPairs().removeIf(mf -> mf.containsBody(body));
+    }
 }
