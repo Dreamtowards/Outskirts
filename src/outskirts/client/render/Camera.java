@@ -50,7 +50,7 @@ public class Camera {
 
         public void update() {
             // KEY_VIEW
-            if (Outskirts.getWorld() != null && Outskirts.currentScreen() == null) {
+            if (Outskirts.isIngame()) {
 //                if (Outskirts.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
 //                    eulerAngles.z += -Math.toRadians(Outskirts.getMouseDX() * GameSettings.MOUSE_SENSITIVITY);
 //                } else {

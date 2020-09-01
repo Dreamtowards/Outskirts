@@ -4,6 +4,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiTextBox;
+import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.util.Colors;
 import outskirts.world.WorldClient;
@@ -48,10 +49,13 @@ public class GuiScreenMainMenu extends GuiScreen {
         btnMultiplayer.addOnClickListener(e -> {
             if (Outskirts.isShiftKeyDown()) {
 
-                Outskirts.startScreen(GuiScreenConnecting.connect("localhost:25585"));
+                Outskirts.getRootGUI().addGui(GuiScreenConnecting.connect("localhost:25585"));
             } else {
 
-                Outskirts.closeAllScreen();
+                // tmp offline.
+
+                Outskirts.getRootGUI().removeAllGuis();
+                Outskirts.getRootGUI().addGui(GuiIngame.INSTANCE);
 
                 Outskirts.setWorld(new WorldClient());
 
@@ -61,7 +65,7 @@ public class GuiScreenMainMenu extends GuiScreen {
 
     private GuiButton btnOptions = addGui(new GuiButton("Options")); {
         btnOptions.addOnClickListener(e -> {
-            Outskirts.startScreen(GuiScreenOptions.INSTANCE);
+            Outskirts.getRootGUI().addGui(GuiScreenOptions.INSTANCE);
         });
     }
 

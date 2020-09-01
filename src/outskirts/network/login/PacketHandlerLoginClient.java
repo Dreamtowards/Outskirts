@@ -2,7 +2,9 @@ package outskirts.network.login;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.screen.GuiScreenDisconnect;
+import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.event.EventHandler;
 import outskirts.event.conn.ChannelInactiveEvent;
 import outskirts.network.ChannelHandler;
@@ -23,16 +25,18 @@ public class PacketHandlerLoginClient {
     @EventHandler // sheculer=Client cuz switch PacketHandler
     private void handleLoginSuccess(SPacketLoginSuccess packet) {
 
+        // switch handler
         connection.eventBus()
                 .unregister(this) // modify list
                 .register(new PacketHandlerPlayClient(connection));
 
-        Outskirts.closeAllScreen();
+        // init GUI
+        Outskirts.getRootGUI().removeAllGuis();
+        Outskirts.getRootGUI().addGui(GuiIngame.INSTANCE);
 
         Outskirts.getPlayer().connection = connection;
 
         Outskirts.setWorld(new WorldClient());
-
         Outskirts.getWorld().addEntity(Outskirts.getPlayer());
     }
 
@@ -43,7 +47,7 @@ public class PacketHandlerLoginClient {
 
     @EventHandler
     private void onDisconnect(ChannelInactiveEvent event) { //todo ext.test
-        Outskirts.closeScreen(); // pop GuiScreenConnecting
-        Outskirts.startScreen(new GuiScreenDisconnect(connection.getTerminationReason()));
+        Outskirts.getRootGUI().removeLastGui(); // pop GuiwConnecting, to GuiwMultiplay
+        Outskirts.getRootGUI().addGui(new GuiScreenDisconnect(connection.getTerminationReason()));
     }
 }

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
+import outskirts.client.gui.screen.GuiScreen;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.client.gui.screen.GuiScreenPause;
 import outskirts.util.IOUtils;
@@ -140,28 +141,16 @@ public final class ClientSettings {
 //        if (keyState)
 //
     });
+
+    private static GuiScreen debugMenuScreen;  // for keep mouse visible when Ingame.
     private static final KeyBinding KEY_DEBUGOP = new KeyBinding("key.debug.op", GLFW_KEY_F4, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
         if (keyState) {
-            if (GuiIDebugOp.debugMenu.isVisible())
+            //todo: control mouseGrabbing shouldn't uses GuiScreen type check.
+
+            if (GuiIDebugOp.debugMenu.isVisible()) {
                 GuiIDebugOp.debugMenu.hide();
-            else
-                GuiIDebugOp.debugMenu.show(40, 40);
-        }
-    });
-
-
-    public static final KeyBinding KEY_ESC = new KeyBinding("key.esc", GLFW_KEY_ESCAPE, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {
-        if (keyState) {
-            if (Outskirts.getWorld() != null) {
-                if (Outskirts.currentScreen() == null) {
-                    Outskirts.startScreen(GuiScreenPause.INSTANCE);
-                } else {
-                    Outskirts.closeScreen();
-                }
             } else {
-                if (Outskirts.currentScreen() != GuiScreenMainMenu.INSTANCE) {
-                    Outskirts.closeScreen();
-                }
+                GuiIDebugOp.debugMenu.show(40, 40);
             }
         }
     });
@@ -174,7 +163,7 @@ public final class ClientSettings {
 
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == null) {
+        if (keyState && Outskirts.isIngame()) {
 
 
         }
@@ -182,7 +171,7 @@ public final class ClientSettings {
 
 
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.getWorld() != null && Outskirts.currentScreen() == null) {
+        if (keyState && Outskirts.isIngame()) {
 
 
         }

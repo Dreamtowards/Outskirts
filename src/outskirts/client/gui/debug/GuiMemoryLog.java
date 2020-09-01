@@ -59,7 +59,7 @@ public class GuiMemoryLog extends Gui {
             }
 
             // draw mouse-over
-            if (Outskirts.currentScreen() != Gui.EMPTY && isHover()) {
+            if (!Outskirts.isIngame() && isHover()) {
                 int memIndex = (int)(((Outskirts.getMouseX() - getX()) / getWidth()) * memlog.length);
                 int relX = (int)(((float)memIndex / memlog.length) * getWidth());
 

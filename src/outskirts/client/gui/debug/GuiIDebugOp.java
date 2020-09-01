@@ -39,6 +39,7 @@ public class GuiIDebugOp {
         {
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp WD", () -> {
                 Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> {}));
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());

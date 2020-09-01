@@ -116,7 +116,6 @@ public class Outskirts {
         camera.getCameraUpdater().setOwnerEntity(player);
         player.setName("Player215");
 
-        getRootGUI().addGui(new GuiIngame());
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
 
@@ -167,6 +166,10 @@ public class Outskirts {
             profiler.pop("gui");
         }
         profiler.pop("render");
+
+        if (isKeyDown(GLFW_KEY_K))
+        LOGGER.info(getRootGUI().getChildren());
+//        Outskirts.setMouseGrabbed(!Outskirts.isKeyDown(GLFW_KEY_LEFT_ALT));
 
         profiler.pop("rt");
         profiler.push("updateDisplay");
@@ -247,7 +250,7 @@ public class Outskirts {
     private void runTick() {
 
         if (getWorld() != null) {
-            if (currentScreen() == null) {
+            if (isIngame()) {
                 float lv =1;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
@@ -292,17 +295,9 @@ public class Outskirts {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
-    public static GuiScreen currentScreen() {
-        return getRootGUI().currentScreen();
-    }
-    public static void startScreen(GuiScreen screen) {
-        getRootGUI().addGui(screen);
-    }
-    public static GuiScreen closeScreen() {
-        return getRootGUI().closeScreen();
-    }
-    public static void closeAllScreen() {
-        getRootGUI().closeAllScreen();
+    // for: Camera mouse-view, walk-keyboard. ingame pause. key-use/attack.
+    public static boolean isIngame() {
+        return Outskirts.getWorld() != null && Outskirts.getRootGUI().size() == 1 && Outskirts.getRootGUI().getGui(0) instanceof GuiIngame;
     }
 
     public static boolean isRunning() {

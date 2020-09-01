@@ -1,46 +1,31 @@
 package outskirts.client.gui.screen;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
+import outskirts.event.Events;
+import outskirts.event.client.input.KeyboardEvent;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
 import static java.lang.Float.NaN;
 
-public class GuiScreenPause extends GuiScreen {
+public class GuiScreenPause extends Gui {
 
     public static final GuiScreenPause INSTANCE = new GuiScreenPause();
 
     private GuiScreenPause() {
+        setWidth(200);
+        setHeight(800);
+//        addLayoutorAlignParentRR(1, 0.5f);
 
-//        Vector3f[] circle_s = new Vector3f[10];
-//        for (int i = 0;i < 10;i++) {
-//            Vector3f vec = Matrix3f.transform(Matrix3f.rotate(i/10f * 2* Maths.PI, Vector3f.UNIT_Z, null), new Vector3f(1, 0, 0), null);
-//            circle_s[i] = vec.add(2,0.8f,0);
-//        }
-//
-//        Vector3f[] box_s = new Vector3f[] {
-//                new Vector3f(-1, 1, 0),
-//                new Vector3f( 1, 1, 0),
-//                new Vector3f( 1,-1, 0),
-//                new Vector3f(-1,-1, 0)
-//        };
-//        for (Vector3f v : box_s)
-//            v.add(new Vector3f(1,-1,0));
-//
-//        addBeforeDrawListener(e -> {
-//
-//            for (Vector3f vbox : box_s)
-//                for (Vector3f vcir : circle_s)
-//                    drawPoint(Colors.RED, vbox.x-vcir.x, vbox.y-vcir.y);
-//
-//            for (Vector3f v : box_s)
-//                drawPoint(Colors.GREEN, v.x, v.y);
-//
-//            for (Vector3f v : circle_s)
-//                drawPoint(Colors.DARK_GREEN, v.x, v.y);
-//
-//        });
-
+        addKeyboardListener(e -> {
+            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && Outskirts.getRootGUI().getGui(Outskirts.getRootGUI().size()-1) == this) {
+                Log.LOGGER.info("ESC pause");
+                Outskirts.getRootGUI().removeGui(this);
+            }
+        });
     }
 
     private static void drawPoint(Vector4f color, float x, float y) {
@@ -49,14 +34,14 @@ public class GuiScreenPause extends GuiScreen {
 
     private GuiButton btnBack = addGui(new GuiButton("Back")); {
         btnBack.addOnClickListener(e -> {
-            Outskirts.closeScreen();
+            Outskirts.getRootGUI().removeGui(this);
         });
         btnBack.addLayoutorAlignParentLTRB(NaN, 100, 20, NaN);
     }
 
     private GuiButton btnOptions = addGui(new GuiButton("Options")); {
         btnOptions.addOnClickListener(e -> {
-            Outskirts.startScreen(GuiScreenOptions.INSTANCE);
+            Outskirts.getRootGUI().addGui(GuiScreenOptions.INSTANCE);
         });
         btnOptions.addOnLayoutListener(e -> {
             btnOptions.addLayoutorAlignParentLTRB(NaN, 160, 20, NaN);
@@ -67,8 +52,8 @@ public class GuiScreenPause extends GuiScreen {
         btnDisconne.addOnClickListener(e -> {
             Outskirts.setWorld(null);
 //        Outskirts.getPlayer().connection.closeChannel("Dinsconne");  //client ext.test
-            Outskirts.closeScreen();
-            Outskirts.startScreen(GuiScreenMainMenu.INSTANCE);
+            Outskirts.getRootGUI().removeAllGuis();
+            Outskirts.getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
         });
         btnDisconne.addOnLayoutListener(e -> {
             btnDisconne.addLayoutorAlignParentLTRB(NaN, 220, 20, NaN);

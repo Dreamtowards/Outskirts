@@ -2,6 +2,7 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.ex.GuiIngame;
 import outskirts.network.ChannelHandler;
 import outskirts.network.Packet;
 import outskirts.network.login.PacketHandlerLoginClient;
@@ -35,8 +36,8 @@ public class GuiScreenConnecting extends GuiScreen {
 
             } catch (Throwable t) {
 
-                Outskirts.closeScreen();
-                Outskirts.startScreen(new GuiScreenDisconnect(String.format("Failed to connect.\n%s: %s", t.getClass().getName(), t.getMessage())));
+                Outskirts.getRootGUI().removeGui(this);
+                Outskirts.getRootGUI().addGui(new GuiScreenDisconnect(String.format("Failed to connect.\n%s: %s", t.getClass().getName(), t.getMessage())));
 
                 LOGGER.warn(t);
             }

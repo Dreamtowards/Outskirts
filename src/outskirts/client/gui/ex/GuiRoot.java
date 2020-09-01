@@ -14,42 +14,30 @@ import java.util.List;
 
 public final class GuiRoot extends Gui {
 
-    private GuiScreen currentScreen;  // top screen
-
-    public GuiScreen currentScreen() {
-        return currentScreen;
-    }
-
+    // how about the convinent startScreen(GuiScreen screen) .?
     @Override
     public <T extends Gui> T addGui(T gui, int index) {
-        return _AndUpdateCurrentScreen(super.addGui(gui, index));
+        T r = super.addGui(gui, index);
+        updateMouseGrab();
+        return r;
     }
-
     @Override
-    public <T extends Gui> T removeGui(int index) {
-        return _AndUpdateCurrentScreen(super.removeGui(index));
+    public Gui removeGui(int index) {
+        Gui r = super.removeGui(index);
+        updateMouseGrab();
+        return r;
+    }
+    private void updateMouseGrab() {
+        Outskirts.setMouseGrabbed(getChildCount() == 1 && getGui(0) instanceof GuiIngame);
     }
 
-    private <T> T _AndUpdateCurrentScreen(T param) {
-        GuiScreen g = null;
-        for (int i = getChildCount()-1;i >= 0;i--) {
-            if (getGui(i) instanceof GuiScreen) {
-                g = getGui(i);
-                break;
-            }
-        }
-        currentScreen = g;
-        Outskirts.setMouseGrabbed(currentScreen()==null);
-        return param;
+    public final void removeLastGui() {
+        removeGui(size()-1);
     }
 
     public GuiScreen closeScreen() {
-        int i = getChildren().lastIndexOf(currentScreen());
-        if (i == -1) return null;
-        return removeGui(i);
-    }
-    public void closeAllScreen() {
-        while (closeScreen() != null);
+
+        return null;
     }
 
 

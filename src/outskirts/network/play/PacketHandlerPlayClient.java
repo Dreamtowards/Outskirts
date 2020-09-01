@@ -38,12 +38,12 @@ public class PacketHandlerPlayClient {
 
     @EventHandler
     private void onDisconnect(ChannelInactiveEvent event) {
-        if (Outskirts.getWorld() != null) { // world==null means initiative disconne...
+        if (Outskirts.getWorld() != null) { // world==null means initiative disconne, then dont handle that.
             Outskirts.setWorld(null);
 
-            Outskirts.closeAllScreen();
-            Outskirts.startScreen(GuiScreenMainMenu.INSTANCE);
-            Outskirts.startScreen(new GuiScreenDisconnect(connection.getTerminationReason()));
+            Outskirts.getRootGUI().removeAllGuis();
+            Outskirts.getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
+            Outskirts.getRootGUI().addGui(new GuiScreenDisconnect(connection.getTerminationReason()));
         }
     }
 }

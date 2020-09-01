@@ -23,7 +23,7 @@ public class GuiScreenOptions extends GuiScreen {
 
     private GuiButton btnDone = addGui(new GuiButton("Done")); {
         btnDone.addOnClickListener(e -> {
-            Outskirts.closeScreen();
+            Outskirts.getRootGUI().removeGui(this);
         });
         btnDone.addLayoutorAlignParentRR(0.5f, NaN);
         btnDone.addLayoutorAlignParentLTRB(NaN, NaN, NaN, 80);

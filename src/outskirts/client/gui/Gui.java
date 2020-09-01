@@ -66,7 +66,7 @@ public class Gui {
     //they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
 
     private Gui parent;
-    private List<Gui> children = new ArrayList<>();
+    private List<Gui> children = new CopyOnIterateArrayList<>(); // allow to modify child while iteration.
 
     private EventBus eventBus = new EventBus(CopyOnIterateArrayList::new);
 
@@ -130,12 +130,16 @@ public class Gui {
         return children.size();
     }
 
+    public int size() {
+        return getChildCount();
+    }
+
     /**
      * @return the Gui which been removed
      */
-    public <T extends Gui> T removeGui(int index) {
+    public Gui removeGui(int index) {
         getGui(index).setParent(null);
-        return (T) children.remove(index);
+        return children.remove(index);
     }
     public final boolean removeGui(Gui g) {
         int i = children.indexOf(g);
@@ -156,6 +160,14 @@ public class Gui {
     }
     public void setParent(Gui parent) {
         this.parent = parent;
+        if (parent == null) { // when removed from parent
+            // clear children hover,press. recursive
+            forChildren(this, g -> {
+                g.setHover(false);
+                g.setPressed(false);
+            }, true, true);
+
+        }
     }
 
     public final List<Gui> getChildren() {
@@ -250,7 +262,11 @@ public class Gui {
         return visible;
     }
     public void setVisible(boolean visible) {
+        boolean oldVisible = this.visible;
         this.visible = visible;
+        if (oldVisible != visible) {
+            performEvent(new OnVisibleChangedEvent());
+        }
     }
 
     public boolean isClipChildren() {
@@ -329,21 +345,25 @@ public class Gui {
      * and {for size: get} is original method.
      * cause always use and have multi params, so not use static.
      */
-    public static void forChildren(Gui parent, Consumer<Gui> visitor, boolean recursion, Predicate<Gui> eachpredicate) {
+    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive, boolean includeSelf, Predicate<Gui> eachpredicate) {
+        if (includeSelf && eachpredicate.test(gfrom))
+            visitor.accept(gfrom);
         // if iterating children use index, probably skip/repeat iteration-item when the list been edit(add/remove)
-        for (int i = 0;i < parent.getChildCount();i++) {
-            Gui child = parent.getGui(i);
+        for (Gui child : gfrom.getChildren()) {
             if (!eachpredicate.test(child)) continue;
 
             visitor.accept(child);
 
-            if (recursion && child.getChildCount() > 0) {
-                Gui.forChildren(child, visitor, true, eachpredicate);
+            if (recursive && child.getChildCount() > 0) {
+                Gui.forChildren(child, visitor, true, false, eachpredicate);
             }
         }
     }
-    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursion) {
-        Gui.forChildren(gfrom, visitor, recursion, g -> true);
+    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive, boolean includeSelf) {
+        Gui.forChildren(gfrom, visitor, recursive, includeSelf, g -> true);
+    }
+    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive) {
+        Gui.forChildren(gfrom, visitor, recursive, false);
     }
 
     public static void forParents(Gui gfrom, Consumer<Gui> visitor, boolean includeSelf) {
@@ -437,10 +457,9 @@ public class Gui {
         return eventBus.post(event);
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui{
-        this.performEvent(event);
         Gui.forChildren(this, g -> {
             g.performEvent(event);
-        }, true, Gui::isVisible); // Only Post to isVisible() Guis.
+        }, true, true, Gui::isVisible); // Only Post to isVisible() Guis.
         return Cancellable.isCancelled(event);
     }
 
@@ -560,6 +579,9 @@ public class Gui {
     public final EventBus.Handler addOnFocusChangedListener(Consumer<OnFocusChangedEvent> lsr) {
         return attachListener(OnFocusChangedEvent.class, lsr);
     }
+    public final EventBus.Handler addOnVisibleChangedListener(Consumer<OnVisibleChangedEvent> lsr) {
+        return attachListener(OnVisibleChangedEvent.class, lsr);
+    }
 
     // AlignParentLTRB
     public final void addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
@@ -611,6 +633,8 @@ public class Gui {
     public static class OnReleasedEvent extends GuiEvent { } /// setPressed() true -> false.
 
     public static class OnFocusChangedEvent extends GuiEvent { }
+
+    public static class OnVisibleChangedEvent extends GuiEvent { }
 
 
 

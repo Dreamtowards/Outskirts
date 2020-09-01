@@ -2,6 +2,7 @@ package outskirts.client.gui.inspection;
 
 import javafx.util.Pair;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiContainer;
 import outskirts.client.gui.GuiLinearLayout;
 import outskirts.client.gui.inspection.setter.GuiSetterScalars;
@@ -14,7 +15,9 @@ public class GuiIRigidbody extends Gui {
 
     public GuiIRigidbody(RigidBody theRigidbody) {
         this.theRigidbody = theRigidbody;
+        setWrapChildren(true);
 
+        addGui(new GuiButton("Btn"));
 
 //        Gui inspRigidbody = inspectionFields.addGui(new GuiContainer(new Insets(4, 4, 4, 4)))
 //                .addGui(new GuiLinearLayout(new Vector2f(0, 1.2f)));

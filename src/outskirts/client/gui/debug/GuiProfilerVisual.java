@@ -93,7 +93,7 @@ public class GuiProfilerVisual extends Gui {
             Outskirts.getProfiler().pop("profOnDraw");
 
             // draw mouse-over section info
-            if (Outskirts.currentScreen() != Gui.EMPTY && mouseOverSection != null) {
+            if (!Outskirts.isIngame() && mouseOverSection != null) {
                 drawRect(Colors.BLACK10, Outskirts.getMouseX(), Outskirts.getMouseY() - 128, 200, 112);
                 drawString(String.format("[%s] \n%s \navgT=%sms \nlT: %sms \ntT: %sms \nC=%s", mouseOverSection.name, mouseOverSection.getFullName(),
                         mouseOverSection.totalUsedTimeNano/1_000_000f/mouseOverSection.calledCounter,
@@ -127,7 +127,7 @@ public class GuiProfilerVisual extends Gui {
         drawRect(TMP_COLOR_TRANS, getX() + relX, getY() + relY, getWidth() - relX, height);
         drawString(section.name, getX() + relX, getY() + relY, Colors.WHITE, 14);
 
-        if (Outskirts.currentScreen() != Gui.EMPTY && Gui.isMouseOver(getX()+relX, getY()+relY, getWidth()-relX, height)) {
+        if (!Outskirts.isIngame() && Gui.isMouseOver(getX()+relX, getY()+relY, getWidth()-relX, height)) {
             mouseOverSection = section;
             drawRect(Colors.WHITE20, getX() + relX, getY() + relY, getWidth() - relX, height);
         }
