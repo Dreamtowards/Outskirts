@@ -38,7 +38,6 @@ public class BroadphaseSimple extends Broadphase {
                         getOverlappingPairs().add(new CollisionManifold((RigidBody)body1, (RigidBody)body2));
                 } else if (idx != -1) {
                     getOverlappingPairs().remove(idx);
-                    Log.LOGGER.info("rem pair");
                 }
             }
         }

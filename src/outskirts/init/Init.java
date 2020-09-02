@@ -3,7 +3,7 @@ package outskirts.init;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
-import outskirts.entity.EntityModel;
+import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.network.Packet;
@@ -43,7 +43,7 @@ public final class Init {
 
         Entity.REGISTRY.register(side.isClient() ? EntityPlayerSP.class : EntityPlayerMP.class);
 
-        Entity.REGISTRY.register(EntityModel.class);
+        Entity.REGISTRY.register(EntityStaticMesh.class);
     }
 
 

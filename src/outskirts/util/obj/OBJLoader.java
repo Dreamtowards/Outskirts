@@ -1,5 +1,6 @@
 package outskirts.util.obj;
 
+import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
 import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector2f;
@@ -133,5 +134,88 @@ public class OBJLoader {
             this.textureIdx = textureIndex;
             this.normalIdx = normalIndex;
         }
+    }
+
+
+
+
+    private static boolean OP_FASTSAVE = false;
+
+    // fast vers. but big output size.
+    public static String saveOBJ(Model model) {
+        return OBJLoader.saveOBJ(model.indices, model.attribute(0).data, model.attribute(1).data, model.attribute(2).data);
+    }
+    public static String saveOBJ(int[] vindex, float[] positions, float[] textureCoords, float[] normals) {
+        StringBuilder sb = new StringBuilder();
+        if (OP_FASTSAVE) {
+            for (int i = 0;i < positions.length;i+=3) {
+                sb.append("v ").append(positions[i]).append(" ").append(positions[i+1]).append(" ").append(positions[i+2]).append("\n");
+            }
+            for (int i = 0;i < textureCoords.length;i+=2) {
+                sb.append("vt ").append(textureCoords[i]).append(" ").append(textureCoords[i+1]).append("\n");
+            }
+            for (int i = 0;i < normals.length;i+=3) {
+                sb.append("vn ").append(normals[i]).append(" ").append(normals[i+1]).append(" ").append(normals[i+2]).append("\n");
+            }
+
+            for (int i = 0;i < vindex.length;i+=3) {
+                sb.append("f ").append(vindex[i]+1).append("/").append(vindex[i]+1).append("/").append(vindex[i]+1)
+                  .append(" ").append(vindex[i+1]+1).append("/").append(vindex[i+1]+1).append("/").append(vindex[i+1]+1)
+                  .append(" ").append(vindex[i+2]+1).append("/").append(vindex[i+2]+1).append("/").append(vindex[i+2]+1).append("\n");
+            }
+            return sb.toString();
+        }
+        // build table.
+        List<Vector3f> positionsTable = new ArrayList<>();
+        List<Vector2f> textureCoordsTable = new ArrayList<>();
+        List<Vector3f> normalsTable = new ArrayList<>();
+        for (int i = 0;i < positions.length;i+=3) {
+            Vector3f v = new Vector3f(positions[i], positions[i+1], positions[i+2]);
+            if (!positionsTable.contains(v))
+                positionsTable.add(v);
+        }
+        for (int i = 0;i < textureCoords.length;i+=2) {
+            Vector2f v = new Vector2f(textureCoords[i], textureCoords[i+1]);
+            if (!textureCoordsTable.contains(v))
+                textureCoordsTable.add(v);
+        }
+        for (int i = 0;i < normals.length;i+=3) {
+            Vector3f v = new Vector3f(normals[i], normals[i+1], normals[i+2]);
+            if (!normalsTable.contains(v))
+                normalsTable.add(v);
+        }
+        // write sources.
+        for (Vector3f v : positionsTable) {
+            sb.append("v ").append(v.x).append(" ").append(v.y).append(" ").append(v.z).append("\n");
+        }
+        for (Vector2f vt : textureCoordsTable) {
+            sb.append("vt ").append(vt.x).append(" ").append(vt.y).append("\n");
+        }
+        for (Vector3f vn : normalsTable) {
+            sb.append("vn ").append(vn.x).append(" ").append(vn.y).append(" ").append(vn.z).append("\n");
+        }
+        // indices faces
+        Vector3f TMPv = new Vector3f();
+        Vector2f TMPvt = new Vector2f();
+        Vector3f TMPvn = new Vector3f();
+        for (int i = 0;i < vindex.length;i+=3) {
+            TMPv.set(positions[vindex[i]*3], positions[vindex[i]*3+1], positions[vindex[i]*3+2]);
+            TMPvt.set(textureCoords[vindex[i]*2], textureCoords[vindex[i]*2+1]);
+            TMPvn.set(normals[vindex[i]*3], normals[vindex[i]*3+1], normals[vindex[i]*3+2]);
+            sb.append("f ").append(positionsTable.indexOf(TMPv)+1).append("/").append(textureCoordsTable.indexOf(TMPvt)+1).append("/").append(normalsTable.indexOf(TMPvn)+1);
+
+            TMPv.set(positions[vindex[i+1]*3], positions[vindex[i+1]*3+1], positions[vindex[i+1]*3+2]);
+            TMPvt.set(textureCoords[vindex[i+1]*2], textureCoords[vindex[i+1]*2+1]);
+            TMPvn.set(normals[vindex[i+1]*3], normals[vindex[i+1]*3+1], normals[vindex[i+1]*3+2]);
+            sb.append(" ").append(positionsTable.indexOf(TMPv)+1).append("/").append(textureCoordsTable.indexOf(TMPvt)+1).append("/").append(normalsTable.indexOf(TMPvn)+1);
+
+            TMPv.set(positions[vindex[i+2]*3], positions[vindex[i+2]*3+1], positions[vindex[i+2]*3+2]);
+            TMPvt.set(textureCoords[vindex[i+2]*2], textureCoords[vindex[i+2]*2+1]);
+            TMPvn.set(normals[vindex[i+2]*3], normals[vindex[i+2]*3+1], normals[vindex[i+2]*3+2]);
+            sb.append(" ").append(positionsTable.indexOf(TMPv)+1).append("/").append(textureCoordsTable.indexOf(TMPvt)+1).append("/").append(normalsTable.indexOf(TMPvn)+1);
+
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

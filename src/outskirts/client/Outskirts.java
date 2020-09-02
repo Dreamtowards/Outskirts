@@ -17,6 +17,7 @@ import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
 import outskirts.init.Models;
+import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
@@ -222,7 +223,7 @@ public class Outskirts {
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
         getPlayer().getRigidBody().transform().origin.set(0,20,20);
-        getPlayer().getRigidBody().getGravity().set(0, -20, 0).scale(1);
+        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(1);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
         getPlayer().getRigidBody().setMass(20);//.setFriction(0.5f).setRestitution(0f);//.setLinearDamping(0.04f);
@@ -272,15 +273,6 @@ public class Outskirts {
     }
 
     private void destroy() {
-
-//        if (getWorld() != null) {
-//            try {
-//                DSTUtils.write(getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
-//                LOGGER.info("Flushed to scen.dat");
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
 
         ClientSettings.saveOptions();
 
@@ -487,24 +479,24 @@ public class Outskirts {
     }
 
     private void initWindowFurther() {
+        this.updateDisplay(); // update CONTENT_SCALE for correctly init-Viewport (set tha before init-onResize()
+
         // set window to screen center and perform init-onResize()
         GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
         int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
         glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
-        glfwSetWindowSize(window, wWidth, wHeight); // for init onResize() in macOS
+        glfwSetWindowSize(window, wWidth, wHeight); // invokes onResize(). for init on macOS
         glfwShowWindow(window);
-
-        this.updateDisplay(); // update CONTENT_SCALE for correct init viewport (before init-round onResize()/glfwPollEvents()
     }
 
     /**
      * Window Creation, Window Resized, Window toggleFullscreen
      */
     private void onWindowResized(long w, int nWidth, int nHeight) {
-        Events.EVENT_BUS.post(new WindowResizedEvent());
-
         this.width = nWidth;
         this.height = nHeight;
+
+        Events.EVENT_BUS.post(new WindowResizedEvent());
 
         glViewport(0, 0, toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
     }

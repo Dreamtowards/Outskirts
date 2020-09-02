@@ -63,22 +63,22 @@ public class Framebuffer {
     //
 
     public Framebuffer attachTextureColor(int i) {
-        textures_color[i] = internalAttachTexture2D(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0+i, textures_color[i]);
+        textures_color[i] = internalAttachTexture2D(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0+i);
         return this;
     }
     public Framebuffer attachTextureDepth() {
-        texture_depth = internalAttachTexture2D(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT, texture_depth);
+        texture_depth = internalAttachTexture2D(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT);
         return this;
     }
     public Framebuffer attachTextureDepthStencil() {
-        texture_depthStencil = internalAttachTexture2D(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_DEPTH_STENCIL_ATTACHMENT, texture_depthStencil);
+        texture_depthStencil = internalAttachTexture2D(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_DEPTH_STENCIL_ATTACHMENT);
         return this;
     }
-    private Texture internalAttachTexture2D(int internalformat, int format, int type, int attachment, Texture targtex) {
+    private Texture internalAttachTexture2D(int internalformat, int format, int type, int attachment) {
         Loader.OP_TEX2D_internalformat = internalformat;
         Loader.OP_TEX2D_format         = format;
         Loader.OP_TEX2D_type           = type;
-        Texture texture = Loader.loadTexture(targtex, new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
+        Texture texture = Loader.loadTexture(null, new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.textureID(), 0);
         return texture;
     }

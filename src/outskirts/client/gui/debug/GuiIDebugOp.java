@@ -3,11 +3,20 @@ package outskirts.client.gui.debug;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
+import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiInspectionEntity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
+import outskirts.storage.dat.DATObject;
+import outskirts.storage.dat.DSTUtils;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
+
+import java.io.FileOutputStream;
+
+import static outskirts.client.Outskirts.getWorld;
+import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiIDebugOp {
 
@@ -41,6 +50,19 @@ public class GuiIDebugOp {
                 Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
                 debugMenu.hide();
             }));
+            mInsp.addItem(GuiPopupMenu.GuiItem.button("Add EntityStaticMesh", () -> {
+                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                debugMenu.hide();
+            }));
+            mInsp.addItem(GuiPopupMenu.GuiItem.button("Flush to scen.dat", () -> {
+                try {
+                    DSTUtils.write(Outskirts.getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                LOGGER.info("Flushed to scen.dat");
+                debugMenu.hide();
+            }));
             mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> {}));
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());
             mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
@@ -61,8 +83,8 @@ public class GuiIDebugOp {
     }
 
     private static void toggleShow(Gui g, boolean show) {
-        if (show) Gui.getRootGUI().addGui(g);
-        else Gui.getRootGUI().removeGui(g);
+        if (show) GuiIngame.INSTANCE.addGui(g);
+        else GuiIngame.INSTANCE.removeGui(g);
     }
 
 

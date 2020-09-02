@@ -108,7 +108,9 @@ public class RigidBody extends CollisionObject {
 
     public RigidBody setMass(float mass) {
         this.inverseMass = mass==0?0: 1f/mass;
-        updateBodyInertia(this);
+        if (getCollisionShape() != null) {
+            updateBodyInertia(this);
+        }
         return this;
     }
     public final float getMass() {

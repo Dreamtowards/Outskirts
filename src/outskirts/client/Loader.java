@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +101,10 @@ public final class Loader {
         return loadOBJ(inputStream, null);
     }
 
+    public static byte[] saveOBJ(Model model) {
+        return OBJLoader.saveOBJ(model).getBytes(StandardCharsets.UTF_8);
+    }
+
     public static int loadOGG(InputStream inputStream) {
         try {
             OggLoader.OggData oggData = OggLoader.loadOGG(inputStream);
@@ -122,16 +127,16 @@ public final class Loader {
         return Loader.loadPNG(new ByteArrayInputStream((bytes)));
     }
     public static void savePNG(BufferedImage bi, OutputStream outputStream) {
-        try {
-            ImageIO.write(bi, "PNG", outputStream);
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to loadPNG().", ex);
-        }
+
     }
     public static byte[] savePNG(BufferedImage bi) { // TOOL METHOD
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Loader.savePNG(bi, baos);
-        return baos.toByteArray();
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bi, "PNG", baos);
+            return baos.toByteArray();
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to savePNG().", ex);
+        }
     }
     public static byte[] savePNG(Texture texture) {  // TOOL METHOD
         return Loader.savePNG(Texture.glfGetTexImage(texture));

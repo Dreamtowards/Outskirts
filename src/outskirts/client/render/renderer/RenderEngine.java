@@ -11,6 +11,9 @@ import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
+import outskirts.event.EventHandler;
+import outskirts.event.Events;
+import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
@@ -21,6 +24,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderEngine {
+
+    public float RENDERE_QUALITY = 1;
 
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
@@ -44,6 +49,8 @@ public final class RenderEngine {
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
+
+        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
     }
 
     public void prepare() {
@@ -95,6 +102,14 @@ public final class RenderEngine {
         Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), Outskirts.getRootGUI());
 
 //        skyboxRenderer.render();
+    }
+
+    public void updateRenderQuality() {
+        Outskirts.renderEngine.getWorldFramebuffer().bindPushFramebuffer();
+        Outskirts.renderEngine.getWorldFramebuffer().resize(
+                (int)(Outskirts.toFramebufferCoords(Outskirts.getWidth())*RENDERE_QUALITY),
+                (int)(Outskirts.toFramebufferCoords(Outskirts.getHeight())*RENDERE_QUALITY));
+        Outskirts.renderEngine.getWorldFramebuffer().popFramebuffer();
     }
 
     public static void checkGlError(String msg) {

@@ -12,7 +12,10 @@ import java.util.function.BiConsumer;
  */
 public class TriangleMeshShape extends ConcaveShape {
 
+    // indices of positions vector. index unit is vec3. (not scalar).
+    // idxValue = [0, positions.length/3)
     private int[] indices;
+    // positions vec3 table. unit as vec3.
     private float[] positions;
 
     public TriangleMeshShape(int[] indices, float[] positions) {
@@ -23,11 +26,11 @@ public class TriangleMeshShape extends ConcaveShape {
     private int getTrianglesCount() {
         return indices.length/3;
     }
-    private void getTriangle(int tIdx, Vector3f[] dest) {
-        int iIdx = tIdx*3;
-        Vector3f.set(dest[0], positions, indices[iIdx  ]*3);
-        Vector3f.set(dest[1], positions, indices[iIdx+1]*3);
-        Vector3f.set(dest[2], positions, indices[iIdx+2]*3);
+    private void getTriangle(int idxTriangle, Vector3f[] dest) {
+        int v0idx = idxTriangle*3;
+        Vector3f.set(dest[0], positions, indices[v0idx  ]*3);
+        Vector3f.set(dest[1], positions, indices[v0idx+1]*3);
+        Vector3f.set(dest[2], positions, indices[v0idx+2]*3);
     }
 
     private void getFarPoint(Vector3f d, Vector3f dest) {

@@ -22,7 +22,6 @@ public class GuiScreenPause extends Gui {
 
         addKeyboardListener(e -> {
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && Outskirts.getRootGUI().getGui(Outskirts.getRootGUI().size()-1) == this) {
-                Log.LOGGER.info("ESC pause");
                 Outskirts.getRootGUI().removeGui(this);
             }
         });

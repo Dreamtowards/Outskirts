@@ -2,14 +2,23 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import outskirts.client.material.ex.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
+import outskirts.util.FileUtils;
+import outskirts.util.IOUtils;
+import outskirts.util.ReflectionUtils;
 import outskirts.util.logging.Log;
+import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.function.LongConsumer;
 
+import static java.lang.Math.acos;
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -269,9 +278,24 @@ public class Test {
 //            inst.handler(event);
 //        });
 
+        ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/islandblend.obj"));
 
+        OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
 
+        long st = System.nanoTime();
+        String s = OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
+        System.out.println((System.nanoTime()-st)/1_000_000f);
 
+        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
+    }
+
+    private static class ACls {
+
+        private String s = "abcde";
+
+        public ACls() {
+            LOGGER.info("Constr");
+        }
 
     }
 

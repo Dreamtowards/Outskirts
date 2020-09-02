@@ -85,7 +85,6 @@ public final class SAVERS {
                 obj.getVertices().clear();
                 obj.getVertices().addAll(vts);
             }
-
             @Override
             public DATObject write(ConvexHullShape obj, DATObject mp) {
                 DATArray lsVertices = new DATArray();
@@ -98,6 +97,7 @@ public final class SAVERS {
         });
     }
 
+    public static boolean OP_RIGIDBODY_WRITECOLLISIONSHAPE = false;
     public static final Saver<RigidBody> RIGIDBODY = new Saver<RigidBody>() {
         // Transform
         // CollisionShape
@@ -110,13 +110,15 @@ public final class SAVERS {
         public void read(RigidBody obj, DATObject mp) {
             SAVERS.TRANSFORM.read(obj.transform(), (DATObject)mp.get("transform"));
             //todo: option to Custom set CollShape, not 100% nesecary do load.
-            try {
-                DATObject mpCollisionshape = (DATObject)mp.get("collisionshape");
-                CollisionShape collisionshape = (CollisionShape)Class.forName((String)mpCollisionshape.get("type")).newInstance();
-                COLLISIONSHAPE_SMAP.get(collisionshape.getClass()).read(collisionshape, mpCollisionshape);
-                obj.setCollisionShape(collisionshape);
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-                ex.printStackTrace();
+            if (mp.containsKey("collisionshape")) {
+                try {
+                    DATObject mpCollisionshape = (DATObject) mp.get("collisionshape");
+                    CollisionShape collisionshape = (CollisionShape) Class.forName((String) mpCollisionshape.get("type")).newInstance();
+                    COLLISIONSHAPE_SMAP.get(collisionshape.getClass()).read(collisionshape, mpCollisionshape);
+                    obj.setCollisionShape(collisionshape);
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                }
             }
             mp.getVector3f("gravity", obj.getGravity());
             mp.getVector3f("linearvelocity", obj.getLinearVelocity());
@@ -130,7 +132,7 @@ public final class SAVERS {
         @Override
         public DATObject write(RigidBody obj, DATObject mp) {
             mp.put("transform", SAVERS.TRANSFORM.write(obj.transform(), new DATObject()));
-            {
+            if (OP_RIGIDBODY_WRITECOLLISIONSHAPE) {
                 DATObject mpCollisionShape = new DATObject();
                 mpCollisionShape.put("type", obj.getCollisionShape().getClass().getName());
                 COLLISIONSHAPE_SMAP.get(obj.getCollisionShape().getClass()).write(obj.getCollisionShape(), mpCollisionShape);
@@ -149,35 +151,35 @@ public final class SAVERS {
     };
 
 
-    public static final Saver<Model> MODEL = new Saver<Model>() {
-        @Override
-        public void read(Model obj, DATObject mp) {
-            obj.createEBO(BytesConvert.toIntArray((byte[])mp.get("indices")));
-
-            List<DATObject> attrls = (List)mp.get("attribs");
-            for (int i = 0;i < attrls.size();i++) {
-                DATObject attrmp = attrls.get(i);
-                obj.createAttribute(i, (int)attrmp.get("vsize"), BytesConvert.toFloatArray((byte[])attrmp.get("data")));
-            }
-        }
-
-        @Override
-        public DATObject write(Model obj, DATObject mp) {
-            mp.put("indices", BytesConvert.toByteArray(obj.indices));
-
-            List attrls = new ArrayList();
-            for (int i = 0;i < 16;i++) {
-                Model.VAttribute vattr = obj.attribute(i);
-                if (vattr == null) break;
-                DATObject attrmp = new DATObject();
-                attrmp.put("vsize", vattr.vertexSize());
-                attrmp.put("data", BytesConvert.toByteArray(vattr.data));
-                attrls.add(attrmp);
-            }
-            mp.put("attribs", attrls);
-            return mp;
-        }
-    };
+    // deprecated(load model to an existed Model instance).
+    // entity Model should be Constantfy. not like vec/mat that been set. cuz Model is huge object, not like vec that tiny, fixed length.
+    // always no needs. when needs, can use txt-obj. tho its big and slower.
+//    public static final Saver<Model> MODEL = new Saver<Model>() {
+//        @Override
+//        public void read(Model obj, DATObject mp) {
+//            obj.createEBO(BytesConvert.toIntArray((byte[])mp.get("indices")));
+//            List<DATObject> attrls = (List)mp.get("attribs");
+//            for (int i = 0;i < attrls.size();i++) {
+//                DATObject attrmp = attrls.get(i);
+//                obj.createAttribute(i, (int)attrmp.get("vsize"), BytesConvert.toFloatArray((byte[])attrmp.get("data")));
+//            }
+//        }
+//        @Override
+//        public DATObject write(Model obj, DATObject mp) {
+//            mp.put("indices", BytesConvert.toByteArray(obj.indices));
+//            List attrls = new ArrayList();
+//            for (int i = 0;i < 16;i++) {
+//                Model.VAttribute vattr = obj.attribute(i);
+//                if (vattr == null) break;
+//                DATObject attrmp = new DATObject();
+//                attrmp.put("vsize", vattr.vertexSize());
+//                attrmp.put("data", BytesConvert.toByteArray(vattr.data));
+//                attrls.add(attrmp);
+//            }
+//            mp.put("attribs", attrls);
+//            return mp;
+//        }
+//    };
 
     public static final Saver<Material> MATERIAL = new Saver<Material>() {
         @Override

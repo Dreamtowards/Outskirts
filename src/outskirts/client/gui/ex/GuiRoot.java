@@ -35,11 +35,6 @@ public final class GuiRoot extends Gui {
         removeGui(size()-1);
     }
 
-    public GuiScreen closeScreen() {
-
-        return null;
-    }
-
 
     @Override
     public float getX() {

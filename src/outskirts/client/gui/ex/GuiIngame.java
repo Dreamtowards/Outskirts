@@ -39,11 +39,18 @@ public class GuiIngame extends Gui {
             if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
                 if (Outskirts.isIngame()) {
                     Outskirts.getRootGUI().addGui(GuiScreenPause.INSTANCE);
-                    Log.LOGGER.info("ESC-ingame");
                 }
             }
 
         }
     }
 
+    @Override
+    public float getWidth() {
+        return Outskirts.getWidth();
+    }
+    @Override
+    public float getHeight() {
+        return Outskirts.getHeight();
+    }
 }

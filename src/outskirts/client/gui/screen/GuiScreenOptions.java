@@ -66,4 +66,15 @@ public class GuiScreenOptions extends GuiScreen {
         slGuiscale.setY(370);
     }
 
+    private GuiSlider slWfRenderQuality = addGui(new GuiSlider()); {
+        slWfRenderQuality.setUserMinMaxValue(0.01f, 1.0f);
+        slWfRenderQuality.setCurrentUserValue(Outskirts.renderEngine.RENDERE_QUALITY);
+        slWfRenderQuality.addOnValueChangedListener(e -> {
+            Outskirts.renderEngine.RENDERE_QUALITY = slWfRenderQuality.getCurrentUserValue();
+            Outskirts.renderEngine.updateRenderQuality();
+        });
+        slGuiscale.addLayoutorAlignParentRR(0.5f, NaN);
+        slGuiscale.setY(400);
+    }
+
 }
