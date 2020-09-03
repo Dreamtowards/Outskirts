@@ -129,6 +129,7 @@ public class GuiTextBox extends Gui {
             if (getCursorPosition() > texts().length())
                 setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
 
+            assert getCursorPosition() <= texts().length() : "cpos:"+getCursorPosition()+", texlen:"+texts().length();
             // set cursor display position
             Vector2f cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), TMP_CACHE);
             cursor.setX(getText().getX() + cursorPos.x);
@@ -185,10 +186,11 @@ public class GuiTextBox extends Gui {
     }
 
     public void setCursorPosition(int cursorPosition) {
-        if (this.cursorPosition == cursorPosition)
-            return;
-        setFocused(true);
+        float oldCpos = this.cursorPosition;
         this.cursorPosition = Maths.clamp(cursorPosition, 0, texts().length());
+        if (oldCpos != this.cursorPosition) {
+            setFocused(true);
+        }
     }
 
     public int getSelectionBegin() {
@@ -205,7 +207,7 @@ public class GuiTextBox extends Gui {
         this.selectionEnd = selectionEnd;
     }
 
-    private void setSelectionEmpty() {
+    public void setSelectionEmpty() {
         setSelectionBegin(0);
         setSelectionEnd(0);
     }

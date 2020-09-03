@@ -139,6 +139,8 @@ public class GuiVert3D extends Gui {
 
     public GuiVert3D() {
 
+        setWrapChildren(true);
+
         addKeyboardListener(e -> {
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_I) {
                 vertices.clear();

@@ -10,7 +10,7 @@ import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix2f;
 
-public class GuiExpander extends Gui {
+public class GuiExpander extends Gui implements Gui.Contentable {
 
     private static final Texture TEX_ARROW_UNEXPANDED = Loader.loadTexture(new Identifier("textures/gui/expander/arrow_unexpanded.png").getInputStream());
     private static final Texture TEX_ARROW_EXPANDED = Loader.loadTexture(new Identifier("textures/gui/expander/arrow_expanded.png").getInputStream());
@@ -24,34 +24,45 @@ public class GuiExpander extends Gui {
             setExpanded(!isExpanded());
         });
     }
-    private GuiText title = header.addGui(new GuiText("default title.")); {
-        title.setRelativeXY(20, 2);
-    }
 
-    private Gui content = addGui(new Gui()); {
+    private Gui content = addGui(new Gui()); { // contentWrapper
         content.setRelativeXY(0, 20);
         content.setWrapChildren(true);
+        setContent(new Gui());
     }
 
-    public GuiExpander() {
+    public GuiExpander(String title) {
         setWrapChildren(true);
         setExpanded(false);
 
+        header.addChildren(
+          new Gui(20, 2, 0, 0).addChildren(
+            new GuiText(title)
+          )
+        );
+
         addOnDrawListener(e -> {
             drawRect(Colors.BLACK10, this);
-            drawRect(Colors.BLACK40, header);
+            drawRect(Colors.BLACK40, getX(), getY(), getWidth(), header.getHeight());
 
             drawTexture(isExpanded() ? TEX_ARROW_EXPANDED : TEX_ARROW_UNEXPANDED, getX()+5, getY()+5, 10, 10);
         });
 
     }
 
-    public GuiText getTitle() {
-        return title;
+    @Override
+    public Gui setContent(Gui g) {
+        if (content.size() > 0) {
+            content.removeGui(0);
+            assert content.size()==0;
+        }
+        content.addGui(g);
+        return this;
     }
 
+    @Override
     public Gui getContent() {
-        return content;
+        return content.getGui(0);
     }
 
     public boolean isExpanded() {
@@ -59,6 +70,6 @@ public class GuiExpander extends Gui {
     }
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
-        getContent().setVisible(isExpanded());
+        content.setVisible(isExpanded());
     }
 }

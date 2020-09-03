@@ -459,9 +459,9 @@ public class Outskirts {
             Outskirts.shutdown();
         }
 
+        // needs been update in sometimes more. not just when startup init. e.g. when the window switched to another display monitor.
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer scaleX = stack.callocFloat(1);
-            FloatBuffer scaleY = stack.callocFloat(1);
+            FloatBuffer scaleX = stack.callocFloat(1), scaleY = stack.callocFloat(1);
             glfwGetWindowContentScale(INSTANCE.window, scaleX, scaleY);
             Validate.isTrue(scaleX.get(0) == scaleY.get(0), "Unsupported scale type: x != y");
             OS_CONTENT_SCALE = scaleX.get(0);

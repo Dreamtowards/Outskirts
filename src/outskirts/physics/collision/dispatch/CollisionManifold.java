@@ -36,7 +36,7 @@ public final class CollisionManifold {
     private ContactPoint[] contactPoints = CollectionUtils.fill(new ContactPoint[MAX_CONTACT_POINTS], ContactPoint::new);
     private int numContactPoints = 0;
 
-    public int cpAdded = 0;
+    public int cpAdded = 0; // cpDetected..?  todo: ?? to cpDetected and make Narrowphase.detectCollision() return0 as not collison.
 
     // refer to Execution-CDNarrowphaseDispatcher.
     public Narrowphase narrowphase;

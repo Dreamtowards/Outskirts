@@ -50,7 +50,7 @@ public final class RenderEngine {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
 
-        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
+//        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
     }
 
     public void prepare() {

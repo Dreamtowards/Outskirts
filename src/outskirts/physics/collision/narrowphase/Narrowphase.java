@@ -43,28 +43,36 @@ public class Narrowphase {
         throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
     }
 
+    private boolean needsCollision(CollisionObject bodyA, CollisionObject bodyB) {
+        if (bodyA.getCollisionShape() instanceof ConcaveShape && bodyB.getCollisionShape() instanceof ConcaveShape)
+            return false;
+        return true;
+    }
+
     // dispatch narrowphase the really collision detection
 
     /**
-     * @return detected/'added' ContactPoints count, during this time. >= 0.
-     * (note that when == 0 dosen't means No-Collision.(.?) the No-Collision manifold just when manifold.getNumContactPoints() == 0.
+     * @return newdetected/'added' ContactPoints count, during this time. >= 0.
+     * (note that when == 0 dosen't means No-Collision.(.?)(because may actually detected collision but not add to the manifold, e.g. too closed/nearly CP point)
+     *  the No-Collision manifold just when manifold.getNumContactPoints() == 0.)
      */
     public int detectCollision(CollisionManifold manifold) {
-        if (manifold.narrowphase == null)
-            manifold.narrowphase = this;
+        if (!needsCollision(manifold.bodyA(), manifold.bodyB()))
+            return 0;
         CollisionAlgorithm algorithm = findAlgorithm(manifold.bodyA().getCollisionShape(), manifold.bodyB().getCollisionShape());
+        manifold.narrowphase = this;
         int n = manifold.cpAdded;
 
         // collision detection queries
         algorithm.detectCollision(manifold.bodyA(), manifold.bodyB(), manifold);
-
-        manifold.refreshContactPoints(); // adjust/clear manifold contactpoints.
+        // adjust/clear manifold contactpoints.
+        manifold.refreshContactPoints();
 
         return manifold.cpAdded - n;
     }
 
     /**
-     * @return manifolds which still had ContcatPoints. (still had Collision.)
+     * @return manifolds which still had ContcatPoints. (still InContact.)
      */
     public final List<CollisionManifold> detectCollisions(List<CollisionManifold> manifolds) {
         List<CollisionManifold> l = new ArrayList<>();

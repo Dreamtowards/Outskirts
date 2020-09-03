@@ -114,6 +114,13 @@ public class Gui {
         return addGui(gui, getChildCount());
     }
 
+    public final Gui addChildren(Gui... guis) {
+        for (Gui g : guis) {
+            addGui(g);
+        }
+        return this;
+    }
+
     public <T extends Gui> T getGui(int index) {
         return (T)children.get(index);
     }
@@ -172,6 +179,11 @@ public class Gui {
 
     public final List<Gui> getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    public final <T extends Gui> Gui exec(Consumer<T> exec) {
+        exec.accept((T)this);
+        return this;
     }
 
 
@@ -750,11 +762,22 @@ public class Gui {
 
     }
 
+    public interface Contentable {
+
+        /**
+         * @return "this."
+         */
+        Gui setContent(Gui g);
+
+        Gui getContent();
+
+    }
+
 
 
     public static final class Insets {
 
-        public static final Insets ZERO = new Insets(0, 0, 0, 0);
+        public static final Insets ZERO = Insets.fromLTRB(0, 0, 0, 0);
 
         public float left;
         public float top;
@@ -762,10 +785,6 @@ public class Gui {
         public float bottom;
 
         public Insets() {}
-
-        public Insets(float left, float top, float right, float bottom) {
-            set(left, top, right, bottom);
-        }
 
         public Insets set(float left, float top, float right, float bottom) {
             this.left = left;
@@ -777,6 +796,10 @@ public class Gui {
 
         public Insets set(Insets src) {
             return set(src.left, src.top, src.right, src.bottom);
+        }
+
+        public static Insets fromLTRB(float l, float t, float r, float b) {
+            return new Insets().set(l, t, r, b);
         }
     }
 

@@ -6,8 +6,10 @@ import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiInspectionEntity;
+import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
+import outskirts.init.Models;
 import outskirts.storage.dat.DATObject;
 import outskirts.storage.dat.DSTUtils;
 import outskirts.util.logging.Log;
@@ -29,8 +31,10 @@ public class GuiIDebugOp {
             Gui txInfos = new GuiDebugTxInfos();
             mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("Infos", false, b -> toggleShow(txInfos, b)));
 
-            GuiBasisVisual camBasis = new GuiBasisVisual();
-            camBasis.addOnDrawListener(e -> Matrix3f.set(camBasis.theBasis, Outskirts.renderEngine.getViewMatrix())).priority(EventPriority.HIGH);
+            Matrix3f theBasis = new Matrix3f();
+            GuiBasisVisual camBasis = new GuiBasisVisual(theBasis, true);
+            camBasis.addOnDrawListener(e -> Matrix3f.set(theBasis, Outskirts.renderEngine.getViewMatrix())).priority(EventPriority.HIGH);
+            camBasis.addLayoutorAlignParentRR(0.5f, 0.5f);
             mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("CamBasis", false, b -> toggleShow(camBasis, b)));
 
             Gui memLog = new GuiMemoryLog();
@@ -46,12 +50,19 @@ public class GuiIDebugOp {
         GuiPopupMenu mInsp = new GuiPopupMenu();
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("Insp", mInsp));
         {
-            mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp WD", () -> {
+            mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInspection CurrEntity", () -> {
                 Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
                 debugMenu.hide();
             }));
+            mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp Player", () -> {
+                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getPlayer())));
+                debugMenu.hide();
+            }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("Add EntityStaticMesh", () -> {
-                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                EntityStaticMesh entityStaticmesh = new EntityStaticMesh();
+                entityStaticmesh.setModel(Models.GEO_CUBE);
+                entityStaticmesh.getRigidBody().transform().origin.set(Outskirts.getCamera().getPosition());
+                Outskirts.getWorld().addEntity(entityStaticmesh);
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("Flush to scen.dat", () -> {
