@@ -80,17 +80,16 @@ public abstract class TriangleMeshShape extends ConcaveShape {
         return true;
     }
 
-    private void getFarPoint(Vector3f d, Vector3f dest) {
-        float[] mxDstan = {-Float.MAX_VALUE};
-        processAllTriangles((idx, tri) -> {
-            for (Vector3f v : tri) {
-                float dstan = Vector3f.dot(d, v);
-                if (dstan > mxDstan[0]) {
-                    mxDstan[0] = dstan;
-                    dest.set(v);
-                }
+    private void getfarpoint(Vector3f d, Vector3f dest) {
+        float mxDstan = -Float.MAX_VALUE;
+        for (int i = 0;i < positions.length;i+=3) {
+            Vector3f v = TMP_TRIANGE[0].set(positions[i], positions[i+1], positions[i+2]);
+            float dstan = Vector3f.dot(d, v);
+            if (dstan > mxDstan) {
+                mxDstan = dstan;
+                dest.set(v);
             }
-        }, AABB.INFINITY);
+        }
     }
 
     private AABB cachedAABB = new AABB();
@@ -100,11 +99,11 @@ public abstract class TriangleMeshShape extends ConcaveShape {
         for (int i = 0;i < 3;i++) {
             // max at axis.
             Vector3f.set(d.set(0,0,0), i, 1);
-            getFarPoint(d, fp);
+            getfarpoint(d, fp);
             Vector3f.set(cachedAABB.max, i, Vector3f.get(fp, i));
             // min at axis.
             d.negate();
-            getFarPoint(d, fp);
+            getfarpoint(d, fp);
             Vector3f.set(cachedAABB.min, i, Vector3f.get(fp, i));
         }
     }
