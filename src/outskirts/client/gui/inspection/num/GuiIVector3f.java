@@ -1,7 +1,7 @@
 package outskirts.client.gui.inspection.num;
 
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.layout.GuiRow;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.util.vector.Vector3f;
 
 public class GuiIVector3f extends Gui {

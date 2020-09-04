@@ -12,25 +12,24 @@ public final class CollisionAlgorithmConvexConcave extends CollisionAlgorithm {
 
     private TriangleShape trigshape = new TriangleShape();
     private AABB tmpAabb = new AABB();  // tmpConcaveSpaceAabb
-    private int detectedCPs;
 
     @Override
     public void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold) {
-        CollisionObject convexBody, concaveBody; if (bodyA.getCollisionShape() instanceof ConvexShape) { convexBody=bodyA;concaveBody=bodyB; } else { convexBody=bodyB;concaveBody=bodyA; }
-        assert concaveBody.transform().basis.equals(Matrix3f.IDENTITY) : "Concave Rotations was not supports.";
-        ConcaveShape concaveShape = (ConcaveShape)concaveBody.getCollisionShape();
+        CollisionObject convexbody, concavebody; if (bodyA.getCollisionShape() instanceof ConvexShape) { convexbody=bodyA;concavebody=bodyB; } else { convexbody=bodyB;concavebody=bodyA; }
+        ConcaveShape concaveshape = (ConcaveShape)concavebody.getCollisionShape();
+        assert concavebody.transform().basis.equals(Matrix3f.IDENTITY) : "Concave Rotations is not supported.";
+        int n = manifold.cpAdded;
 
-        detectedCPs=0;
-        concaveShape.processAllTriangles((trig, idx) -> {
-            if (detectedCPs >= CollisionManifold.MAX_CONTACT_POINTS) // sometimes had lots lite triangles. when ContactPoints enought this time , just dosen't needs more detection.
+        // convexbody aabb relative to the concavebody aabb. in concavebody localspace.  i.e. the (Probably)Collide-Area.
+        AABB localCollidedAabb = tmpAabb.set(convexbody.getAABB()).translate(-1, concavebody.transform().origin);
+        concaveshape.collideTriangles(localCollidedAabb, (idx, trig) -> {
+            if (manifold.cpAdded-n >= CollisionManifold.MAX_CONTACT_POINTS) // sometimes had lots lite triangles. when ContactPoints detected enought this time, just dosen't needs more detection.
                 return;
-
-            // the Real Worldspace CD.
-            concaveBody.setCollisionShape(trigshape.setVertices(trig[0], trig[1], trig[2]));  // tmp set
-            int i = manifold.narrowphase.detectCollision(manifold);
-            concaveBody.setCollisionShape(concaveShape); // setback
-
-            detectedCPs += i;
-        }, tmpAabb.set(convexBody.getAABB()).translate(-1, concaveBody.transform().origin)); // convexBody aabb to the Concave.Space.
+            // the actually worldspace C.D.
+            concavebody.setCollisionShape(trigshape.setVertices(trig[0], trig[1], trig[2]));  // tmp set
+            manifold.narrowphase.detectCollision(manifold);
+            concavebody.setCollisionShape(concaveshape); // setback
+        });
     }
+
 }

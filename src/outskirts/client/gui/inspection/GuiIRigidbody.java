@@ -5,8 +5,8 @@ import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.num.GuiIBasis;
 import outskirts.client.gui.inspection.num.GuiIScalar;
 import outskirts.client.gui.inspection.num.GuiIVector3f;
-import outskirts.client.gui.layout.GuiColumn;
-import outskirts.client.gui.layout.GuiRow;
+import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.physics.dynamics.RigidBody;
 
 import java.util.function.Consumer;

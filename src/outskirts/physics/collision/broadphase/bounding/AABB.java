@@ -10,7 +10,8 @@ import java.util.Arrays;
 public class AABB {
 
     public static final AABB ZERO = new AABB();
-    public static final AABB MAX_AABB = new AABB().grow(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+    public static final AABB INFINITY = new AABB().set(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                                                       Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
 
     public final Vector3f min = new Vector3f();
     public final Vector3f max = new Vector3f();
@@ -58,6 +59,16 @@ public class AABB {
     }
     public final boolean contains(AABB aabb) {
         return contains(aabb.min) && contains(aabb.max);
+    }
+
+    public boolean containsEquals(float x, float y, float z) {
+        return x >= min.x && x <= max.x && y >= min.y && y <= max.y && z >= min.z && z <= max.z;
+    }
+    public final boolean containsEquals(Vector3f p) {
+        return containsEquals(p.x, p.y, p.z);
+    }
+    public final boolean containsEquals(AABB aabb) {
+        return containsEquals(aabb.min) && containsEquals(aabb.max);
     }
 
     public AABB grow(float x, float y, float z) {
@@ -192,7 +203,7 @@ public class AABB {
         return dest;
     }
 
-    public static AABB bounding(AABB aabb1, AABB aabb2, AABB dest) {
+    public static AABB merge(AABB aabb1, AABB aabb2, AABB dest) {
         if (dest == null)
             dest = new AABB();
         return dest.set(aabb1).include(aabb2);
@@ -227,5 +238,9 @@ public class AABB {
     public static float volume(AABB aabb) {
         Vector3f szdiff = AABB.extent(aabb, null);  // STACK
         return szdiff.x*szdiff.y*szdiff.z;
+    }
+
+    public static float centdistanf(AABB aabb1, AABB aabb2) {
+        return new Vector3f().add(aabb1.min).add(aabb1.max).sub(aabb2.min).sub(aabb2.max).lengthSquared();
     }
 }

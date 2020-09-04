@@ -15,12 +15,13 @@ import java.util.function.Consumer;
  */
 public abstract class ConcaveShape extends CollisionShape {
 
+    // ? processAllTriangles() or collideTriangles()
     /**
-     * for each Triangles in the AABB.
-     * @param onProcessTriangle (triangle3vts: vec3[] , triangleIndex: int)
+     * for each Triangles intersects with the AABB.
      * @param aabb in Concave-Space. in concave-localspace aabb.
+     * @param oncollide (triangleIndex: int, triangle3vertices: [vec3, vec3, vec3] readonly. )
      */
-    public abstract void processAllTriangles(BiConsumer<Vector3f[], Integer> onProcessTriangle, AABB aabb);
+    public abstract void collideTriangles(AABB aabb, BiConsumer<Integer, Vector3f[]> oncollide);
 
     @Override
     public final Vector3f calculateLocalInertia(float mass, Vector3f dest) {

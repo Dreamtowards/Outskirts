@@ -10,57 +10,59 @@ import java.util.function.BiConsumer;
 /**
  * Triangle vertices data. localspace.
  */
-public class TriangleMeshShape extends ConcaveShape {
+//todo: setMesh(indices, positions) .?
+public abstract class TriangleMeshShape extends ConcaveShape {
 
-    // indices of positions vector. index unit is vec3. (not scalar).
-    // idxValue = [0, positions.length/3)
+    /**
+     * indices of positions vector. index unit is vec3. (not scalar).
+     * idxValue = [0, positions.length/3)
+     */
     private int[] indices;
-    // positions vec3 table. unit as vec3.
+
+    /**  positions vec3 table. unit as vec3. */
     private float[] positions;
 
+    protected Vector3f[] TMP_TRIANGE = new Vector3f[] {new Vector3f(), new Vector3f(), new Vector3f()};
+
     public TriangleMeshShape(int[] indices, float[] positions) {
-        this.indices = indices;
-        this.positions = positions;
+        setMesh(indices, positions);
     }
 
-    private int getTrianglesCount() {
+    private final void setMesh(int[] indices, float[] positions) {
+        assert indices.length % 3 == 0 && positions.length % 3 == 0;
+        this.indices = indices;
+        this.positions = positions;
+
+        processMeshModified();
+    }
+
+    protected void processMeshModified() {
+
+        recalcAABB();
+    }
+
+    protected int trianglesCount() {
         return indices.length/3;
     }
-    private void getTriangle(int idxTriangle, Vector3f[] dest) {
-        int v0idx = idxTriangle*3;
+    protected Vector3f[] getTriangle(int trianglIndex, Vector3f[] dest) {
+        int v0idx = trianglIndex*3;
         Vector3f.set(dest[0], positions, indices[v0idx  ]*3);
         Vector3f.set(dest[1], positions, indices[v0idx+1]*3);
         Vector3f.set(dest[2], positions, indices[v0idx+2]*3);
-    }
-
-    private void getFarPoint(Vector3f d, Vector3f dest) {
-
-        float[] mxDstan = {-Float.MAX_VALUE};
-
-        processAllTriangles((tri, idx) -> {
-            for (Vector3f v : tri) {
-                float dstan = Vector3f.dot(d, v);
-                if (dstan > mxDstan[0]) {
-                    mxDstan[0] = dstan;
-                    dest.set(v);
-                }
-            }
-        }, AABB.MAX_AABB);
-
+        return dest;
     }
 
     @Override
-    public void processAllTriangles(BiConsumer<Vector3f[], Integer> onProcessTriangle, AABB aabb) {
+    public void collideTriangles(AABB aabb, BiConsumer<Integer, Vector3f[]> oncollide) {
+        Vector3f[] tmpTrig = TMP_TRIANGE;
 
-        Vector3f[] trig = new Vector3f[] {new Vector3f(), new Vector3f(), new Vector3f()};
+        for (int i = 0;i < trianglesCount();i++) {
+            getTriangle(i, tmpTrig);
 
-        for (int i = 0;i < getTrianglesCount();i++) {
-            getTriangle(i, trig);
-
-            if (!intersectsTriangleBounding(trig[0], trig[1], trig[2], aabb))
+            if (!intersectsTriangleBounding(tmpTrig[0], tmpTrig[1], tmpTrig[2], aabb))
                 continue;
 
-            onProcessTriangle.accept(trig, i);
+            oncollide.accept(i, tmpTrig);
         }
     }
 
@@ -78,27 +80,37 @@ public class TriangleMeshShape extends ConcaveShape {
         return true;
     }
 
+    private void getFarPoint(Vector3f d, Vector3f dest) {
+        float[] mxDstan = {-Float.MAX_VALUE};
+        processAllTriangles((idx, tri) -> {
+            for (Vector3f v : tri) {
+                float dstan = Vector3f.dot(d, v);
+                if (dstan > mxDstan[0]) {
+                    mxDstan[0] = dstan;
+                    dest.set(v);
+                }
+            }
+        }, AABB.INFINITY);
+    }
+
     private AABB cachedAABB = new AABB();
-    private int  cachedAABB_vtshash = 0;
+    private void recalcAABB() {
+        Vector3f d = new Vector3f();
+        Vector3f fp = new Vector3f();
+        for (int i = 0;i < 3;i++) {
+            // max at axis.
+            Vector3f.set(d.set(0,0,0), i, 1);
+            getFarPoint(d, fp);
+            Vector3f.set(cachedAABB.max, i, Vector3f.get(fp, i));
+            // min at axis.
+            d.negate();
+            getFarPoint(d, fp);
+            Vector3f.set(cachedAABB.min, i, Vector3f.get(fp, i));
+        }
+    }
+
     @Override
     protected AABB getAABB(AABB dest) {
-        int vtshash = Arrays.hashCode(positions);
-        if (cachedAABB_vtshash != vtshash) {
-            cachedAABB_vtshash = vtshash;
-
-            Vector3f d = new Vector3f();
-            Vector3f fp = new Vector3f();
-            for (int i = 0;i < 3;i++) {
-                // max at axis.
-                Vector3f.set(d.set(0,0,0), i, 1);
-                getFarPoint(d, fp);
-                Vector3f.set(cachedAABB.max, i, Vector3f.get(fp, i));
-                // min at axis.
-                d.negate();
-                getFarPoint(d, fp);
-                Vector3f.set(cachedAABB.min, i, Vector3f.get(fp, i));
-            }
-        }
         return dest.set(cachedAABB);
     }
 }

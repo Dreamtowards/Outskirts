@@ -1,8 +1,8 @@
 package outskirts.client.gui.debug;
 
 import outskirts.client.gui.*;
-import outskirts.client.gui.layout.GuiColumn;
-import outskirts.client.gui.layout.GuiRow;
+import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.init.Textures;
 import outskirts.util.logging.Log;
 

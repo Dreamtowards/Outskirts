@@ -105,31 +105,27 @@ public class BroadphaseDbvt extends Broadphase {
 
     private void insertLeaf(DbvtNode leaf) {
         if (rootNode == null)  { rootNode = leaf; rootNode.parent=null; return; }
-        if (rootNode.isLeaf()) { rootNode = DbvtNode.newInternal(null, rootNode, leaf); return; }
+        if (rootNode.isLeaf()) { rootNode = DbvtNode.newInternal(rootNode, leaf); rootNode.parent=null; return; }
         DbvtNode sibling = rootNode;
         // find out a sibling leaf, which almost most closed to.
         while (!sibling.isLeaf()) {
-            sibling = aabbdistanf(sibling.child[0].volume, leaf.volume) < aabbdistanf(sibling.child[1].volume, leaf.volume) ? sibling.child[0] : sibling.child[1];
+            sibling = AABB.centdistanf(sibling.child[0].volume, leaf.volume) < AABB.centdistanf(sibling.child[1].volume, leaf.volume) ? sibling.child[0] : sibling.child[1];
         }
         // new a parent. put sibling and self-leaf in. and let the newparent to sibling-origin-parent's child's position.
         DbvtNode oriparen = sibling.parent;// int inoriIdx = sibling.inSiblingIdx();
-        DbvtNode newparen = DbvtNode.newInternal(oriparen, sibling, leaf);
+        DbvtNode newparen = DbvtNode.newInternal(sibling, leaf);
         oriparen.replaceChild(sibling, newparen);
 
         assert oriparen.child[0]==newparen || oriparen.child[1]==newparen;
 
         // update superiors volume.
-        DbvtNode n = newparen;
+        DbvtNode n = leaf;
         while (n.parent != null) {
-            if (n.parent.volume.contains(n.volume))
+            if (n.parent.volume.containsEquals(n.volume))
                 break;
             n.parent.wrapChildVolume();
             n = n.parent;
         }
-    }
-    private static float aabbdistanf(AABB aabb1, AABB aabb2) {
-        Vector3f diff = new Vector3f().add(aabb1.min).add(aabb1.max).sub(aabb2.min).sub(aabb2.max);
-        return diff.lengthSquared();
     }
 
     private void removeLeaf(DbvtNode leaf) {
@@ -140,8 +136,8 @@ public class BroadphaseDbvt extends Broadphase {
 
         DbvtNode n = sibling;
         while (n.parent != null) {
-            if (!n.parent.wrapChildVolume())
-                break;
+            n.parent.wrapChildVolume();
+
             n = n.parent;
         }
     }
@@ -179,15 +175,13 @@ public class BroadphaseDbvt extends Broadphase {
             return n;
         }
 
-        public static DbvtNode newInternal(DbvtNode parent, DbvtNode child0, DbvtNode child1) {  // internal
+        public static DbvtNode newInternal(DbvtNode child0, DbvtNode child1) {  // internal
             DbvtNode n = new DbvtNode();
-            n.parent = parent;
             n.child = new DbvtNode[2];
             n.child[0] = child0;
             n.child[1] = child1;
             child0.parent = n;
             child1.parent = n;
-            n.wrapChildVolume();
             return n;
         }
 
@@ -199,17 +193,12 @@ public class BroadphaseDbvt extends Broadphase {
             return !isLeaf();
         }
 
-        /**
-         * @return true when had actually volume change.
-         */
-        public final boolean wrapChildVolume() {
-            int hash = volume.hashCode();
-            AABB.bounding(child[0].volume, child[1].volume, volume);
-            return hash != volume.hashCode();
+        public final void wrapChildVolume() {
+            AABB.merge(child[0].volume, child[1].volume, volume);
         }
-        public void replaceChild(DbvtNode old, DbvtNode to) {  // may not a good name..
-            if (child[0]==old) {child[0]=to; to.parent=this;}
-            else if (child[1]==old) {child[1]=to; to.parent=this;}
+        public void replaceChild(DbvtNode from, DbvtNode to) {  // may not a good name..
+            if (child[0]==from) {child[0]=to; to.parent=this;}
+            else if (child[1]==from) {child[1]=to; to.parent=this;}
             else throw new NoSuchElementException();
         }
         public DbvtNode siblingNode() {

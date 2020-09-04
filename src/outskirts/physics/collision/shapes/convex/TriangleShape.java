@@ -6,6 +6,7 @@ import outskirts.util.vector.Vector3f;
 
 public class TriangleShape extends ConvexShape {
 
+    // localspace
     private final Vector3f[] vertices = new Vector3f[] {new Vector3f(), new Vector3f(), new Vector3f()};
 
     public TriangleShape() { }

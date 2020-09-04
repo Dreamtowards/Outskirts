@@ -1,7 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Loader;
-import outskirts.client.gui.layout.GuiColumn;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.util.Identifier;
 import outskirts.util.logging.Log;

@@ -2,7 +2,7 @@ package outskirts.entity;
 
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
+import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 import outskirts.storage.SAVERS;
 import outskirts.storage.dat.DATObject;
 
@@ -21,7 +21,7 @@ public class EntityStaticMesh extends Entity {
     public void setModel(Model model) {
         super.setModel(model);
 
-        getRigidBody().setCollisionShape(new TriangleMeshShape(
+        getRigidBody().setCollisionShape(new BvhTriangleMeshShape(
                 getModel().indices,
                 getModel().attribute(0).data
         ));

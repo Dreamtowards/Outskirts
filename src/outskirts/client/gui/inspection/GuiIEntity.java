@@ -8,8 +8,8 @@ import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiTextBox;
 import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.material.GuiIMaterial;
-import outskirts.client.gui.layout.GuiColumn;
-import outskirts.client.gui.layout.GuiRow;
+import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
 
