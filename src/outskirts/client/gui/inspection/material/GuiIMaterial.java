@@ -5,8 +5,8 @@ import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.num.GuiIScalar;
-import outskirts.client.gui.GuiColumn;
-import outskirts.client.gui.GuiRow;
+import outskirts.client.gui.layout.GuiColumn;
+import outskirts.client.gui.layout.GuiRow;
 import outskirts.client.material.Material;
 
 import java.util.function.Consumer;
