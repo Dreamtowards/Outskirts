@@ -6,21 +6,17 @@ import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiTextBox;
-import outskirts.client.gui._pending.GuiExpander;
+import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.material.GuiIMaterial;
-import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.gui.stat.GuiRow;
+import outskirts.client.gui.GuiColumn;
+import outskirts.client.gui.GuiRow;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class GuiIEntity extends Gui {
 

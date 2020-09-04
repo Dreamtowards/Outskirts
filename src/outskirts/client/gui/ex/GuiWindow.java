@@ -5,7 +5,6 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiScrollPanel;
-import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.event.EventPriority;
 import outskirts.util.Colors;

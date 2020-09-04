@@ -1,12 +1,12 @@
 package outskirts.client.gui.inspection;
 
 import outskirts.client.gui.*;
-import outskirts.client.gui._pending.GuiExpander;
+import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.num.GuiIBasis;
 import outskirts.client.gui.inspection.num.GuiIScalar;
 import outskirts.client.gui.inspection.num.GuiIVector3f;
-import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.gui.stat.GuiRow;
+import outskirts.client.gui.GuiColumn;
+import outskirts.client.gui.GuiRow;
 import outskirts.physics.dynamics.RigidBody;
 
 import java.util.function.Consumer;

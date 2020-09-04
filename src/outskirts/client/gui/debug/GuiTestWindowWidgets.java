@@ -1,16 +1,12 @@
 package outskirts.client.gui.debug;
 
-import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
-import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.gui.stat.GuiRow;
+import outskirts.client.gui.GuiColumn;
+import outskirts.client.gui.GuiRow;
 import outskirts.init.Textures;
 import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector2f;
 
 import java.util.Arrays;
-
-import static java.lang.Float.NaN;
 
 public class GuiTestWindowWidgets extends Gui {
 

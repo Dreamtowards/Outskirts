@@ -1,4 +1,4 @@
-package outskirts.client.gui._pending;
+package outskirts.client.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.gui.Gui;

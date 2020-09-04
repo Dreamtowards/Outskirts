@@ -1,22 +1,23 @@
-package outskirts.client.gui.stat;
+package outskirts.client.gui;
 
 import outskirts.client.gui.Gui;
 import outskirts.event.EventHandler;
 
-import static java.lang.Float.NaN;
+// GuiLayoutor
+public class GuiColumn extends Gui {
 
-public class GuiRow extends Gui {
-
-    public GuiRow() {
+    public GuiColumn() {
+//        setWrapChildren(true);
         addOnLayoutListener(this::onLayout0);
     }
 
     @EventHandler
     private void onLayout0(OnLayoutEvent event) {
-        float dx=0;
+        float dy=0;
         for (Gui g : getChildren()) {
-            g.setRelativeXY(dx, 0);
-            dx += g.getWidth();
+            g.setRelativeXY(0, dy);
+            dy += g.getHeight();
         }
     }
+
 }
