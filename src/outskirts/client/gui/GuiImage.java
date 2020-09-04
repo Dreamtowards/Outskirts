@@ -4,9 +4,15 @@ import outskirts.client.material.Texture;
 
 public class GuiImage extends Gui {
 
-    private Texture texture = Texture.UNIT;
+    private Texture texture;
 
-    {
+    public GuiImage() {
+        this(Texture.UNIT);
+    }
+
+    public GuiImage(Texture textureIn) {
+        setTexture(textureIn);
+
         addOnDrawListener(e -> {
             drawTexture(texture, getX(), getY(), getWidth(), getHeight());
         });

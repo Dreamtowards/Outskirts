@@ -58,10 +58,10 @@ public class Camera {
                     eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
                     eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
 //                }
-            }
 
-            cameraDistance += Math.signum(Outskirts.getDScroll());
-            cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
+                cameraDistance += Math.signum(Outskirts.getDScroll());
+                cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
+            }
 
             // Camera Rotation Matrix
             Matrix3f tmp = new Matrix3f();

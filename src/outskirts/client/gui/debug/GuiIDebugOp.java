@@ -5,19 +5,17 @@ import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiWindow;
-import outskirts.client.gui.inspection.GuiInspectionEntity;
+import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
 import outskirts.init.Models;
 import outskirts.storage.dat.DATObject;
 import outskirts.storage.dat.DSTUtils;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 
 import java.io.FileOutputStream;
 
-import static outskirts.client.Outskirts.getWorld;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiIDebugOp {
@@ -51,11 +49,11 @@ public class GuiIDebugOp {
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("Insp", mInsp));
         {
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInspection CurrEntity", () -> {
-                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                Gui.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp Player", () -> {
-                Gui.getRootGUI().addGui(new GuiWindow(new GuiInspectionEntity(Outskirts.getPlayer())));
+                Gui.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer())));
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("Add EntityStaticMesh", () -> {

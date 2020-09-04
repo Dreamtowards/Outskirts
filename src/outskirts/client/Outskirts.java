@@ -223,7 +223,8 @@ public class Outskirts {
         getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
         getPlayer().getRigidBody().transform().origin.set(0,20,20);
-        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(1);
+        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(0);
+        getPlayer().getRigidBody().setLinearDamping(0.1f);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
         getPlayer().getRigidBody().setMass(20);//.setFriction(0.5f).setRestitution(0f);//.setLinearDamping(0.04f);

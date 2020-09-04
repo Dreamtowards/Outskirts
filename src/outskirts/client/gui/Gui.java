@@ -30,6 +30,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
  * we reduce "return (T)this".
  */
 
+//todo: NaN?childrenbound Infinity?parent.get getWidth setWidth.
 public class Gui {
 
     private float x; // actually is relative-x   should use vector.?

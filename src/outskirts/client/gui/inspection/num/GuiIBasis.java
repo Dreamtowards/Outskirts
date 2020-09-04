@@ -1,4 +1,4 @@
-package outskirts.client.gui.inspection;
+package outskirts.client.gui.inspection.num;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;

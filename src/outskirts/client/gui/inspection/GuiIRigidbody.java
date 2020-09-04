@@ -2,6 +2,7 @@ package outskirts.client.gui.inspection;
 
 import outskirts.client.gui.*;
 import outskirts.client.gui._pending.GuiExpander;
+import outskirts.client.gui.inspection.num.GuiIBasis;
 import outskirts.client.gui.inspection.num.GuiIScalar;
 import outskirts.client.gui.inspection.num.GuiIVector3f;
 import outskirts.client.gui.stat.GuiColumn;
@@ -12,16 +13,13 @@ import java.util.function.Consumer;
 
 public class GuiIRigidbody extends Gui {
 
-    private RigidBody theRigidbody;
-
     public GuiIRigidbody(RigidBody theRigidbody) {
-        this.theRigidbody = theRigidbody;
         setWrapChildren(true);
 
         Consumer<GuiText> titleprop = g -> {g.setWidth(100);g.setRelativeY(3);};
 
         addChildren(
-          new GuiPadding(Insets.fromLTRB(8,0,8,0)).setContent(
+          new GuiPadding(Insets.fromLTRB(8,0,0,0)).setContent(
             new GuiColumn().addChildren(
               new GuiExpander("Transform").setContent(
                 new GuiColumn().addChildren(
@@ -69,9 +67,7 @@ public class GuiIRigidbody extends Gui {
               new GuiRow().addChildren(
                 new GuiText("Restitution").exec(titleprop),
                 new GuiIScalar(theRigidbody::getRestitution, theRigidbody::setRestitution)
-              ),
-              new GuiButton("Btn1"),
-              new GuiButton("Btn2")
+              )
             )
           )
         );
