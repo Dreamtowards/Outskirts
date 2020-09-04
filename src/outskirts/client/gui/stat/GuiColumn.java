@@ -7,7 +7,7 @@ import outskirts.event.EventHandler;
 public class GuiColumn extends Gui {
 
     public GuiColumn() {
-        setWrapChildren(true);
+//        setWrapChildren(true);
         addOnLayoutListener(this::onLayout0);
     }
 
@@ -18,7 +18,6 @@ public class GuiColumn extends Gui {
             g.setRelativeXY(0, dy);
             dy += g.getHeight();
         }
-        ;
     }
 
 }

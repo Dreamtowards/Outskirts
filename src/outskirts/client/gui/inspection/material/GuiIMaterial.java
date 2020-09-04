@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 public class GuiIMaterial extends Gui {
 
     public GuiIMaterial(Material material) {
-        setWrapChildren(true);
 
         Consumer<GuiText> titleprop = g -> {g.setWidth(140);};
 

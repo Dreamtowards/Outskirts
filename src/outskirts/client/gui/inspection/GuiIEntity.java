@@ -79,11 +79,7 @@ public class GuiIEntity extends Gui {
         }
     }
 
-    public Entity theEntity;
-
     public GuiIEntity(Entity theEntity) {
-        this.theEntity = theEntity;
-        setWrapChildren(true);
 
         addChildren(new GuiColumn().exec(g -> {
             for (InspField inspField : INSPECTION_FIELDS) {

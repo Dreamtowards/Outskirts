@@ -1,6 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Loader;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
@@ -9,26 +10,19 @@ import outskirts.util.vector.Vector2f;
 
 import java.util.function.Consumer;
 
-//PopupMenu todo: Schedule todo.
 public class GuiPopupMenu extends Gui {
 
     private static final Texture TEX_SUBMENU_ARROW = Loader.loadTexture(new Identifier("textures/gui/popupmenu/arrow.png").getInputStream());
 
     private long lastShowMillis;
 
-    private GuiLinearLayout itemlist;
-
-    {   setWrapChildren(true);
-
-//        GuiContainer gPadding = addGui(new GuiContainer(new Insets(0, 6, 0, 6)));
-        {
-            itemlist = //gPadding.
-                    addGui(new GuiLinearLayout(Vector2f.UNIT_Y));
-            itemlist.setWrapChildren(true);
-        }
-    }
+    private GuiColumn itemlist;
 
     public GuiPopupMenu() {
+        addChildren(
+          itemlist=new GuiColumn()
+        );
+
         hide();
 
         // when mouse-click in outside, hide the menu.
@@ -111,7 +105,6 @@ public class GuiPopupMenu extends Gui {
         public static Gui divider() {
             Gui g = new Gui();
             g.setHeight(6);
-//            g.addOnDrawListener(e -> drawRect(Colors.BLACK, g.getX(), g.getY(), g.getParent().getWidth(), 6));
             g.addOnDrawListener(e -> drawRect(Colors.WHITE, g.getX(), g.getY()+1, g.getParent().getWidth(), 4));
             return g;
         }

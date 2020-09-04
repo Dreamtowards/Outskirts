@@ -1,12 +1,16 @@
 package outskirts.client.gui;
 
 import outskirts.client.Loader;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.util.Identifier;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Float.NaN;
 
 public class GuiComboBox extends Gui {
 
@@ -21,8 +25,8 @@ public class GuiComboBox extends Gui {
 
     private List<GuiText> options = new ArrayList<>();
 
-    private GuiLinearLayout dropdown = new GuiLinearLayout(Vector2f.UNIT_Y); {
-        dropdown.heightRule = Gui.RULE_WRAP_CHILDREN;
+    private GuiColumn dropdown = new GuiColumn(); {
+        dropdown.setHeight(NaN);
         dropdown.addOnDrawListener(e -> {
             drawCornerStretchTexture(TEX_DROPDOWN_BACKGROUND, dropdown, 5);
         });
@@ -52,6 +56,7 @@ public class GuiComboBox extends Gui {
 
             GuiButton.drawButtonBackground(this);
 
+            // dlaw selected.
             if (getSelectedIndex() < getOptions().size()) {
                 Gui optionGui = getOptions().get(getSelectedIndex());
                 float cX=optionGui.getX(), cY=optionGui.getY();
@@ -92,29 +97,36 @@ public class GuiComboBox extends Gui {
     // update Dropdown menu.
     private void rebuildDropdown() {
         dropdown.removeAllGuis();
-
-        dropdown.addGui(new Gui(0, 0, 0, 12)); // gap
-        for (int i = 0;i < options.size();i++) {
-            Gui itemGui = new Gui(0, 0, getWidth(), 24);
-            // init click sound.
-            GuiButton.initOnMouseDownClickSound(itemGui);
-            // put the OptionGui to the item.
-            itemGui.addGui(new Gui(33, 4, 0, 0)).addGui(options.get(i));
-            // Dlaw
-            boolean isChecked = selectedIndex==i;
-            itemGui.addOnDrawListener(e -> {
-                drawCornerStretchTexture(itemGui.isPressed()?TEX_DROPDOWN_CHECKED_HOVER:
-                        isChecked? itemGui.isHover()?TEX_DROPDOWN_CHECKED_HOVER:TEX_DROPDOWN_CHECKED :
-                                itemGui.isHover()?TEX_DROPDOWN_UNCHECKED_HOVER:TEX_DROPDOWN_UNCHECKED, itemGui.getX()+12, itemGui.getY()+5, 16, 16, 11);
-            });
-            // Item OnClick.
-            final int fixed = i;
-            itemGui.addOnClickListener(e -> {
-                setSelectedIndex(fixed);
-                toggleDropdown(false);
-            });
-            dropdown.addGui(itemGui);
-        }
-        dropdown.addGui(new Gui(0, 0, 0, 12)); // vertical gap
+        dropdown
+                .addChildren(new Gui(0, 0, 0, 12)) // vertical gap.
+                .exec(g -> {
+                    for (int i = 0;i < options.size();i++) {
+                        final int fixedI = i;
+                        g.addChildren(
+                          new Gui(0,0,getWidth(),24).exec(gitem -> {
+                              GuiButton.initOnMouseDownClickSound(gitem); // init click sound.
+                              // Dlaw
+                              boolean isChecked = selectedIndex==fixedI;
+                              gitem.addOnDrawListener(e -> {
+                                  drawCornerStretchTexture(gitem.isPressed()?TEX_DROPDOWN_CHECKED_HOVER:
+                                          isChecked? gitem.isHover()?TEX_DROPDOWN_CHECKED_HOVER:TEX_DROPDOWN_CHECKED :
+                                                  gitem.isHover()?TEX_DROPDOWN_UNCHECKED_HOVER:TEX_DROPDOWN_UNCHECKED, gitem.getX()+12, gitem.getY()+5, 16, 16, 11);
+                              });
+                              // Item OnClick.
+                              gitem.addOnClickListener(e -> {
+                                  setSelectedIndex(fixedI);
+                                  toggleDropdown(false);
+                              });
+                              gitem.addMouseButtonListener(e -> {
+                                  Log.LOGGER.
+                                          info("drop pressed");
+                              });
+                          }).addChildren(
+                            new Gui(33, 4, 0, 0).addChildren(options.get(i))  // put the OptionGui to the item.
+                          )
+                        );
+                    }
+                })
+                .addChildren(new Gui(0, 0, 0, 12));
     }
 }

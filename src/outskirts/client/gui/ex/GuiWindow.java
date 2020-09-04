@@ -5,6 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiScrollPanel;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.event.EventPriority;
 import outskirts.util.Colors;
@@ -28,60 +29,52 @@ public final class GuiWindow extends Gui {
         setWidth(400);
         setHeight(400);
 
-        {   // WindowHandler
-            GuiDrag wHandler = addGui(new GuiDrag());
-            wHandler.setHeight(WIN_HANDLER_HEIGHT);
-            wHandler.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
-            wHandler.addOnDraggingListener(e -> {
-                setX(getX() + e.dx);
-                setY(getY() + e.dy);
-            });
-            String title = main.getClass().getSimpleName();
-            wHandler.addOnDrawListener(e -> {
-//                drawRect(Colors.WHITE10, wHandler);
-//                drawRect(Colors.WHITE40, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), 1);
-//                GuiButton.drawButtonTexture(GuiButton.TEXTURE_BUTTON_NORMAL, wHandler.getX(), wHandler.getY(), wHandler.getWidth(), wHandler.getHeight());
-                drawString(title, wHandler.getX() + wHandler.getWidth() / 2, wHandler.getY() + 8, Colors.GRAY, 16, true, false);
-            });
-            {   // WindowClose
-                Gui gClose = wHandler.addGui(new Gui());
-                gClose.addLayoutorAlignParentLTRB(Float.NaN, 0, 0, 0);
-                gClose.setWidth(25);
-                gClose.addOnClickListener(e -> {
+        addChildren(
+          new GuiDrag().exec((GuiDrag g) -> { // Window Handler
+              g.setHeight(WIN_HANDLER_HEIGHT);
+              g.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
+              g.addOnDraggingListener(e -> {
+                  setX(getX() + e.dx);
+                  setY(getY() + e.dy);
+              });
+              String title = main.getClass().getSimpleName();
+              g.addOnDrawListener(e -> {
+                  drawString(title, g.getX() + g.getWidth() / 2, g.getY() + 8, Colors.GRAY, 16, true, false);
+              });
+          }).addChildren(
+            new Gui().exec(g -> { // Close Window
+                g.addLayoutorAlignParentLTRB(Float.NaN, 0, 0, 0);
+                g.setWidth(25);
+                g.addOnClickListener(e -> {
                     Outskirts.getRootGUI().removeGui(this);
                 });
-                gClose.addOnDrawListener(e -> {
-                    if (gClose.isHover())
-                        drawRect(Colors.WHITE20, gClose);
-                    drawString("x", gClose.getX() + gClose.getWidth() / 2, gClose.getY() + 8, gClose.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
+                g.addOnDrawListener(e -> {
+                    drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 8, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
                 });
-            }
-        }
-
-        {   // Main Gui
-            GuiScrollPanel mainPanel = addGui(new GuiScrollPanel());
-            mainPanel.setContentGui(main);
-            mainPanel.addLayoutorAlignParentLTRB(14, WIN_HANDLER_HEIGHT, 14, 14);
-            mainPanel.setClipChildren(true);
-            mainPanel.addOnDrawListener(e -> {
-                drawCornerStretchTexture(TEX_INDENT, mainPanel.getX()-2, mainPanel.getY()-2, mainPanel.getWidth()+4, mainPanel.getHeight()+4, 5);
-            });
-        }
-        {   // Resizer
-            float SIZER_SZ = 8;
-            GuiDrag wSizer = addGui(new GuiDrag());
-            wSizer.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, -SIZER_SZ / 2f, -SIZER_SZ / 2f);
-            wSizer.setWidth(SIZER_SZ);
-            wSizer.setHeight(SIZER_SZ);
-            wSizer.addOnDrawListener(e -> {
-                if (wSizer.isHover())
-                    drawRectBorder(Colors.WHITE40, wSizer, 1);
-            });
-            wSizer.addOnDraggingListener(e -> {
-                setWidth(getWidth() + e.dx);
-                setHeight(getHeight() + e.dy);
-            });
-        }
+            })
+          ),
+          new GuiScrollPanel().exec((GuiScrollPanel g) -> {  // mainPanel
+              g.setContent(main);
+              g.addLayoutorAlignParentLTRB(14, WIN_HANDLER_HEIGHT, 14, 14);
+              g.addOnDrawListener(e -> {
+                  drawCornerStretchTexture(TEX_INDENT, g.getX()-2, g.getY()-2, g.getWidth()+4, g.getHeight()+4, 5);
+              });
+          }),
+          new GuiDrag().exec((GuiDrag g) -> {  // Resizer
+              float SIZER_SZ = 12;
+              g.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 0, 0);
+              g.setWidth(SIZER_SZ);
+              g.setHeight(SIZER_SZ);
+              g.addOnDrawListener(e -> {
+                  if (g.isHover())
+                      drawRect(Colors.WHITE40, g);
+              });
+              g.addOnDraggingListener(e -> {
+                  setWidth(getWidth() + e.dx);
+                  setHeight(getHeight() + e.dy);
+              });
+          })
+        );
 
         addOnDrawListener(e -> {
 //            drawRect(Colors.BRIGHTNESS15, this);

@@ -7,7 +7,6 @@ import outskirts.util.vector.Vector3f;
 public class GuiIVector3f extends Gui {
 
     public GuiIVector3f(Vector3f vec3) {
-        setWrapChildren(true);
         addChildren(
           new GuiRow().addChildren(
             new GuiIScalar(() -> vec3.x, f->vec3.x=f),

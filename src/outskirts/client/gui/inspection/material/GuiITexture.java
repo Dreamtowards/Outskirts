@@ -20,7 +20,6 @@ public class GuiITexture extends Gui {
     private Texture theTex;
 
     public GuiITexture(Supplier<Texture> getter, Consumer<Texture> setter) {
-        setWrapChildren(true);
 
         GuiTextBox loadfilePath;
         addChildren(

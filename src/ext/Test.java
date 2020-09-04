@@ -2,6 +2,7 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import outskirts.client.gui.Gui;
 import outskirts.client.material.ex.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
@@ -278,15 +279,17 @@ public class Test {
 //            inst.handler(event);
 //        });
 
-        ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/islandblend.obj"));
+//        ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/islandblend.obj"));
+//
+//        OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
+//
+//        long st = System.nanoTime();
+//        String s = OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
+//        System.out.println((System.nanoTime()-st)/1_000_000f);
+//
+//        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
 
-        OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
-
-        long st = System.nanoTime();
-        String s = OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
-        System.out.println((System.nanoTime()-st)/1_000_000f);
-
-        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
+        new ACls(("a"));
     }
 
     private static class ACls {
@@ -294,7 +297,10 @@ public class Test {
         private String s = "abcde";
 
         public ACls() {
-            LOGGER.info("Constr");
+            LOGGER.info("Def Constr");
+        }
+        public ACls(String s) {
+            LOGGER.info(s);
         }
 
     }

@@ -4,11 +4,8 @@ import outskirts.client.Loader;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
 import outskirts.client.material.Texture;
-import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
-import outskirts.util.Maths;
-import outskirts.util.vector.Matrix2f;
 
 public class GuiExpander extends Gui implements Gui.Contentable {
 
@@ -17,22 +14,22 @@ public class GuiExpander extends Gui implements Gui.Contentable {
 
     private boolean expanded;
 
+    private Gui contentw = addGui(new Gui()); { // contentWrapper
+        contentw.setRelativeXY(0, 20);
+        setContent(new Gui());
+    }
+
     private Gui header = addGui(new Gui()); {
-        header.setWidth(180);
+        header.addOnLayoutListener(e -> {
+            header.setWidth(Math.max(180, contentw.getWidth()));
+        });
         header.setHeight(20);
         header.addOnClickListener(e -> {
             setExpanded(!isExpanded());
         });
     }
 
-    private Gui content = addGui(new Gui()); { // contentWrapper
-        content.setRelativeXY(0, 20);
-        content.setWrapChildren(true);
-        setContent(new Gui());
-    }
-
     public GuiExpander(String title) {
-        setWrapChildren(true);
         setExpanded(false);
 
         header.addChildren(
@@ -43,7 +40,9 @@ public class GuiExpander extends Gui implements Gui.Contentable {
 
         addOnDrawListener(e -> {
             drawRect(Colors.BLACK10, this);
-            drawRect(Colors.BLACK40, getX(), getY(), getWidth(), header.getHeight());
+            drawRect(Colors.BLACK40, header);
+            if (header.isHover())
+                drawRect(Colors.WHITE10, header);
 
             drawTexture(isExpanded() ? TEX_ARROW_EXPANDED : TEX_ARROW_UNEXPANDED, getX()+5, getY()+5, 10, 10);
         });
@@ -52,17 +51,17 @@ public class GuiExpander extends Gui implements Gui.Contentable {
 
     @Override
     public Gui setContent(Gui g) {
-        if (content.size() > 0) {
-            content.removeGui(0);
-            assert content.size()==0;
+        if (contentw.size() > 0) {
+            contentw.removeGui(0);
+            assert contentw.size()==0;
         }
-        content.addGui(g);
+        contentw.addGui(g);
         return this;
     }
 
     @Override
     public Gui getContent() {
-        return content.getGui(0);
+        return contentw.getGui(0);
     }
 
     public boolean isExpanded() {
@@ -70,6 +69,6 @@ public class GuiExpander extends Gui implements Gui.Contentable {
     }
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
-        content.setVisible(isExpanded());
+        contentw.setVisible(isExpanded());
     }
 }

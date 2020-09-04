@@ -2,30 +2,32 @@ package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
 import outskirts.util.*;
-import outskirts.util.vector.Vector2f;
 
 // GuiScrollBox
-public class GuiScrollPanel extends Gui {
+public class GuiScrollPanel extends Gui implements Gui.Contentable {
 
     private static float MOUSE_SENSTIVITY = 2.5f;
     private static float SCROLLBAR_THICKNESS = 10;
 
-    private Gui contentGui;
+    private Gui contentw = addGui(new Gui()); // contentGui wrapper
 
     private GuiScrollbar hScrollbar = addGui(new GuiScrollbar(GuiScrollbar.HORIZONTAL));
     private GuiScrollbar vScrollbar = addGui(new GuiScrollbar(GuiScrollbar.VERTICAL)); {
         hScrollbar.addOnValueChangedListener(e -> {
-            if (contentGui.getWidth() > getWidth())
-                contentGui.setRelativeX(hScrollbar.getValue() * -(contentGui.getWidth()-getWidth()));
+            Gui gContent = getContent();
+            if (gContent.getWidth() > getWidth())
+                gContent.setRelativeX(hScrollbar.getValue() * -(gContent.getWidth()-getWidth()));
         });
         vScrollbar.addOnValueChangedListener(e -> {
-            if (contentGui.getHeight() > getHeight())
-                contentGui.setRelativeY(vScrollbar.getValue() * -(contentGui.getHeight()-getHeight()));
+            Gui gContent = getContent();
+            if (gContent.getHeight() > getHeight())
+                gContent.setRelativeY(vScrollbar.getValue() * -(gContent.getHeight()-getHeight()));
         });
     }
 
     public GuiScrollPanel() {
-        setContentGui(Gui.EMPTY);
+        setClipChildren(true);
+        setContent(new Gui());
 
         addOnLayoutListener(e -> {
             // Position
@@ -37,23 +39,24 @@ public class GuiScrollPanel extends Gui {
             vScrollbar.setHeight(getHeight()-SCROLLBAR_THICKNESS);
             vScrollbar.setRelativeXY(getWidth() - vScrollbar.getWidth(), 0);
 
+            Gui gContent = getContent();
             // Handler Size
-            hScrollbar.setHandlerSize(contentGui.getWidth() < getWidth() ? 0 : getWidth() / contentGui.getWidth());
-            vScrollbar.setHandlerSize(contentGui.getHeight() < getHeight() ? 0 : getHeight() / contentGui.getHeight());
+            hScrollbar.setHandlerSize(gContent.getWidth() < getWidth() ? 0 : getWidth() / gContent.getWidth());
+            vScrollbar.setHandlerSize(gContent.getHeight() < getHeight() ? 0 : getHeight() / gContent.getHeight());
 
             // Scroll Value
-            hScrollbar.setValue(contentGui.getRelativeX() / -(contentGui.getWidth()-getWidth()));
-            vScrollbar.setValue(contentGui.getRelativeY() / -(contentGui.getHeight()-getHeight()));
+            hScrollbar.setValue(gContent.getRelativeX() / -(gContent.getWidth()-getWidth()));
+            vScrollbar.setValue(gContent.getRelativeY() / -(gContent.getHeight()-getHeight()));
 
-            hScrollbar.setVisible(contentGui.getWidth() > getWidth());
-            vScrollbar.setVisible(contentGui.getHeight() > getHeight());
+            hScrollbar.setVisible(gContent.getWidth() > getWidth());
+            vScrollbar.setVisible(gContent.getHeight() > getHeight());
 
             clampScrollOffset();
         });
 
         addMouseScrollListener(e -> {
             if (isHover()) {
-                Gui gContent = getContentGui();
+                Gui gContent = getContent();
 
                 if (Outskirts.isShiftKeyDown()) {
                     gContent.setRelativeX(gContent.getRelativeX() + Outskirts.getDScroll() * MOUSE_SENSTIVITY);
@@ -67,17 +70,20 @@ public class GuiScrollPanel extends Gui {
     }
 
     private void clampScrollOffset() {
-        Gui gContent = getContentGui();
-        gContent.setRelativeX(Maths.clamp(gContent.getRelativeX(), -Math.max(contentGui.getWidth() - getWidth(), 0), 0));
-        gContent.setRelativeY(Maths.clamp(gContent.getRelativeY(), -Math.max(contentGui.getHeight() - getHeight(), 0), 0));
+        Gui gContent = getContent();
+        gContent.setRelativeX(Maths.clamp(gContent.getRelativeX(), -Math.max(gContent.getWidth() - getWidth(), 0), 0));
+        gContent.setRelativeY(Maths.clamp(gContent.getRelativeY(), -Math.max(gContent.getHeight() - getHeight(), 0), 0));
     }
 
-    public Gui getContentGui() {
-        return contentGui;
+    @Override
+    public Gui setContent(Gui g) {
+        contentw.removeAllGuis();
+        contentw.addGui(g);
+        return this;
     }
-    public void setContentGui(Gui g) {
-        removeGui(this.contentGui);
-        addGui(g, 0);
-        this.contentGui = g;
+
+    @Override
+    public Gui getContent() {
+        return contentw.getGui(0);
     }
 }

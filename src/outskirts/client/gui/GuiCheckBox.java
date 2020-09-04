@@ -29,10 +29,9 @@ public class GuiCheckBox extends Gui implements Gui.Checkable {
 
 
     public GuiCheckBox(String text) {
+        setHeight(20);
         getText().setText(text);
         getText().setRelativeXY(26, 2);
-
-        setWrapChildren(true);
 
         addOnClickListener(e -> {
             toggleChecked();

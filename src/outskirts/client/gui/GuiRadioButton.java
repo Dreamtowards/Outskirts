@@ -23,9 +23,7 @@ public class GuiRadioButton extends Gui implements Gui.Checkable {
     }
 
     public GuiRadioButton(String s) {
-        setWidth(30);
         setHeight(20);
-        setWrapChildren(true);
         getText().setText(s);
         getText().setRelativeXY(24, 2);
 

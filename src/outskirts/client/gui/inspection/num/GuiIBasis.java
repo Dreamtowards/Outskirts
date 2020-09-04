@@ -14,7 +14,6 @@ import static java.lang.Float.NaN;
 public class GuiIBasis extends Gui {
 
     public GuiIBasis(Matrix3f basis) {
-        setWrapChildren(true);
 
         addChildren(
           new GuiBasisVisual(basis, false).exec(g -> {

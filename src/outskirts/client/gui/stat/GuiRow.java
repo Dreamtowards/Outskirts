@@ -3,12 +3,11 @@ package outskirts.client.gui.stat;
 import outskirts.client.gui.Gui;
 import outskirts.event.EventHandler;
 
+import static java.lang.Float.NaN;
+
 public class GuiRow extends Gui {
 
     public GuiRow() {
-        setWrapChildren(true);
-        //todo: ??  getwidth() -> width == NaN ? childrenbound.x : width=Infinity ? parent.width : width.
-
         addOnLayoutListener(this::onLayout0);
     }
 

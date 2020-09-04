@@ -95,7 +95,7 @@ public final class GuiRoot extends Gui {
         Gui.forChildren(Outskirts.getRootGUI(), g -> {
             if (!hoveredGuis.contains(g))
                 g.setHover(false);
-        }, true);
+        }, true, true);
     }
 
     private static void performOnClickeds() {

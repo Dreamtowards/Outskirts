@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 public class GuiIRigidbody extends Gui {
 
     public GuiIRigidbody(RigidBody theRigidbody) {
-        setWrapChildren(true);
 
         Consumer<GuiText> titleprop = g -> {g.setWidth(100);g.setRelativeY(3);};
 

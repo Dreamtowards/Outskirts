@@ -9,8 +9,11 @@ import outskirts.event.Event;
 import outskirts.event.EventBus;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
+import outskirts.util.Colors;
 import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
@@ -30,20 +33,20 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
  * we reduce "return (T)this".
  */
 
-//todo: NaN?childrenbound Infinity?parent.get getWidth setWidth.
 public class Gui {
 
     private float x; // actually is relative-x   should use vector.?
     private float y;
-    private float width;
-    private float height;
+    private float width = NaN;  // should the NaN been Manuel-Set.?
+    private float height = NaN;
+
+    private Vector2f childrenBound = new Vector2f();
 
     private boolean focused = false; // focusable
 
     private boolean hovered = false; // isHovered() setHovered()
 
     private boolean pressed = false;
-    // isPressed .? for OnClick Render...
 
     /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
@@ -56,30 +59,14 @@ public class Gui {
     /** just a attachment */
     private Object tag;
 
-    // split out to height/width
-    /** size just fits can wrap all direct-children. */
-    private boolean wrapChildren = false;
-    public int heightRule;
-    public int widthRule;
-    public static final int RULE_WRAP_CHILDREN = 1;
-    public static final int RULE_MATCH_PARENT = 2;
-
-    //they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
+    // they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
 
     private Gui parent;
     private List<Gui> children = new CopyOnIterateArrayList<>(); // allow to modify child while iteration.
 
     private EventBus eventBus = new EventBus(CopyOnIterateArrayList::new);
 
-    public Gui() {
-        this(0, 0, 0, 0);
-    }
-
-    public Gui(float rx, float ry, float width, float height) {
-        setRelativeXY(rx, ry);
-        setWidth(width);
-        setHeight(height);
-
+    {
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState()) {
@@ -101,6 +88,17 @@ public class Gui {
                 }
             }
         });
+    }
+
+    public Gui() { }
+
+    public Gui(float rx, float ry) {
+        setRelativeXY(rx, ry);
+    }
+    public Gui(float rx, float ry, float width, float height) {
+        setRelativeXY(rx, ry);
+        setWidth(width);
+        setHeight(height);
     }
 
     /**
@@ -235,6 +233,7 @@ public class Gui {
 
     public float getWidth() {
         if (!isVisible()) return 0;
+        if (Float.isNaN(width)) return childrenBound.x;
         return width;
     }
     public void setWidth(float width) {
@@ -243,6 +242,7 @@ public class Gui {
 
     public float getHeight() {
         if (!isVisible()) return 0;
+        if (Float.isNaN(height)) return childrenBound.y;
         return height;
     }
     public void setHeight(float height) {
@@ -307,13 +307,6 @@ public class Gui {
         } else if (oldHovered && !hovered) {
             performEvent(new OnMouseOutEvent());
         }
-    }
-
-    public boolean isWrapChildren() {
-        return wrapChildren;
-    }
-    public void setWrapChildren(boolean wrapChildren) {
-        this.wrapChildren = wrapChildren;
     }
 
     public boolean isPressed() {
@@ -437,7 +430,7 @@ public class Gui {
         for (Gui child : children)
             child.onLayout();
 
-            _doSizeWrapChildren();
+        _doSizeWrapChildren();
     }
 
     private void _doSizeWrapChildren() {
@@ -446,10 +439,7 @@ public class Gui {
             mxxs = Math.max(mxxs, g.getRelativeX()+g.getWidth());
             mxys = Math.max(mxys, g.getRelativeY()+g.getHeight());
         }
-        if (isWrapChildren() || widthRule == RULE_WRAP_CHILDREN)
-        setWidth(mxxs);
-        if (isWrapChildren() || heightRule == RULE_WRAP_CHILDREN)
-        setHeight(mxys);
+        childrenBound.set(mxxs, mxys);
     }
 
 
