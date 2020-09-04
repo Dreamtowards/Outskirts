@@ -76,6 +76,7 @@ public class GuiIDebugOp {
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());
             mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
         }
+        GuiIngame.INSTANCE.addGui(GuiDebugPhys.INSTANCE);
         GuiPopupMenu mPhys = new GuiPopupMenu();
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("Phys", mPhys));
         {

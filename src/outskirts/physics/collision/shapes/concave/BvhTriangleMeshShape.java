@@ -17,8 +17,6 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
 
     public BvhTriangleMeshShape(int[] indices, float[] positions) {
         super(indices, positions);
-
-        rebuildBVH();
     }
 
     @Override
@@ -37,7 +35,7 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
     private void insertLeaf(int triangleIndex) {
         BvhNode leaf = BvhNode.newLeaf(triangleIndex, getTriangle(triangleIndex, TMP_TRIANGE));
         if (rootNode == null) { rootNode=leaf; leaf.parent=null; return; }
-        if (rootNode.isLeaf()) { rootNode=BvhNode.newInternal(rootNode, leaf); rootNode.parent=null; return; }
+        if (rootNode.isLeaf()) { rootNode=BvhNode.newInternal(rootNode, leaf); rootNode.wrapChildVolume(); rootNode.parent=null; return; }
 
         BvhNode supnode = rootNode;
         while (supnode.isInternal()) {

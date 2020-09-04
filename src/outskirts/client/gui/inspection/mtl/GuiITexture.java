@@ -1,4 +1,4 @@
-package outskirts.client.gui.inspection.material;
+package outskirts.client.gui.inspection.mtl;
 
 import outskirts.client.Loader;
 import outskirts.client.gui.*;

@@ -16,7 +16,7 @@ public abstract class CollisionWorld {
 
     protected List<CollisionObject> collisionObjects = new ArrayList<>();
 
-    protected Broadphase broadphase = new BroadphaseSimple();
+    protected Broadphase broadphase = new BroadphaseDbvt();
 
     protected Narrowphase narrowphase = new Narrowphase();
 

@@ -105,7 +105,7 @@ public class BroadphaseDbvt extends Broadphase {
 
     private void insertLeaf(DbvtNode leaf) {
         if (rootNode == null)  { rootNode = leaf; rootNode.parent=null; return; }
-        if (rootNode.isLeaf()) { rootNode = DbvtNode.newInternal(rootNode, leaf); rootNode.parent=null; return; }
+        if (rootNode.isLeaf()) { rootNode = DbvtNode.newInternal(rootNode, leaf); rootNode.wrapChildVolume(); rootNode.parent=null; return; }
         DbvtNode sibling = rootNode;
         // find out a sibling leaf, which almost most closed to.
         while (!sibling.isLeaf()) {

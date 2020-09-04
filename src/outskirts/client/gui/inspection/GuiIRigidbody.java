@@ -33,8 +33,13 @@ public class GuiIRigidbody extends Gui {
                 )
               ),
               new GuiExpander("CollisionShape").setContent(
-                new GuiText("Unsupported CollisionShape.")
+                new GuiText(theRigidbody.getCollisionShape().getClass().getName())
               ),
+              new GuiText("AABB").exec((GuiText g) -> {
+                  g.addOnClickListener(e -> {
+                      g.setText("AABB: "+theRigidbody.getAABB());
+                  });
+              }),
               new GuiRow().addChildren(
                 new GuiText("Gravity").exec(titleprop),
                 new GuiIVector3f(theRigidbody.getGravity())

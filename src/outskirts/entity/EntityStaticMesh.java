@@ -3,6 +3,7 @@ package outskirts.entity;
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
+import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.storage.SAVERS;
 import outskirts.storage.dat.DATObject;
 

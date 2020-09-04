@@ -3,18 +3,28 @@ package outskirts.client.gui.ex;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiScrollPanel;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
 import outskirts.event.EventPriority;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
+
+import static java.lang.Float.NaN;
 
 /**
  * should not be a Entity Window.
  * should needs a Registry, in the "Window" title, switch to other func-window.
  */
 public final class GuiWindow extends Gui {
+
+    public static Gui TASKBAR = new GuiColumn();
+    static {
+        GuiIngame.INSTANCE.addGui(TASKBAR);
+        TASKBAR.addLayoutorAlignParentRR(1f, 0.5f);
+    }
 
     private static final Texture TEX_BG = Loader.loadTexture(new Identifier("textures/gui/bg/dialog_background_opaque.png").getInputStream());
     private static final Texture TEX_INDENT = Loader.loadTexture(new Identifier("textures/gui/bg/indent.png").getInputStream());
@@ -27,28 +37,54 @@ public final class GuiWindow extends Gui {
         setY(100);
         setWidth(400);
         setHeight(400);
+        String title = main.getClass().getSimpleName();
 
         addChildren(
           new GuiDrag().exec((GuiDrag g) -> { // Window Handler
               g.setHeight(WIN_HANDLER_HEIGHT);
-              g.addLayoutorAlignParentLTRB(0, 0, 0, Float.NaN);
+              g.addLayoutorAlignParentLTRB(0, 0, 0, NaN);
               g.addOnDraggingListener(e -> {
                   setX(getX() + e.dx);
                   setY(getY() + e.dy);
               });
-              String title = main.getClass().getSimpleName();
               g.addOnDrawListener(e -> {
                   drawString(title, g.getX() + g.getWidth() / 2, g.getY() + 8, Colors.GRAY, 16, true, false);
               });
           }).addChildren(
             new Gui().exec(g -> { // Close Window
-                g.addLayoutorAlignParentLTRB(Float.NaN, 0, 0, 0);
-                g.setWidth(25);
+                g.addLayoutorAlignParentLTRB(NaN, NaN, 12, NaN);
+                g.addLayoutorAlignParentRR(NaN, 0.5f);
+                g.setWidth(20);
+                g.setHeight(20);
+                GuiButton.initOnMouseDownClickSound(g);
                 g.addOnClickListener(e -> {
                     Outskirts.getRootGUI().removeGui(this);
                 });
                 g.addOnDrawListener(e -> {
-                    drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 8, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
+                    if (g.isHover()) drawRect(Colors.BLACK10, g);
+                    if (g.isPressed()) drawRect(Colors.BLACK40, g);
+                    drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
+                });
+            }),
+            new Gui().exec(g -> { // Min Window
+                g.addLayoutorAlignParentLTRB(NaN, NaN, 32, NaN);
+                g.addLayoutorAlignParentRR(NaN, 0.5f);
+                g.setWidth(20);
+                g.setHeight(20);
+                GuiButton.initOnMouseDownClickSound(g);
+                g.addOnClickListener(e -> {
+                    Outskirts.getRootGUI().removeGui(this);
+                    GuiWindow.TASKBAR.addGui(new GuiButton("W: "+title).exec(gbtn -> {
+                        gbtn.addOnClickListener(ev -> {
+                            Outskirts.getRootGUI().addGui(this);
+                            GuiWindow.TASKBAR.removeGui(gbtn);
+                        });
+                    }));
+                });
+                g.addOnDrawListener(e -> {
+                    if (g.isHover()) drawRect(Colors.BLACK10, g);
+                    if (g.isPressed()) drawRect(Colors.BLACK40, g);
+                    drawString("-", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
                 });
             })
           ),
@@ -61,7 +97,7 @@ public final class GuiWindow extends Gui {
           }),
           new GuiDrag().exec((GuiDrag g) -> {  // Resizer
               float SIZER_SZ = 12;
-              g.addLayoutorAlignParentLTRB(Float.NaN, Float.NaN, 0, 0);
+              g.addLayoutorAlignParentLTRB(NaN, NaN, 0, 0);
               g.setWidth(SIZER_SZ);
               g.setHeight(SIZER_SZ);
               g.addOnDrawListener(e -> {

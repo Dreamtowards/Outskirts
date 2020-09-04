@@ -7,7 +7,7 @@ import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiPadding;
 import outskirts.client.gui.GuiTextBox;
 import outskirts.client.gui.GuiExpander;
-import outskirts.client.gui.inspection.material.GuiIMaterial;
+import outskirts.client.gui.inspection.mtl.GuiIMaterial;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
 import outskirts.entity.Entity;
