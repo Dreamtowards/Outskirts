@@ -59,7 +59,7 @@ public abstract class TriangleMeshShape extends ConcaveShape {
         for (int i = 0;i < trianglesCount();i++) {
             getTriangle(i, tmpTrig);
 
-            if (!intersectsTriangleBounding(tmpTrig[0], tmpTrig[1], tmpTrig[2], aabb))
+            if (!intersectsTrianglevAABB(tmpTrig[0], tmpTrig[1], tmpTrig[2], aabb))
                 continue;
 
             oncollide.accept(i, tmpTrig);
@@ -67,7 +67,7 @@ public abstract class TriangleMeshShape extends ConcaveShape {
     }
 
     // inline-version of: aabb.intersects(AABB.bounding(points, tmpAABB))
-    private static boolean intersectsTriangleBounding(Vector3f v0, Vector3f v1, Vector3f v2, AABB aabb) {
+    private static boolean intersectsTrianglevAABB(Vector3f v0, Vector3f v1, Vector3f v2, AABB aabb) {
 
         if (Math.min(Math.min(v0.x, v1.x), v2.x) > aabb.max.x) return false;
         if (Math.min(Math.min(v0.y, v1.y), v2.y) > aabb.max.y) return false;
