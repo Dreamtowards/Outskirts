@@ -12,10 +12,12 @@ import outskirts.event.EventPriority;
 import outskirts.init.Models;
 import outskirts.storage.dat.DATObject;
 import outskirts.storage.dat.DSTUtils;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 
 import java.io.FileOutputStream;
 
+import static org.lwjgl.opengl.GL11.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiIDebugOp {
@@ -44,16 +46,25 @@ public class GuiIDebugOp {
             mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("ProfVisual WD", false, b -> toggleShow(profV, b)));
 
             mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("Vert3D WD", false, b -> toggleShow(GuiVert3D.INSTANCE, b)));
+
+            mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("Poly Lines", false, b -> {
+                 glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL);
+            }));
         }
         GuiPopupMenu mInsp = new GuiPopupMenu();
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("Insp", mInsp));
         {
             mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInspection CurrEntity", () -> {
+                if (Outskirts.isShiftKeyDown()) {
+                    Gui.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer())));
+                    debugMenu.hide();
+                    return;
+                }
+                if (Outskirts.getRayPicker().getCurrentEntity() == null) {
+                    LOGGER.info("null CurrentEntity.");
+                    return;
+                }
                 Gui.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
-                debugMenu.hide();
-            }));
-            mInsp.addItem(GuiPopupMenu.GuiItem.button("EntityInsp Player", () -> {
-                Gui.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer())));
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("Add EntityStaticMesh", () -> {

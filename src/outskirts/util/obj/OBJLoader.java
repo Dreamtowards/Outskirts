@@ -3,6 +3,7 @@ package outskirts.util.obj;
 import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
 import outskirts.util.CollectionUtils;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
@@ -44,14 +45,22 @@ public class OBJLoader {
             out_positions[i*3+1] = POS.y;
             out_positions[i*3+2] = POS.z;
 
-            Vector2f TEX = tbTextureCoords.get(v.textureIdx);
-            out_textureCoords[i*2]   = TEX.x;
-            out_textureCoords[i*2+1] = TEX.y;
+            if (v.textureIdx!=-1) {
+                Vector2f TEX = tbTextureCoords.get(v.textureIdx);
+                out_textureCoords[i * 2] = TEX.x;
+                out_textureCoords[i * 2 + 1] = TEX.y;
+            } else {
+                Log.LOGGER.info("missing vtx vt. (v={},i={})", POS, v.positionIdx);
+            }
 
-            Vector3f NORM = tbNormals.get(v.normalIdx);
-            out_normals[i*3]   = NORM.x;
-            out_normals[i*3+1] = NORM.y;
-            out_normals[i*3+2] = NORM.z;
+            if (v.normalIdx!=-1) {
+                Vector3f NORM = tbNormals.get(v.normalIdx);
+                out_normals[i * 3] = NORM.x;
+                out_normals[i * 3 + 1] = NORM.y;
+                out_normals[i * 3 + 2] = NORM.z;
+            } else {
+                Log.LOGGER.info("missing vtx vn. (v={},i={})", POS, v.positionIdx);
+            }
         }
 
         return new ModelData(out_indices, out_positions, out_textureCoords, out_normals);

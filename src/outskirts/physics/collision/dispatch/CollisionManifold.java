@@ -110,6 +110,7 @@ public final class CollisionManifold {
         cp.combined_friction = Maths.sqrt(bodyA.getFriction() * bodyB.getFriction());
         cp.combined_restitution = Maths.sqrt(bodyA.getRestitution() * bodyB.getRestitution());
 
+        cp.penetration=penetration; // now test not update penetration by refreshContactPoints().
         // other Contact-Point data/info just wait been update/setup by refreshContactPoints() in later (when finished "this" Collision-Detection).
     }
 
@@ -182,8 +183,8 @@ public final class CollisionManifold {
             Vector3f.sub(cp.pointOnB, bodyB.transform().origin, cp.rB);
 
             // update penetration
-            Vector3f pBpA = Vector3f.sub(cp.pointOnA, cp.pointOnB, null);
-            cp.penetration = -Vector3f.dot(pBpA, cp.normOnB);
+//            Vector3f pBpA = Vector3f.sub(cp.pointOnA, cp.pointOnB, null);
+//            cp.penetration = -Vector3f.dot(pBpA, cp.normOnB);
         }
 
         // check vaild. filter
@@ -193,7 +194,7 @@ public final class CollisionManifold {
                 removeContactPoint(i);
             } else {
                 Vector3f stdB = new Vector3f(cp.pointOnA).addScaled(cp.penetration, cp.normOnB); // "expected" pointOnB
-                if (Vector3f.sub(cp.pointOnB, stdB, null).lengthSquared() > 0.2f) {
+                if (Vector3f.sub(cp.pointOnB, stdB, null).lengthSquared() > 0.0004f) { // 0.02^2 = 0.0004
                     removeContactPoint(i);
                 }
             }

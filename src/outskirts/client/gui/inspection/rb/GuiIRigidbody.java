@@ -1,4 +1,4 @@
-package outskirts.client.gui.inspection;
+package outskirts.client.gui.inspection.rb;
 
 import outskirts.client.gui.*;
 import outskirts.client.gui.GuiExpander;
@@ -33,7 +33,7 @@ public class GuiIRigidbody extends Gui {
                 )
               ),
               new GuiExpander("CollisionShape").setContent(
-                new GuiText(theRigidbody.getCollisionShape().getClass().getName())
+                new GuiText(theRigidbody.getCollisionShape().getClass().getSimpleName())
               ),
               new GuiText("AABB").exec((GuiText g) -> {
                   g.addOnClickListener(e -> {

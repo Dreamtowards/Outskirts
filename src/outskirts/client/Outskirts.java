@@ -201,46 +201,22 @@ public class Outskirts {
         world.lights.add(lightSun);
 
 
-//        ModelData[] mdat = new ModelData[1];
-//        EntityGeoShape eFloor = new EntityGeoShape(new BoxShape(100,10,100));
-//        INSTANCE.world.addEntity(eFloor);
-//        eFloor.tmp_boxSphere_scale.set(1,1,1);
-//        eFloor.getRigidBody().getGravity().set(0,0,0);
-////        eFloor.getRigidBody().transform().origin.set(0, -10, 0);
-//        eFloor.getRigidBody().setMass(8000*0f).setRestitution(0.1f).transform().origin.y=5;
-//        eFloor.getMaterial()
-//                .setModel(Loader.loadOBJ(new Identifier("materials/mount/part.obj").getInputStream(), mdat))
-//                .setDiffuseMap(Textures.WOOD1)
-//                .setSpecularStrength(0.1f).setShininess(20);
-//        eFloor.getRigidBody().setCollisionShape(new TriangleMeshShape(mdat[0].indices, mdat[0].positions));
-
-
-        getPlayer().setModel(Models.GEO_CUBE);
+        getPlayer().setModel(Models.GEOS_CAPSULE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
-        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.5f,.5f,.5f));
+        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.2f,1f,.2f));
 //        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));
-//        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.5f, .5f));
-        getPlayer().tmp_boxSphere_scale.set(1,1,1).scale(0.5f);
+//        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.12f, .8f));
+        getPlayer().tmp_boxSphere_scale.set(.2f,0.5f,.2f).scale(1);
         getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
         getPlayer().getRigidBody().transform().origin.set(0,20,20);
-        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(0);
-        getPlayer().getRigidBody().setLinearDamping(0.1f);
+        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(1);
+//        getPlayer().getRigidBody().setLinearDamping(0.02f);
         getPlayer().getRigidBody().getAngularVelocity().scale(0);
         getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(20);//.setFriction(0.5f).setRestitution(0f);//.setLinearDamping(0.04f);
-//        getPlayer().getRigidBody().invInertiaTensorLocalDiag = SceneIniter.e.getRigidBody().invInertiaTensorLocalDiag;
-//        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
+        getPlayer().getRigidBody().setMass(10).setFriction(0.8f).setRestitution(0f);//.setLinearDamping(0.04f);
+        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
         Outskirts.getWorld().addEntity(Outskirts.getPlayer());
 
-
-        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-            if (e.getKeyState()) {
-                if (e.getKey() == GLFW_KEY_T) {
-//                    Outskirts.getWorld().lights.get(0).getPosition().set(getCamera().getPosition());
-//                    getPlayer().getRigidBody().getAngularVelocity().add(100, 0, 0);
-                }
-            }
-        });
     }
     public static void setPauseWorld(float speed) {
         if (getWorld()==null)return;

@@ -8,8 +8,10 @@ import outskirts.client.material.Texture;
 import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
+import outskirts.util.FileUtils;
 import outskirts.util.logging.Log;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.function.Consumer;
@@ -57,7 +59,25 @@ public class GuiITexture extends Gui {
                       }
                   });
               })
-            )
+            ),
+            new GuiComboBox().exec((GuiComboBox g) -> {
+                g.setHeight(22);
+                g.addOnPressedListener(e -> {
+                    g.getOptions().clear();
+                    for (File file : FileUtils.listFiles(new File("src/assets/outskirts/materials"))) {
+                        if (file.isFile() && file.getName().endsWith(".png"))
+                            g.getOptions().add(new GuiText(file.getName()).exec(gitem -> gitem.setTag(file)));
+                    }
+                }).priority(EventPriority.HIGH);
+                g.addOnSelectedListener(e -> {
+                    File file = (File)g.getOptions().get(g.getSelectedIndex()).getTag();
+                    try {
+                        setter.accept(Loader.loadTexture(new FileInputStream(file)));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            })
           )
         );
 

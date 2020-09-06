@@ -9,7 +9,7 @@ import outskirts.util.vector.Vector3f;
 
 public abstract class EntityPlayer extends Entity {
 
-    public static float walkSpeed = 1;
+    public static float walkSpeed = 0.4f;
 
 //    // a EulerAngles, just means head look at (for walk, look, pick ..etc), its not effort entity body rotation.
 //    // the name lookAt likes a direction, but its a EulerAngles... this is a problem..

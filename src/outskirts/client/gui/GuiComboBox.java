@@ -3,11 +3,14 @@ package outskirts.client.gui;
 import outskirts.client.Loader;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.material.Texture;
+import outskirts.event.EventBus;
+import outskirts.event.gui.GuiEvent;
 import outskirts.util.Identifier;
 import outskirts.util.logging.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static java.lang.Float.NaN;
 
@@ -20,9 +23,9 @@ public class GuiComboBox extends Gui {
     private static final Texture TEX_DROPDOWN_CHECKED = Loader.loadTexture(new Identifier("textures/gui/combobox/checked.png").getInputStream());
     private static final Texture TEX_DROPDOWN_CHECKED_HOVER = Loader.loadTexture(new Identifier("textures/gui/combobox/checked_hover.png").getInputStream());
 
-    private int selectedIndex;
+    private int selectedIndex = -1;
 
-    private List<GuiText> options = new ArrayList<>();
+    private List<Gui> options = new ArrayList<>();
 
     private GuiColumn dropdown = new GuiColumn(); {
         dropdown.setHeight(NaN);
@@ -56,7 +59,7 @@ public class GuiComboBox extends Gui {
             GuiButton.drawButtonBackground(this);
 
             // dlaw selected.
-            if (getSelectedIndex() < getOptions().size()) {
+            if (getSelectedIndex() >= 0 && getSelectedIndex() < getOptions().size()) {
                 Gui optionGui = getOptions().get(getSelectedIndex());
                 float cX=optionGui.getX(), cY=optionGui.getY();
                 optionGui.setX(getX()+12);
@@ -65,12 +68,12 @@ public class GuiComboBox extends Gui {
                 optionGui.setX(cX); optionGui.setY(cY);
             }
 
-            drawTexture(TEX_DROPDOWN_ARROW, getX()+getWidth() - 11 - 8, getY() + 10.5f, 11, 11);
+            drawTexture(TEX_DROPDOWN_ARROW, getX()+getWidth() - 11 - 8, getY()+(getHeight()-11)/2f, 11, 11);
         });
 
     }
 
-    public List<GuiText> getOptions() {
+    public List<Gui> getOptions() {
         return options;
     }
 
@@ -78,7 +81,15 @@ public class GuiComboBox extends Gui {
         return selectedIndex;
     }
     public void setSelectedIndex(int selectedIndex) {
+        int oldsel = this.selectedIndex;
         this.selectedIndex = selectedIndex;
+        if (oldsel != selectedIndex) {
+            performEvent(new OnSelectedEvent());
+        }
+    }
+
+    public final EventBus.Handler addOnSelectedListener(Consumer<OnSelectedEvent> lsr) {
+        return attachListener(OnSelectedEvent.class, lsr);
     }
 
     public void toggleDropdown(boolean open) {
@@ -116,10 +127,6 @@ public class GuiComboBox extends Gui {
                                   setSelectedIndex(fixedI);
                                   toggleDropdown(false);
                               });
-                              gitem.addMouseButtonListener(e -> {
-                                  Log.LOGGER.
-                                          info("drop pressed");
-                              });
                           }).addChildren(
                             new Gui(33, 4, 0, 0).addChildren(options.get(i))  // put the OptionGui to the item.
                           )
@@ -128,4 +135,6 @@ public class GuiComboBox extends Gui {
                 })
                 .addChildren(new Gui(0, 0, 0, 12));
     }
+
+    public static class OnSelectedEvent extends GuiEvent { }
 }

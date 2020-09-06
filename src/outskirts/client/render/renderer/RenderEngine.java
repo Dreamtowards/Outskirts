@@ -70,8 +70,6 @@ public final class RenderEngine {
         glCullFace(GL_BACK); // DEF
         glFrontFace(GL_CCW); // DEF
 
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
         RenderEngine.checkGlError("prepare");
 
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..

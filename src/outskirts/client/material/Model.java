@@ -83,7 +83,7 @@ public final class Model {
 
         private VAttribute() {}
 
-        public static VAttribute glfGenBuffers() {
+        private static VAttribute glfGenBuffers() {
             VAttribute vbo = new VAttribute();
             vbo.vboID = glGenBuffers();
             return vbo;
