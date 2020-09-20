@@ -2,24 +2,19 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.gui.Gui;
 import outskirts.client.material.ex.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.FileUtils;
-import outskirts.util.IOUtils;
-import outskirts.util.ReflectionUtils;
 import outskirts.util.logging.Log;
 import outskirts.util.obj.OBJLoader;
+import outskirts.util.obj.OldOBJLoader;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.ChunkPos;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.*;
 import java.util.function.LongConsumer;
 
-import static java.lang.Math.acos;
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -279,8 +274,26 @@ public class Test {
 //            inst.handler(event);
 //        });
 
-//        ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/islandblend.obj"));
-//
+        for (int i = 0;i < 10;i++) {
+            long st = System.nanoTime();
+            ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/ruum.obj"));
+            LOGGER.info("New: plen={}, phash: {}, t:{}", mdat.positions.length, Arrays.hashCode(mdat.positions), (System.nanoTime() - st) / 1_000_000f);
+
+            st = System.nanoTime();
+            ModelData oldmdat = OldOBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/ruum.obj"));
+            LOGGER.info("Old: len={}, t:{}", oldmdat.positions.length, (System.nanoTime() - st) / 1_000_000f);
+        }
+        LOGGER.info("================\n\n\n");
+
+        long st = System.nanoTime();
+        ModelData mdat = OBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/ruum.obj"));
+        LOGGER.info("New: plen={}, phash: {}, t:{}", mdat.positions.length, Arrays.hashCode(mdat.positions), (System.nanoTime()-st)/1_000_000f);
+
+        st=System.nanoTime();
+        ModelData oldmdat = OldOBJLoader.loadOBJ(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/ruum.obj"));
+        LOGGER.info("Old: len={}, t:{}", oldmdat.positions.length, (System.nanoTime()-st)/1_000_000f);
+
+
 //        OBJLoader.saveOBJ(mdat.indices, mdat.positions, mdat.textureCoords, mdat.normals);
 //
 //        long st = System.nanoTime();
@@ -289,7 +302,7 @@ public class Test {
 //
 //        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
 
-        new ACls(("a"));
+
     }
 
     private static class ACls {

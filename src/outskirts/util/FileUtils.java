@@ -187,4 +187,12 @@ public final class FileUtils {
             return dest.length();
         }
     }
+
+    public static FileInputStream openFileStream(File file) {
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException("File not found.", ex);
+        }
+    }
 }

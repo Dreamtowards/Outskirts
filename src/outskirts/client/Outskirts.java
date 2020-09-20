@@ -4,30 +4,38 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiSlider;
+import outskirts.client.gui.GuiText;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
+import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
+import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.client.render.renderer.post.PostRenderer;
+import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
+import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
 import outskirts.init.Models;
-import outskirts.init.SceneIniter;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
+import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.dat.DSTUtils;
-import outskirts.storage.dat.DATObject;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.ChunkPos;
+import outskirts.world.Section;
 import outskirts.world.WorldClient;
+import outskirts.world.gen.VSectionGen;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -40,13 +48,14 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.GUI_SCALE;
+import static outskirts.util.SystemUtils.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
-    // dScroll: wheelDXY. all windowCoords
-    private float dScroll, mouseDX, mouseDY, mouseX, mouseY; // WindowCoords
-    private float width, height; // WindowCoords. not FramebufferCoords, not GuiCoords.
+    // framebuffer coords.
+    private float dScroll, mouseDX, mouseDY, mouseX, mouseY;
+    private float width, height; // Framebuffer Coords. not GuiCoords.
     private long window; // glfwWindow
     private float OS_CONTENT_SCALE; // window_size * OS_CONTENT_SCALE = fb_size.
 
@@ -119,6 +128,12 @@ public class Outskirts {
 
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
+        getRootGUI().addGui(new GuiText("ABC").exec(g -> {
+            g.addOnDrawListener(e -> {
+                g.setX(getMouseX()+10);
+                g.setY(getMouseY());
+            });
+        }));
 
     }
 
@@ -168,10 +183,6 @@ public class Outskirts {
         }
         profiler.pop("render");
 
-        if (isKeyDown(GLFW_KEY_K))
-        LOGGER.info(getRootGUI().getChildren());
-//        Outskirts.setMouseGrabbed(!Outskirts.isKeyDown(GLFW_KEY_LEFT_ALT));
-
         profiler.pop("rt");
         profiler.push("updateDisplay");
         this.updateDisplay();
@@ -184,37 +195,64 @@ public class Outskirts {
         if (world == null)
             return;
         try {
-            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
+//            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
         } catch (Exception e1) {
             e1.printStackTrace();
         }
 
+        int sz = 1;
+        for (int i = -sz;i <= sz;i++) {
+            for (int j = -sz;j <= sz;j++) {
+                world.vsectionMap.put(ChunkPos.asLong(i*16, j*16), new VSectionGen().generate(i*16, j*16));
+            }
+        }
+        buildModel: {
+            ChunkModelGenerator chunkModelGenerator = new ChunkModelGenerator();
+
+            for (Section section : world.vsectionMap.values()) {
+                Model model = chunkModelGenerator.buildModel(section);
+
+                EntityStaticMesh staticMesh = new EntityStaticMesh();
+                staticMesh.setModel(model);
+                staticMesh.getPosition().set(section.x, 0, section.z);
+                world.addEntity(staticMesh);
+            }
+        }
+
 //        SceneIniter.init(world);
 
-
         Light lightSun = new Light();
-        lightSun.getPosition().set(100, 100, 100);
-        lightSun.getDirection().set(-1, -1, -1).normalize();
-        lightSun.getColor().set(1, 1, 1).scale(1);
-//        Light.calculateApproximateAttenuation(1000, lightSun.getAttenuation());
-        lightSun.getAttenuation().set(1,0,0);
+        lightSun.getPosition().set(10, 52, 10);
+//        getRootGUI().addOnDrawListener(e -> {
+//            lightSun.getPosition().set(getPlayer().getPosition()).y+=8;
+//        });
+        lightSun.getColor().set(1, 1, 1).scale(10f);
+        Light.calculateApproximateAttenuation(40, lightSun.getAttenuation());
+//        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
+
+//        Model BP = Loader.loadOBJ(FileUtils.openFileStream(new File("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/bodyp.obj")));
 
 
         getPlayer().setModel(Models.GEOS_CAPSULE);
         getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
-        getPlayer().getRigidBody().setCollisionShape(new BoxShape(.2f,1f,.2f));
-//        getPlayer().getRigidBody().setCollisionShape(new SphereShape(.5f));
-//        getPlayer().getRigidBody().setCollisionShape(new CapsuleShape(.12f, .8f));
-        getPlayer().tmp_boxSphere_scale.set(.2f,0.5f,.2f).scale(1);
-        getPlayer().getRigidBody().transform().set(Transform.IDENTITY);
-        getPlayer().getRigidBody().transform().origin.set(0,20,20);
-        getPlayer().getRigidBody().getGravity().set(0, -10, 0).scale(1);
-//        getPlayer().getRigidBody().setLinearDamping(0.02f);
-        getPlayer().getRigidBody().getAngularVelocity().scale(0);
-        getPlayer().getRigidBody().getLinearVelocity().scale(0);
-        getPlayer().getRigidBody().setMass(10).setFriction(0.8f).setRestitution(0f);//.setLinearDamping(0.04f);
-        getPlayer().getRigidBody().setInertiaTensorLocal(0,0,0);
+        getPlayer().tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
+        RigidBody prb = getPlayer().getRigidBody();
+//        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));
+//        prb.setCollisionShape(new SphereShape(.5f));
+        prb.setCollisionShape(new CapsuleShape(.4f, .6f));
+//        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
+        prb.transform().set(Transform.IDENTITY);
+        prb.transform().origin.set(0,52,20);
+        prb.getGravity().set(0, -10, 0).scale(1);
+        //  prb.setLinearDamping(0.02f);
+        prb.getAngularVelocity().scale(0);
+        prb.getLinearVelocity().scale(0);
+        prb.setMass(10);
+        prb.setFriction(0.2f);
+        prb.setRestitution(0f);
+//         prb.setInertiaTensorLocal(0,0,0);
+
         Outskirts.getWorld().addEntity(Outskirts.getPlayer());
 
     }
@@ -312,32 +350,32 @@ public class Outskirts {
 
     // the DX/DY is high level in actually operation, in MacOSX DX'll automaclly be attachs by holding Shift key. but in windows not.
     public static float getDScroll() {
-        return INSTANCE.dScroll;
+        return INSTANCE.dScroll / INSTANCE.OS_CONTENT_SCALE;
     }
 
     public static float getMouseDX() {
-        return INSTANCE.mouseDX / GUI_SCALE;
+        return INSTANCE.mouseDX / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
     public static float getMouseDY() {
-        return INSTANCE.mouseDY / GUI_SCALE;
+        return INSTANCE.mouseDY / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
 
     public static float getMouseX() {
-        return INSTANCE.mouseX / GUI_SCALE;
+        return INSTANCE.mouseX / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
     public static float getMouseY() {
-        return INSTANCE.mouseY / GUI_SCALE;
+        return INSTANCE.mouseY / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
 
     public static float getWidth() {
-        return INSTANCE.width / GUI_SCALE;
+        return INSTANCE.width / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
     public static float getHeight() {
-        return INSTANCE.height / GUI_SCALE;
+        return INSTANCE.height / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
     }
 
     public static boolean isCtrlKeyDown() {
-        if (SystemUtils.IS_OS_MAC)
+        if (IS_OSX)
             return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS;
         else
             return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
@@ -417,7 +455,7 @@ public class Outskirts {
 
         GL.createCapabilities();
 
-        glfwSetWindowSizeCallback(window, this::onWindowResized);
+        glfwSetFramebufferSizeCallback(window, this::onWindowResized);
         glfwSetCursorPosCallback(window, this::onMouseMove);
         glfwSetScrollCallback(window, this::onScroll);
         glfwSetMouseButtonCallback(window, this::onMouseButton);
@@ -442,6 +480,7 @@ public class Outskirts {
             glfwGetWindowContentScale(INSTANCE.window, scaleX, scaleY);
             Validate.isTrue(scaleX.get(0) == scaleY.get(0), "Unsupported scale type: x != y");
             OS_CONTENT_SCALE = scaleX.get(0);
+//            LOGGER.info("OSC: "+OS_CONTENT_SCALE);
         }
 
         // clear curr delta in frame tail
@@ -466,6 +505,10 @@ public class Outskirts {
         glfwShowWindow(window);
     }
 
+    private float glfwRawToFbCoord(float raw) {
+        return IS_OSX ? raw*OS_CONTENT_SCALE : raw;
+    }
+
     /**
      * Window Creation, Window Resized, Window toggleFullscreen
      */
@@ -480,8 +523,10 @@ public class Outskirts {
 
     private void onMouseMove(long w, double nX, double nY) {
         float oldmx = mouseX, oldmy = mouseY;
-        mouseX =  (float) nX;
-        mouseY =  (float) nY;
+        {
+            mouseX = glfwRawToFbCoord((float)nX);
+            mouseY = glfwRawToFbCoord((float)nY);
+        }
         mouseDX = mouseX - oldmx;
         mouseDY = mouseY - oldmy;
         Events.EVENT_BUS.post(new MouseMoveEvent());
@@ -489,7 +534,7 @@ public class Outskirts {
     }
 
     private void onScroll(long w, double dX, double dY) {
-        dScroll = (float)(dX + dY);
+        dScroll = glfwRawToFbCoord((float)(dX + dY));
         Events.EVENT_BUS.post(new MouseScrollEvent());
         rootGUI.broadcaseEvent(new MouseScrollEvent());
 

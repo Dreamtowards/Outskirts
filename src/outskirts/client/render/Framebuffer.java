@@ -6,6 +6,8 @@ import outskirts.client.material.Texture;
 import outskirts.util.logging.Log;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.LinkedList;
 
 import static org.lwjgl.opengl.GL30.*;
@@ -22,6 +24,8 @@ public class Framebuffer {
     private Texture texture_depthStencil;
 
     private int rbo_depthStencil = -1;
+
+    private boolean useFpColorTex = false;
 
     // there means, not "simply" new, its had a sort of Operations.     glwGenFramebuffer(), or glfGenFramebuffer()
     public static Framebuffer glfGenFramebuffer() {
@@ -63,7 +67,8 @@ public class Framebuffer {
     //
 
     public Framebuffer attachTextureColor(int i) {
-        textures_color[i] = internalAttachTexture2D(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0+i);
+        if (useFpColorTex) Loader.OP_TEX2D_nullbuffer=true;
+        textures_color[i] = internalAttachTexture2D(useFpColorTex?GL_RGB16F:GL_RGB, GL_RGB, useFpColorTex?GL_FLOAT:GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0+i);
         return this;
     }
     public Framebuffer attachTextureDepth() {
@@ -105,10 +110,18 @@ public class Framebuffer {
     public Framebuffer checkFramebufferStatus() {
         int statuscode = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (statuscode != GL_FRAMEBUFFER_COMPLETE) {
-//            throw new IllegalStateException("GL Framebuffer Status Not Complete.");
-            Log.LOGGER.info("GL Framebuffer Status Not Complete. ({})", statuscode);
-            new Throwable().printStackTrace();
+            throw new IllegalStateException("GL Framebuffer status not complete. ("+statuscode+")");
         }
+        return this;
+    }
+
+    public Framebuffer disableColorBuffer() {
+        glDrawBuffer(GL_NONE); // do not render any Color Data.
+        glReadBuffer(GL_NONE);
+        return this;
+    }
+    public Framebuffer useFloatpointColorbuffer() {
+        useFpColorTex = true;
         return this;
     }
 

@@ -7,10 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -42,8 +39,11 @@ public final class HttpUtils {
         }
 
         if (body != null) {
+            connection.setDoOutput(true);
             IOUtils.write(body, connection.getOutputStream());
             IOUtils.closeQuietly(connection.getOutputStream());
+        } else {
+            connection.setDoOutput(false);
         }
 
         connection.connect();
@@ -71,7 +71,6 @@ public final class HttpUtils {
     public static HttpURLConnection openConnection(String method, String url, int timeout) throws IOException {
         HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
         connection.setDoInput(true);
-        connection.setDoOutput(true);
         connection.setUseCaches(false);
         connection.setInstanceFollowRedirects(false);
         connection.setConnectTimeout(timeout);
@@ -108,6 +107,21 @@ public final class HttpUtils {
             return result;
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Failed to parse params.", ex);
+        }
+    }
+
+    public static String toURLEncode(String text) {
+        try {
+            return URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    public static String fromURLEncode(String text) {
+        try {
+            return URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

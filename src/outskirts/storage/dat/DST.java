@@ -231,9 +231,9 @@ public class DST {
         return obj.getClass() == TYPES[BYTE_ARRAY] ? Arrays.toString((byte[])obj) : obj.toString();
     }
 
-    public static boolean isPrimitive(byte type) {
-        return false;
-    }
+//    public static boolean isPrimitive(byte type) {
+//        return false;
+//    }
 
     public static boolean isStruct(byte type) {
         return type==LIST || type==MAP;

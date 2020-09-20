@@ -38,9 +38,9 @@ public final class SystemUtils {
 
     public static final String OS_NAME = _GET_OS_NAME();
 
-    public static final boolean IS_OS_MAC = OS_NAME.equals("Mac");
-    public static final boolean IS_OS_WINDOWS = OS_NAME.equals("Windows");
-    public static final boolean IS_OS_LINUX = OS_NAME.equals("Linux");
+    public static final boolean IS_OSX = OS_NAME.equals("Mac");
+    public static final boolean IS_WINDOWS = OS_NAME.equals("Windows");
+    public static final boolean IS_LINUX = OS_NAME.equals("Linux");
 
     public static boolean openURL(String uri) {
         try {

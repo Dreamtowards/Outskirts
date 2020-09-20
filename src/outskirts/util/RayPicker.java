@@ -14,7 +14,7 @@ public class RayPicker {
 
     private float rayLength = 10;
 
-    private Vector3f currentPoint;
+    private Vector3f currentPoint = new Vector3f();
     private Entity currentEntity;
 
     public final void update() {
@@ -30,11 +30,16 @@ public class RayPicker {
             if (Maths.intersectRayAabb(origin, ray, entity.getRigidBody().getAABB(), TMP) && TMP.x < closestv) {
                 closestv = TMP.x;
                 currentEntity = entity;
+                currentPoint.set(origin).addScaled(closestv, ray);
             }
         }
     }
 
     public Entity getCurrentEntity() {
         return currentEntity;
+    }
+
+    public Vector3f getCurrentPoint() {
+        return currentPoint;
     }
 }

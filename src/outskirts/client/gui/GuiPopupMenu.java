@@ -93,10 +93,10 @@ public class GuiPopupMenu extends Gui {
 
         public static GuiItem bswitch(String text, boolean ck, Consumer<Boolean> onSwitch) {
             GuiCheckBox sw = new GuiCheckBox(text);
-            sw.setChecked(ck);
             sw.addOnCheckedListener(e -> {
                 onSwitch.accept(sw.isChecked());
             });
+            sw.setChecked(ck);
             return new GuiItem(sw);
         }
 

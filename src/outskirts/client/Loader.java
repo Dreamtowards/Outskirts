@@ -40,6 +40,7 @@ public final class Loader {
     public static int OP_TEX2D_internalformat;
     public static int OP_TEX2D_format;
     public static int OP_TEX2D_type;
+    public static boolean OP_TEX2D_nullbuffer;
     static {
         OP_TEX2D_SetDEF();
     }
@@ -47,6 +48,7 @@ public final class Loader {
         OP_TEX2D_internalformat = GL_RGBA; // set back defaults. opt params.
         OP_TEX2D_format         = GL_RGBA;
         OP_TEX2D_type           = GL_UNSIGNED_BYTE;
+        OP_TEX2D_nullbuffer     = false;
     }
 
     private static List<Integer> texs = new ArrayList<>(); // GL Textures
@@ -78,6 +80,7 @@ public final class Loader {
 
         return model;
     }
+    // todo: use a different name.? this is for non-using-indices model.
     public static Model loadModel(Object... attrvsz_vdat) {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
@@ -155,17 +158,15 @@ public final class Loader {
     public static Texture loadTexture(@Nullable Texture dest, BufferedImage bufferedImage) {
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
-
         if (dest == null) {
             dest = new Texture(glGenTextures()); texs.add(dest.textureID());
         }
-
         bindAndInitializeTexture(GL_TEXTURE_2D, dest.textureID());
 
         ByteBuffer buffer = Loader.loadTextureData(bufferedImage, true);
 
         if (width > dest.getWidth() || height > dest.getHeight()) {
-            glTexImage2D(GL_TEXTURE_2D, 0, OP_TEX2D_internalformat, width, height, 0, OP_TEX2D_format, OP_TEX2D_type, buffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, OP_TEX2D_internalformat, width, height, 0, OP_TEX2D_format, OP_TEX2D_type, OP_TEX2D_nullbuffer?null:buffer);
             dest.setWidth(width).setHeight(height);
         } else {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, OP_TEX2D_format, OP_TEX2D_type, buffer);

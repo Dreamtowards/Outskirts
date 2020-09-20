@@ -9,7 +9,7 @@ public class NoiseGenerator {
     private long seed = "ok".hashCode();
 
     /**
-     * @return 0-1 float
+     * @return 0-1 float.
      */
     public float noise(int i) {
         i = (int)(i * seed);
@@ -21,6 +21,9 @@ public class NoiseGenerator {
         return noise(x * z);
     }
 
+    /**
+     * @return 0-1.
+     */
     public float smoothedNoise(int x, int z) {
         float corners = (noise(x-1, z-1) +
                          noise(x+1, z-1) +

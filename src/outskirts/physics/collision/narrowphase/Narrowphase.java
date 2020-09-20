@@ -78,10 +78,12 @@ public class Narrowphase {
         List<CollisionManifold> l = new ArrayList<>();
         for (CollisionManifold manifold : manifolds) {
 
-            detectCollision(manifold);
-
-            if (manifold.getNumContactPoints() > 0)  // or just (i=detectCollision(manifold)) > 0 .?
+            if (detectCollision(manifold) > 0) {
                 l.add(manifold);
+            }
+//            detectCollision(manifold);
+//            if (manifold.getNumContactPoints() > 0)  // or just (i=detectCollision(manifold)) > 0 .?
+//                l.add(manifold);
         }
         return l;
     }

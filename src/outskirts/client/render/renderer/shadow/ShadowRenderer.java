@@ -21,20 +21,14 @@ public class ShadowRenderer extends Renderer {
     private static final int SHADOW_RESOLUTION = 1024*2;
     private static final int SHADOW_SIZE = 100;
 
-    private Framebuffer depthMapFBO;
-    {
-        depthMapFBO = Framebuffer.glfGenFramebuffer()
+    private Framebuffer depthMapFBO = Framebuffer.glfGenFramebuffer()
                 .bindPushFramebuffer()
                 .resize(SHADOW_RESOLUTION, SHADOW_RESOLUTION)
                 .attachTextureColor(0)
+                .disableColorBuffer()  // not render any Color Data. just depthMap.
                 .attachTextureDepth()
-                .checkFramebufferStatus();
-
-        glDrawBuffer(GL_NONE);  // not render any Color Data. just depthMap.
-        glReadBuffer(GL_NONE);
-
-        depthMapFBO.popFramebuffer();
-    }
+                .checkFramebufferStatus()
+                .popFramebuffer();
 
     private Matrix4f shadowspaceMatrix = new Matrix4f();  // a.k.a LightSpace. LightProjectionMatrix * LightViewMatrix. Worldpoint->ProjectionPoint.
 
@@ -42,6 +36,8 @@ public class ShadowRenderer extends Renderer {
             new Identifier("shaders/shadow_depthmap.vsh").getInputStream(),
             new Identifier("shaders/shadow_depthmap.fsh").getInputStream()
     );
+
+    private Vector3f shadowDirection = new Vector3f(-1, -1, -1).normalize();
 
     public void renderDepthMap(List<Entity> entities) {
 //        if (depthMapFBO == null)
@@ -52,7 +48,7 @@ public class ShadowRenderer extends Renderer {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         Matrix4f orthoproj = Maths.createOrthographicProjectionMatrix(SHADOW_SIZE, SHADOW_SIZE, 1000f, null);
-        Matrix4f viewmat = Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Maths.lookAt(Outskirts.getWorld().lights.get(0).getDirection(), Vector3f.UNIT_Y, null), null);
+        Matrix4f viewmat = Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Maths.lookAt(shadowDirection, Vector3f.UNIT_Y, null), null);
         Matrix4f.mul(orthoproj, viewmat, shadowspaceMatrix);
 
         shader.useProgram();

@@ -41,7 +41,7 @@ uniform int lightCount;
 
 uniform samplerCube environmentSampler;
 
-const float GAMMA = 0.1;  // GAMMA
+const float GAMMA = 0.01;  // GAMMA
 const float P_NEAR = 0.1f;
 const float P_FAR  = 1000.0f;
 
@@ -121,6 +121,9 @@ void main() {
                 vec4(totalSpecular, 1.0) * texture(material.specularSampler, TexCoord) +
                                            texture(material.emissionSampler, TexCoord);
 
+    FragColor.a = min(FragColor.a, 1.0);
+//    FragColor.rgb = vec3(FragColor.a);
+//    FragColor*=100;
 //    vec3 cameraReflection = reflect(-fragToCamera, surfaceNormal);
 //    vec3 cameraRefraction = refract(-fragToCamera, surfaceNormal, 1.00 / 1.3);
 //    FragColor = texture(environmentSampler, cameraRefraction);// * texture(material.specularSampler, textureCoords);
@@ -144,11 +147,12 @@ float calculateShadowFactor() { // 1.0: full-shadow, 0.0: none-shadow
     float fragDepth = shadowFragCoord.z;  // far > near.
     float shadowFactor = 0;
     vec2 mapSize = textureSize(shadowdepthmapSampler, 0);
-    int SAMPLES = 0; // (x*2+1)^2
+    int SAMPLES = 1;  // (x*2+1)^2
+    float bias = 0.0002f;  // 0.0003f;
     for (int x = -SAMPLES;x <= SAMPLES;x++) {
         for (int y = -SAMPLES;y <= SAMPLES;y++) {
             float pcfClosestDepth = texture(shadowdepthmapSampler, shadowFragCoord.xy + vec2(x,y)/mapSize).r;  // in shadowspace
-            shadowFactor += fragDepth - 0.0003f > pcfClosestDepth ? 1.0 : 0.0;
+            shadowFactor += fragDepth - bias > pcfClosestDepth ? 1.0 : 0.0;
         }
     }
     return shadowFactor / ((SAMPLES*2.0f+1.0f)*SAMPLES*2.0f+1.0f);
@@ -178,8 +182,8 @@ mat3 computeLighting(vec3 FragNormal, vec3 fragToCamera) {
         // Attenuation
         float lightDistance = length(light.position - FragPos);
         float attenuation = 1.0 / (light.attenuation.x +
-        light.attenuation.y *lightDistance +
-        light.attenuation.z *lightDistance*lightDistance);
+                                   light.attenuation.y *lightDistance +
+                                   light.attenuation.z *lightDistance*lightDistance);
 
         // SpotLight
         float spotStrength = 1; // may should uses "attenuation" ..?

@@ -22,6 +22,8 @@ public abstract class World implements Savable { // impl Tickable ..?
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
     public float tmpTickFactor = 1;
 
+    public Map<Long, Section> vsectionMap = new HashMap<>();
+
     public void addEntity(Entity entity) {
         entity.setWorld(this);
         entities.add(entity);

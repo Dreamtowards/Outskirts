@@ -3,9 +3,11 @@ package outskirts.client.gui.debug;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiPopupMenu;
+import outskirts.client.gui.GuiSlider;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
+import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
@@ -68,9 +70,13 @@ public class GuiIDebugOp {
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.button("Add EntityStaticMesh", () -> {
+                if (Outskirts.getRayPicker().getCurrentPoint() == null) {
+                    LOGGER.info("null CurrentPoint.");
+                    return;
+                }
                 EntityStaticMesh entityStaticmesh = new EntityStaticMesh();
                 entityStaticmesh.setModel(Models.GEO_CUBE);
-                entityStaticmesh.getRigidBody().transform().origin.set(Outskirts.getCamera().getPosition());
+                entityStaticmesh.getRigidBody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
                 Outskirts.getWorld().addEntity(entityStaticmesh);
                 debugMenu.hide();
             }));
@@ -83,7 +89,7 @@ public class GuiIDebugOp {
                 LOGGER.info("Flushed to scen.dat");
                 debugMenu.hide();
             }));
-            mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> {}));
+            mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> toggleShow(GuiILightsList.INSTANCE, c)));
             mInsp.addItem(GuiPopupMenu.GuiItem.divider());
             mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
         }
@@ -100,6 +106,14 @@ public class GuiIDebugOp {
 
         debugMenu.addItem(GuiPopupMenu.GuiItem.button("Gui Widgets Test Window", () -> {
             Gui.getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets()));
+        }));
+
+        debugMenu.addItem(new GuiSlider().exec((GuiSlider g) -> {
+            g.setUserMinMaxValue(0.01f, 10);
+            g.addOnValueChangedListener(ge -> {
+                PostRenderer.exposure = g.getCurrentUserValue();
+                LOGGER.info(PostRenderer.exposure);
+            });
         }));
     }
 

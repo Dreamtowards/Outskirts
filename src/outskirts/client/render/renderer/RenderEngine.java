@@ -10,6 +10,7 @@ import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
+import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
@@ -37,10 +38,12 @@ public final class RenderEngine {
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
     private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
+    private PostRenderer postRenderer = new PostRenderer();
 
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
             .resize(1920, 1080)
+            .useFloatpointColorbuffer()
             .attachTextureColor(0)
             .attachRenderbufferDepthStencil()
             .checkFramebufferStatus()
@@ -54,14 +57,14 @@ public final class RenderEngine {
     }
 
     public void prepare() {
-        glClearColor(0.45f, 0.45f, 0.45f, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClearColor(0.45f, 0.55f, 0.45f, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS); // DEF
 
-        glEnable(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+//        glEnable(GL_STENCIL_TEST);
+//        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -85,7 +88,7 @@ public final class RenderEngine {
 
         worldFramebuffer.bindPushFramebuffer();
         prepare();
-        glDisable(GL_CULL_FACE);
+//        glDisable(GL_CULL_FACE);
 
         entityRenderer.render(world.getEntities(), world.lights);
 
@@ -94,12 +97,14 @@ public final class RenderEngine {
 //            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
 //            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
 
-        glEnable(GL_CULL_FACE);
+//        skyboxRenderer.render();
+
+//        glEnable(GL_CULL_FACE);
         worldFramebuffer.popFramebuffer();
 
-        Gui.drawTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0), Outskirts.getRootGUI());
 
-//        skyboxRenderer.render();
+        postRenderer.render(getWorldFramebuffer().colorTextures(0));
+
     }
 
     public void updateRenderQuality() {
