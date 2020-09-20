@@ -29,8 +29,8 @@ public final class Light {
      */
     private Vector3f direction = new Vector3f(Vector3f.UNIT_X); // Direction (unit vector
     // name as SpotConeInner ..?
-    private float coneAngleInner = 3.1415f; // Spot Cone Angle. in radians. default value PI, INNER == OUTER == PI means disable Spot-Light
-    private float coneAngleOuter = 3.1415f;
+    private float coneAngleInner; // Spot Cone Angle. in radians. INNER == OUTER means disable Spot-Light.
+    private float coneAngleOuter;
 
     public Vector3f getPosition() {
         return position;
@@ -62,6 +62,10 @@ public final class Light {
         this.coneAngleOuter = coneAngleOuter;
     }
 
+    public final void setConeAngleInnerOuter(float coneAngleInner, float coneAngleOuter) {
+        setConeAngleInner(coneAngleInner);
+        setConeAngleOuter(coneAngleOuter);
+    }
 
 
 

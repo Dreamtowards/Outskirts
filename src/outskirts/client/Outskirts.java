@@ -4,8 +4,8 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.GuiSlider;
 import outskirts.client.gui.GuiText;
+import outskirts.client.gui.debug.GuiEntityGBufferVisual;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -14,10 +14,8 @@ import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
 import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.client.render.renderer.RenderEngine;
-import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
-import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
@@ -27,15 +25,14 @@ import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
-import outskirts.storage.dat.DSTUtils;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.ChunkPos;
-import outskirts.world.Section;
+import outskirts.world.Chunk;
 import outskirts.world.WorldClient;
-import outskirts.world.gen.VSectionGen;
+import outskirts.world.gen.ChunkGen;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -135,6 +132,8 @@ public class Outskirts {
             });
         }));
 
+        GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
+
     }
 
 
@@ -200,24 +199,23 @@ public class Outskirts {
             e1.printStackTrace();
         }
 
-        int sz = 1;
-        for (int i = -sz;i <= sz;i++) {
-            for (int j = -sz;j <= sz;j++) {
-                world.vsectionMap.put(ChunkPos.asLong(i*16, j*16), new VSectionGen().generate(i*16, j*16));
-            }
-        }
-        buildModel: {
-            ChunkModelGenerator chunkModelGenerator = new ChunkModelGenerator();
-
-            for (Section section : world.vsectionMap.values()) {
-                Model model = chunkModelGenerator.buildModel(section);
-
-                EntityStaticMesh staticMesh = new EntityStaticMesh();
-                staticMesh.setModel(model);
-                staticMesh.getPosition().set(section.x, 0, section.z);
-                world.addEntity(staticMesh);
-            }
-        }
+//        world.provideChunk(0 ,0);
+//        world.provideChunk(0 ,16);
+//        world.provideChunk(16 ,16);
+//        world.provideChunk(16 ,0);
+//
+//        buildModel: {
+//            ChunkModelGenerator chunkModelGenerator = new ChunkModelGenerator();
+//
+//            for (Chunk c : world.getLoadedChunks()) {
+//                Model model = chunkModelGenerator.buildModel(ChunkPos.of(c), world);
+//
+//                EntityStaticMesh staticMesh = new EntityStaticMesh();
+//                staticMesh.setModel(model);
+//                staticMesh.getPosition().set(c.x, 0, c.z);
+//                world.addEntity(staticMesh);
+//            }
+//        }
 
 //        SceneIniter.init(world);
 

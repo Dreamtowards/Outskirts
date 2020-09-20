@@ -22,6 +22,8 @@ import outskirts.world.World;
 
 import static org.lwjgl.glfw.GLFW.glfwGetVersionString;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.GL_RGB16F;
+import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderEngine {
@@ -40,11 +42,23 @@ public final class RenderEngine {
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
 
+    public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
+            .bindPushFramebuffer()
+            .resize(1920, 1080)
+            .attachTextureColor(0, GL_RGBA16F) // position,depth  ?todo: RGB?RGBA
+            .attachTextureColor(1, GL_RGB16F) // normal
+            .attachTextureColor(2, GL_RGBA) // diffuse
+            .initMRT()
+            .attachRenderbufferDepthStencil()
+            .checkFramebufferStatus()
+            .popFramebuffer();
+
+
+
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
             .resize(1920, 1080)
-            .useFloatpointColorbuffer()
-            .attachTextureColor(0)
+            .attachTextureColor(0, GL_RGB16F)
             .attachRenderbufferDepthStencil()
             .checkFramebufferStatus()
             .popFramebuffer();
@@ -57,7 +71,7 @@ public final class RenderEngine {
     }
 
     public void prepare() {
-        glClearColor(0.45f, 0.55f, 0.45f, 1);
+        glClearColor(0.45f, 0.55f, 0.45f, 0.45f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
@@ -86,24 +100,34 @@ public final class RenderEngine {
         shadowRenderer.renderDepthMap(world.getEntities());
 
 
-        worldFramebuffer.bindPushFramebuffer();
+//        worldFramebuffer.bindPushFramebuffer();
+//            prepare();
+////        glDisable(GL_CULL_FACE);
+//            entityRenderer.render(world.getEntities(), world.lights);
+////            Particle p = new Particle();
+////            p.getPosition().set(getPlayer().getPosition());
+////            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
+////            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
+////        skyboxRenderer.render();
+////        glEnable(GL_CULL_FACE);
+//        worldFramebuffer.popFramebuffer();
+
+
+
+        gBufferFBO.bindPushFramebuffer();
+            prepare();
+            glDisable(GL_BLEND);
+            entityRenderer.renderGBuffer(world.getEntities());
+            glEnable(GL_BLEND);
+
+        gBufferFBO.popFramebuffer();
+
         prepare();
-//        glDisable(GL_CULL_FACE);
-
-        entityRenderer.render(world.getEntities(), world.lights);
-
-//            Particle p = new Particle();
-//            p.getPosition().set(getPlayer().getPosition());
-//            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
-//            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
-
-//        skyboxRenderer.render();
-
-//        glEnable(GL_CULL_FACE);
-        worldFramebuffer.popFramebuffer();
+        entityRenderer.renderCompose(gBufferFBO, world.lights);
 
 
-        postRenderer.render(getWorldFramebuffer().colorTextures(0));
+
+//        postRenderer.render(gBufferFBO.colorTextures(0));
 
     }
 

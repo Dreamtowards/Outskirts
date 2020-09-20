@@ -7,9 +7,11 @@ import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.Colors;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
@@ -129,6 +131,7 @@ public class BroadphaseDbvt extends Broadphase {
     }
 
     private void removeLeaf(DbvtNode leaf) {
+        Objects.requireNonNull(leaf);
         if (rootNode == leaf) { rootNode = null; return; }
         if (leaf.parent == rootNode) { rootNode = leaf.siblingNode(); rootNode.parent=null; return; }
         DbvtNode sibling = leaf.siblingNode();

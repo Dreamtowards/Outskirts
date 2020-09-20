@@ -208,6 +208,9 @@ public final class Maths {
     public static float mod(float v, float b) {
         return v - (Maths.floor(v / b) * b);
     }
+    public static int mod(int v, int b) {
+        return (int)mod((float)v, (float)b);
+    }
 
     // deprecated. use sequence rotations to get the dir
     /**

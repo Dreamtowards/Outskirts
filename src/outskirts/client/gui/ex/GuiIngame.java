@@ -27,9 +27,9 @@ public class GuiIngame extends Gui {
 
         // tmp player name.
         if (Outskirts.getWorld() != null) {
-            Gui.drawWorldpoint(Outskirts.getWorld().getEntities().get(1).getPosition(), (x, y) -> {
-                Gui.drawString(Outskirts.getPlayer().getName(), x, y, Colors.GRAY);
-            });
+//            Gui.drawWorldpoint(Outskirts.getWorld().getEntities().get(1).getPosition(), (x, y) -> {
+//                Gui.drawString(Outskirts.getPlayer().getName(), x, y, Colors.GRAY);
+//            });
         }
 
     }

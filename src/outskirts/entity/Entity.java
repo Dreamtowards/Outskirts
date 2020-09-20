@@ -23,7 +23,7 @@ public class Entity implements Savable, Registrable {
     private RigidBody rigidbody = new RigidBody();
 
     private Material material = new Material();
-    private Model model = Model.glfGenVertexArrays();
+    private Model model;
 
     // ref to the world
     private World world;

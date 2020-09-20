@@ -1,15 +1,19 @@
 package outskirts.world;
 
-public class Section {
+import outskirts.entity.EntityStaticMesh;
+
+public class Chunk {
 
     public byte[] blocks = new byte[65536];  // 16*16*256
 
     public final int x;
     public final int z;
 
-    public Section(int x, int z) {
+    public Chunk(int x, int z) {
         this.x = x;
         this.z = z;
+
+        proxyEntity.getPosition().set(x, 0, z);
     }
 
     private int index(int x, int y, int z) {
@@ -17,8 +21,8 @@ public class Section {
     }
 
     public byte getAt(int x, int y, int z) {
-        if (x<0||x>=16 || y<0||y>=256 || z<0||z>=16)  // when test for neiberghts
-            return 0;
+//        if (x<0||x>=16 || y<0||y>=256 || z<0||z>=16)  // when test for neiberghts
+//            return 0;
         return blocks[index(x, y, z)];
     }
 
@@ -26,4 +30,7 @@ public class Section {
         blocks[index(x, y, z)] = b;
     }
 
+
+    public boolean markedRebuildModel = false;
+    public EntityStaticMesh proxyEntity = new EntityStaticMesh();
 }

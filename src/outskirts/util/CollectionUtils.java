@@ -208,9 +208,12 @@ public final class CollectionUtils {
 
     // actually not good. not common, but useful in Generate FakeIndices(EBO)
     public static int[] range(int len) {
+        return range(0, len);
+    }
+    public static int[] range(int from, int len) {
         int[] arr = new int[len];
         for (int i = 0;i < arr.length;i++)
-            arr[i] = i;
+            arr[i] = from+i;
         return arr;
     }
 

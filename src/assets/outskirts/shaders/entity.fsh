@@ -4,7 +4,7 @@ struct Light {
     vec3 color;
     vec3 position;
     vec3 attenuation;
-    vec3 spotDirection;
+    vec3 direction;          // for SpotLight.
     float coneAngleInnerCos; // angle cos
     float coneAngleOuterCos;
 };
@@ -175,8 +175,8 @@ mat3 computeLighting(vec3 FragNormal, vec3 fragToCamera) {
         vec3 diffuse = max(dot(fragToLight, FragNormal), 0.0) * light.color;
 
         // Specular. Blinn-Phong Model
-        vec3 halfwayVec = normalize(fragToLight + fragToCamera);
-        float spec = pow(max(dot(halfwayVec, FragNormal),0.0), material.shininess);
+        vec3 halfwayDir = normalize(fragToLight + fragToCamera);
+        float spec = pow(max(dot(halfwayDir, FragNormal),0.0), material.shininess);
         vec3 specular = material.specularStrength * spec * light.color;
 
         // Attenuation
@@ -187,8 +187,8 @@ mat3 computeLighting(vec3 FragNormal, vec3 fragToCamera) {
 
         // SpotLight
         float spotStrength = 1; // may should uses "attenuation" ..?
-        if (light.coneAngleInnerCos != 3.1415f || light.coneAngleOuterCos != 3.1415f) { // enable SpotLight
-            spotStrength = dot(light.spotDirection, -fragToLight);
+        if (light.coneAngleInnerCos != light.coneAngleOuterCos) { // enable SpotLight
+            float strengthCos = dot(light.direction, -fragToLight);  // [1, -1]
             spotStrength = clamp(inverseLerp(spotStrength, light.coneAngleOuterCos, light.coneAngleInnerCos), 0.0, 1.0);
         }
 

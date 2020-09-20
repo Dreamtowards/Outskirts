@@ -15,6 +15,9 @@ public final class ChunkPos {
         this.z = z;
     }
 
+    public static ChunkPos of(Chunk chunk) {
+        return ChunkPos.of(chunk.x, chunk.z);
+    }
     public static ChunkPos of(long posLong) {
         return ChunkPos.of((int)(posLong >>> 32), (int)posLong);
     }

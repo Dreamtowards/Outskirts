@@ -5,6 +5,7 @@ in vec2 fragPos;
 
 out vec4 FragColor;
 
+uniform int texMode = 0;  // 0==Usually. 1==vec4(r,g,b,1.0), 2==(a,a,a,1.0).
 
 uniform sampler2D textureSampler;
 uniform vec4 colorMultiply;
@@ -39,6 +40,14 @@ void main() {
         }
     }
 
-    FragColor = texture(textureSampler, textureCoords) * colorMultiply;
+    vec4 texColor = texture(textureSampler, textureCoords);
+    if (texMode == 1) {
+        texColor = vec4(texColor.rgb, 1.0);
+    } else if (texMode == 2) {
+        texColor = vec4(texColor.aaa, 1.0);
+    }
+
+    FragColor = texColor;
+    FragColor *= colorMultiply;
 
 }

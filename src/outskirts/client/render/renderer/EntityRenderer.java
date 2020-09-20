@@ -1,25 +1,17 @@
 package outskirts.client.render.renderer;
 
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
 import outskirts.client.material.Material;
 import outskirts.client.material.Model;
-import outskirts.client.render.Camera;
-import outskirts.client.render.Illuminable;
+import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Light;
+import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
-import outskirts.init.Textures;
-import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
-import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -35,6 +27,14 @@ public class EntityRenderer extends Renderer {
             new ResourceLocation("shaders/entity.vsh").getInputStream(),
             new ResourceLocation("shaders/entity.fsh").getInputStream()
     );
+    private ShaderProgram shaderGbuffer = new ShaderProgram(
+            new ResourceLocation("shaders/entity/gbuffer.vsh").getInputStream(),
+            new ResourceLocation("shaders/entity/gbuffer.fsh").getInputStream()
+    );
+    private ShaderProgram shaderCompose = new ShaderProgram(
+            new ResourceLocation("shaders/entity/compose.vsh").getInputStream(),
+            new ResourceLocation("shaders/entity/compose.fsh").getInputStream()
+    );
 
     public EntityRenderer() {
         //init Texture-Units
@@ -47,13 +47,24 @@ public class EntityRenderer extends Renderer {
 
         shader.setInt("environmentSampler", 5);
         shader.setInt("shadowdepthmapSampler", 6);
+
+        shaderGbuffer.useProgram();
+        shaderGbuffer.setInt("mtlDiffuseMap", 0);
+        shaderGbuffer.setInt("mtlSpecularMap", 1);
+
+        shaderCompose.useProgram();
+        shaderCompose.setInt("gPositionDepth", 0);
+        shaderCompose.setInt("gNormal", 1);
+        shaderCompose.setInt("gAlbedoSpecular", 2);
+
+        shaderCompose.setInt("shadowdepthMap", 6);
     }
 
     private static final int RENDER_LIGHTS = 64;
     private String[] uniform_lights$color = createUniformNameArray("lights[%s].color", RENDER_LIGHTS);
     private String[] uniform_lights$position = createUniformNameArray("lights[%s].position", RENDER_LIGHTS);
     private String[] uniform_lights$attenuation = createUniformNameArray("lights[%s].attenuation", RENDER_LIGHTS);
-    private String[] uniform_lights$spotDirection = createUniformNameArray("lights[%s].spotDirection", RENDER_LIGHTS);
+    private String[] uniform_lights$direction = createUniformNameArray("lights[%s].direction", RENDER_LIGHTS);
     private String[] uniform_lights$coneAngleInner = createUniformNameArray("lights[%s].coneAngleInnerCos", RENDER_LIGHTS);
     private String[] uniform_lights$coneAngleOuter = createUniformNameArray("lights[%s].coneAngleOuterCos", RENDER_LIGHTS);
 
@@ -77,7 +88,7 @@ public class EntityRenderer extends Renderer {
                 shader.setVector3f(uniform_lights$color[i], light.getColor());
                 shader.setVector3f(uniform_lights$position[i], light.getPosition());
                 shader.setVector3f(uniform_lights$attenuation[i], light.getAttenuation());
-                shader.setVector3f(uniform_lights$spotDirection[i], light.getDirection());
+                shader.setVector3f(uniform_lights$direction[i], light.getDirection());
 
                 shader.setFloat(uniform_lights$coneAngleInner[i], (float)Math.cos(light.getConeAngleInner()));
                 shader.setFloat(uniform_lights$coneAngleOuter[i], (float)Math.cos(light.getConeAngleOuter()));
@@ -119,6 +130,73 @@ public class EntityRenderer extends Renderer {
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }
+
+        glBindVertexArray(0);
+    }
+
+    public void renderGBuffer(List<Entity> entities) {
+
+        shaderGbuffer.useProgram();
+
+        shaderGbuffer.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());
+        shaderGbuffer.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
+
+        for (Entity entity : entities) {
+            if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
+                continue;
+            Model model = entity.getModel();
+            Material material = entity.getMaterial();
+
+            glBindVertexArray(model.vaoID());
+
+            shaderGbuffer.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), MAT_MODELMAT_TRANS));
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material.getDiffuseMap().textureID());
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, material.getSpecularMap().textureID());
+
+            glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
+        }
+        glBindVertexArray(0);
+    }
+
+    public void renderCompose(Framebuffer gfbo, List<Light> lights) {
+
+        shaderCompose.useProgram();
+
+        shaderCompose.setVector3f("CameraPos", Outskirts.getCamera().getPosition());
+
+        {   // setup lights
+            int lightCount = Math.min(lights.size(), RENDER_LIGHTS);
+            shaderCompose.setInt("lightCount", lightCount);
+            for (int i = 0;i < lightCount;i++) {
+                Light light = lights.get(i);
+                shaderCompose.setVector3f(uniform_lights$color[i], light.getColor());
+                shaderCompose.setVector3f(uniform_lights$position[i], light.getPosition());
+                shaderCompose.setVector3f(uniform_lights$attenuation[i], light.getAttenuation());
+                shaderCompose.setVector3f(uniform_lights$direction[i], light.getDirection());
+                shaderCompose.setFloat(uniform_lights$coneAngleInner[i], (float)Math.cos(light.getConeAngleInner()));
+                shaderCompose.setFloat(uniform_lights$coneAngleOuter[i], (float)Math.cos(light.getConeAngleOuter()));
+            }
+        }
+
+        shaderCompose.setMatrix4f("shadowspaceMatrix", Outskirts.renderEngine.getShadowRenderer().getShadowspaceMatrix());
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture().textureID());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(0).textureID());
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(1).textureID());
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(2).textureID());
+
+        Model model = PostRenderer.QUAD_FULLNDC;
+
+        glBindVertexArray(model.vaoID());
+
+        glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
     }

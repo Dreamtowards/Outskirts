@@ -44,7 +44,7 @@ public class PostRenderer extends Renderer {
     }
 
 
-    private static final Model QUAD_FULLNDC = Loader.loadModel(2,new float[] {
+    public static final Model QUAD_FULLNDC = Loader.loadModel(2,new float[] {
             -1, 1,
             -1, -1,
             1, -1,

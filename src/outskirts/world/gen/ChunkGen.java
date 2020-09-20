@@ -1,15 +1,15 @@
 package outskirts.world.gen;
 
-import outskirts.world.Section;
+import outskirts.world.Chunk;
 
-public class VSectionGen {
+public class ChunkGen {
 
     private NoiseGenerator noiseGenerator = new NoiseGenerator();
 
-    public Section generate(int xBase, int zBase) {
+    public Chunk generate(int xBase, int zBase) {
         assert xBase%16==0 && zBase%16==0;
 
-        Section vsection = new Section(xBase, zBase);
+        Chunk vsection = new Chunk(xBase, zBase);
 
         for (int x = xBase;x < xBase+16;x++) {
             for (int z = zBase;z < zBase+16;z++) {
@@ -23,6 +23,7 @@ public class VSectionGen {
             }
         }
 
+        vsection.markedRebuildModel=true;
         return vsection;
     }
 

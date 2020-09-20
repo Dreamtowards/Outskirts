@@ -33,6 +33,11 @@ public class GuiRenderer extends Renderer {
     public static final Matrix2f OP_transmat = new Matrix2f();
     public static final Vector4f OP_colormul = new Vector4f();
     public static float OP_roundradius = 0;
+    public static int OP_texmode = 0;
+
+    public static final int TEXMODE_RGBA = 0;
+    public static final int TEXMODE_RGB1 = 1;
+    public static final int TEXMODE_AAA1 = 2;
 
     /**
      * @param x,y,width,height sometimes xywh should be floatpoint. in highDPI screen, in 1 pixel-screen-coords can actually display/draws 1+ actually pixels (1px[coords]=1px|4px[actuallydraw]
@@ -58,6 +63,9 @@ public class GuiRenderer extends Renderer {
             shader.setFloat("renderrespect", width / height);
             shader.setFloat("roundradius", OP_roundradius / width);
         }
+        if (OP_texmode != 0) {
+            shader.setInt("texMode", OP_texmode);
+        }
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture.textureID());
@@ -77,7 +85,11 @@ public class GuiRenderer extends Renderer {
         }
         if (OP_roundradius != 0) {
             OP_roundradius = 0;
-            shader.setFloat("roundradius", 0);
+            shader.setFloat("roundradius", OP_roundradius);
+        }
+        if (OP_texmode != 0) {
+            OP_texmode = 0;
+            shader.setInt("texMode", OP_texmode);
         }
     }
 

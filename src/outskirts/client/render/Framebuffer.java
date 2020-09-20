@@ -3,6 +3,7 @@ package outskirts.client.render;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
+import outskirts.util.CollectionUtils;
 import outskirts.util.logging.Log;
 
 import java.awt.image.BufferedImage;
@@ -25,7 +26,7 @@ public class Framebuffer {
 
     private int rbo_depthStencil = -1;
 
-    private boolean useFpColorTex = false;
+    private int[] textures_color_internalformat = new int[8];
 
     // there means, not "simply" new, its had a sort of Operations.     glwGenFramebuffer(), or glfGenFramebuffer()
     public static Framebuffer glfGenFramebuffer() {
@@ -66,10 +67,29 @@ public class Framebuffer {
     //  ATTACH ATTACHMENT
     //
 
-    public Framebuffer attachTextureColor(int i) {
-        if (useFpColorTex) Loader.OP_TEX2D_nullbuffer=true;
-        textures_color[i] = internalAttachTexture2D(useFpColorTex?GL_RGB16F:GL_RGB, GL_RGB, useFpColorTex?GL_FLOAT:GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0+i);
+    public Framebuffer attachTextureColor(int i, int internalformat) {
+        int format, type;
+        switch (internalformat) {
+            case GL_RGB:
+                format=GL_RGB;type=GL_UNSIGNED_BYTE;break;
+            case GL_RGBA:
+                format=GL_RGBA;type=GL_UNSIGNED_BYTE;break;
+            case GL_RGB16F:
+            case GL_RGB32F:
+                format=GL_RGB;type=GL_FLOAT;break;
+            case GL_RGBA16F:
+            case GL_RGBA32F:
+                format=GL_RGBA;type=GL_FLOAT;break;
+            default:
+                throw new IllegalArgumentException("Unsupported enum");
+        }
+        if (type==GL_FLOAT) Loader.OP_TEX2D_nullbuffer=true;
+        textures_color[i] = internalAttachTexture2D(internalformat, format, type, GL_COLOR_ATTACHMENT0+i);
+        textures_color_internalformat[i]=internalformat;
         return this;
+    }
+    public Framebuffer attachTextureColor(int i) {
+        return attachTextureColor(i, GL_RGB);
     }
     public Framebuffer attachTextureDepth() {
         texture_depth = internalAttachTexture2D(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT);
@@ -120,8 +140,15 @@ public class Framebuffer {
         glReadBuffer(GL_NONE);
         return this;
     }
-    public Framebuffer useFloatpointColorbuffer() {
-        useFpColorTex = true;
+
+    public Framebuffer initMRT() {
+        int sz = 0;
+        for (int i = 0;i < textures_color.length;i++) {
+            if (textures_color[i] == null) {
+                sz=i; break;
+            }
+        }
+        glDrawBuffers(CollectionUtils.range(GL_COLOR_ATTACHMENT0, sz));
         return this;
     }
 
@@ -131,7 +158,7 @@ public class Framebuffer {
         // resize buffers
         for (int i = 0;i < textures_color.length;i++) {
             if (textures_color[i] != null) {
-                attachTextureColor(i);
+                attachTextureColor(i, textures_color_internalformat[i]);
             }
         }
         if (texture_depth != null)
