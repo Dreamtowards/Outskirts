@@ -32,6 +32,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
  * we reduce "return (T)this".
  */
+//todo: GuiWrapLayout
 
 public class Gui {
 
@@ -39,6 +40,9 @@ public class Gui {
     private float y;
     private float width = NaN;  // should the NaN been Manuel-Set.?
     private float height = NaN;
+
+    protected static final float NaN = Float.NaN;
+    protected static final float INFINITY = Float.POSITIVE_INFINITY;
 
     private Vector2f childrenBound = new Vector2f();
 
@@ -234,6 +238,7 @@ public class Gui {
     public float getWidth() {
         if (!isVisible()) return 0;
         if (Float.isNaN(width)) return childrenBound.x;
+        if (Float.isInfinite(width)) return getParent().getWidth();
         return width;
     }
     public void setWidth(float width) {
@@ -243,6 +248,7 @@ public class Gui {
     public float getHeight() {
         if (!isVisible()) return 0;
         if (Float.isNaN(height)) return childrenBound.y;
+        if (Float.isInfinite(height)) return getParent().getHeight();
         return height;
     }
     public void setHeight(float height) {
@@ -341,8 +347,11 @@ public class Gui {
     public static boolean isMouseOver(float x, float y, float width, float height) {
         return Outskirts.getMouseX() >= x && Outskirts.getMouseX() < x + width && Outskirts.getMouseY() >= y && Outskirts.getMouseY() < y + height;
     }
-    public static boolean isPointOver(int pointX, int pointY, Gui gui) {
-        return pointX >= gui.getX() && pointX < gui.getX() + gui.getWidth() && pointY >= gui.getY() && pointY < gui.getY() + gui.getHeight();
+    public static boolean isPointOver(Vector2f p, Gui gui) {
+        return Gui.isPointOver(p.x, p.y, gui);
+    }
+    public static boolean isPointOver(float x, float y, Gui gui) {
+        return x >= gui.getX() && x <= gui.getX() + gui.getWidth() && y >= gui.getY() && y <= gui.getY() + gui.getHeight();
     }
 
     /**

@@ -16,6 +16,7 @@ import static org.lwjgl.opengl.GL11.*;
  */
 public abstract class Renderer {
 
+    // deprecated. cuz often, a renderer had multi shader programs.
     public abstract ShaderProgram getShader();
 
 

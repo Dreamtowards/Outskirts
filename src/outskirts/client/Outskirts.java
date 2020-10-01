@@ -4,11 +4,13 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.debug.GuiEntityGBufferVisual;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
+import outskirts.client.gui.stat.GuiWrap;
 import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
@@ -27,7 +29,9 @@ import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.ChunkPos;
 import outskirts.world.Chunk;
@@ -249,7 +253,7 @@ public class Outskirts {
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);
-//         prb.setInertiaTensorLocal(0,0,0);
+         prb.setInertiaTensorLocal(0,0,0);
 
         Outskirts.getWorld().addEntity(Outskirts.getPlayer());
 

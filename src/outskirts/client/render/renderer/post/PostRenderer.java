@@ -27,10 +27,15 @@ public class PostRenderer extends Renderer {
 
         shader.setFloat("exposure", exposure);
 
-        glBindVertexArray(QUAD_FULLNDC.vaoID());
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, postcfb.textureID());
+
+        doDrawQuad();
+    }
+
+    public static void doDrawQuad() {
+
+        glBindVertexArray(QUAD_FULLNDC.vaoID());
 
         glDrawElements(GL_TRIANGLES, QUAD_FULLNDC.vertexCount(), GL_UNSIGNED_INT, 0);
 

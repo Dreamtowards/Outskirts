@@ -56,6 +56,7 @@ public class EntityRenderer extends Renderer {
         shaderCompose.setInt("gPositionDepth", 0);
         shaderCompose.setInt("gNormal", 1);
         shaderCompose.setInt("gAlbedoSpecular", 2);
+        shaderCompose.setInt("ssaoBlurMap", 3);
 
         shaderCompose.setInt("shadowdepthMap", 6);
     }
@@ -191,14 +192,10 @@ public class EntityRenderer extends Renderer {
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(1).textureID());
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(2).textureID());
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.ssaoBlurFBO.colorTextures(0).textureID());
 
-        Model model = PostRenderer.QUAD_FULLNDC;
-
-        glBindVertexArray(model.vaoID());
-
-        glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
+        PostRenderer.doDrawQuad();
     }
 
     @Override

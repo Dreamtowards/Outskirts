@@ -36,3 +36,7 @@ float lineardepth(float pprojdepth) {  // for perspective projection
     float pDepth = (2.0 * P_NEAR * P_FAR) / (P_FAR + P_NEAR - z * (P_FAR - P_NEAR)); // [near, far]
     return inverseLerp(pDepth, P_NEAR, P_FAR); // [0,1] linear.
 }
+//float LinearizeDepth(float depth) {
+//    float z = depth * 2.0 - 1.0; // Back to NDC
+//    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));
+//}

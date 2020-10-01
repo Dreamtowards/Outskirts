@@ -387,6 +387,34 @@ public final class Maths {
                 aabb.min.x, aabb.min.y, aabb.min.z, aabb.max.x, aabb.max.y, aabb.max.z, result);
     }
 
+    public static boolean intersectRayAabb2d(Vector2f raypos, Vector2f raydir, Vector2f aabbmin, Vector2f aabbmax, Vector2f result) {
+        float invDirX = 1f / raydir.x, invDirY = 1f / raydir.y;  // opt for div.
+        float txmin, txmax, tymin, tymax;
+        if (invDirX >= 0) {
+            txmin = (aabbmin.x - raypos.x) * invDirX;  // positive x-distan * 1f/(d·UNIT_X)
+            txmax = (aabbmax.x - raypos.x) * invDirX;
+        } else {
+            txmin = (aabbmax.x - raypos.x) * invDirX;
+            txmax = (aabbmin.x - raypos.x) * invDirX;
+        }
+        if (invDirY >= 0) {
+            tymin = (aabbmin.y - raypos.y) * invDirY;
+            tymax = (aabbmax.y - raypos.y) * invDirY;
+        } else {
+            tymin = (aabbmax.y - raypos.y) * invDirY;
+            tymax = (aabbmin.y - raypos.y) * invDirY;
+        }
+        if (tymax < txmin || txmax < tymin)
+            return false;
+        float near = Math.max(txmin, tymin);
+        float far  = Math.min(txmax, tymax);
+        if (near < far && far >= 0.0f) {
+            result.set(near, far);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * "Real-Time Collision Detection" chapter 3.4 "Barycentric Coordinates"
      */

@@ -12,6 +12,7 @@ import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
+import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
@@ -41,6 +42,7 @@ public final class RenderEngine {
     private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
+    private SSAORenderer ssaoRenderer = new SSAORenderer();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -53,7 +55,18 @@ public final class RenderEngine {
             .checkFramebufferStatus()
             .popFramebuffer();
 
-
+    public Framebuffer ssaoFBO = Framebuffer.glfGenFramebuffer()
+            .bindPushFramebuffer()
+            .resize(1280, 720)
+            .attachTextureColor(0, GL_RGB)
+            .checkFramebufferStatus()
+            .popFramebuffer();
+    public Framebuffer ssaoBlurFBO = Framebuffer.glfGenFramebuffer()
+            .bindPushFramebuffer()
+            .resize(1280, 720)
+            .attachTextureColor(0, GL_RGB)
+            .checkFramebufferStatus()
+            .popFramebuffer();
 
     private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -71,8 +84,8 @@ public final class RenderEngine {
     }
 
     public void prepare() {
-        glClearColor(0.45f, 0.55f, 0.45f, 0.45f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// | GL_STENCIL_BUFFER_BIT);
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS); // DEF
@@ -122,12 +135,21 @@ public final class RenderEngine {
 
         gBufferFBO.popFramebuffer();
 
+        ssaoFBO.bindPushFramebuffer();
         prepare();
+        ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
+        ssaoFBO.popFramebuffer();
+
+        ssaoBlurFBO.bindPushFramebuffer();
+        prepare();
+        ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
+        ssaoBlurFBO.popFramebuffer();
+
+
         entityRenderer.renderCompose(gBufferFBO, world.lights);
 
-
-
-//        postRenderer.render(gBufferFBO.colorTextures(0));
+//        Gui.drawTexture(ssaoBlurFBO.colorTextures(0), Outskirts.getRootGUI());
+//        postRenderer.render(ssaoFBO.colorTextures(0));
 
     }
 

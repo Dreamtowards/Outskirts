@@ -27,6 +27,8 @@ uniform float mtlSpecularStrength;
 uniform mat4 shadowspaceMatrix;
 uniform sampler2D shadowdepthMap;
 
+uniform sampler2D ssaoBlurMap;
+
 float inverseLerp(float, float, float);
 
 mat3 computeLighting(vec3, vec3, vec3);
@@ -58,13 +60,14 @@ void main() {
 
 
 mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
+    float occlusionf = texture(ssaoBlurMap, QuadTexCoord).r;
 
     vec3 totalDiffuse = vec3(0.0);
     vec3 totalSpecular = vec3(0.0);
     for (int i = 0;i < lightCount;i++) {
         Light light = lights[i];
 
-        vec3 ambient = (light.color * 0.05) / lightCount;
+        vec3 ambient = light.color * 0.1 * occlusionf;
 
         // Diffuse
         vec3 fragToLight = normalize(light.position - FragPos);
