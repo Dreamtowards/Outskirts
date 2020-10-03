@@ -1,5 +1,7 @@
 package outskirts.client.render.renderer.shadow;
 
+import outskirts.client.ClientSettings;
+import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
 import outskirts.client.render.Framebuffer;
@@ -14,8 +16,9 @@ import outskirts.util.vector.Vector3f;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.*;
 
+//todo: PFC and Border-Trans
 public class ShadowRenderer extends Renderer {
 
     private static final int SHADOW_RESOLUTION = 1024*2;
@@ -26,6 +29,9 @@ public class ShadowRenderer extends Renderer {
                 .resize(SHADOW_RESOLUTION, SHADOW_RESOLUTION)
                 .attachTextureColor(0)
                 .disableColorBuffer()  // not render any Color Data. just depthMap.
+                .uExec(() -> {
+                    Loader.OP_TEX_MM_filter = GL_LINEAR;  // for depthmap
+                })
                 .attachTextureDepth()
                 .checkFramebufferStatus()
                 .popFramebuffer();
@@ -33,8 +39,8 @@ public class ShadowRenderer extends Renderer {
     private Matrix4f shadowspaceMatrix = new Matrix4f();  // a.k.a LightSpace. LightProjectionMatrix * LightViewMatrix. Worldpoint->ProjectionPoint.
 
     private ShaderProgram shader = new ShaderProgram(
-            new Identifier("shaders/shadow_depthmap.vsh").getInputStream(),
-            new Identifier("shaders/shadow_depthmap.fsh").getInputStream()
+            new Identifier("shaders/shadow/shadow.vsh").getInputStream(),
+            new Identifier("shaders/shadow/shadow.fsh").getInputStream()
     );
 
     private Vector3f shadowDirection = new Vector3f(-1, -1, -1).normalize();
@@ -43,11 +49,13 @@ public class ShadowRenderer extends Renderer {
 //        if (depthMapFBO == null)
 //            init();
 
+//        shadowDirection.set(Outskirts.getCamera().getCameraUpdater().getDirection());
+
         depthMapFBO.bindPushFramebuffer();
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        Matrix4f orthoproj = Maths.createOrthographicProjectionMatrix(SHADOW_SIZE, SHADOW_SIZE, 1000f, null);
+        Matrix4f orthoproj = Maths.createOrthographicProjectionMatrix(SHADOW_SIZE, SHADOW_SIZE, ClientSettings.FAR_PLANE, null);
         Matrix4f viewmat = Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Maths.lookAt(shadowDirection, Vector3f.UNIT_Y, null), null);
         Matrix4f.mul(orthoproj, viewmat, shadowspaceMatrix);
 

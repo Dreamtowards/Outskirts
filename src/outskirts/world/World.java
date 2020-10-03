@@ -7,6 +7,7 @@ import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.init.Models;
+import outskirts.init.Textures;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.storage.Savable;
 import outskirts.storage.dat.DATArray;
@@ -110,23 +111,25 @@ public abstract class World implements Savable { // impl Tickable ..?
 
                 Outskirts.getScheduler().addScheduledTask(() -> {
                     Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
+                    c.proxyEntity.getMaterial().setDiffuseMap(Textures.FLOOR);
+                    c.proxyEntity.getMaterial().setNormalMap(Textures.CONTAINER);
                     c.proxyEntity.setModel(model);
                 });
             }
         }
 
-        Vector3f cenPos = Outskirts.getPlayer().getPosition();
-        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
+//        Vector3f cenPos = Outskirts.getPlayer().getPosition();
+//        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
         int sz = 6;
         for (int i = -sz;i <= sz;i++) {
             for (int j = -sz;j <= sz;j++) {
-                provideChunk(cenX+i*16, cenZ+j*16);
+                provideChunk(i*16, j*16);
             }
         }
-        for (Chunk c : getLoadedChunks().toArray(new Chunk[0])) {
-            if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
-                unloadChunk(c);
-        }
+//        for (Chunk c : getLoadedChunks().toArray(new Chunk[0])) {
+//            if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
+//                unloadChunk(c);
+//        }
     }
 
     @Override

@@ -170,6 +170,11 @@ public class Framebuffer {
         return this;
     }
 
+    public Framebuffer uExec(Runnable r) {
+        r.run();
+        return this;
+    }
+
 
 
     private void delete() {

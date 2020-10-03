@@ -132,17 +132,16 @@ public final class RenderEngine {
             glDisable(GL_BLEND);
             entityRenderer.renderGBuffer(world.getEntities());
             glEnable(GL_BLEND);
-
         gBufferFBO.popFramebuffer();
 
         ssaoFBO.bindPushFramebuffer();
-        prepare();
-        ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
+            prepare();
+            ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
         ssaoFBO.popFramebuffer();
 
         ssaoBlurFBO.bindPushFramebuffer();
-        prepare();
-        ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
+            prepare();
+            ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
         ssaoBlurFBO.popFramebuffer();
 
 

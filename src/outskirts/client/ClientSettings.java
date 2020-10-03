@@ -112,7 +112,7 @@ public final class ClientSettings {
 
     public static float NEAR_PLANE = 0.1f;
 
-    public static float FAR_PLANE = 10000f;
+    public static float FAR_PLANE = 1000f;
 
 
 

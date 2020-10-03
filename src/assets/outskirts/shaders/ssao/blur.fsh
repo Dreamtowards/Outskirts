@@ -7,7 +7,7 @@ out vec4 FragColor;
 uniform sampler2D ssaoMap;
 
 void main() {
-    int R = 2;
+    int R = 1;
 
     vec2 texelSize = 1.0 / textureSize(ssaoMap, 0);
 

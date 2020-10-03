@@ -25,8 +25,9 @@ public class GuiEntityGBufferVisual extends Gui {
           new GuiImage(fbo.colorTextures(0)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Depth")),
           new GuiImage(fbo.colorTextures(1)).exec(texprop(TEXMODE_RGBA)).addChildren(new GuiText("Normal")),
           new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("Albedo")),
-          new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Specular")),
-        new GuiImage(Outskirts.renderEngine.ssaoBlurFBO.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("SSAOBlur"))
+//          new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Specular")),
+          new GuiImage(Outskirts.renderEngine.ssaoBlurFBO.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("SSAOBlur")),
+          new GuiImage(Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture()).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("ShadowDMap"))
         ));
 
     }

@@ -1,4 +1,5 @@
 #version 330 core
+#define SHADOW_MAP_BIAS 0.8
 
 out vec4 FragColor;
 
@@ -67,7 +68,7 @@ mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
     for (int i = 0;i < lightCount;i++) {
         Light light = lights[i];
 
-        vec3 ambient = light.color * 0.1 * occlusionf;
+        vec3 ambient = light.color * 0.3 * occlusionf;
 
         // Diffuse
         vec3 fragToLight = normalize(light.position - FragPos);
@@ -100,23 +101,28 @@ mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
 bool isTexCoordOutOfBound(vec2 tc) {
     return tc.x < 0.0 || tc.x > 1.0 || tc.y < 0.0 || tc.y > 1.0;
 }
-float computeShadow(vec3 FragPos) { // 1.0: full-shadow, 0.0: none-shadow
-    vec4 shadowspaceFragCoord = shadowspaceMatrix * vec4(FragPos, 1.0);       // ProjectionPosition of FragPos on Shadowspace
-         shadowspaceFragCoord.xyz /= shadowspaceFragCoord.w;                  // [-1, 1]. perspective devidation.
-         shadowspaceFragCoord.xyz  = shadowspaceFragCoord.xyz * 0.5f + 0.5f;  // [0, 1]
-    if (isTexCoordOutOfBound(shadowspaceFragCoord.xy)) return 0.0;
-    float fragDepth = shadowspaceFragCoord.z;  // far > near.
+float computeShadow(vec3 FragPos) {  // 1.0: full-shadow, 0.0: none-shadow
+    vec4 spFragCoord = shadowspaceMatrix * vec4(FragPos, 1.0);       // ProjectionPosition of FragPos on Shadowspace
+    spFragCoord.xyz /= spFragCoord.w;  // [-1, 1]. perspective devidation.
+    // align the DomeProjection
+    float dist = length(spFragCoord.xy);
+    float distortFactor = (1.0 - SHADOW_MAP_BIAS) + dist * SHADOW_MAP_BIAS;
+    spFragCoord.xy /= distortFactor;
+
+    spFragCoord.xyz  = spFragCoord.xyz * 0.5f + 0.5f;  // [0, 1]
+    if (isTexCoordOutOfBound(spFragCoord.xy)) return 0.0;
+    float fragDepth = spFragCoord.z;  // far > near.
     float shadowFactor = 0;
     vec2 mapSize = textureSize(shadowdepthMap, 0);
-    int SAMPLES = 1;  // (x*2+1)^2
-    float bias = 0.0002f;  // 0.0003f;
+    int SAMPLES = 0;  // (x*2+1)^2
+    float bias = 0.0001f;  // 0.0003f;
     for (int x = -SAMPLES;x <= SAMPLES;x++) {
         for (int y = -SAMPLES;y <= SAMPLES;y++) {
-            float shadowmapDepth = texture(shadowdepthMap, shadowspaceFragCoord.xy + vec2(x,y)/mapSize).r;  // in shadowspace
+            float shadowmapDepth = texture(shadowdepthMap, spFragCoord.xy + vec2(x,y)/mapSize).r;  // in shadowspace
             shadowFactor += fragDepth - bias > shadowmapDepth ? 1.0 : 0.0;
         }
     }
-    return shadowFactor / ((SAMPLES*2.0f+1.0f)*SAMPLES*2.0f+1.0f);
+    return shadowFactor / ((SAMPLES*2.0f+1.0f)*(SAMPLES*2.0f+1.0f));
 }
 
 

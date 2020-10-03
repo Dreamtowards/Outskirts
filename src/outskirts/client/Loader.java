@@ -6,11 +6,9 @@ import org.lwjgl.opengl.GL;
 import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
 import outskirts.client.material.Texture;
-import outskirts.client.render.renderer.RenderEngine;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
-import outskirts.util.logging.Log;
 import outskirts.util.mex.VerticesUtils;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
@@ -43,12 +41,17 @@ public final class Loader {
     public static boolean OP_TEX2D_nullbuffer;
     static {
         OP_TEX2D_SetDEF();
+        OP_TEX_SetDEF();
     }
     private static void OP_TEX2D_SetDEF() {
         OP_TEX2D_internalformat = GL_RGBA; // set back defaults. opt params.
         OP_TEX2D_format         = GL_RGBA;
         OP_TEX2D_type           = GL_UNSIGNED_BYTE;
         OP_TEX2D_nullbuffer     = false;
+    }
+    public static int OP_TEX_MM_filter;
+    private static void OP_TEX_SetDEF() {
+        OP_TEX_MM_filter = GL_NEAREST;
     }
 
     private static List<Integer> texs = new ArrayList<>(); // GL Textures
@@ -253,8 +256,9 @@ public final class Loader {
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, OP_TEX_MM_filter); //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, OP_TEX_MM_filter);
+        Loader.OP_TEX_SetDEF();
 
 //        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
 

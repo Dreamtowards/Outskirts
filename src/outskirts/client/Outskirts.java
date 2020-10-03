@@ -83,7 +83,7 @@ public class Outskirts {
 
     private Profiler profiler = new Profiler();
 
-    public static long numFrames;
+    private long numFrames;
 
     public void run() {
         try
@@ -224,13 +224,13 @@ public class Outskirts {
 //        SceneIniter.init(world);
 
         Light lightSun = new Light();
-        lightSun.getPosition().set(10, 52, 10);
+        lightSun.getPosition().set(100, 104, 100);
 //        getRootGUI().addOnDrawListener(e -> {
 //            lightSun.getPosition().set(getPlayer().getPosition()).y+=8;
 //        });
-        lightSun.getColor().set(1, 1, 1).scale(10f);
-        Light.calculateApproximateAttenuation(40, lightSun.getAttenuation());
-//        lightSun.getAttenuation().set(1,0,0);
+        lightSun.getColor().set(1, 1, 1).scale(.8f);
+//        Light.calculateApproximateAttenuation(40, lightSun.getAttenuation());
+        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
 
 //        Model BP = Loader.loadOBJ(FileUtils.openFileStream(new File("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/bodyp.obj")));
@@ -242,7 +242,7 @@ public class Outskirts {
         RigidBody prb = getPlayer().getRigidBody();
 //        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));
 //        prb.setCollisionShape(new SphereShape(.5f));
-        prb.setCollisionShape(new CapsuleShape(.4f, .6f));
+        prb.setCollisionShape(new CapsuleShape(.4f, .6f));  // .4f,0.5f,.4f
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,20);
@@ -253,7 +253,7 @@ public class Outskirts {
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);
-         prb.setInertiaTensorLocal(0,0,0);
+//         prb.setInertiaTensorLocal(0,0,0);
 
         Outskirts.getWorld().addEntity(Outskirts.getPlayer());
 
@@ -314,6 +314,7 @@ public class Outskirts {
     }
 
     public static void shutdown() {
+        assert isRunning();
         INSTANCE.running = false;
     }
 
