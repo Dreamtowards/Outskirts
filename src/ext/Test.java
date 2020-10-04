@@ -5,12 +5,11 @@ import ext.srt.Sort;
 import outskirts.client.material.ex.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.FileUtils;
-import outskirts.util.StringUtils;
-import outskirts.util.Validate;
+import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.obj.OldOBJLoader;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.ChunkPos;
 
@@ -306,44 +305,27 @@ public class Test {
 //
 //        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
 
+        Vector3f v = new Vector3f(123, 32454, 2342);
+        Vector3f vr = new Vector3f(123, 32454, 2342).normalize();
+        Vector3f v1 = new Vector3f(121323, 32454, 2342);
+        Vector3f v2 = new Vector3f(123, 332454, 2342);
+        Vector3f v3 = new Vector3f(123, 32454, 24342);
+        Vector2f r = new Vector2f();
 
+        speed("mem", 1_000_000, l -> {
 
-        String raw =
-                "2202004001\t许喆\t男\t360103200208184711\n" +
-                        "2202004002\t郑蒙特\t男\t360103200206151713\n" +
-                        "2202004003\t李培阳\t男\t360402200210153850\n" +
-                        "2202004004\t谢浩然\t男\t360103200210295437\n" +
-                        "2202004005\t邓芷柔\t女\t360103200202120020\n" +
-                        "2202004006\t赵娜\t女\t36010420020823042X\n" +
-                        "2202004007\t刘震宇\t男\t360121200111060512\n" +
-                        "2202004008\t张文强\t男\t360102200202114812\n" +
-                        "2202004009\t陈宇轩\t男\t360103200210243418\n" +
-                        "2202004010\t胡翔\t男\t360121200205192911\n" +
-                        "2202004011\t陶纯怡\t女\t360111200110153028\n" +
-                        "2202004012\t秦文帝\t男\t360121200203082436\n" +
-                        "2202004013\t曾紫璇\t女\t360122200205053926\n" +
-                        "2202004014\t陈怡安\t男\t360122200312203918\n" +
-                        "2202004015\t万捷\t男\t360122200208108435\n" +
-                        "2202004016\t黄腾\t男\t360124200110243017\n" +
-                        "2202004017\t熊文超\t男\t360121200105153130\n" +
-                        "2202004018\t雷志虎\t男\t360124199805102119\n" +
-                        "2202004019\t张晓芬\t女\t362330200011281165";
-        List<String> stdLs = new ArrayList<>(Arrays.asList(raw.split("\n")));
-        LOGGER.info("std: sz={}", stdLs.size());
+            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
+        });
 
-        for (File f : FileUtils.listFiles(new File("/Users/dreamtowards/Downloads/untitled folder/整理操作档/220数媒 蓝底 200k限 学号命名"))) {
-            if (f.getName().endsWith(".jpg")) {
-                String fnS = StringUtils.explode(f.getName(), ".")[0];
+        speed("mem", 1_000_000, l -> {
 
-                stdLs.forEach(e ->{
-                    if (e.split("\t")[3].equals(fnS)) {
-                        f.renameTo(new File(f.getParent(), e.split("\t")[0]+".jpg"));
-                    }
-                });
-            }
-        }
+            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
+        });
 
-        LOGGER.info("remd: {}", stdLs);
+        speed("mem", 1_000_000, l -> {
+
+            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
+        });
 
     }
 

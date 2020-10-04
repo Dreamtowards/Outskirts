@@ -5,8 +5,10 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.debug.GuiEntityGBufferVisual;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -18,6 +20,7 @@ import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
+import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
@@ -25,6 +28,9 @@ import outskirts.init.Init;
 import outskirts.init.Models;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
+import outskirts.physics.collision.shapes.CollisionShape;
+import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
+import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
@@ -104,6 +110,7 @@ public class Outskirts {
             this.destroy();
         }
     }
+    public static Transform lasTrs;
 
     private void startGame() throws Throwable {
 
@@ -136,8 +143,51 @@ public class Outskirts {
             });
         }));
 
+
+//        getRootGUI().addGui(new Gui().exec(g -> {
+//            g.setWidth(100);
+//            g.setHeight(1);
+//            g.setRelativeXY(300,300);
+//            g.addOnDrawListener(e -> {
+//                Gui.drawRect(Colors.WHITE, g);
+//                Vector2f mid = new Vector2f(getWidth()/2, getHeight()/2);
+//                Gui.drawRect(Colors.GRAY, mid.x, mid.y, 4, 4);
+//                Vector2f dir = new Vector2f(getMouseX(), getMouseY()).sub(mid).normalize();
+//                Vector2f r = new Vector2f();
+//                if (Maths.intersectRayLineSegment(new Vector3f(mid.x,mid.y,0), new Vector3f(dir.x,dir.y,0), new Vector3f(g.getX(),g.getY(),0), new Vector3f(g.getX()+g.getWidth(),g.getY()+g.getHeight(),0), r)) {
+//                    Vector2f pos = new Vector2f(mid).addScaled(r.x, dir);
+//                    Gui.drawRect(Colors.RED, pos.x, pos.y, 4, 4);
+////                    Vector2f pos2 = new Vector2f(mid).addScaled(r.y, dir);
+////                    Gui.drawRect(Colors.RED, pos2.x, pos2.y, 4, 4);
+//                }
+//            });
+//        }));
+
         GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
 
+        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+            if (e.getKey() == GLFW_KEY_O && e.getKeyState()) {
+                GuiVert3D.INSTANCE.vertices.clear();
+                GuiVert3D.INSTANCE.tmpAABBs.clear();
+
+                LOGGER.info("Doing Raycast..");
+                if (rayPicker.getCurrentEntity() == null)
+                    return;
+                CollisionShape shape = rayPicker.getCurrentEntity().getRigidBody().getCollisionShape();
+                if (shape instanceof BvhTriangleMeshShape) {
+                    BvhTriangleMeshShape bvh = (BvhTriangleMeshShape)shape;
+                    lasTrs = rayPicker.getCurrentEntity().getRigidBody().transform();
+                    Vector3f relpos = new Vector3f(getCamera().getPosition()).sub(rayPicker.getCurrentEntity().getRigidBody().transform().origin);
+                    bvh.raycast(relpos, getCamera().getCameraUpdater().getDirection(), new Vector2f());
+
+//                    for (float f : fls) {
+//                        GuiVert3D.addVert("castp", new Vector3f(getCamera().getPosition()).addScaled(f, getCamera().getCameraUpdater().getDirection()),
+//                                Colors.GREEN);
+//                    }
+                    LOGGER.info("returned. fls-num: ");
+                }
+            }
+        });
     }
 
 
@@ -179,8 +229,10 @@ public class Outskirts {
             glDisable(GL_DEPTH_TEST);
             rootGUI.onLayout();
             rootGUI.onDraw();
-            if (rayPicker.getCurrentEntity() != null)
+            if (rayPicker.getCurrentEntity() != null) {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().getRigidBody().getAABB(), Colors.RED);
+            }
+
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
         }
@@ -193,6 +245,7 @@ public class Outskirts {
         numFrames++;
     }
 
+    public static EntityStaticMesh theEntityT;
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
         if (world == null)
@@ -202,6 +255,12 @@ public class Outskirts {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
+
+        EntityStaticMesh entityStaticMesh = new EntityStaticMesh();
+        entityStaticMesh.setModel(Loader.loadOBJ(new Identifier("materials/blenderTri.obj").getInputStream()));
+        entityStaticMesh.getPosition().set(10, 100, 10);
+        world.addEntity(entityStaticMesh);
+        theEntityT=entityStaticMesh;
 
 //        world.provideChunk(0 ,0);
 //        world.provideChunk(0 ,16);
@@ -246,8 +305,8 @@ public class Outskirts {
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,20);
-        prb.getGravity().set(0, -10, 0).scale(1);
-        //  prb.setLinearDamping(0.02f);
+        prb.getGravity().set(0, -10, 0).scale(0);
+          prb.setLinearDamping(0.0002f);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
         prb.setMass(10);

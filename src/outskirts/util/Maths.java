@@ -331,11 +331,18 @@ public final class Maths {
      * @param N PlaneNormal.
      * @return term t in the ray-equation P=O+tR.
      *         NaN when parallels to the Plane.
-     *         >0 intersects. <0 non-intersects.
+     *         >0 intersects. ==NaN non-intersects.
      */
-    public static float intersectRayPlane(Vector3f O, Vector3f R, Vector3f A, Vector3f N) {
+    public static float intersectRayPlanef(Vector3f O, Vector3f R, Vector3f A, Vector3f N) {
         Vector3f OA = Vector3f.sub(A, O, null); //todo opts
         return Vector3f.dot(OA, N) / Vector3f.dot(R, N);
+    }
+    public static boolean intersectRayPlane(Vector3f raypos, Vector3f raydir, Vector3f planepos, Vector3f planenorm, Ref<Float> result) {
+        float t = Maths.intersectRayPlanef(raypos, raydir, planepos, planenorm);
+        if (Float.isNaN(t))
+            return false;
+        result.value = t;
+        return true;
     }
 
     /**
@@ -375,7 +382,7 @@ public final class Maths {
         tFar = tymax < tFar || Float.isNaN(tFar) ? tymax : tFar;
         tNear = Math.max(tzmin, tNear);
         tFar = Math.min(tzmax, tFar);
-        if (tNear < tFar && tFar >= 0.0f) {
+        if (tNear <= tFar && tFar >= 0.0f) {
             result.x = tNear;
             result.y = tFar;
             return true;
@@ -388,7 +395,7 @@ public final class Maths {
     }
 
     public static boolean intersectRayAabb2d(Vector2f raypos, Vector2f raydir, Vector2f aabbmin, Vector2f aabbmax, Vector2f result) {
-        float invDirX = 1f / raydir.x, invDirY = 1f / raydir.y;  // opt for div.
+        float invDirX = 1f / raydir.x, invDirY = 1f / raydir.y;  // opti for div.
         float txmin, txmax, tymin, tymax;
         if (invDirX >= 0) {
             txmin = (aabbmin.x - raypos.x) * invDirX;  // positive x-distan * 1f/(d·UNIT_X)
@@ -408,12 +415,41 @@ public final class Maths {
             return false;
         float near = Math.max(txmin, tymin);
         float far  = Math.min(txmax, tymax);
-        if (near < far && far >= 0.0f) {
+        if (near <= far && far >= 0.0f) {
             result.set(near, far);
             return true;
         }
         return false;
     }
+
+    public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Ref<Float> result) {
+        Vector3f N = Vector3f.trinorm(A, B, C, null, null);
+        if (!intersectRayPlane(raypos, raydir, A, N, result))
+            return false;
+        Vector3f P = new Vector3f(raypos).addScaled(result.value, raydir);
+        Vector3f AB = Vector3f.sub(B, A, null);
+        Vector3f AC = Vector3f.sub(C, A, null);
+        Vector3f AP = Vector3f.sub(P, A, null);
+        Vector3f ABNorm = Vector3f.cross(AB, N, null);
+        if (Vector3f.dot(ABNorm, AC) > 0) ABNorm.negate();
+        if (Vector3f.dot(ABNorm, AP) > 0) return false;
+
+        Vector3f BC = Vector3f.sub(C, B, null);
+        Vector3f BA = Vector3f.sub(A, B, null);
+        Vector3f BP = Vector3f.sub(P, B, null);
+        Vector3f BCNorm = Vector3f.cross(BC, N, null);
+        if (Vector3f.dot(BCNorm, BA) > 0) BCNorm.negate();
+        if (Vector3f.dot(BCNorm, BP) > 0) return false;
+
+        Vector3f CA = Vector3f.sub(A, C, null);
+        Vector3f CB = Vector3f.sub(B, C, null);
+        Vector3f CP = Vector3f.sub(P, C, null);
+        Vector3f CANorm = Vector3f.cross(CA, N, null);
+        if (Vector3f.dot(CANorm, CB) > 0) CANorm.negate();
+        if (Vector3f.dot(CANorm, CP) > 0) return false;
+        return true;
+    }
+
 
     /**
      * "Real-Time Collision Detection" chapter 3.4 "Barycentric Coordinates"

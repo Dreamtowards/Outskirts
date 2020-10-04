@@ -1,11 +1,25 @@
 package outskirts.physics.collision.shapes.concave;
 
+import outskirts.client.Outskirts;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.Raycastable;
+import outskirts.util.CollectionUtils;
+import outskirts.util.Colors;
+import outskirts.util.Maths;
+import outskirts.util.Ref;
+import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
+import java.util.function.Predicate;
 
 /**
  * BoundingVolumeHierarchy TriangleMeshShape.
@@ -76,6 +90,15 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
         }
     }
 
+    private void walkNode(BvhNode node, Predicate<BvhNode> ontest) {
+        if (ontest.test(node)) {
+            if (node.isInternal()) {
+                walkNode(node.child[0], ontest);
+                walkNode(node.child[1], ontest);
+            }
+        }
+    }
+
     private static final class BvhNode {
 
         private AABB volume = new AABB();
@@ -121,5 +144,26 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
     @Override
     protected AABB getAABB(AABB dest) {
         return dest.set(rootNode.volume);
+    }
+
+
+    @Override
+    public boolean raycast(Vector3f raypos, Vector3f raydir, Ref<Float> rst) {
+        rst.value = Float.MAX_VALUE;
+        Ref<Float> tmp = new Ref<>();
+        Vector2f tmpv2 = new Vector2f();
+        walkNode(rootNode, n -> {
+            // had coll the tri aabb volume. go walk through -> true. and do real-test is that intersects ray-tri.
+            if (Maths.intersectRayAabb(raypos, raydir, n.volume, tmpv2)) {
+                if (n.isLeaf()) {
+                    Vector3f[] tri = getTriangle(n.triangleIndex, TMP_TRIANGE);
+                    if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp)) {
+                        rst.value = Math.min(rst.value, tmp.value);
+                    }
+                }
+                return true;
+            } else return false;  // just not keep to through the node ('s children).
+        });
+        return rst.value != Float.MAX_VALUE;
     }
 }

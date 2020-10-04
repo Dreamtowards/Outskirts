@@ -1514,3 +1514,78 @@ Epa MTV
             closestPointBarycentricCoordinates.x=detA/det;
             closestPointBarycentricCoordinates.y=detB/det;
             closestPointBarycentricCoordinates.z=detC/det;
+
+
+
+
+
+
+
+
+    public static boolean intersectRayLineSegment(Vector3f raypos, Vector3f raydir, Vector3f v1, Vector3f v2, Vector2f result) {
+        Vector3f v1v2 = Vector3f.sub(v2, v1, null);
+        Vector3f tmp = new Vector3f();
+        Vector3f v1_O = Vector3f.sub(raypos, v1, tmp);
+        float tlenp = Vector3f.dot(v1_O, v1v2) / v1v2.lengthSquared();
+        if (tlenp >= 0 && tlenp <= 1) {
+            Log.LOGGER.info(tlenp);
+            Vector3f C = Vector3f.lerp(tlenp, v1, v2, null);
+
+            Vector3f OC = Vector3f.sub(C, raypos, tmp);
+            float f = Vector3f.dot(OC, raydir);
+            if (f > 0) {
+                result.x = 1f / (f / OC.lengthSquared());
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+    public static boolean intersectRayTriangle2(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Vector2f result) {
+        Vector3f q = new Vector3f(raypos).addScaled(10000, raydir);
+        Vector3f p = raypos;
+
+        Vector3f pq = Vector3f.sub(q, p, null);
+        Vector3f pa = Vector3f.sub(A, p, null);
+        Vector3f pb = Vector3f.sub(B, p, null);
+        Vector3f pc = Vector3f.sub(C, p, null);
+
+        float u = Vector3f.triprodu(pq, pc, pb);
+        if (u < 0) return false;
+        float v = Vector3f.triprodu(pq, pa, pc);
+        if (v < 0) return false;
+        float w = Vector3f.triprodu(pq, pb, pa);
+        if (w < 0) return false;
+
+        Vector3f N = Vector3f.trinorm(A, B, C, null, null);
+        intersectRayPlane(raypos, raydir, A, N, result);
+
+        return true;
+    }
+
+
+
+    public boolean performRaycast(Vector3f raypos, Vector3f raydir, Vector2f result) {
+        result.x = Float.MAX_VALUE;
+        Vector2f tmp = new Vector2f();
+        walkNode(rootNode, n -> {
+            // had coll the tri aabb volume. go walk through -> true. and do real-test is that intersects ray-tri.
+            if (Maths.intersectRayAabb(raypos, raydir, n.volume, tmp)) {
+                if (n.isLeaf()) {
+                    Vector3f[] tri = getTriangle(n.triangleIndex, TMP_TRIANGE);
+                    if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp)) {
+                        if (tmp.x < result.x) {
+                            result.x = tmp.x;
+                            GuiVert3D.addVert("castp", new Vector3f(raypos).add(Outskirts.lasTrs.origin).addScaled(result.x, raydir), Colors.GREEN);
+                            GuiVert3D.addAABBIso("aabb", new AABB(n.volume).translate(Outskirts.lasTrs.origin), Colors.GRAY);
+                            GuiVert3D.addTri("tri", new Vector3f(tri[0]).add(Outskirts.lasTrs.origin),new Vector3f(tri[1]).add(Outskirts.lasTrs.origin),new Vector3f(tri[2]).add(Outskirts.lasTrs.origin), Colors.GRAY,null);
+                        }
+                    }
+                }
+                return true;
+            } else return false;  // just not keep to through the node ('s children).
+        });
+        return result.x != Float.MAX_VALUE;
+    }

@@ -184,9 +184,9 @@ public class Gui {
         return Collections.unmodifiableList(children);
     }
 
-    public final <T extends Gui> Gui exec(Consumer<T> exec) {
+    public final <T extends Gui> T exec(Consumer<T> exec) {
         exec.accept((T)this);
-        return this;
+        return (T)this;
     }
 
 

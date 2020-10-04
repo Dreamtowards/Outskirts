@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.*;
 import outskirts.util.logging.Log;
@@ -78,16 +79,8 @@ public class GuiVert3D extends Gui {
     }
 
     public List<Vert> vertices = new CopyOnWriteArrayList();//new CopyOnIterateArrayList<>();
+    public List<AABB> tmpAABBs = new CopyOnWriteArrayList();//new CopyOnIterateArrayList<>();
 
-    // todo: add "clear" btn
-    private GuiSlider _VertDisplayNumControl = addGui(new GuiSlider()); {
-        _VertDisplayNumControl.setWidth(400);
-        _VertDisplayNumControl.setUserMinMaxValue(0, 200);
-//        _VertDisplayNumControl.addOnValueChangedListener(e -> {
-//            _VertDisplayNumControl.setText("DisplayNum: "+(int)_VertDisplayNumControl.getCurrentUserValue());
-//        });
-        _VertDisplayNumControl.setValue(1f);
-    }
 
     public static Vert addVert(String name, Vector3f position, Vector4f color) {
         Vert v = new Vert(name, position, color);
@@ -135,6 +128,9 @@ public class GuiVert3D extends Gui {
         Vert v7 = addVert(name, new Vector3f(aabb.min.x, aabb.max.y, aabb.max.z), color, new Vert[]{v6,v4,v3});
         return Arrays.asList(v0,v1,v2,v3,v4,v5,v6,v7);
     }
+    public static void addAABBIso(String name, AABB aabb, Vector4f color) {
+        INSTANCE.tmpAABBs.add(aabb);
+    }
 
 
     public GuiVert3D() {
@@ -154,21 +150,50 @@ public class GuiVert3D extends Gui {
                 Log.LOGGER.info("Imported.");
             }
             if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_P) {
-                int i = 0;
-                for (Vert v : vertices)
-                    Log.LOGGER.info("v{}: name:{},  pos:{},  ", i++, v.name, v.position);
             }
         });
+
+        GuiSlider sldVertDisplayNum;
+        // todo: add "clear" btn
+        addChildren(
+          new GuiColumn().addChildren(
+            sldVertDisplayNum=new GuiSlider().exec((GuiSlider g) -> {
+                g.setWidth(400);
+                g.setUserMinMaxValue(0, 200);
+                g.setValue(1f);
+            }),
+            new GuiButton("Clear Vts").exec(g -> {
+                g.addOnClickListener(e -> {
+                    vertices.clear();
+                });
+            }),
+            new GuiButton("LsAl").exec(g -> {
+                g.addOnClickListener(e -> {
+                    int i = 0;
+                    for (Vert v : vertices)
+                        Log.LOGGER.info("v{}: name:{},  pos:{},  ", i++, v.name, v.position);
+                });
+            }),
+            new GuiButton("Import.").exec(g -> {
+                g.addOnClickListener(e -> {
+
+                });
+            })
+          )
+        );
 
         addOnDrawListener(e -> {
 
             drawString("vts: "+vertices.size(), getX(), getY()+100, Colors.WHITE);
+            for (AABB aabb : tmpAABBs) {
+                Outskirts.renderEngine.getModelRenderer().drawOutline(aabb, Colors.GREEN);
+            }
 
             // draw vertices
             int i = 0;
             for (Vert vert : vertices) {
-                if (_VertDisplayNumControl.getCurrentUserValue() < _VertDisplayNumControl.getUserMaxValue())
-                    if (i++ > _VertDisplayNumControl.getCurrentUserValue()) continue;
+                if (sldVertDisplayNum.getCurrentUserValue() < sldVertDisplayNum.getUserMaxValue())
+                    if (i++ > sldVertDisplayNum.getCurrentUserValue()) continue;
                 Gui.drawWorldpoint(vert.position, (x, y) -> {
                     drawRect(vert.color, x, y, 4, 4);
                     if (vert.name.contains("[v]"))

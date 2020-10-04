@@ -155,6 +155,10 @@ public class Vector3f extends Vector {
 
 
 
+    // ext
+    public static float triprodu(Vector3f a, Vector3f b, Vector3f c) {
+        return dot(a, cross(b, c, null));
+    }
 
     //ext
     /**
