@@ -143,49 +143,22 @@ public class Outskirts {
             });
         }));
 
-
-//        getRootGUI().addGui(new Gui().exec(g -> {
-//            g.setWidth(100);
-//            g.setHeight(1);
-//            g.setRelativeXY(300,300);
-//            g.addOnDrawListener(e -> {
-//                Gui.drawRect(Colors.WHITE, g);
-//                Vector2f mid = new Vector2f(getWidth()/2, getHeight()/2);
-//                Gui.drawRect(Colors.GRAY, mid.x, mid.y, 4, 4);
-//                Vector2f dir = new Vector2f(getMouseX(), getMouseY()).sub(mid).normalize();
-//                Vector2f r = new Vector2f();
-//                if (Maths.intersectRayLineSegment(new Vector3f(mid.x,mid.y,0), new Vector3f(dir.x,dir.y,0), new Vector3f(g.getX(),g.getY(),0), new Vector3f(g.getX()+g.getWidth(),g.getY()+g.getHeight(),0), r)) {
-//                    Vector2f pos = new Vector2f(mid).addScaled(r.x, dir);
-//                    Gui.drawRect(Colors.RED, pos.x, pos.y, 4, 4);
-////                    Vector2f pos2 = new Vector2f(mid).addScaled(r.y, dir);
-////                    Gui.drawRect(Colors.RED, pos2.x, pos2.y, 4, 4);
-//                }
-//            });
-//        }));
-
         GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKey() == GLFW_KEY_O && e.getKeyState()) {
                 GuiVert3D.INSTANCE.vertices.clear();
                 GuiVert3D.INSTANCE.tmpAABBs.clear();
-
-                LOGGER.info("Doing Raycast..");
                 if (rayPicker.getCurrentEntity() == null)
                     return;
-                CollisionShape shape = rayPicker.getCurrentEntity().getRigidBody().getCollisionShape();
-                if (shape instanceof BvhTriangleMeshShape) {
-                    BvhTriangleMeshShape bvh = (BvhTriangleMeshShape)shape;
-                    lasTrs = rayPicker.getCurrentEntity().getRigidBody().transform();
-                    Vector3f relpos = new Vector3f(getCamera().getPosition()).sub(rayPicker.getCurrentEntity().getRigidBody().transform().origin);
-                    bvh.raycast(relpos, getCamera().getCameraUpdater().getDirection(), new Vector2f());
+                Vector3f thePoint = new Vector3f(getRayPicker().getCurrentPoint());
+                thePoint.addScaled(-0.0001f, rayPicker.getRayDirection());
+                GuiVert3D.addVert("V:"+thePoint, thePoint, Colors.GREEN);
 
-//                    for (float f : fls) {
-//                        GuiVert3D.addVert("castp", new Vector3f(getCamera().getPosition()).addScaled(f, getCamera().getCameraUpdater().getDirection()),
-//                                Colors.GREEN);
-//                    }
-                    LOGGER.info("returned. fls-num: ");
-                }
+                int bX=Maths.floor(thePoint.x), bY=Maths.floor(thePoint.y), bZ=Maths.floor(thePoint.z);
+
+                getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
+                getWorld().setBlock(bX,bY,bZ, (byte)1);
             }
         });
     }
@@ -211,8 +184,11 @@ public class Outskirts {
         profiler.pop("glfwPollEvents");
 
         camera.getCameraUpdater().update();
-        if (world != null)
+        if (world != null) {
+            rayPicker.getRayOrigin().set(getCamera().getPosition());
+            rayPicker.getRayDirection().set(getCamera().getCameraUpdater().getDirection());
             rayPicker.update();
+        }
 
         // Render Phase
         profiler.push("render");
@@ -513,7 +489,7 @@ public class Outskirts {
 //        ));
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         GL.createCapabilities();
 

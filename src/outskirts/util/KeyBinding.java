@@ -5,7 +5,7 @@ import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 
 @SideOnly(Side.CLIENT)
-public class KeyBinding implements Registrable {
+public final class KeyBinding implements Registrable {
 
     public static final int TYPE_KEYBOARD = 0;
     public static final int TYPE_MOUSE = 1;

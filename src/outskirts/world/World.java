@@ -55,8 +55,7 @@ public abstract class World implements Savable { // impl Tickable ..?
 
     public void setBlock(int x, int y, int z, byte b) {
         Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
-        if (chunk == null)
-            return;
+        assert chunk != null;
         chunk.setAt(mod(x, 16), y, mod(z, 16), b);
 
         chunk.markedRebuildModel=true;
@@ -120,7 +119,7 @@ public abstract class World implements Savable { // impl Tickable ..?
 
 //        Vector3f cenPos = Outskirts.getPlayer().getPosition();
 //        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
-        int sz = 6;
+        int sz = 3;
         for (int i = -sz;i <= sz;i++) {
             for (int j = -sz;j <= sz;j++) {
                 provideChunk(i*16, j*16);

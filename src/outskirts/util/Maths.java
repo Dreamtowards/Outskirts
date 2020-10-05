@@ -337,11 +337,10 @@ public final class Maths {
         Vector3f OA = Vector3f.sub(A, O, null); //todo opts
         return Vector3f.dot(OA, N) / Vector3f.dot(R, N);
     }
-    public static boolean intersectRayPlane(Vector3f raypos, Vector3f raydir, Vector3f planepos, Vector3f planenorm, Ref<Float> result) {
-        float t = Maths.intersectRayPlanef(raypos, raydir, planepos, planenorm);
-        if (Float.isNaN(t))
-            return false;
-        result.value = t;
+    public static boolean intersectRayPlane(Vector3f raypos, Vector3f raydir, Vector3f planepos, Vector3f planenorm, Ref<Float> t) {
+        float f = Maths.intersectRayPlanef(raypos, raydir, planepos, planenorm);
+        if (Float.isNaN(f)) return false;
+        t.value=f;
         return true;
     }
 
@@ -422,11 +421,11 @@ public final class Maths {
         return false;
     }
 
-    public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Ref<Float> result) {
+    public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Ref<Float> t) {
         Vector3f N = Vector3f.trinorm(A, B, C, null, null);
-        if (!intersectRayPlane(raypos, raydir, A, N, result))
+        if (!intersectRayPlane(raypos, raydir, A, N, t))
             return false;
-        Vector3f P = new Vector3f(raypos).addScaled(result.value, raydir);
+        Vector3f P = new Vector3f(raypos).addScaled(t.value, raydir);
         Vector3f AB = Vector3f.sub(B, A, null);
         Vector3f AC = Vector3f.sub(C, A, null);
         Vector3f AP = Vector3f.sub(P, A, null);

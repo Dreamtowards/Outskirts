@@ -3,6 +3,7 @@ package outskirts.physics.collision.shapes;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;
 import outskirts.util.Ref;
+import outskirts.util.Val;
 import outskirts.util.vector.Vector3f;
 
 import java.util.function.BiConsumer;
@@ -32,14 +33,14 @@ public abstract class ConcaveShape extends CollisionShape implements Raycastable
 
     // linear. fullwalk. slow.
     @Override
-    public boolean raycast(Vector3f raypos, Vector3f raydir, Ref<Float> rst) {
-        rst.value = Float.MAX_VALUE;
-        Ref<Float> tmp = new Ref<>();
+    public boolean raycast(Vector3f raypos, Vector3f raydir, Ref<Float> t) {
+        t.value = Float.MAX_VALUE;
+        Ref<Float> tmp = Ref.wrap();
         collideTriangles(AABB.INFINITY, (i, tri) -> {
             if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp)) {
-                rst.value = Math.min(rst.value, tmp.value);
+                t.value = Math.min(t.value, tmp.value);
             }
         });
-        return rst.value != Float.MAX_VALUE;
+        return t.value != Float.MAX_VALUE;
     }
 }

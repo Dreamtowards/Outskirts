@@ -305,27 +305,6 @@ public class Test {
 //
 //        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
 
-        Vector3f v = new Vector3f(123, 32454, 2342);
-        Vector3f vr = new Vector3f(123, 32454, 2342).normalize();
-        Vector3f v1 = new Vector3f(121323, 32454, 2342);
-        Vector3f v2 = new Vector3f(123, 332454, 2342);
-        Vector3f v3 = new Vector3f(123, 32454, 24342);
-        Vector2f r = new Vector2f();
-
-        speed("mem", 1_000_000, l -> {
-
-            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
-        });
-
-        speed("mem", 1_000_000, l -> {
-
-            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
-        });
-
-        speed("mem", 1_000_000, l -> {
-
-            Maths.intersectRayTriangle(v, vr, v1, v2, v3, r);
-        });
 
     }
 

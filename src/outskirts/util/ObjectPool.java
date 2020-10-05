@@ -2,7 +2,8 @@ package outskirts.util;
 
 import java.util.*;
 
-public class ObjectPool<T> {
+// no recormended.
+public final class ObjectPool<T> {
 
     private static final ThreadLocal<Map<Class<?>, ObjectPool<?>>> THREAD_LOCAL = ThreadLocal.withInitial(HashMap::new);
 

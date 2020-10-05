@@ -54,6 +54,7 @@ public class Entity implements Savable, Registrable {
         this.model = model;
     }
 
+    // directly rigidbody().
     public final RigidBody getRigidBody() {
         return rigidbody;
     }
