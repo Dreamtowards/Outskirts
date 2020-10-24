@@ -1,17 +1,28 @@
 package outskirts.init;
 
+import outskirts.block.Block;
+import outskirts.client.Loader;
+import outskirts.client.material.Texture;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
+import outskirts.init.ex.Models;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;
 import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.packet.SPacketChatMessage;
+import outskirts.util.IOUtils;
+import outskirts.util.Identifier;
 import outskirts.util.Side;
+import outskirts.util.logging.Log;
+
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public final class Init {
 
@@ -39,6 +50,8 @@ public final class Init {
 
     }
 
+
+
     private static void registerEntities(Side side) {
 
         Entity.REGISTRY.register(side.isClient() ? EntityPlayerSP.class : EntityPlayerMP.class);
@@ -49,6 +62,24 @@ public final class Init {
 
     //use event to register/release..?
     public static void registerAll(Side side) {
+
+        Blocks.init();
+
+        if (side.isClient()) {
+            for (String id : Block.REGISTRY.keySet()) {
+                Block.REGISTRY.get(id).theTxFrag =
+                        Block.TEXTURE_ATLAS.register(
+                                Loader.loadPNG(new Identifier("materials/mc/"+new Identifier(id).getPath()+".png").getInputStream())
+                        );
+            }
+            Block.TEXTURE_ATLAS.buildAtlas();
+
+            try {
+                IOUtils.write(new ByteArrayInputStream(Loader.savePNG(Texture.glfGetTexImage(Block.TEXTURE_ATLAS.getAtlasTexture()))), new FileOutputStream("blxatlas.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
 
         if (side.isClient()) {
 

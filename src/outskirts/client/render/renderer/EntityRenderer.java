@@ -193,7 +193,7 @@ public class EntityRenderer extends Renderer {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(2).textureID());
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.ssaoBlurFBO.colorTextures(0).textureID());
+        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.ssaoFBO.colorTextures(0).textureID());
 
         PostRenderer.doDrawQuad();
     }

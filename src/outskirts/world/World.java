@@ -1,23 +1,23 @@
 package outskirts.world;
 
+import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Model;
 import outskirts.client.render.Light;
 import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
-import outskirts.init.Models;
+import outskirts.init.ex.Models;
 import outskirts.init.Textures;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.storage.Savable;
 import outskirts.storage.dat.DATArray;
 import outskirts.storage.dat.DATObject;
 import outskirts.util.GameTimer;
-import outskirts.util.Maths;
-import outskirts.util.SystemUtils;
 import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector3f;
-import outskirts.world.gen.ChunkGen;
+import outskirts.world.chunk.Chunk;
+import outskirts.world.chunk.ChunkPos;
+import outskirts.world.gen.ChunkGenerator;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -53,19 +53,21 @@ public abstract class World implements Savable { // impl Tickable ..?
     }
 
 
-    public void setBlock(int x, int y, int z, byte b) {
+    public void setBlock(int x, int y, int z, Block b) {
         Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
         assert chunk != null;
-        chunk.setAt(mod(x, 16), y, mod(z, 16), b);
+        chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
 
         chunk.markedRebuildModel=true;
     }
 
-    public byte getBlock(int x, int y, int z) {
+    public Block getBlock(int x, int y, int z) {
         Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
         if (chunk == null)
-            return 0;
-        return chunk.getAt(mod(x, 16), y, mod(z, 16));
+            return null;
+        if (y < 0) return null;
+
+        return chunk.getBlock(mod(x, 16), y, mod(z, 16));
     }
 
     public Chunk provideChunk(int x, int z) {
@@ -73,7 +75,7 @@ public abstract class World implements Savable { // impl Tickable ..?
         if (chunk == null) {
 //            chunk = load.
 
-            chunk = new ChunkGen().generate(x, z);
+            chunk = new ChunkGenerator().generate(x, z);
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
             addEntity(chunk.proxyEntity);
@@ -110,7 +112,8 @@ public abstract class World implements Savable { // impl Tickable ..?
 
                 Outskirts.getScheduler().addScheduledTask(() -> {
                     Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
-                    c.proxyEntity.getMaterial().setDiffuseMap(Textures.FLOOR);
+//                    c.proxyEntity.getMaterial().setDiffuseMap(Loader.loadTexture(new Identifier("materials/mc/end_stone.png").getInputStream()));
+                    c.proxyEntity.getMaterial().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
                     c.proxyEntity.getMaterial().setNormalMap(Textures.CONTAINER);
                     c.proxyEntity.setModel(model);
                 });

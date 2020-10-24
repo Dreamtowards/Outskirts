@@ -98,6 +98,14 @@ public final class Maths {
     }
 
     /**
+     * Fade /EaseCurve. defined by Ken Perlin
+     * // 6t^5 - 15t^4 + 10t^3
+     */
+    public static float fade(float t) {
+        return t*t*t*(t*(t*6-15)+10);
+    }
+
+    /**
      * Cosine Interpolation
      */
     public static float cosp(float t) {

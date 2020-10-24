@@ -2,19 +2,11 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.material.ex.ModelData;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.*;
 import outskirts.util.logging.Log;
-import outskirts.util.obj.OBJLoader;
-import outskirts.util.obj.OldOBJLoader;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.ChunkPos;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.*;
 import java.util.function.LongConsumer;
 
@@ -304,6 +296,24 @@ public class Test {
 //        System.out.println((System.nanoTime()-st)/1_000_000f);
 //
 //        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("tmpout.obj"));
+
+
+//        BufferedImage bi = new BufferedImage(1080, 1080, BufferedImage.TYPE_INT_ARGB);
+//        NoisePerlin noise = new NoisePerlin();
+//
+//        for (int x = 0;x < bi.getWidth();x++) {
+//            for (int y = 0;y < bi.getHeight();y++) {
+//                Vector4f pixcolor = new Vector4f();
+//
+//                float rawf = noise.noise(x/50f, y/50f);
+//                float f = Math.abs(rawf);
+//                pixcolor.set(f, f, f, 1f);
+//
+//                bi.setRGB(x, y, Colors.toARGB(pixcolor));
+//            }
+//        }
+//
+//        IOUtils.write(new ByteArrayInputStream(Loader.savePNG(bi)), new FileOutputStream("nis.png"));
 
 
     }

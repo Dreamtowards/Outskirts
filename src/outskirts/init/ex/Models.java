@@ -1,4 +1,4 @@
-package outskirts.init;
+package outskirts.init.ex;
 
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
@@ -33,5 +33,5 @@ public final class Models {
         return Loader.loadOBJ(new Identifier(resource).getInputStream());
     }
 
-    static void init() {}
+    public static void init() {}
 }

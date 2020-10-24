@@ -146,16 +146,27 @@ public final class CollectionUtils {
     }
 
     //this custom should be in library..? RAND is too high level
-    public static <T> T[] shuffle(T[] array, Random rand) {
-        for (int i = 0;i < array.length;i++) {
-            int target = i + rand.nextInt(array.length - i);
-            swap(array, i, target);
+    public static <T> T[] shuffle(T[] arr, Random rnd) {
+        for (int i = arr.length;i > 1;i--) {
+            swap(arr, i-1, rnd.nextInt(i));
         }
-        return array;
+        return arr;
+    }
+    public static int[] shufflei(int[] arr, Random rnd) {
+        for (int i = arr.length;i > 1;i--) {
+            swapi(arr, i-1, rnd.nextInt(i));
+        }
+        return arr;
     }
 
     public static <T> T[] swap(T[] array, int i1, int i2) {
         T obj1 = array[i1];
+        array[i1] = array[i2];
+        array[i2] = obj1;
+        return array;
+    }
+    public static int[] swapi(int[] array, int i1, int i2) {
+        int obj1 = array[i1];
         array[i1] = array[i2];
         array[i2] = obj1;
         return array;

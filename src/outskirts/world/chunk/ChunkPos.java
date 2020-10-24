@@ -1,6 +1,4 @@
-package outskirts.world;
-
-import outskirts.util.logging.Log;
+package outskirts.world.chunk;
 
 import java.util.Objects;
 

@@ -5,44 +5,33 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiText;
+import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiEntityGBufferVisual;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
-import outskirts.client.gui.stat.GuiWrap;
-import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
-import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
-import outskirts.event.Event;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
-import outskirts.init.Models;
+import outskirts.init.ex.Models;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
-import outskirts.physics.collision.shapes.CollisionShape;
-import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.ChunkPos;
-import outskirts.world.Chunk;
 import outskirts.world.WorldClient;
-import outskirts.world.gen.ChunkGen;
+import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -110,7 +99,6 @@ public class Outskirts {
             this.destroy();
         }
     }
-    public static Transform lasTrs;
 
     private void startGame() throws Throwable {
 
@@ -147,20 +135,18 @@ public class Outskirts {
 
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKey() == GLFW_KEY_O && e.getKeyState()) {
-                GuiVert3D.INSTANCE.vertices.clear();
-                GuiVert3D.INSTANCE.tmpAABBs.clear();
-                if (rayPicker.getCurrentEntity() == null)
-                    return;
-                Vector3f thePoint = new Vector3f(getRayPicker().getCurrentPoint());
-                thePoint.addScaled(-0.0001f, rayPicker.getRayDirection());
-                GuiVert3D.addVert("V:"+thePoint, thePoint, Colors.GREEN);
-
-                int bX=Maths.floor(thePoint.x), bY=Maths.floor(thePoint.y), bZ=Maths.floor(thePoint.z);
-
-                getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
-                getWorld().setBlock(bX,bY,bZ, (byte)1);
+//                GuiVert3D.INSTANCE.vertices.clear();
+//                GuiVert3D.INSTANCE.tmpAABBs.clear();
+//                GuiVert3D.addVert("V:"+thePoint, thePoint, Colors.GREEN);
             }
         });
+
+        getRootGUI().addGui(new Gui1DNoiseVisual().exec(g -> {
+            g.setX(30);
+            g.setY(30);
+            g.setWidth(800);
+            g.setHeight(80);
+        }));
     }
 
 
@@ -221,7 +207,6 @@ public class Outskirts {
         numFrames++;
     }
 
-    public static EntityStaticMesh theEntityT;
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
         if (world == null)
@@ -236,7 +221,6 @@ public class Outskirts {
         entityStaticMesh.setModel(Loader.loadOBJ(new Identifier("materials/blenderTri.obj").getInputStream()));
         entityStaticMesh.getPosition().set(10, 100, 10);
         world.addEntity(entityStaticMesh);
-        theEntityT=entityStaticMesh;
 
 //        world.provideChunk(0 ,0);
 //        world.provideChunk(0 ,16);
@@ -259,13 +243,13 @@ public class Outskirts {
 //        SceneIniter.init(world);
 
         Light lightSun = new Light();
-        lightSun.getPosition().set(100, 104, 100);
+        lightSun.getPosition().set(40, 35, 40);
 //        getRootGUI().addOnDrawListener(e -> {
 //            lightSun.getPosition().set(getPlayer().getPosition()).y+=8;
 //        });
-        lightSun.getColor().set(1, 1, 1).scale(.8f);
-//        Light.calculateApproximateAttenuation(40, lightSun.getAttenuation());
-        lightSun.getAttenuation().set(1,0,0);
+        lightSun.getColor().set(1, 1, 1).scale(1.2f);
+        Light.calculateApproximateAttenuation(400, lightSun.getAttenuation());
+//        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
 
 //        Model BP = Loader.loadOBJ(FileUtils.openFileStream(new File("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/bodyp.obj")));
@@ -288,9 +272,7 @@ public class Outskirts {
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);
-//         prb.setInertiaTensorLocal(0,0,0);
-
-        Outskirts.getWorld().addEntity(Outskirts.getPlayer());
+         prb.setInertiaTensorLocal(0,0,0);
 
     }
     public static void setPauseWorld(float speed) {
@@ -311,8 +293,8 @@ public class Outskirts {
                 if (ClientSettings.KEY_WALK_BACKWARD.isKeyDown()) player.walkStep(lv, Maths.PI);
                 if (ClientSettings.KEY_WALK_LEFT.isKeyDown()) player.walkStep(lv, Maths.PI/2);
                 if (ClientSettings.KEY_WALK_RIGHT.isKeyDown()) player.walkStep(lv, -Maths.PI/2);
-                if (ClientSettings.KEY_JUMP.isKeyDown()) player.walkStep(lv, new Vector3f(0, 1, 0));
-                if (ClientSettings.KEY_SNEAK.isKeyDown()) player.walkStep(lv, new Vector3f(0, -1, 0));
+                if (ClientSettings.KEY_JUMP.isKeyDown() && EntityPlayerSP.flymode) player.walkStep(lv, new Vector3f(0, 1, 0));
+                if (ClientSettings.KEY_SNEAK.isKeyDown() && EntityPlayerSP.flymode) player.walkStep(lv, new Vector3f(0, -1, 0));
 
                 ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
@@ -489,7 +471,7 @@ public class Outskirts {
 //        ));
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
 
         GL.createCapabilities();
 

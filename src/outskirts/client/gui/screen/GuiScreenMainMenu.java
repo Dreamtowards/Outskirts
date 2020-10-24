@@ -27,7 +27,7 @@ public class GuiScreenMainMenu extends GuiScreen {
             Gui.drawRect(Colors.BLACK, baseLineX-45, 10, 100, 100);
             tbTitle.setX(baseLineX);
             tbTitle.setY(64);
-//            tbTitle.setVisible(false);
+            tbTitle.setVisible(false);  // DEBUG
 
             btnMultiplayer.setX(baseLineX);
             btnMultiplayer.setY(startY+=60);
@@ -59,6 +59,7 @@ public class GuiScreenMainMenu extends GuiScreen {
 
                 Outskirts.setWorld(new WorldClient());
 
+                Outskirts.getWorld().addEntity(Outskirts.getPlayer());
             }
         });
     }

@@ -8,6 +8,10 @@ import outskirts.util.SystemUtils;
 
 public class GuiDebugTxInfos extends Gui {
 
+    public static GuiDebugTxInfos INSTANCE = new GuiDebugTxInfos();
+
+    private GuiDebugTxInfos() { }
+
     private float deltaSumUntilOne = 0;
     private int currSecFrames = 0;
     private int prevSecFrames = 0;
@@ -27,6 +31,8 @@ public class GuiDebugTxInfos extends Gui {
             sb.append(String.format("P: avgT: %sms, s: %s\n", 1000f/prevSecFrames, prevSecFrames));
 
             sb.append(String.format("CameraPos: %s\n", Outskirts.getCamera().getPosition()));
+
+            sb.append(String.format("RP_Pointer: %s\n", Outskirts.getRayPicker().getCurrentPoint()));
 
             drawString(sb.toString(), getX(), getY()+32, Colors.WHITE);
         });

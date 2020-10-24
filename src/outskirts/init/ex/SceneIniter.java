@@ -1,4 +1,4 @@
-package outskirts.init;
+package outskirts.init.ex;
 
 import outskirts.client.Loader;
 import outskirts.client.material.ex.ModelData;

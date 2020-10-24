@@ -1,22 +1,17 @@
 package outskirts.client.render.renderer;
 
-import org.lwjgl.BufferUtils;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Model;
 import outskirts.client.material.Texture;
 import outskirts.client.render.shader.ShaderProgram;
-import outskirts.init.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.*;
 import outskirts.util.vector.*;
 
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 /**

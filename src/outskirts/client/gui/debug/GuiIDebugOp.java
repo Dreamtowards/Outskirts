@@ -11,10 +11,9 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
-import outskirts.init.Models;
+import outskirts.init.ex.Models;
 import outskirts.storage.dat.DATObject;
 import outskirts.storage.dat.DSTUtils;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 
 import java.io.FileOutputStream;
@@ -30,8 +29,7 @@ public class GuiIDebugOp {
         GuiPopupMenu mCommon = new GuiPopupMenu();
         debugMenu.addItem(GuiPopupMenu.GuiItem.menu("DebugV", mCommon));
         {
-            Gui txInfos = new GuiDebugTxInfos();
-            mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("Infos", false, b -> toggleShow(txInfos, b)));
+            mCommon.addItem(GuiPopupMenu.GuiItem.bswitch("Infos", false, b -> toggleShow(GuiDebugTxInfos.INSTANCE, b)));
 
             Matrix3f theBasis = new Matrix3f();
             GuiBasisVisual camBasis = new GuiBasisVisual(theBasis, true);

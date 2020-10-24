@@ -78,7 +78,7 @@ public class Camera {
 
                 // Camera Position
                 camera.position.set(0, 0, 0).addScaled(cameraDistance, direction);
-                camera.position.add(ownerEntity.getPosition()).add(0, 0.4f, 0); // applies owner.pos offset
+                camera.position.add(ownerEntity.getPosition()).add(0, 0.8f, 0); // applies owner.pos offset
             }
 
             refreshViewMatrix();

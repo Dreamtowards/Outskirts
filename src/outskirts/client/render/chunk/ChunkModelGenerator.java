@@ -1,12 +1,13 @@
 package outskirts.client.render.chunk;
 
+import outskirts.block.Block;
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
+import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.Chunk;
-import outskirts.world.ChunkPos;
+import outskirts.world.chunk.ChunkPos;
 import outskirts.world.World;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ public class ChunkModelGenerator {
         for (int x = 0;x < 16;x++) {
             for (int y = 0;y < 256;y++) {
                 for (int z = 0;z < 16;z++) {
-                    byte b = world.getBlock(chunkPos.x+x,y,chunkPos.z+z);
-                    if (b != 0) {
-                        putCubeVtx(positions, normals, textureCoords, new Vector3f(x,y,z), chunkPos, world);
+                    Block b = world.getBlock(chunkPos.x+x,y,chunkPos.z+z);
+                    if (b != null) {
+                        putCubeVtx(positions, normals, textureCoords, new Vector3f(x,y,z), chunkPos, world, b);
                     }
                 }
             }
@@ -44,17 +45,17 @@ public class ChunkModelGenerator {
             new Vector3f(0,0,-1),
     };
 
-    private void putCubeVtx(List<Float> positions, List<Float> normals, List<Float> textureCoords, Vector3f cubepos, ChunkPos chunkPos, World world) {
+    private void putCubeVtx(List<Float> positions, List<Float> normals, List<Float> textureCoords, Vector3f cubepos, ChunkPos chunkPos, World world, Block theBlock) {
         for (int i = 0;i < fcsDls.length;i++) {
             Vector3f fDir = fcsDls[i];
-            byte b = world.getBlock((int)(chunkPos.x+cubepos.x + fDir.x), (int)(cubepos.y+fDir.y), (int)(chunkPos.z+cubepos.z+fDir.z));
-            if (b == 0) {
-                putCubeFace(positions, normals, textureCoords, cubepos, i);
+            Block nbBlock = world.getBlock((int)(chunkPos.x+cubepos.x + fDir.x), (int)(cubepos.y+fDir.y), (int)(chunkPos.z+cubepos.z+fDir.z));
+            if (nbBlock == null) {
+                putCubeFace(positions, normals, textureCoords, cubepos, i, theBlock.theTxFrag);
             }
         }
     }
 
-    public void putCubeFace(List<Float> positions, List<Float> normals, List<Float> textureCoords, Vector3f cubepos, int faceIdx) {
+    public void putCubeFace(List<Float> positions, List<Float> normals, List<Float> textureCoords, Vector3f cubepos, int faceIdx, TextureAtlas.Fragment txFrag) {
         final int FACE_FNUM = 6*3;  // numFloat components of a QuadFace(2triangles)  i.e. 2*3*vec3 = 6*vec3 floats.
         int vci = 0;
         float[] rp = ModelRenderer.MODEL_CUBE.attribute(0).data;
@@ -66,8 +67,9 @@ public class ChunkModelGenerator {
             vci %= 3;
         }
         float[] tmpRawTx = ModelRenderer.MODEL_CUBE.attribute(1).data;
-        for (int i = 0;i < 12;i++) {
-            textureCoords.add(tmpRawTx[i]);
+        for (int i = 0;i < 12;) {
+            textureCoords.add(tmpRawTx[i++]*txFrag.SCALE.x + txFrag.OFFSET.x);
+            textureCoords.add(tmpRawTx[i++]*txFrag.SCALE.y + txFrag.OFFSET.y);
         }
     }
 

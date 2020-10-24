@@ -46,7 +46,7 @@ public final class RenderEngine {
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
-            .resize(1920, 1080)
+            .resize(850, 480)
             .attachTextureColor(0, GL_RGBA16F) // position,depth  ?todo: RGB?RGBA
             .attachTextureColor(1, GL_RGB16F) // normal
             .attachTextureColor(2, GL_RGBA) // diffuse
@@ -57,24 +57,24 @@ public final class RenderEngine {
 
     public Framebuffer ssaoFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
-            .resize(1280, 720)
+            .resize(640, 360)
             .attachTextureColor(0, GL_RGB)
             .checkFramebufferStatus()
             .popFramebuffer();
-    public Framebuffer ssaoBlurFBO = Framebuffer.glfGenFramebuffer()
-            .bindPushFramebuffer()
-            .resize(1280, 720)
-            .attachTextureColor(0, GL_RGB)
-            .checkFramebufferStatus()
-            .popFramebuffer();
+//    public Framebuffer ssaoBlurFBO = Framebuffer.glfGenFramebuffer()
+//            .bindPushFramebuffer()
+//            .resize(1280, 720)
+//            .attachTextureColor(0, GL_RGB)
+//            .checkFramebufferStatus()
+//            .popFramebuffer();
 
-    private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
-            .bindPushFramebuffer()
-            .resize(1920, 1080)
-            .attachTextureColor(0, GL_RGB16F)
-            .attachRenderbufferDepthStencil()
-            .checkFramebufferStatus()
-            .popFramebuffer();
+//    private Framebuffer worldFramebuffer = Framebuffer.glfGenFramebuffer()
+//            .bindPushFramebuffer()
+//            .resize(1920, 1080)
+//            .attachTextureColor(0, GL_RGB16F)
+//            .attachRenderbufferDepthStencil()
+//            .checkFramebufferStatus()
+//            .popFramebuffer();
 
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
@@ -139,26 +139,28 @@ public final class RenderEngine {
             ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
         ssaoFBO.popFramebuffer();
 
-        ssaoBlurFBO.bindPushFramebuffer();
-            prepare();
-            ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
-        ssaoBlurFBO.popFramebuffer();
+//        ssaoBlurFBO.bindPushFramebuffer();
+//            prepare();
+//            ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
+//        ssaoBlurFBO.popFramebuffer();
 
 
+        prepare();
         entityRenderer.renderCompose(gBufferFBO, world.lights);
+        skyboxRenderer.render();
 
 //        Gui.drawTexture(ssaoBlurFBO.colorTextures(0), Outskirts.getRootGUI());
 //        postRenderer.render(ssaoFBO.colorTextures(0));
 
     }
 
-    public void updateRenderQuality() {
-        Outskirts.renderEngine.getWorldFramebuffer().bindPushFramebuffer();
-        Outskirts.renderEngine.getWorldFramebuffer().resize(
-                (int)(Outskirts.toFramebufferCoords(Outskirts.getWidth())*RENDERE_QUALITY),
-                (int)(Outskirts.toFramebufferCoords(Outskirts.getHeight())*RENDERE_QUALITY));
-        Outskirts.renderEngine.getWorldFramebuffer().popFramebuffer();
-    }
+//    public void updateRenderQuality() {
+//        Outskirts.renderEngine.getWorldFramebuffer().bindPushFramebuffer();
+//        Outskirts.renderEngine.getWorldFramebuffer().resize(
+//                (int)(Outskirts.toFramebufferCoords(Outskirts.getWidth())*RENDERE_QUALITY),
+//                (int)(Outskirts.toFramebufferCoords(Outskirts.getHeight())*RENDERE_QUALITY));
+//        Outskirts.renderEngine.getWorldFramebuffer().popFramebuffer();
+//    }
 
     public static void checkGlError(String msg) {
         int i = glGetError();
@@ -198,7 +200,4 @@ public final class RenderEngine {
         return particleRenderer;
     }
 
-    public Framebuffer getWorldFramebuffer() {
-        return worldFramebuffer;
-    }
 }

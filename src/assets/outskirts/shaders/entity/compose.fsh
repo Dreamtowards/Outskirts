@@ -37,6 +37,9 @@ mat3 computeLighting(vec3, vec3, vec3);
 float computeShadow(vec3 FragPos);
 
 void main() {
+    if (texture(gPositionDepth, QuadTexCoord).a == 1) {
+        discard;
+    }
 
     vec3 FragPos = texture(gPositionDepth, QuadTexCoord).xyz;
     vec3 Normal = texture(gNormal, QuadTexCoord).xyz;
@@ -49,9 +52,9 @@ void main() {
     vec3 totalDiffuse = ltRst[0];
     vec3 totalSpecular = ltRst[1];
 
-    float shadow = max(1.0 - computeShadow(FragPos), 0.3);
-    totalDiffuse *= shadow;
-    totalSpecular *= shadow;
+//    float shadow = max(1.0 - computeShadow(FragPos), 0.3);
+//    totalDiffuse *= shadow;
+//    totalSpecular *= shadow;
 
     FragColor.rgb = totalDiffuse  * Albedo +
                     totalSpecular * Specularf;

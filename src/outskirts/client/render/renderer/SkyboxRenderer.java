@@ -4,7 +4,7 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
 import outskirts.client.render.shader.ShaderProgram;
-import outskirts.init.Models;
+import outskirts.init.ex.Models;
 import outskirts.util.Identifier;
 
 import java.awt.image.BufferedImage;

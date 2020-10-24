@@ -2,16 +2,18 @@ package outskirts.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import outskirts.block.Block;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.debug.GuiDebugTxInfos;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.screen.GuiScreen;
 import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.client.gui.screen.GuiScreenPause;
-import outskirts.util.IOUtils;
-import outskirts.util.KeyBinding;
-import outskirts.util.StringUtils;
+import outskirts.init.Blocks;
+import outskirts.util.*;
 import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector3f;
 
 import java.io.*;
 import java.lang.annotation.ElementType;
@@ -127,7 +129,7 @@ public final class ClientSettings {
 
     public static int PICKER_DEPTH = 4;
 
-    public static float MOUSE_SENSITIVITY = 0.5f;
+    public static float MOUSE_SENSITIVITY = 0.4f;
 
 
     // KEY DEBUGS
@@ -157,23 +159,31 @@ public final class ClientSettings {
 
     public static final KeyBinding KEY_GUI_DEBUG = new KeyBinding("key.debug", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {
         if (keyState) {
-//            Gui.toggleVisible(GuiScreenInGame.INSTANCE.getGuiScreenDebug());
+//            Gui.toggleVisible(GuiDebugTxInfos.INSTANCE.getGuiScreenDebug());
         }
     });
 
+    private static void uSetBlockAtFocus(Block b, int dfSign) {
+        RayPicker rp = Outskirts.getRayPicker();
+        if (rp.getCurrentEntity() == null)
+            return;
+        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign*0.0001f, rp.getRayDirection());
+        int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
+
+        Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
+        Outskirts.getWorld().setBlock(bX,bY,bZ, b);
+    }
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
         if (keyState && Outskirts.isIngame()) {
-
-
+            uSetBlockAtFocus(Blocks.GRASS, -1);
         }
     });
 
 
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
         if (keyState && Outskirts.isIngame()) {
-
-
+            uSetBlockAtFocus(null, 1);
         }
     });
 
@@ -184,6 +194,13 @@ public final class ClientSettings {
     public static final KeyBinding KEY_JUMP = new KeyBinding("key.jump", GLFW_KEY_SPACE, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
     public static final KeyBinding KEY_SNEAK = new KeyBinding("key.sneak", GLFW_KEY_LEFT_SHIFT, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
 
+    static {
+        KEY_JUMP.setOnInputListener(keyState -> {
+            if (keyState) {
+                Outskirts.getPlayer().walkStep(14, new Vector3f(0, 1, 0));
+            }
+        });
+    }
 
 
     private static final File OPTION_FILE = new File("options.dat");

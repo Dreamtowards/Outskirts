@@ -70,9 +70,17 @@ public final class Colors {
     }
 
     public static int toARGB(Vector4f color) {
+//        validate(color);
         return  (((int)(color.w*255) & 0xFF) << 24) |
                 (((int)(color.x*255) & 0xFF) << 16) |
                 (((int)(color.y*255) & 0xFF) << 8 ) |
                   (int)(color.z*255) & 0xFF;
     }
+
+//    private static void validateLDR(Vector4f color) {
+//        assert  color.x >= 0 && color.x <= 1 &&
+//                color.y >= 0 && color.y <= 1 &&
+//                color.z >= 0 && color.z <= 1 &&
+//                color.w >= 0 && color.w <= 1;
+//    }
 }

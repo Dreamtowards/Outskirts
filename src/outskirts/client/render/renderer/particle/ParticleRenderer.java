@@ -6,7 +6,6 @@ import outskirts.client.material.Model;
 import outskirts.client.particle.Particle;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
-import outskirts.init.Models;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
