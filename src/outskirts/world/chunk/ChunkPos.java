@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public final class ChunkPos {
 
-    public int x;
-    public int z;
+    public final int x;
+    public final int z;
 
     private ChunkPos(int x, int z) {
         assert x%16==0 && z%16==0 : String.format("x: %s, z: %s", x, z);

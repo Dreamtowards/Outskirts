@@ -1,4 +1,4 @@
-package ext.test;
+package ext.testing;
 
 import org.junit.Test;
 import outskirts.util.http.HttpServer;

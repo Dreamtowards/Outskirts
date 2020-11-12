@@ -2,7 +2,13 @@ package outskirts.world.gen;
 
 import outskirts.block.Block;
 import outskirts.init.Blocks;
+import outskirts.util.vector.Vector3f;
+import outskirts.world.World;
 import outskirts.world.chunk.Chunk;
+import outskirts.world.chunk.ChunkPos;
+import outskirts.world.gen.feature.WorldGen;
+import outskirts.world.gen.feature.WorldGenTallGrass;
+import outskirts.world.gen.feature.WorldGenTree;
 
 import java.util.Random;
 
@@ -12,13 +18,12 @@ public class ChunkGenerator {
 
     private NoiseGeneratorPerlin noisegen = new NoiseGeneratorPerlin();
 
-    public Chunk generate(int xBase, int zBase) {
-        assert xBase%16==0 && zBase%16==0;
+    public Chunk generate(ChunkPos chunkpos) {
+        Chunk vsection = new Chunk(chunkpos.x, chunkpos.z);
+        GenerationInfo gspec = new GenerationInfo();
 
-        Chunk vsection = new Chunk(xBase, zBase);
-
-        for (int x = xBase;x < xBase+16;x++) {
-            for (int z = zBase; z < zBase + 16; z++) {
+        for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
+            for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
                 float f = noisegen.fbm(x / 32f, z / 32f, 2);
 
                 int y = 10 + (int) (f * 16);
@@ -26,21 +31,52 @@ public class ChunkGenerator {
 //                    if (v >= 0)
 //                        vsection.setBlock(x, y, z, v < 1f/16f ? Blocks.GRASS : v <= 0.2f ? Blocks.DIRT : Blocks.STONE);
                 for (int i = 0; i <= y; i++) {
-                    vsection.setBlock(x, i, z, i == y ? Blocks.GRASS : i < y - 3 ? Blocks.STONE : Blocks.DIRT);
+                    Block block;
+
+                    if (Math.abs(y-gspec.seaLevel) <= 2 && (i-gspec.seaLevel <= 1 || i-gspec.seaLevel > -3))
+                        block = Blocks.SAND;
+                    else if (i == y)
+                        block = Blocks.GRASS;
+                    else if (i >= y-3)
+                        block = Blocks.DIRT;
+                    else
+                        block = Blocks.STONE;
+
+                    vsection.setBlock(x, i, z, block);
                 }
-//                    rand.setSeed(x * 13 * z);
-                if (NoiseGenerator.hash(x * z) > 0.994f) {
-                    vsection.setBlock(x, y, z, Blocks.DIRT);
-                    vsection.setBlock(x, y+1, z, Blocks.STONE);
-                    vsection.setBlock(x, y+2, z, Blocks.STONE);
-                    vsection.setBlock(x, y+3, z, Blocks.STONE);
-                    vsection.setBlock(x, y+4, z, Blocks.STONE);
+                for (int i = y+1;i <= gspec.seaLevel+1;i++) {
+                    vsection.setBlock(x, i, z, Blocks.WATER);
                 }
             }
         }
 
         vsection.markedRebuildModel=true;
         return vsection;
+    }
+
+    public void populate(World world, ChunkPos chunkpos) {
+        for (int x = chunkpos.x; x < chunkpos.x+16;x++) {
+            for (int z = chunkpos.z; z < chunkpos.z+16;z++) {
+                int topY = world.getHighestBlock(x, z);
+
+                if (NoiseGenerator.hash(x * z * 238429480) > 0.984f) {
+
+                    new WorldGenTree().generate(world, new Vector3f(x, topY, z));
+                }
+
+                if (NoiseGenerator.hash(x * z * 234892374) > 0.94f) {
+
+                    new WorldGenTallGrass().generate(world, new Vector3f(x, topY, z));
+                }
+
+            }
+        }
+    }
+
+    public static class GenerationInfo {
+
+
+        public int seaLevel = 7;
     }
 
 }

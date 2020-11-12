@@ -176,7 +176,7 @@ public final class ClientSettings {
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
         if (keyState && Outskirts.isIngame()) {
-            uSetBlockAtFocus(Blocks.GRASS, -1);
+            uSetBlockAtFocus(Blocks.TALL_GRASS, -1);
         }
     });
 

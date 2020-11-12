@@ -2,7 +2,6 @@ package ext.testing;
 
 import org.junit.Test;
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.vector.Vector3f;
 
 public class TestMemAlloc {
 

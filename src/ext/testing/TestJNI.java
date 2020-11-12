@@ -1,4 +1,4 @@
-package ext.test;
+package ext.testing;
 
 import ext.testing.JniPlt;
 import org.junit.Test;

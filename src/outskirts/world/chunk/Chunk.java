@@ -11,6 +11,8 @@ public class Chunk {
     public final int x;
     public final int z;
 
+    public boolean populated = false;
+
     public Chunk(int x, int z) {
         this.x = x;
         this.z = z;

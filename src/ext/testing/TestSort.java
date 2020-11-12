@@ -1,8 +1,6 @@
 package ext.testing;
 
 import org.junit.Test;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 
 public class TestSort {

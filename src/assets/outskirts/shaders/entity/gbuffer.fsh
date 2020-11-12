@@ -18,6 +18,10 @@ float lineardepth(float);
 
 void main() {
 
+    if (texture(mtlDiffuseMap, vTexCoord).a == 0) {
+        discard;
+    }
+
     gPositionDepth.xyz = FragPos;
     gPositionDepth.w = lineardepth(gl_FragCoord.z);
 

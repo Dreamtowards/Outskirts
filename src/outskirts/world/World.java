@@ -36,6 +36,8 @@ public abstract class World implements Savable { // impl Tickable ..?
 
     private Map<Long, Chunk> loadedChunks = new HashMap<>();
 
+    private ChunkGenerator chunkGenerator = new ChunkGenerator();
+
     public void addEntity(Entity entity) {
         entity.setWorld(this);
         entities.add(entity);
@@ -54,11 +56,14 @@ public abstract class World implements Savable { // impl Tickable ..?
 
 
     public void setBlock(int x, int y, int z, Block b) {
-        Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
-        assert chunk != null;
+        Chunk chunk = provideChunk(floor(x, 16), floor(z, 16));
+//        assert chunk != null;
         chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
 
         chunk.markedRebuildModel=true;
+    }
+    public void setBlock(float x, float y, float z, Block b) {
+        setBlock((int)x, (int)y, (int)z, b);
     }
 
     public Block getBlock(int x, int y, int z) {
@@ -69,19 +74,61 @@ public abstract class World implements Savable { // impl Tickable ..?
 
         return chunk.getBlock(mod(x, 16), y, mod(z, 16));
     }
+    public Block getBlock(float x, float y, float z) {
+        return getBlock((int)x, (int)y, (int)z);
+    }
+
+    public final int getHighestBlock(int x, int z) {
+        for (int y = 255;y >= 0;y--) {
+            if (getBlock(x, y, z) != null)
+                return y;
+        }
+        return -1;
+    }
 
     public Chunk provideChunk(int x, int z) {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
+            ChunkPos chunkpos = ChunkPos.of(x, z);
 //            chunk = load.
 
-            chunk = new ChunkGenerator().generate(x, z);
+            chunk = chunkGenerator.generate(chunkpos);
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
-            addEntity(chunk.proxyEntity);
-            chunk.proxyEntity.setModel(Models.GEO_CUBE);
+            addEntity(chunk.proxyEntity);chunk.proxyEntity.setModel(Models.GEO_CUBE);
+
+            tryPopulate(chunkpos);
+
+//            chunkGenerator.populate(this, chunkpos);
         }
         return chunk;
+    }
+
+    private void tryPopulate(ChunkPos chunkpos) {
+        for (int dx = -1;dx <= 1;dx++) {
+            for (int dz = -1;dz <= 1;dz++) {
+                Chunk chunk = getLoadedChunk(chunkpos.x+dx*16, chunkpos.z+dz*16);
+                if (chunk != null && !chunk.populated && isNeibgherAllLoaded(chunk.x, chunk.z)) {
+                    chunkGenerator.populate(this, ChunkPos.of(chunk));
+                    chunk.populated = true;
+                }
+            }
+        }
+    }
+
+    /**
+     * Default Chunk Populate Condition.
+     * allow populate if neibgher chunks already loaded.
+     * else if just directly populate may cause Massive-Chain-Generation.
+     */
+    private boolean isNeibgherAllLoaded(int chunkX, int chunkZ) {
+        for (int dx = -1;dx <= 1;dx++) {
+            for (int dz = -1;dz <= 1;dz++) {
+                if (getLoadedChunk(chunkX+dx*16, chunkZ+dz*16) == null)
+                    return false;
+            }
+        }
+        return true;
     }
 
     public void unloadChunk(Chunk chunk) {
@@ -122,7 +169,7 @@ public abstract class World implements Savable { // impl Tickable ..?
 
 //        Vector3f cenPos = Outskirts.getPlayer().getPosition();
 //        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
-        int sz = 3;
+        int sz = 2;
         for (int i = -sz;i <= sz;i++) {
             for (int j = -sz;j <= sz;j++) {
                 provideChunk(i*16, j*16);
