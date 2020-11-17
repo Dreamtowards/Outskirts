@@ -6,10 +6,12 @@ import org.lwjgl.opengl.GL;
 import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
 import outskirts.client.material.Texture;
+import outskirts.client.render.VertexBuffer;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
+import outskirts.util.Ref;
 import outskirts.util.Validate;
-import outskirts.util.mex.VerticesUtils;
+import outskirts.util.mx.VertexUtils;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 
@@ -21,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -67,6 +70,16 @@ public final class Loader {
         Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
         return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
     }
+    public static Model loadModelT(VertexBuffer vbuf, Function<float[], float[]> posproc) {
+        int vsz = vbuf.positions.size()/3;
+        return Loader.loadModelTAN(CollectionUtils.range(vsz),
+                posproc.apply(CollectionUtils.toArrayf(vbuf.positions)),
+                CollectionUtils.toArrayf(vbuf.textureCoords),
+                CollectionUtils.toArrayf(vbuf.normals));
+    }
+    public static Model loadModelT(VertexBuffer vbuf) {
+        return Loader.loadModelT(vbuf, pos -> pos);
+    }
     // vertexSize is Required.! its can't been get by calc data.length/indices.length.
     /**
      * Load VertexData to VAO
@@ -88,20 +101,15 @@ public final class Loader {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
 
-    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat, boolean toCenter) { // boolean center .?
+    public static Model loadOBJ(InputStream inputStream, Ref<ModelData> mdat) { // boolean center .?
         try {
             ModelData modeldat = OBJLoader.loadOBJ(inputStream);
             if (mdat != null)
-                mdat[0] = modeldat;
-            if (toCenter)
-                VerticesUtils.alignAabbCenter(modeldat.positions);
+                mdat.value = modeldat;
             return Loader.loadModelTAN(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);
         }
-    }
-    public static Model loadOBJ(InputStream inputStream, ModelData[] mdat) {
-        return loadOBJ(inputStream, mdat, false);
     }
     public static Model loadOBJ(InputStream inputStream) {
         return loadOBJ(inputStream, null);

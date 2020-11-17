@@ -1,14 +1,7 @@
 package outskirts.init.ex;
 
 import outskirts.client.Loader;
-import outskirts.client.material.ex.ModelData;
-import outskirts.client.render.Light;
 import outskirts.entity.EntityStaticMesh;
-import outskirts.physics.collision.shapes.convex.BoxShape;
-import outskirts.physics.collision.shapes.convex.ConvexHullShape;
-import outskirts.physics.collision.shapes.convex.SphereShape;
-import outskirts.physics.extras.quickhull.QuickHull;
-import outskirts.util.mex.PlacementUtils;
 import outskirts.world.WorldClient;
 
 import java.io.FileInputStream;

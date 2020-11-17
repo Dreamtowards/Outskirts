@@ -25,6 +25,9 @@ public final class KeyBinding implements Registrable {
     private String category;
     private int deviceType;
 
+    private int numPressed;
+    private int numReleased;
+
     private KeyBinding.OnInputListener onInputListener = keyState -> {};
 
     public KeyBinding(String registryID, int defaultKeyCode, int deviceType, String category) {
@@ -70,10 +73,29 @@ public final class KeyBinding implements Registrable {
         return this;
     }
 
+    //todo: some 'better' name.?
+    public boolean pollPressed() {
+        if (numPressed == 0)
+            return false;
+        numPressed--;
+        return true;
+    }
+
+    public boolean pollReleased() {
+        if (numReleased == 0)
+            return false;
+        numReleased--;
+        return true;
+    }
+
     public static void postInput(int keyCode, boolean keyState, int deviceType) {
         for (KeyBinding keyBinding : REGISTRY.values()) {
             if (deviceType == keyBinding.deviceType && keyCode == keyBinding.keyCode) {
                 keyBinding.onInputListener.onInput(keyState);
+                if (keyState)
+                    keyBinding.numPressed++;
+                else
+                    keyBinding.numReleased++;
             }
         }
     }

@@ -11,6 +11,8 @@ import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
+import java.util.function.Consumer;
+
 public class RigidBody extends CollisionObject {
 
     /**
@@ -50,6 +52,7 @@ public class RigidBody extends CollisionObject {
 
 //    private List<Constraint> constraints = new ArrayList<>();
 
+//    private Consumer<RigidBody> oncollide;
 
 
     void integrateVelocities(float delta) {

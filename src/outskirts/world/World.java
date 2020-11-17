@@ -9,12 +9,16 @@ import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.storage.Savable;
 import outskirts.storage.dat.DATArray;
 import outskirts.storage.dat.DATObject;
+import outskirts.util.CollectionUtils;
 import outskirts.util.GameTimer;
+import outskirts.util.Maths;
 import outskirts.util.logging.Log;
+import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 import outskirts.world.gen.ChunkGenerator;
@@ -32,7 +36,6 @@ public abstract class World implements Savable { // impl Tickable ..?
     public List<Light> lights = new ArrayList<>();
 
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
-    public float tmpTickFactor = 1;
 
     private Map<Long, Chunk> loadedChunks = new HashMap<>();
 
@@ -52,6 +55,16 @@ public abstract class World implements Savable { // impl Tickable ..?
 
     public List<Entity> getEntities() {
         return Collections.unmodifiableList(entities);
+    }
+
+    public List<Entity> getEntities(AABB interects) {
+        // todo: Accumulate algorithms. use of B.P.
+        List<Entity> entities = new ArrayList<>();
+        for (Entity e : getEntities()) {
+            if (AABB.intersects(e.rigidbody().getAABB(), interects))
+                entities.add(e);
+        }
+        return entities;
     }
 
 
@@ -77,6 +90,9 @@ public abstract class World implements Savable { // impl Tickable ..?
     public Block getBlock(float x, float y, float z) {
         return getBlock((int)x, (int)y, (int)z);
     }
+    public Block getBlock(Vector3f blockpos) {
+        return getBlock(blockpos.x, blockpos.y, blockpos.z);
+    }
 
     public final int getHighestBlock(int x, int z) {
         for (int y = 255;y >= 0;y--) {
@@ -87,6 +103,7 @@ public abstract class World implements Savable { // impl Tickable ..?
     }
 
     public Chunk provideChunk(int x, int z) {
+        x=Maths.floor(x, 16); z=Maths.floor(z, 16);
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
@@ -98,8 +115,6 @@ public abstract class World implements Savable { // impl Tickable ..?
             addEntity(chunk.proxyEntity);chunk.proxyEntity.setModel(Models.GEO_CUBE);
 
             tryPopulate(chunkpos);
-
-//            chunkGenerator.populate(this, chunkpos);
         }
         return chunk;
     }
@@ -108,7 +123,7 @@ public abstract class World implements Savable { // impl Tickable ..?
         for (int dx = -1;dx <= 1;dx++) {
             for (int dz = -1;dz <= 1;dz++) {
                 Chunk chunk = getLoadedChunk(chunkpos.x+dx*16, chunkpos.z+dz*16);
-                if (chunk != null && !chunk.populated && isNeibgherAllLoaded(chunk.x, chunk.z)) {
+                if (chunk != null && !chunk.populated && isNeibghersAllLoaded(chunk.x, chunk.z)) {
                     chunkGenerator.populate(this, ChunkPos.of(chunk));
                     chunk.populated = true;
                 }
@@ -121,7 +136,7 @@ public abstract class World implements Savable { // impl Tickable ..?
      * allow populate if neibgher chunks already loaded.
      * else if just directly populate may cause Massive-Chain-Generation.
      */
-    private boolean isNeibgherAllLoaded(int chunkX, int chunkZ) {
+    private boolean isNeibghersAllLoaded(int chunkX, int chunkZ) {
         for (int dx = -1;dx <= 1;dx++) {
             for (int dz = -1;dz <= 1;dz++) {
                 if (getLoadedChunk(chunkX+dx*16, chunkZ+dz*16) == null)
@@ -138,6 +153,7 @@ public abstract class World implements Savable { // impl Tickable ..?
 
     @Nullable
     public Chunk getLoadedChunk(int x, int z) {
+        x=Maths.floor(x, 16); z=Maths.floor(z, 16);
         return loadedChunks.get(ChunkPos.asLong(x, z));
     }
 
@@ -148,9 +164,13 @@ public abstract class World implements Savable { // impl Tickable ..?
     public void onTick() {
 
         Outskirts.getProfiler().push("Physics");
-        if (tmpTickFactor != 0)
-        dynamicsWorld.stepSimulation(1f/GameTimer.TPS *tmpTickFactor);
+        dynamicsWorld.stepSimulation(1f/GameTimer.TPS);
         Outskirts.getProfiler().pop();
+
+        for (Entity entity : entities.toArray(new Entity[0]))
+        {
+            entity.onTick();
+        }
 
 
         for (Chunk c : loadedChunks.values()) {
@@ -167,18 +187,18 @@ public abstract class World implements Savable { // impl Tickable ..?
             }
         }
 
-//        Vector3f cenPos = Outskirts.getPlayer().getPosition();
-//        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
+        Vector3f cenPos = Outskirts.getPlayer().getPosition();
+        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
         int sz = 2;
         for (int i = -sz;i <= sz;i++) {
             for (int j = -sz;j <= sz;j++) {
-                provideChunk(i*16, j*16);
+                provideChunk(cenX+i*16, cenZ+j*16);
             }
         }
-//        for (Chunk c : getLoadedChunks().toArray(new Chunk[0])) {
-//            if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
-//                unloadChunk(c);
-//        }
+        for (Chunk c : new ArrayList<>(getLoadedChunks())) {
+            if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
+                unloadChunk(c);
+        }
     }
 
     @Override

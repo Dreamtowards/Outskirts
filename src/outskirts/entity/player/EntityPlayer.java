@@ -2,6 +2,8 @@ package outskirts.entity.player;
 
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
+import outskirts.item.inventory.Inventory;
+import outskirts.item.stack.ItemStack;
 import outskirts.network.ChannelHandler;
 import outskirts.util.GameTimer;
 import outskirts.util.vector.Matrix3f;
@@ -9,42 +11,60 @@ import outskirts.util.vector.Vector3f;
 
 public abstract class EntityPlayer extends Entity {
 
-    public static float walkSpeed = 0.4f;
+    private static float walkspeed = 0.4f;
 
-    public static boolean flymode = true;
-
-//    // a EulerAngles, just means head look at (for walk, look, pick ..etc), its not effort entity body rotation.
-//    // the name lookAt likes a direction, but its a EulerAngles... this is a problem..
-//    private Vector3f eulerAngles = new Vector3f(); // change-name from lookAt
+    public GameMode gamemode = GameMode.CREATIVE;
 
     public ChannelHandler connection;
 
     private String name; // should only MP? should alls Entity..?
+
+    private Inventory inventory = new Inventory(32);
+
+    private int hotbarSlot;
 
     public EntityPlayer() {
         setRegistryID("player");
 
     }
 
-    public void walkStep(float lv, float angrad) {
-        walkStep(lv, Matrix3f.transform(
-                Matrix3f.rotate(angrad+Outskirts.getCamera().getCameraUpdater().getEulerAngles().y, Vector3f.UNIT_Y, null),
-                new Vector3f(0, 0, -1f)).normalize());
+    public final void walk(float amount, float angrad) {
+        walk(amount, Matrix3f.transform(Matrix3f.rotate(angrad+Outskirts.getCamera().getCameraUpdater().getEulerAngles().y, Vector3f.UNIT_Y, null),
+                 new Vector3f(0, 0, -1f)).normalize());
     }
-    public void walkStep(float lv, Vector3f dir) {
+    public void walk(float amount, Vector3f dir) {
+        //todo: reduce.
         if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
-            Outskirts.getCamera().getPosition().addScaled(walkSpeed*lv*GameTimer.TPS*0.01f, dir);
+            Outskirts.getCamera().getPosition().addScaled(walkspeed*amount*GameTimer.TPS*0.01f, dir);
             return;
         }
-        getRigidBody().getLinearVelocity().add(dir.scale(walkSpeed*lv));  // *getRigidBody().getMass()*GameTimer.TPS
+        getRigidBody().getLinearVelocity().add(dir.scale(walkspeed*amount));  // *getRigidBody().getMass()*GameTimer.TPS
+    }
+
+    // todo: Nameable.?
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Inventory getBackpackInventory() {
+        return inventory;
     }
 
+    public void setHotbarSlot(int hotbarSlot) {
+        this.hotbarSlot = hotbarSlot;
+    }
+    public int getHotbarSlot() {
+        return hotbarSlot;
+    }
+    public ItemStack getHotbarItem() {
+        return getBackpackInventory().get(getHotbarSlot());
+    }
+
+    public GameMode getGameMode() {
+        return gamemode;
+    }
 }

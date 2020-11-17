@@ -4,15 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.block.Block;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.debug.GuiDebugTxInfos;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.screen.GuiScreen;
-import outskirts.client.gui.screen.GuiScreenMainMenu;
-import outskirts.client.gui.screen.GuiScreenPause;
-import outskirts.init.Blocks;
 import outskirts.util.*;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
 import java.io.*;
@@ -157,35 +152,20 @@ public final class ClientSettings {
         }
     });
 
-    public static final KeyBinding KEY_GUI_DEBUG = new KeyBinding("key.debug", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.misc").setOnInputListener(keyState -> {
-        if (keyState) {
-//            Gui.toggleVisible(GuiDebugTxInfos.INSTANCE.getGuiScreenDebug());
-        }
-    });
-
-    private static void uSetBlockAtFocus(Block b, int dfSign) {
+    public static boolean uSetBlockAtFocus(Block b, int dfSign) {
         RayPicker rp = Outskirts.getRayPicker();
         if (rp.getCurrentEntity() == null)
-            return;
+            return false;
         Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign*0.0001f, rp.getRayDirection());
         int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
 
         Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
         Outskirts.getWorld().setBlock(bX,bY,bZ, b);
+        return true;
     }
 
-    public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.isIngame()) {
-            uSetBlockAtFocus(Blocks.TALL_GRASS, -1);
-        }
-    });
-
-
-    public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay").setOnInputListener(keyState -> {
-        if (keyState && Outskirts.isIngame()) {
-            uSetBlockAtFocus(null, 1);
-        }
-    });
+    public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay");
+    public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay");
 
     public static final KeyBinding KEY_WALK_FORWARD = new KeyBinding("key.forward", GLFW_KEY_W, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
     public static final KeyBinding KEY_WALK_BACKWARD = new KeyBinding("key.backward", GLFW_KEY_S, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
@@ -194,14 +174,20 @@ public final class ClientSettings {
     public static final KeyBinding KEY_JUMP = new KeyBinding("key.jump", GLFW_KEY_SPACE, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
     public static final KeyBinding KEY_SNEAK = new KeyBinding("key.sneak", GLFW_KEY_LEFT_SHIFT, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
 
-    static {
-        KEY_JUMP.setOnInputListener(keyState -> {
-            if (keyState) {
-                Outskirts.getPlayer().walkStep(14, new Vector3f(0, 1, 0));
-            }
-        });
-    }
+    public static final KeyBinding KEY_HOTBAR1 = new KeyBinding("key.hotbar1", GLFW_KEY_1, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 0));
+    public static final KeyBinding KEY_HOTBAR2 = new KeyBinding("key.hotbar2", GLFW_KEY_2, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 1));
+    public static final KeyBinding KEY_HOTBAR3 = new KeyBinding("key.hotbar3", GLFW_KEY_3, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 2));
+    public static final KeyBinding KEY_HOTBAR4 = new KeyBinding("key.hotbar4", GLFW_KEY_4, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 3));
+    public static final KeyBinding KEY_HOTBAR5 = new KeyBinding("key.hotbar5", GLFW_KEY_5, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 4));
+    public static final KeyBinding KEY_HOTBAR6 = new KeyBinding("key.hotbar6", GLFW_KEY_6, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 5));
+    public static final KeyBinding KEY_HOTBAR7 = new KeyBinding("key.hotbar7", GLFW_KEY_7, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 6));
+    public static final KeyBinding KEY_HOTBAR8 = new KeyBinding("key.hotbar8", GLFW_KEY_8, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 7));
+    public static final KeyBinding KEY_HOTBAR9 = new KeyBinding("key.hotbar9", GLFW_KEY_9, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 8));
 
+    private static void changeHotbarSlotWhenKeyDown(boolean keyState, int slot) {
+        if (keyState)
+            Outskirts.getPlayer().setHotbarSlot(slot);
+    }
 
     private static final File OPTION_FILE = new File("options.dat");
 

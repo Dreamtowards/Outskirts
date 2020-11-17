@@ -10,6 +10,8 @@ import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.init.ex.Models;
+import outskirts.item.Item;
+import outskirts.item.ItemBlock;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;
@@ -79,6 +81,12 @@ public final class Init {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+
+        Items.init();
+
+        for (Block b : Block.REGISTRY.values()) {
+            Item.REGISTRY.register(new ItemBlock(b));
         }
 
         if (side.isClient()) {

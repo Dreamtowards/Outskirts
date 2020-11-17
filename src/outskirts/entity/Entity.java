@@ -6,6 +6,7 @@ import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.SAVERS;
 import outskirts.storage.Savable;
 import outskirts.storage.dat.DATObject;
+import outskirts.util.Tickable;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Matrix3f;
@@ -14,7 +15,7 @@ import outskirts.world.World;
 
 import java.util.Map;
 
-public class Entity implements Savable, Registrable {
+public class Entity implements Registrable, Savable, Tickable {
 
     public static final Registry<Class<? extends Entity>> REGISTRY = new Registry.ClassRegistry<>();
 
@@ -58,9 +59,15 @@ public class Entity implements Savable, Registrable {
     public final RigidBody getRigidBody() {
         return rigidbody;
     }
+    public final RigidBody rigidbody() {
+        return rigidbody;
+    }
 
     // dep.?
     public final Vector3f getPosition() {
+        return rigidbody.transform().origin;
+    }
+    public final Vector3f position() {
         return rigidbody.transform().origin;
     }
     public final Matrix3f getRotation() {
@@ -73,6 +80,13 @@ public class Entity implements Savable, Registrable {
 
     public final void setWorld(World world) {
         this.world = world;
+    }
+
+    @Override
+    public void onTick() {
+
+
+
     }
 
     @Override

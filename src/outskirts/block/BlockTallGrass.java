@@ -10,6 +10,8 @@ public class BlockTallGrass extends Block {
     public BlockTallGrass() {
         setRegistryID("tall_grass");
         setTranslucent(true);
+
+        setHardness(0f);
     }
 
     @Override

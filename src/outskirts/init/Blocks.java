@@ -2,7 +2,7 @@ package outskirts.init;
 
 import outskirts.block.*;
 
-public class Blocks {
+public final class Blocks {
 
     public static final BlockDirt DIRT = register(new BlockDirt());
     public static final BlockGrass GRASS = register(new BlockGrass());

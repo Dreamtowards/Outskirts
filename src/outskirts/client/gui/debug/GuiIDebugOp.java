@@ -88,8 +88,8 @@ public class GuiIDebugOp {
                 debugMenu.hide();
             }));
             mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> toggleShow(GuiILightsList.INSTANCE, c)));
-            mInsp.addItem(GuiPopupMenu.GuiItem.divider());
-            mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
+//            mInsp.addItem(GuiPopupMenu.GuiItem.divider());
+//            mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));
         }
         GuiIngame.INSTANCE.addGui(GuiDebugPhys.INSTANCE);
         GuiPopupMenu mPhys = new GuiPopupMenu();
@@ -99,7 +99,7 @@ public class GuiIDebugOp {
             mPhys.addItem(GuiPopupMenu.GuiItem.bswitch("Velocities", false, c -> GuiDebugPhys.INSTANCE.showVelocities=c));
             mPhys.addItem(GuiPopupMenu.GuiItem.bswitch("ContactPoints", false, c -> GuiDebugPhys.INSTANCE.showContactPoints=c));
             mPhys.addItem(GuiPopupMenu.GuiItem.divider());
-            mPhys.addItem(GuiPopupMenu.GuiItem.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
+//            mPhys.addItem(GuiPopupMenu.GuiItem.slider("PhysSpeed: %s", 1, 0, 3, Outskirts::setPauseWorld));
         }
 
         debugMenu.addItem(GuiPopupMenu.GuiItem.button("Gui Widgets Test Window", () -> {

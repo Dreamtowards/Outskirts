@@ -35,11 +35,7 @@ public class ChunkModelGenerator {
             }
         }
 
-        int vsz = vbuf.positions.size()/3;
-        return Loader.loadModelTAN(CollectionUtils.range(vsz),
-                CollectionUtils.toArrayf(vbuf.positions),
-                CollectionUtils.toArrayf(vbuf.textureCoords),
-                CollectionUtils.toArrayf(vbuf.normals));
+        return Loader.loadModelT(vbuf);
     }
 
     private static Vector3f[] CUBE_FACES_DIRS = new Vector3f[] {

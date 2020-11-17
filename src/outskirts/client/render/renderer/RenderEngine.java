@@ -146,8 +146,10 @@ public final class RenderEngine {
 
 
         prepare();
+        glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         entityRenderer.renderCompose(gBufferFBO, world.lights);
-        skyboxRenderer.render();
+//        skyboxRenderer.render();
 
 //        Gui.drawTexture(ssaoBlurFBO.colorTextures(0), Outskirts.getRootGUI());
 //        postRenderer.render(ssaoFBO.colorTextures(0));

@@ -3,9 +3,11 @@ package outskirts.client;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import outskirts.block.Block;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
+import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiEntityGBufferVisual;
 import outskirts.client.gui.ex.GuiIngame;
@@ -16,13 +18,17 @@ import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
+import outskirts.entity.player.GameMode;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
+import outskirts.init.Blocks;
 import outskirts.init.Init;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
+import outskirts.item.stack.ItemStack;
 import outskirts.mod.Mods;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
@@ -43,7 +49,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
-import static outskirts.client.ClientSettings.GUI_SCALE;
+import static outskirts.client.ClientSettings.*;
 import static outskirts.util.SystemUtils.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -124,28 +130,17 @@ public class Outskirts {
 
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
-        getRootGUI().addGui(new GuiText("ABC").exec(g -> {
-            g.addOnDrawListener(e -> {
-                g.setX(getMouseX()+10);
-                g.setY(getMouseY());
-            });
-        }));
-
-        GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
-
-        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-            if (e.getKey() == GLFW_KEY_O && e.getKeyState()) {
-//                GuiVert3D.INSTANCE.vertices.clear();
-//                GuiVert3D.INSTANCE.tmpAABBs.clear();
-//                GuiVert3D.addVert("V:"+thePoint, thePoint, Colors.GREEN);
-            }
-        });
+//        GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
 
         getRootGUI().addGui(new Gui1DNoiseVisual().exec(g -> {
             g.setX(30);
             g.setY(30);
             g.setWidth(800);
             g.setHeight(80);
+        }));
+
+        GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
+            g.addLayoutorAlignParentRR(.5f, .9f);
         }));
     }
 
@@ -191,8 +186,12 @@ public class Outskirts {
             glDisable(GL_DEPTH_TEST);
             rootGUI.onLayout();
             rootGUI.onDraw();
-            if (rayPicker.getCurrentEntity() != null) {
-                Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().getRigidBody().getAABB(), Colors.RED);
+            Vector3f bp = rayPicker.getCurrentBlockPos();
+            if (bp != null) {
+                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(bp, new Vector3f(bp).add(1,1,1)), Colors.RED);
+            }
+            if (isIngame()) {
+                updateBlockDigging();
             }
 
             glEnable(GL_DEPTH_TEST);
@@ -266,7 +265,7 @@ public class Outskirts {
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,20);
         prb.getGravity().set(0, -10, 0).scale(0);
-          prb.setLinearDamping(0.0002f);
+          prb.setLinearDamping(0.002f);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
         prb.setMass(10);
@@ -275,26 +274,64 @@ public class Outskirts {
          prb.setInertiaTensorLocal(0,0,0);
 
     }
-    public static void setPauseWorld(float speed) {
-        if (getWorld()==null)return;
-//        if (speed == 0) speed = 0.000001f;
-        getCamera().getCameraUpdater().setOwnerEntity(speed==1.0f ? getPlayer() : null);
-        getWorld().tmpTickFactor = speed;
+
+    private float diggingTime;
+    private void updateBlockDigging() {
+        Vector3f bp = rayPicker.getCurrentBlockPos();
+        if (KEY_ATTACK.isKeyDown() && bp != null) {
+            if (rayPicker.isBlockSwitched()) {  // switch block.
+                diggingTime = 0;
+            }
+            diggingTime += getDelta();
+
+            Block b = rayPicker.getCurrentBlock();
+            float completeDiggingTime = b.getHardness();
+
+            Gui.drawRect(Colors.DARK_GRAY, 200, 200, 200, 4);
+            Gui.drawRect(Colors.GREEN, 200, 200, 200*(diggingTime/completeDiggingTime), 4);
+
+            if (diggingTime >= completeDiggingTime) {  // digged
+                diggingTime = 0;
+                uSetBlockAtFocus(null, 1);
+                b.onDestroyed(world, bp);
+            }
+        }
+        // released.
+        if (KEY_ATTACK.pollReleased()) {
+            diggingTime=0;
+        }
     }
+
+    private long lastItemUseTime;
 
     private void runTick() {
 
         if (getWorld() != null) {
             if (isIngame()) {
+                // MOVEMENT
                 float lv =1;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
-                if (ClientSettings.KEY_WALK_FORWARD.isKeyDown()) player.walkStep(lv, 0);
-                if (ClientSettings.KEY_WALK_BACKWARD.isKeyDown()) player.walkStep(lv, Maths.PI);
-                if (ClientSettings.KEY_WALK_LEFT.isKeyDown()) player.walkStep(lv, Maths.PI/2);
-                if (ClientSettings.KEY_WALK_RIGHT.isKeyDown()) player.walkStep(lv, -Maths.PI/2);
-                if (ClientSettings.KEY_JUMP.isKeyDown() && EntityPlayerSP.flymode) player.walkStep(lv, new Vector3f(0, 1, 0));
-                if (ClientSettings.KEY_SNEAK.isKeyDown() && EntityPlayerSP.flymode) player.walkStep(lv, new Vector3f(0, -1, 0));
+                if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
+                if (KEY_WALK_BACKWARD.isKeyDown()) player.walk(lv, Maths.PI);
+                if (KEY_WALK_LEFT.isKeyDown()) player.walk(lv, Maths.PI/2);
+                if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
+                if (KEY_JUMP.isKeyDown()  && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, 1, 0));
+                if (KEY_SNEAK.isKeyDown() && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
+                if (KEY_JUMP.pollPressed()) {
+                    player.walk(14, new Vector3f(0, 1, 0));
+                }
+
+                // ITEM USE
+                float CONTINUE_USE_INTERVAL = 0.16f;
+                long t = Outskirts.getSystemTime();
+                ItemStack holdingItem = player.getHotbarItem();
+                if (KEY_USE.isKeyDown() && lastItemUseTime+(long)(CONTINUE_USE_INTERVAL*1000) < t && !holdingItem.empty()) {
+                    holdingItem.getItem().onItemUse(getWorld(), holdingItem);
+                    lastItemUseTime=t;
+                }
+
+
 
                 ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
@@ -365,6 +402,10 @@ public class Outskirts {
 
     public static Camera getCamera() {
         return INSTANCE.camera;
+    }
+
+    public static long getSystemTime() {
+        return System.currentTimeMillis();
     }
 
 

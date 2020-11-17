@@ -52,9 +52,9 @@ void main() {
     vec3 totalDiffuse = ltRst[0];
     vec3 totalSpecular = ltRst[1];
 
-//    float shadow = max(1.0 - computeShadow(FragPos), 0.3);
-//    totalDiffuse *= shadow;
-//    totalSpecular *= shadow;
+    float shadow = max(1.0 - computeShadow(FragPos), 0.3);
+    totalDiffuse *= shadow;
+    totalSpecular *= shadow;
 
     FragColor.rgb = totalDiffuse  * Albedo +
                     totalSpecular * Specularf;

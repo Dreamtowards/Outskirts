@@ -5,6 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.screen.GuiScreenPause;
 import outskirts.event.client.input.KeyboardEvent;
+import outskirts.item.stack.ItemStack;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 
