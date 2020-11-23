@@ -4,9 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.block.Block;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.compoents.GuiMap;
+import outskirts.client.gui.compoents.GuiScreenMapView;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
-import outskirts.client.gui.screen.GuiScreen;
 import outskirts.util.*;
 import outskirts.util.vector.Vector3f;
 
@@ -129,6 +130,11 @@ public final class ClientSettings {
 
     // KEY DEBUGS
 
+    private static final KeyBinding KEY_MAP = new KeyBinding("key.utility.map", GLFW_KEY_M, KeyBinding.TYPE_KEYBOARD, "categories.utility").setOnInputListener(keyState -> {
+        if (keyState)
+            Outskirts.getRootGUI().addGui(GuiScreenMapView.INSTANCE);
+    });
+
     private static final KeyBinding KEY_VERT3D = new KeyBinding("key.debug.vert3d", GLFW_KEY_V, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
         if (keyState)
             Gui.toggleVisible(GuiVert3D.INSTANCE);
@@ -139,7 +145,6 @@ public final class ClientSettings {
 //
     });
 
-    private static GuiScreen debugMenuScreen;  // for keep mouse visible when Ingame.
     private static final KeyBinding KEY_DEBUGOP = new KeyBinding("key.debug.op", GLFW_KEY_F4, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
         if (keyState) {
             //todo: control mouseGrabbing shouldn't uses GuiScreen type check.

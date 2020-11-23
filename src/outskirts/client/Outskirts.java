@@ -6,10 +6,8 @@ import org.lwjgl.system.MemoryStack;
 import outskirts.block.Block;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiText;
 import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
-import outskirts.client.gui.debug.GuiEntityGBufferVisual;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -22,7 +20,6 @@ import outskirts.entity.player.GameMode;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
-import outskirts.init.Blocks;
 import outskirts.init.Init;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
@@ -34,10 +31,8 @@ import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
-import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -142,6 +137,24 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
             g.addLayoutorAlignParentRR(.5f, .9f);
         }));
+
+        // GUI onDisponse() and free the KeyboardEvent.
+
+//        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
+//
+//            g.setUserMinMaxValue(1, 1000);
+//            g.addOnValueChangedListener(e -> {
+//
+//                float f = g.getCurrentUserValue();
+//                Maths.createOrthographicProjectionMatrix(17,17, ClientSettings.FAR_PLANE, Outskirts.renderEngine.getProjectionMatrix());
+//                player.getPosition().set(Maths.floor(player.getPosition().x, 16) + 8, 100, Maths.floor(player.getPosition().z, 16) + 8);
+////                Maths.lookAt(new Vector3f(0,-1,0), new Vector3f(0,0.99f,0.01f).normalize(), camera.getRotation());
+//                camera.getCameraUpdater().getEulerAngles().set(-Maths.PI/2f, 0, 0);
+//                LOGGER.info(f);
+//            });
+//        }));
+
+//        GuiIngame.INSTANCE.addChildren(new GuiMapView());
     }
 
 
@@ -189,6 +202,7 @@ public class Outskirts {
             Vector3f bp = rayPicker.getCurrentBlockPos();
             if (bp != null) {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(bp, new Vector3f(bp).add(1,1,1)), Colors.RED);
+                Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().rigidbody().getAABB(), Colors.RED);
             }
             if (isIngame()) {
                 updateBlockDigging();
@@ -196,6 +210,9 @@ public class Outskirts {
 
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
+
+//            if (isKeyDown(GLFW_KEY_P))
+//            renderEngine.getMapRenderer().render(ChunkPos.of(player.position()));
         }
         profiler.pop("render");
 
@@ -264,8 +281,8 @@ public class Outskirts {
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,20);
-        prb.getGravity().set(0, -10, 0).scale(0);
-          prb.setLinearDamping(0.002f);
+        prb.getGravity().set(0, -10, 0).scale(1);
+          prb.setLinearDamping(0.02f);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
         prb.setMass(10);
@@ -473,7 +490,7 @@ public class Outskirts {
     }
 
     // params: GUI coords.
-    private static BufferedImage makeScreenshot(float gx, float gy, float gwidth, float gheight) {
+    private static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
         int wid=toFramebufferCoords(gwidth), hei=toFramebufferCoords(gheight), x=toFramebufferCoords(gx), y=toFramebufferCoords(getHeight()-gy-gheight);
         ByteBuffer pixels = memAlloc(wid * hei * 4);
         try {

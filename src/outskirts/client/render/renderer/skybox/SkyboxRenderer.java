@@ -1,8 +1,9 @@
-package outskirts.client.render.renderer;
+package outskirts.client.render.renderer.skybox;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
+import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.init.ex.Models;
 import outskirts.util.Identifier;
@@ -16,8 +17,8 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 public class SkyboxRenderer extends Renderer {
 
     private ShaderProgram shader = new ShaderProgram(
-            new Identifier("shaders/skybox.vsh").getInputStream(),
-            new Identifier("shaders/skybox.fsh").getInputStream()
+            new Identifier("shaders/skybox/skybox.vsh").getInputStream(),
+            new Identifier("shaders/skybox/skybox.fsh").getInputStream()
     );
     public Texture textureCubemap = Loader.loadTextureCubeMap(null, new BufferedImage[]{
             Loader.loadPNG(new Identifier("textures/skybox/wide/right.jpg").getInputStream()),

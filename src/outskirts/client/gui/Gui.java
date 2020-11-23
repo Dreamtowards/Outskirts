@@ -26,6 +26,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.lang.Float.NaN;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 /**
@@ -334,6 +335,13 @@ public class Gui {
     }
 
 
+    public static void initEscClose(Gui g) {
+        g.addKeyboardListener(e -> {
+            if (e.getKeyState() && e.getKey() == GLFW_KEY_ESCAPE) {
+                g.getParent().removeGui(g);
+            }
+        });
+    }
 
 
 
@@ -407,17 +415,16 @@ public class Gui {
     }
 
 
-
     public final void onDraw() {
         if (!isVisible()) return;
 //        _checks_MouseInOut();
 
         boolean isClip = isClipChildren(); // avoid field dynamic changed
 
-        performEvent(new OnDrawEvent()); // OnDraw
-
         if (isClip)
             GuiRenderer.pushScissor(getX(), getY(), getWidth(), getHeight());
+
+        performEvent(new OnDrawEvent()); // OnDraw
 
         for (Gui child : getChildren())
             child.onDraw();

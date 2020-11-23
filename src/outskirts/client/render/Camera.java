@@ -81,11 +81,6 @@ public class Camera {
                 camera.position.add(ownerEntity.getPosition()).add(0, 0.8f, 0); // applies owner.pos offset
             }
 
-            refreshViewMatrix();
-        }
-
-        private void refreshViewMatrix() {
-            Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), Outskirts.renderEngine.getViewMatrix());
         }
 
         public Vector3f getEulerAngles() {

@@ -1,5 +1,9 @@
 package outskirts.world.chunk;
 
+import outskirts.util.Maths;
+import outskirts.util.vector.Vector3f;
+
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class ChunkPos {
@@ -19,8 +23,11 @@ public final class ChunkPos {
     public static ChunkPos of(long posLong) {
         return ChunkPos.of((int)(posLong >>> 32), (int)posLong);
     }
-    public static ChunkPos of(int xPos, int zPos) {
-        return new ChunkPos(xPos, zPos);
+    public static ChunkPos of(float xPos, float zPos) {
+        return new ChunkPos(Maths.floor(xPos, 16), Maths.floor(zPos, 16));
+    }
+    public static ChunkPos of(Vector3f p) {
+        return ChunkPos.of(p.x, p.z);
     }
 
     public static long asLong(int x, int z) {
@@ -40,6 +47,6 @@ public final class ChunkPos {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, z);
+        return 31 * x ^ z;
     }
 }

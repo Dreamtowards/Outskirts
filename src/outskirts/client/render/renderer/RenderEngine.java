@@ -1,23 +1,18 @@
 package outskirts.client.render.renderer;
 
 import org.lwjgl.Version;
-import org.lwjgl.opengl.GLUtil;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.animation.AnRenderer;
-import outskirts.client.gui.Gui;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
+import outskirts.client.render.renderer.map.MapRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
+import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
-import outskirts.event.EventHandler;
-import outskirts.event.Events;
-import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
 
@@ -43,6 +38,7 @@ public final class RenderEngine {
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();
+    private MapRenderer mapRenderer = new MapRenderer();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -76,6 +72,7 @@ public final class RenderEngine {
 //            .checkFramebufferStatus()
 //            .popFramebuffer();
 
+
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
@@ -102,10 +99,14 @@ public final class RenderEngine {
 
         RenderEngine.checkGlError("prepare");
 
+        // todo: split out. refreshViewMatrix(), 
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
         Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
-        // Maths.createOrthographicProjectionMatrix(Outskirts.getWidth(), Outskirts.getHeight(), 1000, renderEngine.getProjectionMatrix());
+//        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
+
+        Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), Outskirts.renderEngine.getViewMatrix());
+
     }
 
     public void render(World world) {
@@ -201,5 +202,7 @@ public final class RenderEngine {
     public ParticleRenderer getParticleRenderer() {
         return particleRenderer;
     }
-
+    public MapRenderer getMapRenderer() {
+        return mapRenderer;
+    }
 }
