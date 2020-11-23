@@ -40,6 +40,7 @@ public class MapRenderer extends Renderer {
 
     private Matrix3f MAT_LOOKDOWN = Maths.lookAt(new Vector3f(0, -1, -0.001f).normalize(), Vector3f.UNIT_Y, new Matrix3f());
 
+    private float clipHeight = 256;
 
     public BufferedImage render(Chunk chunk) {
 
@@ -50,6 +51,8 @@ public class MapRenderer extends Renderer {
 
         shader.setMatrix4f("viewMatrix", Maths.createViewMatrix(new Vector3f(8, 0, 8), MAT_LOOKDOWN, null));
         shader.setMatrix4f("projectionMatrix", Maths.createOrthographicProjectionMatrix(16, 16, ClientSettings.FAR_PLANE, null));
+
+        shader.setFloat("clipHeight", clipHeight);
 
         Model model = chunk.proxyEntity.getModel();
         glBindVertexArray(model.vaoID());
@@ -64,6 +67,13 @@ public class MapRenderer extends Renderer {
         fbChunk.popFramebuffer();
 
         return Texture.glfGetTexImage(fbChunk.colorTextures(0));
+    }
+
+    public float getClipHeight() {
+        return clipHeight;
+    }
+    public void setClipHeight(float clipHeight) {
+        this.clipHeight = clipHeight;
     }
 
     @Override

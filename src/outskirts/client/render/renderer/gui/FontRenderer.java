@@ -62,9 +62,9 @@ public class FontRenderer extends Renderer {
         return unicodePageTextures[unicodePage];
     }
 
-    public void renderString(String text, float x, float y, int textHeight, Vector4f color, boolean renderShadow) {
+    public void renderString(String text, float x, float y, float textHeight, Vector4f color, boolean renderShadow) {
         if (renderShadow) {
-            int off = textHeight / 10; // 8
+            float off = textHeight / 10; // 8
             renderString(text, x+off, y+off, textHeight, Colors.BLACK40, false);
         }
 

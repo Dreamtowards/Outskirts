@@ -67,7 +67,6 @@ public class EventBus {
     public final <E extends Event> Handler register(Consumer<E> function) {
         // crazy powerful func..
         Class eventclass = TypeResolver.resolveRawArguments(Consumer.class, function.getClass())[0];
-        Log.LOGGER.info(eventclass);
         return register(eventclass, function);
     }
 
@@ -133,14 +132,11 @@ public class EventBus {
         }
     }
 
-    // should return "this"..? commonly, return true/false for had unregister sth. but there return this for coherent statements
     /**
-     * @throws IllegalStateException when nothing been unregistered
+     * @return false when nothing was been unregistered
      */
-    public EventBus unregister(Object functionOrUnregisterTag) {
-        if (!handlers.removeIf(handler -> handler.function == functionOrUnregisterTag || handler.unregisterTag == functionOrUnregisterTag))
-            throw new IllegalStateException("Failed to unregister: not found a Handler that matches the function/unregisterTag. ("+functionOrUnregisterTag.getClass()+").");
-        return this;
+    public boolean unregister(Object functionOrUnregisterTag) {
+        return handlers.removeIf(handler -> handler.function == functionOrUnregisterTag || handler.unregisterTag == functionOrUnregisterTag);
     }
 
     /**

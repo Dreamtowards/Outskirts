@@ -99,7 +99,7 @@ public final class RenderEngine {
 
         RenderEngine.checkGlError("prepare");
 
-        // todo: split out. refreshViewMatrix(), 
+        // todo: split out. refreshViewMatrix(), refreshProjectionMatrix(), or just refreshViewProjectionMatrix().
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
         Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());

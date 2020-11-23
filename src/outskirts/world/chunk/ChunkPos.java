@@ -30,9 +30,10 @@ public final class ChunkPos {
         return ChunkPos.of(p.x, p.z);
     }
 
-    public static long asLong(int x, int z) {
-        assert x%16==0 && z%16==0;
-        return ((x & 0xFFFFFFFFL) << 32) | (z & 0xFFFFFFFFL);
+    public static long asLong(float x, float z) {
+        x = Maths.floor(x, 16);
+        z = Maths.floor(z, 16);
+        return (((int)x & 0xFFFFFFFFL) << 32) | ((int)z & 0xFFFFFFFFL);
     }
 
     @Override

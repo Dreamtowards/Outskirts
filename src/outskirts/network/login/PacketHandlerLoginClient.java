@@ -26,9 +26,8 @@ public class PacketHandlerLoginClient {
     private void handleLoginSuccess(SPacketLoginSuccess packet) {
 
         // switch handler
-        connection.eventBus()
-                .unregister(this) // modify list
-                .register(new PacketHandlerPlayClient(connection));
+        connection.eventBus().unregister(this); // modify list
+        connection.eventBus().register(new PacketHandlerPlayClient(connection));
 
         // init GUI
         Outskirts.getRootGUI().removeAllGuis();

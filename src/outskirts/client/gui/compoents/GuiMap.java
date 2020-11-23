@@ -7,10 +7,15 @@ import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.material.Texture;
 import outskirts.event.EventHandler;
+import outskirts.event.world.chunk.ChunkLoadedEvent;
+import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
+import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 
 import java.awt.image.BufferedImage;
@@ -41,16 +46,16 @@ public class GuiMap extends GuiDrag {
         });
         setClipChildren(true);
 
-        addChildren(new GuiButton("Reset").exec(g -> {
-            g.addOnClickListener(e -> {
-                Outskirts.getWorld().getLoadedChunks().forEach(c -> {
-                    BufferedImage bi = Outskirts.renderEngine.getMapRenderer().render(c);
-                    Texture tex = Loader.loadTexture(bi);
-                    mapChunkFrags.put(ChunkPos.of(c), tex);
-                });
-            });
-            g.addLayoutorAlignParentRR(1,0);
-        }));
+        addOnAttachListener(e -> {
+            Outskirts.getWorld().getLoadedChunks().forEach(this::loadChunkImage);
+        });
+
+        addGlobalEventListener(ChunkMeshBuildedEvent.class, e -> loadChunkImage(e.getChunk()));
+    }
+
+    private void loadChunkImage(Chunk chunk) {
+        BufferedImage bi = Outskirts.renderEngine.getMapRenderer().render(chunk);
+        mapChunkFrags.put(ChunkPos.of(chunk), Loader.loadTexture(bi));
     }
 
     @EventHandler
@@ -62,6 +67,12 @@ public class GuiMap extends GuiDrag {
             float x=chunkpos.x, y=chunkpos.z;
 
             drawTexture(mapChunkFrags.get(chunkpos), morigin.x +x*scale, morigin.y +y*scale, 16f*scale, 16f*scale);
+
+            if (Outskirts.getWorld().getLoadedChunk(x, y) != null) {
+                drawMappoint(x,y, (gp, s) -> {
+                    drawRect(new Vector4f(0,1,0,0.1f), gp.x, gp.y, 16f*s, 16f*s);
+                });
+            }
         }
         drawRect(Colors.WHITE, morigin.x, morigin.y, 10,10);
 
@@ -70,15 +81,15 @@ public class GuiMap extends GuiDrag {
                 (Outskirts.getMouseY() - morigin.y) / scale);
         // Curr Chunk
         drawMappoint(Maths.floor(currentBlock.x, 16f), Maths.floor(currentBlock.y, 16f), (gp,s) -> {
-            drawRect(Colors.BLACK10, gp.x, gp.y, 16f*s, 16f*s);
+            drawRect(Colors.WHITE20, gp.x, gp.y, 16f*s, 16f*s);
         });
         // Curr Block
         drawMappoint(Maths.floor(currentBlock.x), Maths.floor(currentBlock.y), (gp, s) -> {
-            drawRect(Colors.BLACK40, gp.x, gp.y, s, s);
+            drawRect(Colors.WHITE20, gp.x, gp.y, s, s);
         });
 
         drawMappoint(Outskirts.getPlayer().position(), (gp,s) -> {
-            drawString("PLAYER:"+Outskirts.getPlayer().getName(), gp.x,gp.y,Colors.WHITE);
+            drawString(Outskirts.getPlayer().getName(), gp.x,gp.y,Colors.WHITE, 1.2f*s);
         });
 
         drawString(String.format(

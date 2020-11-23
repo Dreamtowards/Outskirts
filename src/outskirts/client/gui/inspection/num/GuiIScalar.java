@@ -15,8 +15,6 @@ public class GuiIScalar extends GuiTextBox {
 
     private float cachedvalue;
 
-    private boolean _notCallSetter = false;
-
     private float sens = 0.2f;
 
     public GuiIScalar(Supplier<Float> getter, Consumer<Float> setter) {
@@ -24,6 +22,25 @@ public class GuiIScalar extends GuiTextBox {
         setWidth(80);
         getText().setRelativeY(3);
         getText().setText("0");
+
+        addOnDrawListener(e -> {
+            float rv = getter.get();
+            if (rv != getValue()) {
+                setValue(rv);
+            }
+        });
+
+        getText().addOnTextChangeListener(e -> {
+            try {
+                cachedvalue = Float.parseFloat(e.getNewText());
+            } catch (NumberFormatException ex) {
+                e.setCancelled(true); return;
+            }
+            float v = getValue();
+            if (getter.get() != v) {
+                setter.accept(v);
+            }
+        });
 
         addChildren(new GuiDrag().exec((GuiDrag g) -> {
             g.setWidth(10);
@@ -34,32 +51,9 @@ public class GuiIScalar extends GuiTextBox {
             });
             g.addOnDrawListener(e -> {
                 drawRect(g.isDragging() ? Colors.WHITE40 :
-                         g.isHover() ? Colors.WHITE20 : Colors.BLACK40, g);
+                        g.isHover() ? Colors.WHITE20 : Colors.BLACK40, g);
             });
         }));
-
-        addOnDrawListener(e -> {
-            float remotevalue = getter.get();
-            if (remotevalue != getValue()) {
-                _notCallSetter=true;
-                setValue(remotevalue);
-            }
-        });
-
-
-        getText().addOnTextChangeListener(e -> {
-            try {
-                cachedvalue = Float.parseFloat(e.getNewText());
-            } catch (NumberFormatException ex) {
-                e.setCancelled(true);
-                return;
-            }
-            if (_notCallSetter) {
-                _notCallSetter=false;
-                return;
-            }
-            setter.accept(getValue());
-        });
     }
 
     public float getValue() {

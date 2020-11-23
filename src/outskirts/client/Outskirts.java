@@ -17,9 +17,12 @@ import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.GameMode;
+import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
+import outskirts.event.world.chunk.ChunkEvent;
+import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.init.Init;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
@@ -155,6 +158,7 @@ public class Outskirts {
 //        }));
 
 //        GuiIngame.INSTANCE.addChildren(new GuiMapView());
+
     }
 
 
@@ -362,10 +366,10 @@ public class Outskirts {
 
     private void destroy() {
 
+        getRootGUI().removeAllGuis();  // dispatches Gui.DetachEvent.
         ClientSettings.saveOptions();
 
         Loader.destroy();
-
         audioEngine.destroy();
 
         GL.setCapabilities(null);
@@ -608,19 +612,16 @@ public class Outskirts {
         mouseDX = mouseX - oldmx;
         mouseDY = mouseY - oldmy;
         Events.EVENT_BUS.post(new MouseMoveEvent());
-        rootGUI.broadcaseEvent(new MouseMoveEvent());
     }
 
     private void onScroll(long w, double dX, double dY) {
         dScroll = glfwRawToFbCoord((float)(dX + dY));
         Events.EVENT_BUS.post(new MouseScrollEvent());
-        rootGUI.broadcaseEvent(new MouseScrollEvent());
 
     }
 
     private void onMouseButton(long w, int button, int action, int mods) {
         Events.EVENT_BUS.post(new MouseButtonEvent(button, action));
-        rootGUI.broadcaseEvent(new MouseButtonEvent(button, action));
 
         KeyBinding.postInput(button, action==GLFW_PRESS, KeyBinding.TYPE_MOUSE);
     }
@@ -629,13 +630,11 @@ public class Outskirts {
         if (action == GLFW_REPEAT)
             return;
         Events.EVENT_BUS.post(new KeyboardEvent(key, action));
-        rootGUI.broadcaseEvent(new KeyboardEvent(key, action));
 
         KeyBinding.postInput(key, action==GLFW_PRESS, KeyBinding.TYPE_KEYBOARD);
     }
 
     private void onCharInput(long w, int ch) {
         Events.EVENT_BUS.post(new CharInputEvent(ch));
-        rootGUI.broadcaseEvent(new CharInputEvent(ch));
     }
 }

@@ -7,6 +7,9 @@ import outskirts.client.render.Light;
 import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
+import outskirts.event.Events;
+import outskirts.event.world.chunk.ChunkLoadedEvent;
+import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -102,8 +105,7 @@ public abstract class World implements Savable { // impl Tickable ..?
         return -1;
     }
 
-    public Chunk provideChunk(int x, int z) {
-        x=Maths.floor(x, 16); z=Maths.floor(z, 16);
+    public Chunk provideChunk(float x, float z) {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
@@ -115,6 +117,8 @@ public abstract class World implements Savable { // impl Tickable ..?
             addEntity(chunk.proxyEntity);chunk.proxyEntity.setModel(Models.GEO_CUBE);
 
             tryPopulate(chunkpos);
+
+            Events.EVENT_BUS.post(new ChunkLoadedEvent(chunk));
         }
         return chunk;
     }
@@ -152,8 +156,7 @@ public abstract class World implements Savable { // impl Tickable ..?
     }
 
     @Nullable
-    public Chunk getLoadedChunk(int x, int z) {
-        x=Maths.floor(x, 16); z=Maths.floor(z, 16);
+    public Chunk getLoadedChunk(float x, float z) {
         return loadedChunks.get(ChunkPos.asLong(x, z));
     }
 
@@ -183,6 +186,7 @@ public abstract class World implements Savable { // impl Tickable ..?
                     c.proxyEntity.getMaterial().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
                     c.proxyEntity.getMaterial().setNormalMap(Textures.CONTAINER);
                     c.proxyEntity.setModel(model);
+                    Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
                 });
             }
         }

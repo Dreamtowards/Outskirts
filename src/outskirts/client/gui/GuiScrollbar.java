@@ -34,7 +34,7 @@ public class GuiScrollbar extends Gui {
         handlerGui.addOnDrawListener(e -> {
             drawCornerStretchTexture(TEX_SCROLL_HANDLER, handlerGui, 3);
         });
-        handlerGui.addOnDraggingStateChangedListener(e -> {
+        handlerGui.addOnDraggingStateChangeListener(e -> {
             _OnDraggingMouseInHandlerPercen = getOrientation() == HORIZONTAL ?
                     (Outskirts.getMouseX() - handlerGui.getX()) / handlerGui.getWidth() :
                     (Outskirts.getMouseY() - handlerGui.getY()) / handlerGui.getHeight();

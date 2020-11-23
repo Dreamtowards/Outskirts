@@ -5,6 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.event.Cancellable;
+import outskirts.event.client.input.CharInputEvent;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
@@ -116,7 +117,7 @@ public class GuiTextBox extends Gui {
             }
         });
 
-        addCharInputListener(e -> {
+        addGlobalEventListener(CharInputEvent.class, e -> {
             if (isFocused()) {
                 insertText(Character.toString(e.getChar()));
             }

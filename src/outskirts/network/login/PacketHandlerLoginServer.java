@@ -38,9 +38,8 @@ public class PacketHandlerLoginServer {
         EntityPlayerMP player = OutskirtsServer.getPlayerManager().loadPlayer(connection, packet.getUUID(), "TheUser01");
 
         // switch handler
-        connection.eventBus()
-                .unregister(this)
-                .register(new PacketHandlerPlayServer(player));
+        connection.eventBus().unregister(this);
+        connection.eventBus().register(new PacketHandlerPlayServer(player));
 
         connection.sendPacket(new SPacketLoginSuccess());
 

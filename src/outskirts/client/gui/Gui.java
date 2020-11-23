@@ -1,12 +1,14 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.material.Texture;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
 import outskirts.event.EventBus;
+import outskirts.event.Events;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
@@ -93,6 +95,10 @@ public class Gui {
                 }
             }
         });
+        addOnDetachListener(e -> {  // when removed from parent, clear children hover,press. recursive
+            setHover(false);
+            setPressed(false);
+        });
     }
 
     public Gui() { }
@@ -110,7 +116,9 @@ public class Gui {
      * @return the Gui which added //todo: should make Create and Add in one Line .?
      */
     public <T extends Gui> T addGui(T gui, int index) {
-        gui.setParent(this);
+        assert gui.getParent() == Gui.EMPTY;
+        ((Gui)gui).setParent(this);
+        gui.broadcaseEvent(new AttachEvent());
         children.add(index, gui);
         return gui;
     }
@@ -150,7 +158,9 @@ public class Gui {
      */
     public Gui removeGui(int index) {
         getGui(index).setParent(null);
-        return children.remove(index);
+        Gui removed = children.remove(index);
+        removed.broadcaseEvent(new DetachEvent());
+        return removed;
     }
     public final boolean removeGui(Gui g) {
         int i = children.indexOf(g);
@@ -169,16 +179,8 @@ public class Gui {
             return (T)Gui.EMPTY;
         return (T)parent;
     }
-    public void setParent(Gui parent) {
+    private void setParent(Gui parent) {
         this.parent = parent;
-        if (parent == null) { // when removed from parent
-            // clear children hover,press. recursive
-            forChildren(this, g -> {
-                g.setHover(false);
-                g.setPressed(false);
-            }, true, true);
-
-        }
     }
 
     public final List<Gui> getChildren() {
@@ -410,7 +412,7 @@ public class Gui {
     /**
      * for "Tooltip" Gui popup. actually dosen't think unlaw-putting is good. the Tooltip should tends just stay in themself place.
      */
-    public static Gui getRootGUI() {
+    public static GuiRoot getRootGUI() {
         return Outskirts.getRootGUI();
     }
 
@@ -557,20 +559,17 @@ public class Gui {
     }
 
     // Global/ Events   //todo: is these really needs.? the global events, not GuiEvent s.
-    public final EventBus.Handler addMouseButtonListener(Consumer<MouseButtonEvent> listener) {
-        return attachListener(MouseButtonEvent.class, listener);
+    public final void addMouseButtonListener(Consumer<MouseButtonEvent> lsr) {
+        addGlobalEventListener(MouseButtonEvent.class, lsr);
     }
-    public final EventBus.Handler addMouseMoveListener(Consumer<MouseMoveEvent> listener) {
-        return attachListener(MouseMoveEvent.class, listener);
+    public final void addMouseMoveListener(Consumer<MouseMoveEvent> lsr) {
+        addGlobalEventListener(MouseMoveEvent.class, lsr);
     }
-    public final EventBus.Handler addKeyboardListener(Consumer<KeyboardEvent> listener) {
-        return attachListener(KeyboardEvent.class, listener);
+    public final void addKeyboardListener(Consumer<KeyboardEvent> lsr) {
+        addGlobalEventListener(KeyboardEvent.class, lsr);
     }
-    public final EventBus.Handler addCharInputListener(Consumer<CharInputEvent> listener) {
-        return attachListener(CharInputEvent.class, listener);
-    }
-    public final EventBus.Handler addMouseScrollListener(Consumer<MouseScrollEvent> listener) {
-        return attachListener(MouseScrollEvent.class, listener);
+    public final void addMouseScrollListener(Consumer<MouseScrollEvent> lsr) {
+        addGlobalEventListener(MouseScrollEvent.class, lsr);
     }
 
 
@@ -601,6 +600,24 @@ public class Gui {
     public final EventBus.Handler addOnVisibleChangedListener(Consumer<OnVisibleChangedEvent> lsr) {
         return attachListener(OnVisibleChangedEvent.class, lsr);
     }
+
+    public final EventBus.Handler addOnAttachListener(Consumer<AttachEvent> lsr) {
+        return attachListener(AttachEvent.class, lsr);
+    }
+    public final EventBus.Handler addOnDetachListener(Consumer<DetachEvent> lsr) {
+        return attachListener(DetachEvent.class, lsr);
+    }
+
+    public final <E extends Event> void addGlobalEventListener(Class<E> eventclass, Consumer<E> lsr) {
+        if (getParent() != EMPTY || this instanceof GuiRoot)  // the gui has already attached. just register immidiately.
+            Events.EVENT_BUS.register(eventclass, lsr);
+        addOnAttachListener(e -> {
+            Events.EVENT_BUS.unregister(lsr);
+            Events.EVENT_BUS.register(eventclass, lsr);
+        });
+        addOnDetachListener(e -> Events.EVENT_BUS.unregister(lsr));
+    }
+
 
     // AlignParentLTRB
     public final void addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
@@ -655,6 +672,9 @@ public class Gui {
 
     public static class OnVisibleChangedEvent extends GuiEvent { }
 
+    public static class AttachEvent extends GuiEvent { }
+
+    public static class DetachEvent extends GuiEvent { }
 
 
 
@@ -677,17 +697,17 @@ public class Gui {
 //        return Outskirts.renderEngine.getFontRenderer().drawString(texts, x, y, height, color, true);
 //    }
 
-    public static void drawString(String text, float x, float y, Vector4f color, int textHeight, boolean centerHorizontal, boolean drawShadow) {
+    public static void drawString(String text, float x, float y, Vector4f color, float textHeight, boolean centerHorizontal, boolean drawShadow) {
         if (centerHorizontal) { // shoulddo tex_x = t * (max_width - tex_width)
             float textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, textHeight).x;
             x -= textWidth/2f;
         }
         Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, textHeight, color, drawShadow);
     }
-    public static void drawString(String text, float x, float y, Vector4f color, int height, boolean centerHorizontal) {
+    public static void drawString(String text, float x, float y, Vector4f color, float height, boolean centerHorizontal) {
         drawString(text, x, y, color, height, centerHorizontal, true);
     }
-    public static void drawString(String text, float x, float y, Vector4f color, int height) {
+    public static void drawString(String text, float x, float y, Vector4f color, float height) {
         drawString(text, x, y, color, height, false);
     }
     public static void drawString(String text, float x, float y, Vector4f color) {
