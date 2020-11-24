@@ -2,6 +2,7 @@ package outskirts.init.ex;
 
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
+import outskirts.client.render.VertexBuffer;
 import outskirts.util.Identifier;
 import outskirts.util.Side;
 import outskirts.util.SideOnly;
@@ -14,6 +15,7 @@ public final class Models {
 
     public static final Model STALL = loadOBJ("outskirts:materials/stall/stall.obj");
 
+    public static final Model EMPTY = Loader.loadModelT(new VertexBuffer());
     public static final Model GEO_CUBE = loadOBJ("materials/geo/cube.obj"); // ModelRenderer.MODEL_CUBE; //
     public static final Model GEO_SPHERE = loadOBJ("materials/geo/sphere.obj");
     public static final Model GEO_CYLINDER = loadOBJ("materials/geo/cylinder.obj");

@@ -672,6 +672,8 @@ public class Gui {
 
     public static class OnVisibleChangedEvent extends GuiEvent { }
 
+    // the Attach might be calls multi times, with out once Detach.
+    // because current the Attach event not required needs attach to the RootGUI.
     public static class AttachEvent extends GuiEvent { }
 
     public static class DetachEvent extends GuiEvent { }

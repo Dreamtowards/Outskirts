@@ -141,8 +141,6 @@ public class Outskirts {
             g.addLayoutorAlignParentRR(.5f, .9f);
         }));
 
-        // GUI onDisponse() and free the KeyboardEvent.
-
 //        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
 //
 //            g.setUserMinMaxValue(1, 1000);
@@ -214,9 +212,6 @@ public class Outskirts {
 
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
-
-//            if (isKeyDown(GLFW_KEY_P))
-//            renderEngine.getMapRenderer().render(ChunkPos.of(player.position()));
         }
         profiler.pop("render");
 
@@ -228,39 +223,15 @@ public class Outskirts {
     }
 
     public static void setWorld(WorldClient world) {
-        INSTANCE.world = world;
-        if (world == null)
+        if (world == null) {
+            new ArrayList<>(getWorld().getLoadedChunks()).forEach(c -> {
+                getWorld().unloadChunk(c);
+            });
+            INSTANCE.world = null;
             return;
-        try {
-//            world.onRead(DSTUtils.read(new FileInputStream("scen.dat")));
-        } catch (Exception e1) {
-            e1.printStackTrace();
         }
+        INSTANCE.world = world;
 
-        EntityStaticMesh entityStaticMesh = new EntityStaticMesh();
-        entityStaticMesh.setModel(Loader.loadOBJ(new Identifier("materials/blenderTri.obj").getInputStream()));
-        entityStaticMesh.getPosition().set(10, 100, 10);
-        world.addEntity(entityStaticMesh);
-
-//        world.provideChunk(0 ,0);
-//        world.provideChunk(0 ,16);
-//        world.provideChunk(16 ,16);
-//        world.provideChunk(16 ,0);
-//
-//        buildModel: {
-//            ChunkModelGenerator chunkModelGenerator = new ChunkModelGenerator();
-//
-//            for (Chunk c : world.getLoadedChunks()) {
-//                Model model = chunkModelGenerator.buildModel(ChunkPos.of(c), world);
-//
-//                EntityStaticMesh staticMesh = new EntityStaticMesh();
-//                staticMesh.setModel(model);
-//                staticMesh.getPosition().set(c.x, 0, c.z);
-//                world.addEntity(staticMesh);
-//            }
-//        }
-
-//        SceneIniter.init(world);
 
         Light lightSun = new Light();
         lightSun.getPosition().set(40, 35, 40);
@@ -284,9 +255,9 @@ public class Outskirts {
         prb.setCollisionShape(new CapsuleShape(.4f, .6f));  // .4f,0.5f,.4f
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
         prb.transform().set(Transform.IDENTITY);
-        prb.transform().origin.set(0,52,20);
+        prb.transform().origin.set(0,52,0);
         prb.getGravity().set(0, -10, 0).scale(1);
-          prb.setLinearDamping(0.02f);
+//          prb.setLinearDamping(0.02f);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
         prb.setMass(10);
@@ -351,6 +322,7 @@ public class Outskirts {
                     holdingItem.getItem().onItemUse(getWorld(), holdingItem);
                     lastItemUseTime=t;
                 }
+
 
 
 

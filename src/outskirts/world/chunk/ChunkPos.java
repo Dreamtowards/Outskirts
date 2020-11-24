@@ -12,9 +12,13 @@ public final class ChunkPos {
     public final int z;
 
     private ChunkPos(int x, int z) {
-        assert x%16==0 && z%16==0 : String.format("x: %s, z: %s", x, z);
+        ChunkPos.validate(x, z);
         this.x = x;
         this.z = z;
+    }
+
+    public static void validate(float x, float z) {
+        assert x%16==0 && z%16==0 : String.format("x: %s, z: %s", x, z);
     }
 
     public static ChunkPos of(Chunk chunk) {

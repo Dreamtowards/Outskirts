@@ -171,7 +171,7 @@ public class DATBrowser extends JFrame {
         if (currentDAT == null)
             return;
         try {
-            DSTUtils.write((Map)currentDAT, new FileOutputStream(currentFile));
+            DSTUtils.write((DATObject) currentDAT, new FileOutputStream(currentFile));
             Log.LOGGER.info("Saved.");
         } catch (IOException e) {
             e.printStackTrace();

@@ -9,5 +9,5 @@ public interface Savable {
     void onRead(DATObject mp);
 
     // maybe shoudn't uses "on" because the 'on' like a time-related event, but there are just 'Operations', not events.
-    Map onWrite(DATObject mp);
+    DATObject onWrite(DATObject mp);
 }

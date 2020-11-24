@@ -149,7 +149,7 @@ public class DST {
             case STRING:
                 return IOUtils.readUTF(is);
             case LIST: {
-                int size = readShort(is) & 0xFFFF;
+                int size = readInt(is);
                 byte lsType = readByte(is);
                 List<Object> ls = new ArrayList<>(size);
                 for (int i = 0;i < size;i++) {
@@ -157,7 +157,7 @@ public class DST {
                 }
                 return new DATArray(ls); }
             case MAP: {
-                int size = readShort(is) & 0xFFFF;
+                int size = readInt(is);
                 Map<String, Object> mp = new HashMap<>(size);
                 for (int i = 0;i < size;i++) {
                     String k = readUTF(is);
@@ -193,7 +193,7 @@ public class DST {
                 IOUtils.writeUTF(os, (String)obj); break;
             case LIST: {
                 List ls = (List)obj;
-                writeShort(os, (short)ls.size());
+                writeInt(os, ls.size());
                 byte lsType = ls.isEmpty()?NULL: DST.type(ls.get(0));
                 writeByte(os, lsType);
                 for (Object ite : ls) {
@@ -202,7 +202,7 @@ public class DST {
                 break; }
             case MAP: {
                 Map<String, Object> mp = (Map)obj;
-                writeShort(os, (short)mp.size());
+                writeInt(os, mp.size());
                 for (Map.Entry<String, Object> e : mp.entrySet()) {
                     writeUTF(os, e.getKey());
                     byte vType = DST.type(e.getValue());

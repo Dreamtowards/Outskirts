@@ -1,5 +1,6 @@
 package outskirts.storage.dat;
 
+import outskirts.util.FileUtils;
 import outskirts.util.IOUtils;
 
 import java.io.IOException;
@@ -23,5 +24,4 @@ public class DSTUtils {
         IOUtils.writeByte(os, type);
         DST.write(os, type, obj);
     }
-
 }

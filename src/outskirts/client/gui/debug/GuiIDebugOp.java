@@ -78,15 +78,6 @@ public class GuiIDebugOp {
                 Outskirts.getWorld().addEntity(entityStaticmesh);
                 debugMenu.hide();
             }));
-            mInsp.addItem(GuiPopupMenu.GuiItem.button("Flush to scen.dat", () -> {
-                try {
-                    DSTUtils.write(Outskirts.getWorld().onWrite(new DATObject()), new FileOutputStream("scen.dat"));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                LOGGER.info("Flushed to scen.dat");
-                debugMenu.hide();
-            }));
             mInsp.addItem(GuiPopupMenu.GuiItem.bswitch("Show Lights Marks", true, c -> toggleShow(GuiILightsList.INSTANCE, c)));
 //            mInsp.addItem(GuiPopupMenu.GuiItem.divider());
 //            mInsp.addItem(GuiPopupMenu.GuiItem.slider("WalkSpeed: %s", 1, 0, 5, v -> EntityPlayer.walkSpeed=v));

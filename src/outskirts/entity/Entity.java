@@ -38,13 +38,16 @@ public class Entity implements Registrable, Savable, Tickable {
             throw new RuntimeException("Failed to create Entity.", ex);
         }
     }
-    public static Entity createEntity(DATObject mpEntity) {
+    public static Entity loadEntity(DATObject mpEntity) {
         Entity entity = createEntity((String)mpEntity.get("registryID"));
         entity.onRead(mpEntity);
         return entity;
     }
 
     public final Material getMaterial() {
+        return material;
+    }
+    public final Material material() {
         return material;
     }
 
@@ -98,7 +101,7 @@ public class Entity implements Registrable, Savable, Tickable {
     }
 
     @Override
-    public Map onWrite(DATObject mp) {
+    public DATObject onWrite(DATObject mp) {
         mp.put("registryID", registryID);
 
         mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DATObject()));

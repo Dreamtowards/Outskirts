@@ -18,8 +18,8 @@ public class ChunkGenerator {
 
     private NoiseGeneratorPerlin noisegen = new NoiseGeneratorPerlin();
 
-    public Chunk generate(ChunkPos chunkpos) {
-        Chunk vsection = new Chunk(chunkpos.x, chunkpos.z);
+    public Chunk generate(ChunkPos chunkpos, World world) {
+        Chunk vsection = new Chunk(world, chunkpos.x, chunkpos.z);
         GenerationInfo gspec = new GenerationInfo();
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {

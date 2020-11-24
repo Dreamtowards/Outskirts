@@ -23,13 +23,13 @@ public class EntityPlayerMP extends EntityPlayer {
     public void onRead(DATObject mp) {
 
         if (mp.containsKey("world"))
-            setWorld(OutskirtsServer.getWorlds().get((String)mp.get("world")));  // probably null. when saves curr not exists
+            setWorld(OutskirtsServer.getWorlds().get(mp.getString("world")));  // probably null. when saves curr not exists
 
         super.onRead(mp);
     }
 
     @Override
-    public Map onWrite(DATObject mp) {
+    public DATObject onWrite(DATObject mp) {
 
         if (getWorld() != null)  // when is null ..?
             mp.put("world", getWorld().getRegistryID());

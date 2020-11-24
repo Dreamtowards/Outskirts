@@ -28,7 +28,7 @@ public final class GuiRoot extends Gui {
         return r;
     }
     private void updateMouseGrab() {
-        Outskirts.setMouseGrabbed(getChildCount() == 1 && getGui(0) instanceof GuiIngame);
+        Outskirts.setMouseGrabbed(size() == 1 && getGui(0) instanceof GuiIngame);
     }
 
     public final void removeLastGui() {

@@ -48,6 +48,10 @@ public class DATArray<E> implements List<E> {
         return dest.set(l.get(0), l.get(1), l.get(2), l.get(3), l.get(4), l.get(5), l.get(6), l.get(7), l.get(8));
     }
 
+    public String getString(int i) {
+        return (String)get(i);
+    }
+
 
     @Override
     public int size() {

@@ -1,11 +1,9 @@
 package outskirts.event;
 
 import net.jodah.typetools.TypeResolver;
-import outskirts.event.asminvok.ASMInvoker;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.logging.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -99,10 +97,11 @@ public class EventBus {
                 Consumer function;
 
                 if (USE_ASMINVOKER) {
-                    ASMInvoker asmi = ASMInvoker.create(method);
-                    function = event -> {
-                        asmi.invoke(owner, event);
-                    };
+                    throw new UnsupportedOperationException("ASMINVOKER unsupported. the effective is not actually better.");
+//                    ASMInvoker asmi = ASMInvoker.create(method);
+//                    function = event -> {
+//                        asmi.invoke(owner, event);
+//                    };
                 } else {
                     method.setAccessible(true);
                     function = event -> {

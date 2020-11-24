@@ -71,6 +71,14 @@ public class AABB {
         return containsEquals(aabb.min) && containsEquals(aabb.max);
     }
 
+    // for continous checking. the point (EqGr>=Min && Ls<Max)
+    public boolean containsEqLs(float x, float y, float z) {
+        return x >= min.x && x < max.x && y >= min.y && y < max.y && z >= min.z && z < max.z;
+    }
+    public boolean containsEqLs(Vector3f p) {
+        return containsEqLs(p.x, p.y, p.z);
+    }
+
     public AABB grow(float x, float y, float z) {
         min.sub(x, y, z);
         max.add(x, y, z);

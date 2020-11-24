@@ -32,17 +32,10 @@ public class GuiScreenMapView extends Gui {
             new GuiColumn().exec(g -> {
                 g.addLayoutorAlignParentLTRB(NaN, 16, 32, NaN);
             }).addChildren(
-                    new GuiCheckBox("Height Clip .UDR"),
-                    new GuiCheckBox("Active Chunks INFO.")
+                new GuiCheckBox("Height Clip .UDR"),
+                new GuiCheckBox("Active Chunks INFO.")
             )
         );
-
-        addOnDetachListener(e -> {
-            LOGGER.info("Detach");
-        });
-        addOnAttachListener(e -> {
-            LOGGER.info("ATTACH");
-        });
     }
 
     @EventHandler

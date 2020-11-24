@@ -2,7 +2,6 @@ package outskirts.storage;
 
 import outskirts.client.Loader;
 import outskirts.client.material.Material;
-import outskirts.client.material.Model;
 import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
@@ -10,7 +9,6 @@ import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.dat.DATArray;
 import outskirts.storage.dat.DATObject;
-import outskirts.util.BytesConvert;
 import outskirts.util.Transform;
 import outskirts.util.vector.Quaternion;
 import outskirts.util.vector.Vector3f;
@@ -77,7 +75,7 @@ public final class SAVERS {
         COLLISIONSHAPE_SMAP.put(ConvexHullShape.class, new Saver<ConvexHullShape>() {
             @Override
             public void read(ConvexHullShape obj, DATObject mp) {
-                DATArray<DATArray> lsVertices = mp.getArray("vertices");
+                DATArray<DATArray> lsVertices = mp.getDArray("vertices");
                 List<Vector3f> vts = new ArrayList<>();
                 for (DATArray v3dat : lsVertices) {
                     vts.add(DATArray.toVector3f(v3dat, null));

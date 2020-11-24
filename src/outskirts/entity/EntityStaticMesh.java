@@ -16,14 +16,14 @@ public class EntityStaticMesh extends Entity {
     public EntityStaticMesh() {
         setRegistryID("staticmesh");
 
-        getRigidBody().setMass(0);
+        rigidbody().setMass(0);
     }
 
     @Override
     public void setModel(Model model) {
         super.setModel(model);
 
-        getRigidBody().setCollisionShape(new BvhTriangleMeshShape(
+        rigidbody().setCollisionShape(new BvhTriangleMeshShape(
                 getModel().indices,
                 getModel().attribute(0).data
         ));
@@ -39,7 +39,7 @@ public class EntityStaticMesh extends Entity {
     }
 
     @Override
-    public Map onWrite(DATObject mp) {
+    public DATObject onWrite(DATObject mp) {
         super.onWrite(mp);
 
         mp.put("modelobj", Loader.saveOBJ(getModel()));

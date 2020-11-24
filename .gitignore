@@ -6,5 +6,6 @@ logs/
 .idea/out/
 .idea/workspace.xml
 
-Thumbs.db
+saves/world1/regions/*
 
+Thumbs.db

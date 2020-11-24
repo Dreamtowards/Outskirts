@@ -1,6 +1,7 @@
 package outskirts.storage.dat;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import outskirts.storage.dat.DST;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Matrix4f;
@@ -45,14 +46,27 @@ public class DATObject implements Map<String, Object> {
         return DATArray.toMatrix3f((List<Float>)get(key), dest);
     }
 
-    public DATArray getArray(String key) {
+    public DATArray getDArray(String key) {
         return (DATArray)get(key);
     }
+    public DATObject getDObject(String key) {
+        return (DATObject)get(key);
+    }
 
+    public boolean getBoolean(String k) {
+        return (byte)get(k) == 1;
+    }
+
+    public String getString(String k) {
+        return (String)get(k);
+    }
 
 
     @Override
     public Object put(String key, Object value) {
+        if (value instanceof Boolean) {
+            value = (byte) ((boolean)value ? 1 : 0);
+        }
         DST.type(value); // Validation
         return mp.put(key, value);
     }
