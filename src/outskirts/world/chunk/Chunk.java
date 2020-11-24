@@ -3,17 +3,14 @@ package outskirts.world.chunk;
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
-import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.EntityTerrainMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.storage.Savable;
-import outskirts.storage.dat.DATArray;
-import outskirts.storage.dat.DATObject;
+import outskirts.storage.dst.DArray;
+import outskirts.storage.dst.DObject;
 import outskirts.util.CollectionUtils;
 import outskirts.world.World;
-
-import java.util.Map;
 
 public class Chunk implements Savable {
 
@@ -55,21 +52,21 @@ public class Chunk implements Savable {
     }
 
     @Override
-    public void onRead(DATObject mp) {
+    public void onRead(DObject mp) {
 
-        DATObject mpMetadata = mp.getDObject("metadata"); {
+        DObject mpMetadata = mp.getDObject("metadata"); {
             populated = mpMetadata.getBoolean("populated");
         }
 
-        DATArray<DATObject> mpEntities = mp.getDArray("entities"); {
-            for (DATObject mpEntity : mpEntities) {
+        DArray<DObject> mpEntities = mp.getDArray("entities"); {
+            for (DObject mpEntity : mpEntities) {
                 Entity entity = Entity.loadEntity(mpEntity);
                 getWorld().addEntity(entity);
             }
         }
 
-        DATObject mpTerrain = mp.getDObject("terrain"); {
-            DATArray lsBlocks = mpTerrain.getDArray("blocks"); {
+        DObject mpTerrain = mp.getDObject("terrain"); {
+            DArray lsBlocks = mpTerrain.getDArray("blocks"); {
                 int i = 0;
                 for (int x = 0;x < 16;x++) {
                     for (int y = 0;y < 32;y++) {
@@ -89,29 +86,29 @@ public class Chunk implements Savable {
     }
 
     @Override
-    public DATObject onWrite(DATObject mp) {
+    public DObject onWrite(DObject mp) {
 
-        DATObject mpMetadata = new DATObject(); {
+        DObject mpMetadata = new DObject(); {
             mpMetadata.put("x", x);
             mpMetadata.put("z", z);
 //            mpMetadata.put("create_time", 0);
             mpMetadata.put("modify_time", Outskirts.getSystemTime());
-            mpMetadata.put("populated", populated);
+            mpMetadata.putBoolean("populated", populated);
         } mp.put("metadata", mpMetadata);
 
-        DATArray lsEntities = new DATArray(); {
+        DArray lsEntities = new DArray(); {
             AABB chunkAabb = new AABB(x, 0, z, x+16, 256, z+16);
             for (Entity entity : world.getEntities(chunkAabb)) {
                 if (entity instanceof EntityPlayer || entity instanceof EntityTerrainMesh)
                     continue;
-                DATObject mpEntity = new DATObject();
+                DObject mpEntity = new DObject();
                 entity.onWrite(mpEntity);
                 lsEntities.add(mpEntity);
             }
         } mp.put("entities", lsEntities);
 
-        DATObject mpTerrain = new DATObject(); {
-            DATArray lsBlocks = new DATArray(); {
+        DObject mpTerrain = new DObject(); {
+            DArray lsBlocks = new DArray(); {
                 for (int x = 0;x < 16;x++) {
                     for (int y = 0;y < 32;y++) {
                         for (int z = 0;z < 16;z++) {

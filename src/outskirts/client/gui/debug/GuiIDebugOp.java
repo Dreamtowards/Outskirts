@@ -9,14 +9,9 @@ import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.EntityStaticMesh;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.event.EventPriority;
 import outskirts.init.ex.Models;
-import outskirts.storage.dat.DATObject;
-import outskirts.storage.dat.DSTUtils;
 import outskirts.util.vector.Matrix3f;
-
-import java.io.FileOutputStream;
 
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.util.logging.Log.LOGGER;

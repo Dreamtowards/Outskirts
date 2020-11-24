@@ -1,21 +1,20 @@
-package outskirts.storage.dat;
+package outskirts.storage.dst;
 
-import outskirts.util.Validate;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 import java.util.*;
 
-public class DATArray<E> implements List<E> {
+public class DArray<E> implements List<E> {
 
     private List<E> ls;
 
-    public DATArray() {
+    public DArray() {
         this(new ArrayList());
     }
 
-    public DATArray(List ls) {
+    public DArray(List ls) {
         this.ls = ls;
     }
 

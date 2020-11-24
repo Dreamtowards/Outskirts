@@ -1,10 +1,7 @@
-package outskirts.storage.dat;
+package outskirts.storage.dst;
 
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import outskirts.storage.dat.DST;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
@@ -14,47 +11,50 @@ import java.util.*;
  * An Util-Integrated HashMap.
  */
 
-public class DATObject implements Map<String, Object> {
+public class DObject implements Map<String, Object> {
 
     private Map mp;
 
-    public DATObject(Map mp) {
+    public DObject(Map mp) {
         this.mp = mp;
     }
-    public DATObject() {
+    public DObject() {
         this.mp = new HashMap();
     }
 
     public void putVector3f(String key, Vector3f vec) {
-        put(key, DATArray.fromVector3f(vec));
+        put(key, DArray.fromVector3f(vec));
     }
     public Vector3f getVector3f(String key, Vector3f dest) {
-        return DATArray.toVector3f((List<Float>)get(key), dest);
+        return DArray.toVector3f((List<Float>)get(key), dest);
     }
 
     public void putVector4f(String key, Vector4f vec) {
-        put(key, DATArray.fromVector4f(vec));
+        put(key, DArray.fromVector4f(vec));
     }
     public Vector4f getVector4f(String key, Vector4f dest) {
-        return DATArray.toVector4f((List<Float>)get(key), dest);
+        return DArray.toVector4f((List<Float>)get(key), dest);
     }
 
     public void putMatrix3f(String key, Matrix3f mat) {
-        put(key, DATArray.fromMatrix3f(mat));
+        put(key, DArray.fromMatrix3f(mat));
     }
     public Matrix3f getMatrix3f(String key, Matrix3f dest) {
-        return DATArray.toMatrix3f((List<Float>)get(key), dest);
+        return DArray.toMatrix3f((List<Float>)get(key), dest);
     }
 
-    public DATArray getDArray(String key) {
-        return (DATArray)get(key);
+    public DArray getDArray(String key) {
+        return (DArray)get(key);
     }
-    public DATObject getDObject(String key) {
-        return (DATObject)get(key);
+    public DObject getDObject(String key) {
+        return (DObject)get(key);
     }
 
     public boolean getBoolean(String k) {
         return (byte)get(k) == 1;
+    }
+    public void putBoolean(String k, boolean b) {
+        put(k, (byte)(b ? 1 : 0));
     }
 
     public String getString(String k) {
@@ -64,9 +64,6 @@ public class DATObject implements Map<String, Object> {
 
     @Override
     public Object put(String key, Object value) {
-        if (value instanceof Boolean) {
-            value = (byte) ((boolean)value ? 1 : 0);
-        }
         DST.type(value); // Validation
         return mp.put(key, value);
     }

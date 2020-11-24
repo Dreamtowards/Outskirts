@@ -1,10 +1,9 @@
 package outskirts.world.storage;
 
-import outskirts.storage.dat.DATObject;
-import outskirts.storage.dat.DSTUtils;
+import outskirts.storage.dst.DObject;
+import outskirts.storage.dst.DSTUtils;
 import outskirts.util.FileUtils;
 import outskirts.world.World;
-import outskirts.world.WorldServer;
 import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 
@@ -20,7 +19,7 @@ public class ChunkLoader {
             File chunkfile = chunkfile(chunkpos);
             if (!chunkfile.exists()) return null;
 
-            DATObject mpChunk = DSTUtils.read(new FileInputStream(chunkfile));
+            DObject mpChunk = DSTUtils.read(new FileInputStream(chunkfile));
 
             Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
             chunk.onRead(mpChunk);
@@ -36,7 +35,7 @@ public class ChunkLoader {
             File chunkfile = chunkfile(ChunkPos.of(chunk));
             FileUtils.mkdirs(chunkfile.getParentFile());
 
-            DATObject mpChunk = new DATObject();
+            DObject mpChunk = new DObject();
 
             chunk.onWrite(mpChunk);
 

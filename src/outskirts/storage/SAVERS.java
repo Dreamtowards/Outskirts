@@ -7,8 +7,8 @@ import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.dynamics.RigidBody;
-import outskirts.storage.dat.DATArray;
-import outskirts.storage.dat.DATObject;
+import outskirts.storage.dst.DArray;
+import outskirts.storage.dst.DObject;
 import outskirts.util.Transform;
 import outskirts.util.vector.Quaternion;
 import outskirts.util.vector.Vector3f;
@@ -27,7 +27,7 @@ public final class SAVERS {
     // should basis/rotation uses mat3x3 or quat4 .?
     public static final Saver<Transform> TRANSFORM = new Saver<Transform>() {
         @Override
-        public void read(Transform obj, DATObject mp) {
+        public void read(Transform obj, DObject mp) {
             mp.getVector3f("origin", obj.origin);
 
             Quaternion tmpquat = new Quaternion(); // opt cache
@@ -35,7 +35,7 @@ public final class SAVERS {
             Quaternion.toMatrix(tmpquat, obj.basis);
         }
         @Override
-        public DATObject write(Transform obj, DATObject mp) {
+        public DObject write(Transform obj, DObject mp) {
             mp.putVector3f("origin", obj.origin);
 
             Quaternion tmpquat = Quaternion.fromMatrix(obj.basis, null); // opt: do the quat cache
@@ -50,22 +50,22 @@ public final class SAVERS {
     static {
         COLLISIONSHAPE_SMAP.put(BoxShape.class, new Saver<BoxShape>() {
             @Override
-            public void read(BoxShape obj, DATObject mp) {
+            public void read(BoxShape obj, DObject mp) {
                 mp.getVector3f("halfextent", obj.getHalfExtent());
             }
             @Override
-            public DATObject write(BoxShape obj, DATObject mp) {
+            public DObject write(BoxShape obj, DObject mp) {
                 mp.putVector3f("halfextent", obj.getHalfExtent());
                 return mp;
             }
         });
         COLLISIONSHAPE_SMAP.put(SphereShape.class, new Saver<SphereShape>() {
             @Override
-            public void read(SphereShape obj, DATObject mp) {
+            public void read(SphereShape obj, DObject mp) {
                 obj.setRadius((float)mp.get("radius"));
             }
             @Override
-            public DATObject write(SphereShape obj, DATObject mp) {
+            public DObject write(SphereShape obj, DObject mp) {
                 mp.put("radius", obj.getRadius());
                 return mp;
             }
@@ -74,20 +74,20 @@ public final class SAVERS {
         // cuz the data sometimes is runtime-defined/dependent by other data like the Model/Meshes.
         COLLISIONSHAPE_SMAP.put(ConvexHullShape.class, new Saver<ConvexHullShape>() {
             @Override
-            public void read(ConvexHullShape obj, DATObject mp) {
-                DATArray<DATArray> lsVertices = mp.getDArray("vertices");
+            public void read(ConvexHullShape obj, DObject mp) {
+                DArray<DArray> lsVertices = mp.getDArray("vertices");
                 List<Vector3f> vts = new ArrayList<>();
-                for (DATArray v3dat : lsVertices) {
-                    vts.add(DATArray.toVector3f(v3dat, null));
+                for (DArray v3dat : lsVertices) {
+                    vts.add(DArray.toVector3f(v3dat, null));
                 }
                 obj.getVertices().clear();
                 obj.getVertices().addAll(vts);
             }
             @Override
-            public DATObject write(ConvexHullShape obj, DATObject mp) {
-                DATArray lsVertices = new DATArray();
+            public DObject write(ConvexHullShape obj, DObject mp) {
+                DArray lsVertices = new DArray();
                 for (Vector3f v : obj.getVertices()) {
-                    lsVertices.add(DATArray.fromVector3f(v));
+                    lsVertices.add(DArray.fromVector3f(v));
                 }
                 mp.put("vertices", lsVertices);
                 return mp;
@@ -105,12 +105,12 @@ public final class SAVERS {
         // lindamping, angdamping
         // restitution, friction
         @Override
-        public void read(RigidBody obj, DATObject mp) {
-            SAVERS.TRANSFORM.read(obj.transform(), (DATObject)mp.get("transform"));
+        public void read(RigidBody obj, DObject mp) {
+            SAVERS.TRANSFORM.read(obj.transform(), (DObject)mp.get("transform"));
             //todo: option to Custom set CollShape, not 100% nesecary do load.
             if (mp.containsKey("collisionshape")) {
                 try {
-                    DATObject mpCollisionshape = (DATObject) mp.get("collisionshape");
+                    DObject mpCollisionshape = (DObject) mp.get("collisionshape");
                     CollisionShape collisionshape = (CollisionShape) Class.forName((String) mpCollisionshape.get("type")).newInstance();
                     COLLISIONSHAPE_SMAP.get(collisionshape.getClass()).read(collisionshape, mpCollisionshape);
                     obj.setCollisionShape(collisionshape);
@@ -128,10 +128,10 @@ public final class SAVERS {
             obj.setFriction((float)mp.get("friction"));
         }
         @Override
-        public DATObject write(RigidBody obj, DATObject mp) {
-            mp.put("transform", SAVERS.TRANSFORM.write(obj.transform(), new DATObject()));
+        public DObject write(RigidBody obj, DObject mp) {
+            mp.put("transform", SAVERS.TRANSFORM.write(obj.transform(), new DObject()));
             if (OP_RIGIDBODY_WRITECOLLISIONSHAPE) {
-                DATObject mpCollisionShape = new DATObject();
+                DObject mpCollisionShape = new DObject();
                 mpCollisionShape.put("type", obj.getCollisionShape().getClass().getName());
                 COLLISIONSHAPE_SMAP.get(obj.getCollisionShape().getClass()).write(obj.getCollisionShape(), mpCollisionShape);
                 mp.put("collisionshape", mpCollisionShape);
@@ -181,7 +181,7 @@ public final class SAVERS {
 
     public static final Saver<Material> MATERIAL = new Saver<Material>() {
         @Override
-        public void read(Material obj, DATObject mp) {
+        public void read(Material obj, DObject mp) {
 
             obj.setDiffuseMap(Loader.loadTexture((byte[])mp.get("diffuseMap")));
             obj.setEmissionMap(Loader.loadTexture((byte[])mp.get("emissionMap")));
@@ -197,7 +197,7 @@ public final class SAVERS {
         }
 
         @Override
-        public DATObject write(Material obj, DATObject mp) {
+        public DObject write(Material obj, DObject mp) {
 
             mp.put("diffuseMap", Loader.savePNG(obj.getDiffuseMap()));
             mp.put("emissionMap", Loader.savePNG(obj.getEmissionMap()));

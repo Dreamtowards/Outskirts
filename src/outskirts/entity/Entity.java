@@ -5,15 +5,13 @@ import outskirts.client.material.Model;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.SAVERS;
 import outskirts.storage.Savable;
-import outskirts.storage.dat.DATObject;
+import outskirts.storage.dst.DObject;
 import outskirts.util.Tickable;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
-
-import java.util.Map;
 
 public class Entity implements Registrable, Savable, Tickable {
 
@@ -38,7 +36,7 @@ public class Entity implements Registrable, Savable, Tickable {
             throw new RuntimeException("Failed to create Entity.", ex);
         }
     }
-    public static Entity loadEntity(DATObject mpEntity) {
+    public static Entity loadEntity(DObject mpEntity) {
         Entity entity = createEntity((String)mpEntity.get("registryID"));
         entity.onRead(mpEntity);
         return entity;
@@ -93,18 +91,18 @@ public class Entity implements Registrable, Savable, Tickable {
     }
 
     @Override
-    public void onRead(DATObject mp) {
+    public void onRead(DObject mp) {
 
-        SAVERS.RIGIDBODY.read(getRigidBody(), (DATObject)mp.get("rigidbody"));
+        SAVERS.RIGIDBODY.read(getRigidBody(), (DObject)mp.get("rigidbody"));
 
 
     }
 
     @Override
-    public DATObject onWrite(DATObject mp) {
+    public DObject onWrite(DObject mp) {
         mp.put("registryID", registryID);
 
-        mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DATObject()));
+        mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DObject()));
 
         return mp;
     }

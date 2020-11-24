@@ -1,4 +1,4 @@
-package outskirts.storage.dat;
+package outskirts.storage.dst;
 
 import outskirts.util.IOUtils;
 
@@ -155,7 +155,7 @@ public class DST {
                 for (int i = 0;i < size;i++) {
                     ls.add(DST.read(is, lsType));
                 }
-                return new DATArray(ls); }
+                return new DArray(ls); }
             case MAP: {
                 int size = readInt(is);
                 Map<String, Object> mp = new HashMap<>(size);
@@ -165,7 +165,7 @@ public class DST {
                     Object v = DST.read(is, vType);
                     mp.put(k, v);
                 }
-                return new DATObject(mp); }
+                return new DObject(mp); }
             default:
                 throw new IllegalArgumentException("Illegal type.");
         }
@@ -228,7 +228,7 @@ public class DST {
     }
 
     public static String toString(Object obj) {
-        return obj.getClass() == TYPES[BYTE_ARRAY] ? Arrays.toString((byte[])obj) : obj.toString();
+        return DST.type(obj) == BYTE_ARRAY ? Arrays.toString((byte[])obj) : obj.toString();
     }
 
 //    public static boolean isPrimitive(byte type) {

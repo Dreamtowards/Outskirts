@@ -3,13 +3,10 @@ package outskirts.entity;
 import outskirts.client.Loader;
 import outskirts.client.material.Model;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
 import outskirts.storage.SAVERS;
-import outskirts.storage.dat.DATObject;
-import outskirts.util.logging.Log;
+import outskirts.storage.dst.DObject;
 
 import java.io.ByteArrayInputStream;
-import java.util.Map;
 
 public class EntityStaticMesh extends Entity {
 
@@ -30,21 +27,21 @@ public class EntityStaticMesh extends Entity {
     }
 
     @Override
-    public void onRead(DATObject mp) {
+    public void onRead(DObject mp) {
         super.onRead(mp);
 
         setModel(Loader.loadOBJ(new ByteArrayInputStream((byte[])mp.get("modelobj"))));
 
-        SAVERS.MATERIAL.read(getMaterial(), (DATObject)mp.get("material"));
+        SAVERS.MATERIAL.read(getMaterial(), (DObject)mp.get("material"));
     }
 
     @Override
-    public DATObject onWrite(DATObject mp) {
+    public DObject onWrite(DObject mp) {
         super.onWrite(mp);
 
         mp.put("modelobj", Loader.saveOBJ(getModel()));
 
-        mp.put("material", SAVERS.MATERIAL.write(getMaterial(), new DATObject()));
+        mp.put("material", SAVERS.MATERIAL.write(getMaterial(), new DObject()));
 
         return mp;
     }
