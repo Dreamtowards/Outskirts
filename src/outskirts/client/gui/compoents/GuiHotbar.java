@@ -13,8 +13,9 @@ public class GuiHotbar extends Gui {
 
         addOnDrawListener(this::onDlaw);
         addMouseScrollListener(e -> {
-            Outskirts.getPlayer().setHotbarSlot(
-                 (int)Maths.mod(Outskirts.getPlayer().getHotbarSlot()+Math.signum(Outskirts.getDScroll()), 16));
+            if (Outskirts.isIngame())
+                Outskirts.getPlayer().setHotbarSlot(
+                     (int)Maths.mod(Outskirts.getPlayer().getHotbarSlot()+Math.signum(Outskirts.getDScroll()), 16));
         });
     }
 

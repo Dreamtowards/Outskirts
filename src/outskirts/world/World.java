@@ -25,6 +25,7 @@ import java.util.*;
 
 import static outskirts.util.Maths.floor;
 import static outskirts.util.Maths.mod;
+import static outskirts.util.logging.Log.LOGGER;
 
 public abstract class World implements Tickable {
 
@@ -112,7 +113,9 @@ public abstract class World implements Tickable {
             }
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
-            addEntity(chunk.proxyEntity);chunk.proxyEntity.setModel(Models.GEO_CUBE);
+            chunk.proxyEntity.setModel(Models.GEO_CUBE);
+            Chunk finalChunk = chunk;
+            Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
 
             tryPopulate(chunkpos);
 
@@ -150,7 +153,7 @@ public abstract class World implements Tickable {
 
     public void unloadChunk(Chunk chunk) {
         loadedChunks.remove(ChunkPos.asLong(chunk.x, chunk.z));
-        removeEntity(chunk.proxyEntity);
+        Outskirts.getScheduler().addScheduledTask(() -> removeEntity(chunk.proxyEntity));
 
         chunkLoader.saveChunk(chunk);
     }
@@ -169,36 +172,51 @@ public abstract class World implements Tickable {
 
         Outskirts.getProfiler().push("Physics");
         dynamicsWorld.stepSimulation(1f/GameTimer.TPS);
-        Outskirts.getProfiler().pop();
+        Outskirts.getProfiler().pop("Physics");
 
         for (Entity entity : entities.toArray(new Entity[0])) {
             entity.onTick();
         }
 
 
-        for (Chunk c : loadedChunks.values()) {
-            if (c.markedRebuildModel) {
-                c.markedRebuildModel = false;
 
-                Outskirts.getScheduler().addScheduledTask(() -> {
-                    Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
-                    c.proxyEntity.setModel(model);
-                    Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
-                });
-            }
-        }
+    }
 
-        Vector3f cenPos = Outskirts.getPlayer().getPosition();
-        int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
-        int sz = 1;
-        for (int i = -sz;i <= sz;i++) {
-            for (int j = -sz;j <= sz;j++) {
-                provideChunk(cenX+i*16, cenZ+j*16);
+    public static int sz=1;
+    {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Vector3f cenPos = Outskirts.getPlayer().getPosition();
+                    int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
+    //                int sz = 1;
+                    for (int i = -sz;i <= sz;i++) {
+                        for (int j = -sz;j <= sz;j++) {
+                            provideChunk(cenX+i*16, cenZ+j*16);
+                        }
+                    }
+                    for (Chunk c : new ArrayList<>(getLoadedChunks())) {
+                        if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
+                            unloadChunk(c);
+                    }
+
+                    for (Chunk c : loadedChunks.values()) {
+                        if (c.markedRebuildModel) {
+                            c.markedRebuildModel = false;
+
+                            Outskirts.getScheduler().addScheduledTask(() -> {
+                                Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
+                                c.proxyEntity.setModel(model);
+                                Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
+                            });
+                        }
+                    }
+
+                    Thread.sleep(40);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
-        }
-        for (Chunk c : new ArrayList<>(getLoadedChunks())) {
-            if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
-                unloadChunk(c);
-        }
+        }).start();
     }
 }

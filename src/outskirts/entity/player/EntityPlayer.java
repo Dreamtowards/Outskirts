@@ -5,13 +5,14 @@ import outskirts.entity.Entity;
 import outskirts.item.inventory.Inventory;
 import outskirts.item.stack.ItemStack;
 import outskirts.network.ChannelHandler;
+import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.util.GameTimer;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
 public abstract class EntityPlayer extends Entity {
 
-    private static float walkspeed = 0.4f;
+//    private static float walkspeed = 0.4f;
 
     public GameMode gamemode = GameMode.CREATIVE;
 
@@ -35,13 +36,13 @@ public abstract class EntityPlayer extends Entity {
     public void walk(float amount, Vector3f dir) {
         //todo: reduce.
         if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
-            Outskirts.getCamera().getPosition().addScaled(walkspeed*amount*GameTimer.TPS*0.01f, dir);
+            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.01f, dir);
             return;
         }
-        getRigidBody().getLinearVelocity().add(dir.scale(walkspeed*amount));  // *getRigidBody().getMass()*GameTimer.TPS
+        getRigidBody().getLinearVelocity().add(dir.scale(amount));  // *getRigidBody().getMass()*GameTimer.TPS
     }
 
-    // todo: Nameable.?
+    // todo: Nameable.?  may not cuz all Entity can have name or null.
     public void setName(String name) {
         this.name = name;
     }
@@ -66,5 +67,19 @@ public abstract class EntityPlayer extends Entity {
 
     public GameMode getGameMode() {
         return gamemode;
+    }
+
+    public boolean isOnGround() {
+        for (CollisionManifold mf : getWorld().dynamicsWorld.getCollisionManifolds()) {
+            if (mf.containsBody(rigidbody())) {
+                for (int i = 0; i < mf.getNumContactPoints(); i++) {
+                    CollisionManifold.ContactPoint cp = mf.getContactPoint(i);
+                    if (cp.pointOnB.y < position().y && Math.abs(cp.pointOnB.x - position().x) < 0.1f && Math.abs(cp.pointOnB.z - position().z) < 0.1f) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

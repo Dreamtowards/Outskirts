@@ -25,7 +25,8 @@ public class Profiler {
         currentSection = section;
     }
 
-    public Profiler pop() {
+    public Profiler pop(String s) {
+        assert s.equals(currentSection.name);
         if (!enable)
             return this;
         currentSection.calledCounter++;
@@ -35,9 +36,6 @@ public class Profiler {
         currentSection = currentSection.parent;
 
         return this;
-    }
-    public final Profiler pop(String s) {
-        return pop();
     }
 
     public Section getRootSection() {
@@ -51,7 +49,19 @@ public class Profiler {
         return ROOT_SECTION;
     }
 
-    public void clearProfilerInfo(Section section) {
+    public void printRS(StringBuilder sb, Section sec, int depth) {
+        String ln = String.format("%s: avgT=%sms lT: %sms tT: %sms C=%s", sec.name,
+                sec.totalUsedTimeNano/1_000_000f/sec.calledCounter,
+                sec.lastUsedTimeNano/1_000_000f,
+                sec.totalUsedTimeNano/1_000_000f,
+                sec.calledCounter);
+        sb.append(StringUtils.repeat("-",depth)).append(ln).append("\n");
+        sec.subs.forEach(sub -> {
+            printRS(sb, sub, depth+1);
+        });
+    }
+
+    public static void clearProfilerInfo(Section section) {
 //        section.lastStartTimeNano = 0;
         section.totalUsedTimeNano = 0;
         section.lastUsedTimeNano = 0;
@@ -116,5 +126,6 @@ public class Profiler {
             }
             return sb.toString();
         }
+
     }
 }

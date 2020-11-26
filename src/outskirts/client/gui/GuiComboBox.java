@@ -101,6 +101,9 @@ public class GuiComboBox extends Gui {
             rebuildDropdown();
         } else {
             Gui.getRootGUI().removeGui(dropdown);
+            for (Gui g : options) {
+                g.getParent().removeGui(g);
+            }
         }
     }
 

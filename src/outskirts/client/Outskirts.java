@@ -8,6 +8,8 @@ import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
+import outskirts.client.gui.debug.GuiDebugV;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -28,6 +30,7 @@ import outskirts.init.ex.Models;
 import outskirts.init.Textures;
 import outskirts.item.stack.ItemStack;
 import outskirts.mod.Mods;
+import outskirts.physics.collision.broadphase.BroadphaseDbvt;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
@@ -128,8 +131,6 @@ public class Outskirts {
 
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
-//        GuiIngame.INSTANCE.addGui(new GuiEntityGBufferVisual());
-
         getRootGUI().addGui(new Gui1DNoiseVisual().exec(g -> {
             g.setX(30);
             g.setY(30);
@@ -140,6 +141,9 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
             g.addLayoutorAlignParentRR(.5f, .9f);
         }));
+
+        GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
+        GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
 //        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
 //
@@ -155,9 +159,10 @@ public class Outskirts {
 //            });
 //        }));
 
-//        GuiIngame.INSTANCE.addChildren(new GuiMapView());
-
     }
+    //todo: GameRule LS   Separator/ NonCollision
+    //todo: DebugV OP. options
+
 
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
@@ -220,6 +225,12 @@ public class Outskirts {
         this.updateDisplay();
         profiler.pop("updateDisplay");
         numFrames++;
+
+        if (KEY_HOTBAR8.pollPressed()) {
+            StringBuilder sb = new StringBuilder();
+            profiler.printRS(sb, profiler.getRootSection(), 0);
+            LOGGER.info("\n"+sb.toString());
+        }
     }
 
     public static void setWorld(WorldClient world) {
@@ -242,8 +253,6 @@ public class Outskirts {
         Light.calculateApproximateAttenuation(400, lightSun.getAttenuation());
 //        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
-
-//        Model BP = Loader.loadOBJ(FileUtils.openFileStream(new File("/Users/dreamtowards/Projects/Outskirts/src/assets/outskirts/materials/bodyp.obj")));
 
 
         getPlayer().setModel(Models.GEOS_CAPSULE);
@@ -301,18 +310,18 @@ public class Outskirts {
         if (getWorld() != null) {
             if (isIngame()) {
                 // MOVEMENT
-                float lv =1;
+                float lv =0.5f;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
                 if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
                 if (KEY_WALK_BACKWARD.isKeyDown()) player.walk(lv, Maths.PI);
                 if (KEY_WALK_LEFT.isKeyDown()) player.walk(lv, Maths.PI/2);
                 if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
-                if (KEY_JUMP.isKeyDown()  && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, 1, 0));
+                if (KEY_JUMP.isKeyDown()  && player.getGameMode() == GameMode.CREATIVE && player.isOnGround()) player.walk(2.4f, new Vector3f(0, 1, 0));
                 if (KEY_SNEAK.isKeyDown() && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
-                if (KEY_JUMP.pollPressed()) {
-                    player.walk(14, new Vector3f(0, 1, 0));
-                }
+//                if (KEY_JUMP.pollPressed()) {
+//                    player.walk(64, new Vector3f(0, 1, 0));
+//                }
 
                 // ITEM USE
                 float CONTINUE_USE_INTERVAL = 0.16f;
@@ -332,7 +341,7 @@ public class Outskirts {
 
             profiler.push("world");
             world.onTick();
-            profiler.pop();
+            profiler.pop("world");
         }
     }
 

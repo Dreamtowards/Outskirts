@@ -6,6 +6,7 @@ import outskirts.block.Block;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiMap;
 import outskirts.client.gui.compoents.GuiScreenMapView;
+import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
@@ -150,21 +151,9 @@ public final class ClientSettings {
             Gui.toggleVisible(GuiVert3D.INSTANCE);
     });
 
-    private static final KeyBinding KEY_COMMDEBUG = new KeyBinding("key.debug.comm", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
-//        if (keyState)
-//
-    });
-
-    private static final KeyBinding KEY_DEBUGOP = new KeyBinding("key.debug.op", GLFW_KEY_F4, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
-        if (keyState) {
-            //todo: control mouseGrabbing shouldn't uses GuiScreen type check.
-
-            if (GuiIDebugOp.debugMenu.isVisible()) {
-                GuiIDebugOp.debugMenu.hide();
-            } else {
-                GuiIDebugOp.debugMenu.show(40, 40);
-            }
-        }
+    private static final KeyBinding KEY_DEBUGV = new KeyBinding("key.debugv", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
+        if (keyState)
+            Gui.toggleVisible(GuiDebugV.INSTANCE);
     });
 
     public static boolean uSetBlockAtFocus(Block b, int dfSign) {
