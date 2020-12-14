@@ -161,7 +161,7 @@ public class Outskirts {
 
     }
     //todo: GameRule LS   Separator/ NonCollision
-    //todo: DebugV OP. options
+    //tod0: DebugV OP. options
 
 
 
@@ -225,23 +225,12 @@ public class Outskirts {
         this.updateDisplay();
         profiler.pop("updateDisplay");
         numFrames++;
-
-        if (KEY_HOTBAR8.pollPressed()) {
-            StringBuilder sb = new StringBuilder();
-            profiler.printRS(sb, profiler.getRootSection(), 0);
-            LOGGER.info("\n"+sb.toString());
-        }
     }
 
     public static void setWorld(WorldClient world) {
-        if (world == null) {
-            new ArrayList<>(getWorld().getLoadedChunks()).forEach(c -> {
-                getWorld().unloadChunk(c);
-            });
-            INSTANCE.world = null;
-            return;
-        }
         INSTANCE.world = world;
+        if (world == null)
+            return;
 
 
         Light lightSun = new Light();
@@ -317,11 +306,10 @@ public class Outskirts {
                 if (KEY_WALK_BACKWARD.isKeyDown()) player.walk(lv, Maths.PI);
                 if (KEY_WALK_LEFT.isKeyDown()) player.walk(lv, Maths.PI/2);
                 if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
-                if (KEY_JUMP.isKeyDown()  && player.getGameMode() == GameMode.CREATIVE && player.isOnGround()) player.walk(2.4f, new Vector3f(0, 1, 0));
+                if (KEY_JUMP.isKeyDown()  &&
+                        (player.getGameMode() == GameMode.SURVIVAL ||
+                        (player.getGameMode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(2.4f, new Vector3f(0, 1, 0));
                 if (KEY_SNEAK.isKeyDown() && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
-//                if (KEY_JUMP.pollPressed()) {
-//                    player.walk(64, new Vector3f(0, 1, 0));
-//                }
 
                 // ITEM USE
                 float CONTINUE_USE_INTERVAL = 0.16f;

@@ -19,14 +19,15 @@ public class ChunkLoader {
             File chunkfile = chunkfile(chunkpos);
             if (!chunkfile.exists()) return null;
 
-            DObject mpChunk = DSTUtils.read(new FileInputStream(chunkfile));
+            FileInputStream fis = new FileInputStream(chunkfile);
+            DObject mpChunk = DSTUtils.read(fis);fis.close();
 
             Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
             chunk.onRead(mpChunk);
 
             return chunk;
         } catch (IOException ex) {
-            throw new RuntimeException("Failed loadChunk().", ex);
+            throw new RuntimeException("Failed loadChunk(). "+chunkpos, ex);
         }
     }
 
@@ -41,7 +42,7 @@ public class ChunkLoader {
 
             DSTUtils.write(mpChunk, new FileOutputStream(chunkfile));
         } catch (IOException ex) {
-            throw new RuntimeException("Failed saveChunk().", ex);
+            throw new RuntimeException("Failed saveChunk()." + ChunkPos.of(chunk), ex);
         }
     }
 

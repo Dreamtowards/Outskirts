@@ -196,9 +196,11 @@ public abstract class World implements Tickable {
                         }
                     }
                     for (Chunk c : new ArrayList<>(getLoadedChunks())) {
-                        if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16)
+                        if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16 || Outskirts.getWorld() == null)
                             unloadChunk(c);
                     }
+                    if (Outskirts.getWorld() == null)
+                        break;
 
                     for (Chunk c : loadedChunks.values()) {
                         if (c.markedRebuildModel) {
@@ -212,11 +214,12 @@ public abstract class World implements Tickable {
                         }
                     }
 
-                    Thread.sleep(40);
+                    Thread.sleep(400);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
+            LOGGER.info("ChunkLoad Thread Done.");
         }).start();
     }
 }
