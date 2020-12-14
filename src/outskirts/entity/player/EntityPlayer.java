@@ -14,7 +14,7 @@ public abstract class EntityPlayer extends Entity {
 
 //    private static float walkspeed = 0.4f;
 
-    public GameMode gamemode = GameMode.CREATIVE;
+    public GameMode gamemode = GameMode.SURVIVAL;
 
     public ChannelHandler connection;
 
@@ -65,8 +65,19 @@ public abstract class EntityPlayer extends Entity {
         return getBackpackInventory().get(getHotbarSlot());
     }
 
-    public GameMode getGameMode() {
+    public GameMode getGamemode() {
         return gamemode;
+    }
+    public void setGamemode(GameMode gamemode) {
+        this.gamemode = gamemode;
+
+        if (gamemode == GameMode.SURVIVAL) {
+            rigidbody().getGravity().set(0, -10, 0);
+            rigidbody().setLinearDamping(0.95f);
+        } else if (gamemode == GameMode.CREATIVE) {
+            rigidbody().getGravity().set(0, 0, 0);
+            rigidbody().setLinearDamping(0.02f);
+        }
     }
 
     public boolean isOnGround() {

@@ -83,7 +83,7 @@ public abstract class World implements Tickable {
         Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
         if (chunk == null)
             return null;
-        if (y < 0) return null;
+        if (y < 0 || y >= 256) return null;
 
         return chunk.getBlock(mod(x, 16), y, mod(z, 16));
     }
@@ -217,6 +217,7 @@ public abstract class World implements Tickable {
                     Thread.sleep(400);
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    break;
                 }
             }
             LOGGER.info("ChunkLoad Thread Done.");

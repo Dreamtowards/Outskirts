@@ -2,6 +2,7 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import outskirts.client.render.chunk.MarchingCubes;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.logging.Log;
@@ -315,6 +316,8 @@ public class Test {
 //
 //        IOUtils.write(new ByteArrayInputStream(Loader.savePNG(bi)), new FileOutputStream("nis.png"));
 
+
+//        LOGGER.info(MarchingCubes.tbEdge.length);
 
     }
 

@@ -13,7 +13,7 @@ import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
-public class Entity implements Registrable, Savable, Tickable {
+public abstract class Entity implements Registrable, Savable, Tickable {
 
     public static final Registry<Class<? extends Entity>> REGISTRY = new Registry.ClassRegistry<>();
 

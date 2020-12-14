@@ -12,6 +12,7 @@ import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
+import outskirts.client.gui.inspection.GuiMC2D;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
@@ -145,6 +146,10 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
+        Outskirts.getRootGUI().addGui(new GuiMC2D().exec(g -> {
+            g.addLayoutorAlignParentLTRB(100,100,100,100);
+        }));
+
 //        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
 //
 //            g.setUserMinMaxValue(1, 1000);
@@ -254,14 +259,14 @@ public class Outskirts {
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,0);
-        prb.getGravity().set(0, -10, 0).scale(1);
-//          prb.setLinearDamping(0.02f);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);
          prb.setInertiaTensorLocal(0,0,0);
+
+         getPlayer().setGamemode(GameMode.CREATIVE);
 
     }
 
@@ -307,9 +312,9 @@ public class Outskirts {
                 if (KEY_WALK_LEFT.isKeyDown()) player.walk(lv, Maths.PI/2);
                 if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
                 if (KEY_JUMP.isKeyDown()  &&
-                        (player.getGameMode() == GameMode.SURVIVAL ||
-                        (player.getGameMode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(2.4f, new Vector3f(0, 1, 0));
-                if (KEY_SNEAK.isKeyDown() && player.getGameMode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
+                        (player.getGamemode() == GameMode.CREATIVE ||
+                        (player.getGamemode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(2.4f, new Vector3f(0, 1, 0));
+                if (KEY_SNEAK.isKeyDown() && player.getGamemode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
 
                 // ITEM USE
                 float CONTINUE_USE_INTERVAL = 0.16f;

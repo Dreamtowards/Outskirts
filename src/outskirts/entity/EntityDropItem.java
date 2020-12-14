@@ -11,6 +11,7 @@ import outskirts.item.stack.ItemStack;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
+import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.extras.quickhull.QuickHull;
 import outskirts.util.Ref;
 import outskirts.util.mx.VertexUtils;
@@ -22,6 +23,7 @@ public class EntityDropItem extends Entity {
 
     public EntityDropItem(ItemStack itemstack) {
         this.itemstack = itemstack;
+        setRegistryID("dropitem");
 
         if (itemstack.getItem() instanceof ItemBlock) {
             Block b = ((ItemBlock)itemstack.getItem()).getBlock();
@@ -29,12 +31,15 @@ public class EntityDropItem extends Entity {
             VertexBuffer vbuf = new VertexBuffer();
             b.getVertexData(Outskirts.getWorld(), new Vector3f(0, -10, 0), vbuf);
 
-            Ref<float[]> prf = Ref.wrap();
-            setModel(Loader.loadModelT(vbuf, pos ->
-                    prf.value=VertexUtils.scale(VertexUtils.centeraabb(pos), 0.32f)
-            ));
+//            Ref<float[]> prf = Ref.wrap();
+//            setModel(Loader.loadModelT(vbuf, pos ->
+//                    prf.value=VertexUtils.scale(VertexUtils.centeraabb(pos), 0.32f)
+//            ));
+            setModel(Models.GEO_SPHERE);
+            tmp_boxSphere_scale.scale(.1f);
 
-            rigidbody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(prf.value)));
+//            rigidbody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(prf.value)));
+            rigidbody().setCollisionShape(new SphereShape(.1f));
             getMaterial().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
         } else {
             setModel(Models.GEO_CUBE);

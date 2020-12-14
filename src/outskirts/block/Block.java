@@ -3,6 +3,7 @@ package outskirts.block;
 import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.chunk.ChunkModelGenerator;
+import outskirts.client.render.chunk.PolygoniseMCGenerator;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityDropItem;
 import outskirts.item.Item;
@@ -31,7 +32,9 @@ public abstract class Block implements Registrable {
     @SideOnly(Side.CLIENT)
     public void getVertexData(World world, Vector3f blockpos, VertexBuffer vbuf) {
 
-        ChunkModelGenerator.putCubeVtx(vbuf, blockpos, world, theTxFrag);
+//        ChunkModelGenerator.putCubeVtx(vbuf, blockpos, world, theTxFrag);
+
+//        PolygoniseMCGenerator.putPolygonise(vbuf, world, blockpos);
     }
 
     public void onDestroyed(World world, Vector3f blockpos) {

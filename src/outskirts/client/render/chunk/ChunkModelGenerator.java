@@ -31,6 +31,10 @@ public class ChunkModelGenerator {
 
                         b.getVertexData(world, blockpos, vbuf);
                     }
+                    {
+                        Vector3f blockpos = new Vector3f(chunkpos.x+x,y,chunkpos.z+z);
+                        PolygoniseMCGenerator.putPolygonise(vbuf, world, blockpos);
+                    }
                 }
             }
         }
