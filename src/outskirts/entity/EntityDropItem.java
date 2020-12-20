@@ -1,7 +1,6 @@
 package outskirts.entity;
 
 import outskirts.block.Block;
-import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.VertexBuffer;
 import outskirts.entity.player.EntityPlayer;
@@ -10,11 +9,7 @@ import outskirts.item.ItemBlock;
 import outskirts.item.stack.ItemStack;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.convex.BoxShape;
-import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
-import outskirts.physics.extras.quickhull.QuickHull;
-import outskirts.util.Ref;
-import outskirts.util.mx.VertexUtils;
 import outskirts.util.vector.Vector3f;
 
 public class EntityDropItem extends Entity {

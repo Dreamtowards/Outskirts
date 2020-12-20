@@ -10,7 +10,7 @@ public class EntityTerrainMesh extends Entity {
     public EntityTerrainMesh() {
         setRegistryID("terrainmesh");
 
-        setModel(Models.EMPTY);
+        setModel(Models.GEO_CUBE);
         rigidbody().setMass(0);
         material().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
     }

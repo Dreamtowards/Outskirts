@@ -1,10 +1,12 @@
 package outskirts.client.gui.debug;
 
+import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.SystemUtils;
+import outskirts.util.vector.Vector3f;
 
 public class GuiDebugTxInfos extends Gui {
 
@@ -33,6 +35,12 @@ public class GuiDebugTxInfos extends Gui {
             sb.append(String.format("CameraPos: %s\n", Outskirts.getCamera().getPosition()));
 
             sb.append(String.format("RP_Pointer: %s\n", Outskirts.getRayPicker().getCurrentPoint()));
+
+            Vector3f bpos = Outskirts.getRayPicker().getCurrentBlockPos();
+            if (bpos != null) {
+                Block b = Outskirts.getRayPicker().getCurrentBlock();
+                sb.append(String.format("BlockPos: (%s) (%s) %s v:\n", b.v, b, bpos));
+            }
 
             drawString(sb.toString(), getX(), getY()+32, Colors.WHITE);
         });

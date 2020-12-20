@@ -52,7 +52,7 @@ public class QuickHull {
         }
         // find point D. which is a point farthest from the ABC-Triangle along the Normal. whether either norm side. in all points.
         float mxDstan = 0;
-        Vector3f ABCNorm = Vector3f.trinorm(A, B, C, null, null);  // extension norm.
+        Vector3f ABCNorm = Vector3f.trinorm(A, B, C, null);  // extension norm.
         for (Vector3f v : vertices) {
             float dstan = Math.abs(Vector3f.dot(ABCNorm, Vector3f.sub(v, A, null)));
             if (dstan > mxDstan) {
@@ -70,9 +70,9 @@ public class QuickHull {
         ABCNorm.normalize();
 
         Vector3f CD = Vector3f.sub(D, ABCDCenter, null); // Center->D
-        Vector3f ABDNorm = Vector3f.trinorm(A,B,D,CD,null).normalize();
-        Vector3f BCDNorm = Vector3f.trinorm(B,C,D,CD,null).normalize();
-        Vector3f CADNorm = Vector3f.trinorm(C,A,D,CD,null).normalize();
+        Vector3f ABDNorm = Vector3f.trinorm(A,B,D,null, CD).normalize();
+        Vector3f BCDNorm = Vector3f.trinorm(B,C,D,null, CD).normalize();
+        Vector3f CADNorm = Vector3f.trinorm(C,A,D,null, CD).normalize();
 
         return new Vector3f[]{A,B,C,D,ABCNorm,ABDNorm,BCDNorm,CADNorm};
     }
@@ -148,7 +148,7 @@ public class QuickHull {
         Vector3f CP = Vector3f.sub(trig.P, ABCPCenter, null);  // Center->P
 
         for (Vector3f[] e : bEdges) {
-            triangles.add(new Triangle(e[0],e[1],trig.P, Vector3f.trinorm(e[0],e[1],trig.P,CP,null, CP).normalize(), ls));
+            triangles.add(new Triangle(e[0],e[1],trig.P, Vector3f.trinorm(e[0],e[1],trig.P,null, CP, CP).normalize(), ls));
 
             isCanContinue();
         }

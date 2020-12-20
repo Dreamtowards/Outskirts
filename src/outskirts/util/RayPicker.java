@@ -39,16 +39,20 @@ public class RayPicker {
                 if (collshape instanceof Raycastable) {
                     Ref<Float> tmp = Ref.wrap();
                     Vector3f relpos = new Vector3f(rayOrigin).sub(found.getRigidBody().transform().origin);
-                    if (((Raycastable)collshape).raycast(relpos, rayDirection, tmp)) {  // rayDirection modelMatrix rot.
-                        // the casted result is more 'Near'.
-                        if (tmp.value < collT) {
-                            currentEntity=found;
-                            collT = tmp.value;
-                            t.value = tmp.value;
+                    try {
+                        if (((Raycastable)collshape).raycast(relpos, rayDirection, tmp)) {  // rayDirection modelMatrix rot.
+                            // the casted result is more 'Near'.
+                            if (tmp.value < collT) {
+                                currentEntity=found;
+                                collT = tmp.value;
+                                t.value = tmp.value;
+                            }
+                        } else {
+                            // not-cast. find from 'start'. the actually casted aabb-t should behind curr aabb-t.
+                            t.value = Float.MAX_VALUE;
                         }
-                    } else {
-                        // not-cast. find from 'start'. the actually casted aabb-t should behind curr aabb-t.
-                        t.value = Float.MAX_VALUE;
+                    } catch (Vector3f.IllegalTriangleException ex) {
+                        ex.printStackTrace();
                     }
                     continue;
                 }

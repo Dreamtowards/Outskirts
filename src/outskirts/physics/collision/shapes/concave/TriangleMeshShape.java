@@ -29,6 +29,7 @@ public abstract class TriangleMeshShape extends ConcaveShape {
     }
 
     private final void setMesh(int[] indices, float[] positions) {
+        assert indices.length > 0 && positions.length > 0;
         assert indices.length % 3 == 0 && positions.length % 3 == 0;
         this.indices = indices;
         this.positions = positions;

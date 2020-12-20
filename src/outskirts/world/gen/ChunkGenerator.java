@@ -1,7 +1,10 @@
 package outskirts.world.gen;
 
 import outskirts.block.Block;
+import outskirts.block.BlockGrass;
 import outskirts.init.Blocks;
+import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 import outskirts.world.chunk.Chunk;
@@ -19,39 +22,65 @@ public class ChunkGenerator {
     private NoiseGeneratorPerlin noisegen = new NoiseGeneratorPerlin();
 
     public Chunk generate(ChunkPos chunkpos, World world) {
-        Chunk vsection = new Chunk(world, chunkpos.x, chunkpos.z);
+        Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
         GenerationInfo gspec = new GenerationInfo();
+
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
-                float f = noisegen.fbm(x / 32f, z / 32f, 2);
+                float f = noisegen.fbm(x / 32f, z / 32f, 3);
+                float ytop = 4 + f*16f;
 
-                int y = 10 + (int) (f * 16);
+                for (int i = 0;i < 16;i++) {
 
-//                    if (v >= 0)
-//                        vsection.setBlock(x, y, z, v < 1f/16f ? Blocks.GRASS : v <= 0.2f ? Blocks.DIRT : Blocks.STONE);
-                for (int i = 0; i <= y; i++) {
-                    Block block;
-
-                    if (Math.abs(y-gspec.seaLevel) <= 2 && (i-gspec.seaLevel <= 1 || i-gspec.seaLevel > -3))
-                        block = Blocks.SAND;
-                    else if (i == y)
-                        block = Blocks.GRASS;
-                    else if (i >= y-3)
-                        block = Blocks.DIRT;
-                    else
-                        block = Blocks.STONE;
-
-                    vsection.setBlock(x, i, z, block);
-                }
-                for (int i = y+1;i <= gspec.seaLevel+1;i++) {
-                    vsection.setBlock(x, i, z, Blocks.WATER);
+                    Block b = new BlockGrass();
+                    b.v = (ytop-i) / 16;
+                    chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }
             }
         }
 
-        vsection.markedRebuildModel=true;
-        return vsection;
+//        for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
+//            for (int z = chunkpos.z;z < chunkpos.z+16;z++) {
+//                for (int y = 0;y < 32;y++) {
+//                    float f = noisegen.noise(x/32f, y/32f, z/32f);
+////                    if (f > 0) {
+////                        System.out.println("SET");
+//
+//                        Block b = new BlockGrass();
+//                        b.v = (f+1)/2f;
+////                        if (b.v < 0.5f)
+//                        chunk.setBlock(Maths.mod(x, 16), y, Maths.mod(z, 16), b);
+////                    }
+//                }
+//            }
+//        }
+
+//        for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
+//            for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
+//                float f = noisegen.fbm(x / 32f, z / 32f, 2);
+//
+//                int y = 10 + (int) (f * 16);
+////                    if (v >= 0)
+////                        vsection.setBlock(x, y, z, v < 1f/16f ? Blocks.GRASS : v <= 0.2f ? Blocks.DIRT : Blocks.STONE);
+//                for (int i = 0; i <= y; i++) {
+//                    Block block;
+//                    if (Math.abs(y-gspec.seaLevel) <= 2 && (i-gspec.seaLevel <= 1 || i-gspec.seaLevel > -3))
+//                        block = Blocks.SAND;
+//                    else if (i == y) block = Blocks.GRASS;
+//                    else if (i >= y-3) block = Blocks.DIRT;
+//                    else block = Blocks.STONE;
+//
+//                    vsection.setBlock(x, i, z, block);
+//                }
+//                for (int i = y+1;i <= gspec.seaLevel+1;i++) {
+//                    vsection.setBlock(x, i, z, Blocks.WATER);
+//                }
+//            }
+//        }
+
+        chunk.markedRebuildModel=true;
+        return chunk;
     }
 
     public void populate(World world, ChunkPos chunkpos) {

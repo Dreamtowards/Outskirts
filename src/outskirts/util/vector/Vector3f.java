@@ -1,7 +1,11 @@
 package outskirts.util.vector;
 
 import outskirts.util.Maths;
+import outskirts.util.function.FloatConsumer;
+import outskirts.util.function.IntFloatFunction;
 
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +30,11 @@ public class Vector3f extends Vector {
 
     public Vector3f(float x, float y, float z) {
         set(x, y, z);
+    }
+
+    public Vector3f(float[] v) {
+        assert v.length == 3;
+        set(v[0], v[1], v[2]);
     }
 
     public Vector3f set(Vector3f src) {
@@ -164,9 +173,9 @@ public class Vector3f extends Vector {
     /**
      * calculate Normal Vetcor of the Triangle. not had normalized.
      * @param v1,v2,v3 the Triangle.
-     * @param normdir the angle between Triangle-Normal AND normdir, will keeps in <= 90'. (when > 90', just negated the norm.). Nullable
+     * @param forcedir the angle between Triangle-Normal AND normdir, will keeps in <= 90'. (when > 90', just negated the norm.). Nullable
      */
-    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normdir, Vector3f dest, Vector3f defnorm) {
+    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f dest, Vector3f forcedir, Vector3f defnorm) {
         if (dest == null)
             dest = new Vector3f();
         Vector3f v1v2 = sub(v2, v1, null);
@@ -175,14 +184,21 @@ public class Vector3f extends Vector {
         if (dest.lengthSquared() == 0) {
             if (defnorm != null)
                 return dest.set(defnorm);
-            throw new IllegalArgumentException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
+            throw new IllegalTriangleException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
         }
-        if (normdir!=null && dot(dest, normdir) < 0)
+        if (forcedir!=null && dot(dest, forcedir) < 0)
             dest.negate();
         return dest;
     }
-    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f normdir, Vector3f dest) {
-        return trinorm(v1, v2, v3, normdir, dest, null);
+    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f dest, Vector3f forcedir) {
+        return trinorm(v1, v2, v3, dest, forcedir, null);
+    }
+    public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f dest) {
+        return trinorm(v1, v2, v3, dest, null, null);
+    }
+
+    public static class IllegalTriangleException extends RuntimeException {
+        public IllegalTriangleException(String message) { super(message); }
     }
 
     //ext /order: num then vec because num simple, being a lightweight premise, and focus most in the latter vector
@@ -239,15 +255,19 @@ public class Vector3f extends Vector {
         if (i==2) return dest.z=value;
         throw new IndexOutOfBoundsException();
     }
-    public static Vector3f set(Vector3f dest, float[] dat, int from) {
+    public static Vector3f set(Vector3f dest, IntFloatFunction getter, int from) {
         for (int i = 0;i < Vector3f.SIZE;i++) {
-            Vector3f.set(dest, i, dat[from+i]);
+            Vector3f.set(dest, i, getter.get(from+i));
         }
         return dest;
+    }
+    public static Vector3f set(Vector3f dest, float[] dat, int from) {
+        return set(dest, i -> dat[i], from);
     }
     public static Vector3f set(Vector3f dest, float[] dat) {
         return set(dest, dat, 0);
     }
+
 
     // Vector3f.set(new Vector3f(), Vector.fromString("abc", new float[3]));
 //    private static final Pattern SIMPLE_FLT_PATTERN = Pattern.compile("[-]?\\d+\\.\\d+");

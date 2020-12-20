@@ -11,7 +11,6 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Ref;
 import outskirts.util.Validate;
-import outskirts.util.mx.VertexUtils;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 

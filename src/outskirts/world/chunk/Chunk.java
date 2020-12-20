@@ -3,6 +3,7 @@ package outskirts.world.chunk;
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
+import outskirts.entity.EntityDropItem;
 import outskirts.entity.EntityTerrainMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -99,7 +100,7 @@ public class Chunk implements Savable {
         DArray lsEntities = new DArray(); {
             AABB chunkAabb = new AABB(x, 0, z, x+16, 256, z+16);
             for (Entity entity : world.getEntities(chunkAabb)) {
-                if (entity instanceof EntityPlayer || entity instanceof EntityTerrainMesh)
+                if (entity instanceof EntityPlayer || entity instanceof EntityTerrainMesh || entity instanceof EntityDropItem)
                     continue;
                 DObject mpEntity = new DObject();
                 entity.onWrite(mpEntity);

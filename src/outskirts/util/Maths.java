@@ -38,7 +38,7 @@ public final class Maths {
      * @return a or b who closer to 0
      * rename to absmin(), and deprecated.
      */
-    public static float absMin(float a, float b) {
+    public static float absmin(float a, float b) {
         return Math.abs(a) < Math.abs(b) ? a : b;
     }
 
@@ -430,7 +430,7 @@ public final class Maths {
     }
 
     public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Ref<Float> t) {
-        Vector3f N = Vector3f.trinorm(A, B, C, null, null);
+        Vector3f N = Vector3f.trinorm(A, B, C, null);
         if (!intersectRayPlane(raypos, raydir, A, N, t))
             return false;
         Vector3f P = new Vector3f(raypos).addScaled(t.value, raydir);

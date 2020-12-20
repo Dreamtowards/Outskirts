@@ -146,9 +146,9 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
-        Outskirts.getRootGUI().addGui(new GuiMC2D().exec(g -> {
-            g.addLayoutorAlignParentLTRB(100,100,100,100);
-        }));
+//        Outskirts.getRootGUI().addGui(new GuiMC2D().exec(g -> {
+//            g.addLayoutorAlignParentLTRB(100,100,100,100);
+//        }));
 
 //        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
 //
@@ -216,9 +216,9 @@ public class Outskirts {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(bp, new Vector3f(bp).add(1,1,1)), Colors.RED);
                 Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().rigidbody().getAABB(), Colors.RED);
             }
-            if (isIngame()) {
-                updateBlockDigging();
-            }
+//            if (isIngame()) {
+//                updateBlockDigging();
+//            }
 
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
@@ -239,12 +239,12 @@ public class Outskirts {
 
 
         Light lightSun = new Light();
-        lightSun.getPosition().set(40, 35, 40);
+        lightSun.getPosition().set(40, 50, 40);
 //        getRootGUI().addOnDrawListener(e -> {
 //            lightSun.getPosition().set(getPlayer().getPosition()).y+=8;
 //        });
         lightSun.getColor().set(1, 1, 1).scale(1.2f);
-        Light.calculateApproximateAttenuation(400, lightSun.getAttenuation());
+//        Light.calculateApproximateAttenuation(400, lightSun.getAttenuation());
 //        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
 
@@ -316,15 +316,25 @@ public class Outskirts {
                         (player.getGamemode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(2.4f, new Vector3f(0, 1, 0));
                 if (KEY_SNEAK.isKeyDown() && player.getGamemode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
 
-                // ITEM USE
-                float CONTINUE_USE_INTERVAL = 0.16f;
-                long t = Outskirts.getSystemTime();
-                ItemStack holdingItem = player.getHotbarItem();
-                if (KEY_USE.isKeyDown() && lastItemUseTime+(long)(CONTINUE_USE_INTERVAL*1000) < t && !holdingItem.empty()) {
-                    holdingItem.getItem().onItemUse(getWorld(), holdingItem);
-                    lastItemUseTime=t;
-                }
+//                // ITEM USE
+//                float CONTINUE_USE_INTERVAL = 0.16f;
+//                long t = Outskirts.getSystemTime();
+//                ItemStack holdingItem = player.getHotbarItem();
+//                if (KEY_USE.isKeyDown() && lastItemUseTime+(long)(CONTINUE_USE_INTERVAL*1000) < t && !holdingItem.empty()) {
+//                    holdingItem.getItem().onItemUse(getWorld(), holdingItem);
+//                    lastItemUseTime=t;
+//                }
 
+
+                if (isMouseDown(0) || isMouseDown(1)) {
+                    Vector3f blockpos = rayPicker.getCurrentBlockPos();
+                    if (blockpos != null) {
+                        Block b = world.getBlock(blockpos);
+                        b.v += isMouseDown(0) ? -0.001f : 0.001f;
+                        b.v = Maths.clamp(b.v, -1.0f, 1.0f);
+                        world.setBlock(blockpos, b);
+                    }
+                }
 
 
 

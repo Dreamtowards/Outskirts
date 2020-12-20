@@ -32,8 +32,8 @@ public abstract class Entity implements Registrable, Savable, Tickable {
     public static Entity createEntity(String registryID) {
         try {
             return REGISTRY.get(registryID).newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new RuntimeException("Failed to create Entity.", ex);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to create Entity. ("+registryID, ex);
         }
     }
     public static Entity loadEntity(DObject mpEntity) {

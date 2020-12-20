@@ -160,7 +160,7 @@ public final class ClientSettings {
         RayPicker rp = Outskirts.getRayPicker();
         if (rp.getCurrentEntity() == null)
             return false;
-        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign*1.0001f, rp.getRayDirection());
+        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign > 0 ? 0.0001f : -0.5f, rp.getRayDirection());
         int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
 
         Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;

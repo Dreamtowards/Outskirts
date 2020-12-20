@@ -73,10 +73,19 @@ public abstract class World implements Tickable {
 //        assert chunk != null;
         chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
 
-        chunk.markedRebuildModel=true;
+        for (int dx=-1;dx<=1;dx++) {
+            for (int dz=-1;dz<=1;dz++) {
+                Chunk c = getLoadedChunk(x+dx, z+dz);
+                if (c != null)
+                    c.markedRebuildModel=true;
+            }
+        }
     }
     public void setBlock(float x, float y, float z, Block b) {
         setBlock((int)x, (int)y, (int)z, b);
+    }
+    public void setBlock(Vector3f blockpos, Block b) {
+        setBlock(blockpos.x, blockpos.y, blockpos.z, b);
     }
 
     public Block getBlock(int x, int y, int z) {
@@ -106,7 +115,7 @@ public abstract class World implements Tickable {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
-            chunk = chunkLoader.loadChunk(this, chunkpos);
+//            chunk = chunkLoader.loadChunk(this, chunkpos);
 
             if (chunk == null) {
                 chunk = chunkGenerator.generate(chunkpos, this);
@@ -116,6 +125,12 @@ public abstract class World implements Tickable {
             chunk.proxyEntity.setModel(Models.GEO_CUBE);
             Chunk finalChunk = chunk;
             Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
+            for (int dx=-1;dx<=0;dx++) {
+                for (int dz=-1;dz<=0;dz++) {
+                    Chunk c = getLoadedChunk(x+dx*16, z+dz*16);
+                    if (c!=null)c.markedRebuildModel=true;
+                }
+            }
 
             tryPopulate(chunkpos);
 
@@ -182,7 +197,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=1;
+    public static int sz=2;
     {
         new Thread(() -> {
             while (true) {
@@ -208,16 +223,16 @@ public abstract class World implements Tickable {
 
                             Outskirts.getScheduler().addScheduledTask(() -> {
                                 Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
-                                c.proxyEntity.setModel(model);
+                                c.proxyEntity.setModel(model.indices.length == 0 ? Models.GEO_SPHERE : model);
                                 Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
                             });
                         }
                     }
 
-                    Thread.sleep(400);
+                    Thread.sleep(20);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    break;
+//                    break;
                 }
             }
             LOGGER.info("ChunkLoad Thread Done.");

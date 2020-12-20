@@ -319,6 +319,15 @@ public class Test {
 
 //        LOGGER.info(MarchingCubes.tbEdge.length);
 
+
+        for (int[] tri : MarchingCubes.tbTri) {
+            System.out.print("{");
+            for (int i = 0;i < tri.length;i+=3) {
+                System.out.print(tri[i]+", "+tri[i+2]+", "+tri[i+1]+", ");
+            }
+            System.out.print("},\n");
+        }
+
     }
 
     private static class ACls {

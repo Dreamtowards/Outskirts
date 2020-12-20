@@ -8,6 +8,7 @@ import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
+import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.ChunkPos;
@@ -39,6 +40,7 @@ public class ChunkModelGenerator {
             }
         }
 
+        VertexUtil.hardnorm(vbuf);
         return Loader.loadModelT(vbuf);
     }
 
