@@ -29,6 +29,24 @@ void main() {
 
     gAlbedoSpecular.rgb = texture(mtlDiffuseMap, vTexCoord).rgb;
     gAlbedoSpecular.a = texture(mtlSpecularMap, vTexCoord).r;
+
+
+//    vec2 uvPlanarX = vec2(1.0f-FragPos.z, FragPos.y);
+//    vec2 uvPlanarY = vec2(FragPos.x, 1.0f-FragPos.z);
+//    vec2 uvPlanarZ = FragPos.xy;
+//    vec3 pweight = abs(vNorm);
+
+//    pweight /= pweight.x + pweight.y + pweight.z;
+//    gAlbedoSpecular.rgb =
+//            texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x +
+//            texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y +
+//            texture(mtlDiffuseMap, uvPlanarZ).rgb * pweight.z;
+
+//    int i = pweight.x > pweight.y ? (pweight.x > pweight.z ? 0 : 2) : (pweight.y > pweight.z ? 1 : 2);
+//    gAlbedoSpecular.rgb =
+//            i == 0 ? texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x :
+//            i == 1 ? texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y :
+//                     texture(mtlDiffuseMap, uvPlanarZ).rgb * pweight.z;
 }
 
 

@@ -1,6 +1,6 @@
 
 * General
-  * [n](normal/Naming.md)
+  * [n](Arch/Naming.md)
   * A
   
 * Rendering

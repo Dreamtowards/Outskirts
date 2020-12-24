@@ -2,6 +2,7 @@ package outskirts.entity;
 
 import outskirts.block.Block;
 import outskirts.client.material.Model;
+import outskirts.init.Textures;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 
@@ -13,6 +14,7 @@ public class EntityTerrainMesh extends Entity {
         setModel(Models.GEO_CUBE);
         rigidbody().setMass(0);
         material().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
+        material().setDiffuseMap(Textures.GRASS);
     }
 
     @Override

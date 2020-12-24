@@ -2,6 +2,7 @@ package outskirts.world.gen;
 
 import outskirts.block.Block;
 import outskirts.block.BlockGrass;
+import outskirts.block.BlockStone;
 import outskirts.init.Blocks;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
@@ -28,12 +29,12 @@ public class ChunkGenerator {
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
-                float f = noisegen.fbm(x / 32f, z / 32f, 3);
+                float f = noisegen.fbm(x / 32f, z / 32f, 7);
                 float ytop = 4 + f*16f;
 
                 for (int i = 0;i < 16;i++) {
 
-                    Block b = new BlockGrass();
+                    Block b = Math.random() > 0.5 ? new BlockStone() : new BlockGrass();
                     b.v = (ytop-i) / 16;
                     chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }

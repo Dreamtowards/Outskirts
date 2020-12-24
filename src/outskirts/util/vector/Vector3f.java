@@ -32,7 +32,7 @@ public class Vector3f extends Vector {
         set(x, y, z);
     }
 
-    public Vector3f(float[] v) {
+    public Vector3f(float[] v) { // shoud removed. or sync with 'set()'
         assert v.length == 3;
         set(v[0], v[1], v[2]);
     }
@@ -226,6 +226,14 @@ public class Vector3f extends Vector {
                 Maths.lerp(t, start.x, end.x),
                 Maths.lerp(t, start.y, end.y),
                 Maths.lerp(t, start.z, end.z)
+        );
+    }
+
+    public static Vector3f abs(Vector3f dest) {
+        return dest.set(
+                Math.abs(dest.x),
+                Math.abs(dest.y),
+                Math.abs(dest.z)
         );
     }
 

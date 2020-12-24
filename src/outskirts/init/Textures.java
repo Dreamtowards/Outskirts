@@ -15,6 +15,8 @@ public final class Textures {
     public static final Texture FLOOR = loadTexture("materials/floor.png");
     public static final Texture FRONT = loadTexture("materials/FRONT.png");
 
+    public static final Texture GRASS = loadTexture("materials/mc/dirt.png");
+
     private static Texture loadTexture(String s) {
         return Loader.loadTexture(new ResourceLocation(s).getInputStream());
     }

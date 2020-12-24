@@ -5,6 +5,7 @@ import ext.srt.Sort;
 import outskirts.client.render.chunk.MarchingCubes;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
+import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
@@ -320,14 +321,15 @@ public class Test {
 //        LOGGER.info(MarchingCubes.tbEdge.length);
 
 
-        for (int[] tri : MarchingCubes.tbTri) {
-            System.out.print("{");
-            for (int i = 0;i < tri.length;i+=3) {
-                System.out.print(tri[i]+", "+tri[i+2]+", "+tri[i+1]+", ");
-            }
-            System.out.print("},\n");
-        }
+//        for (int[] tri : MarchingCubes.tbTri) {
+//            System.out.print("{");
+//            for (int i = 0;i < tri.length;i+=3) {
+//                System.out.print(tri[i]+", "+tri[i+2]+", "+tri[i+1]+", ");
+//            }
+//            System.out.print("},\n");
+//        }
 
+        LOGGER.info(Maths.mod(1, 1.0f));
     }
 
     private static class ACls {

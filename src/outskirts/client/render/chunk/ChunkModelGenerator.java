@@ -24,7 +24,7 @@ public class ChunkModelGenerator {
         VertexBuffer vbuf = new VertexBuffer();
 
         for (int x = 0;x < 16;x++) {
-            for (int y = 0;y < 256;y++) {
+            for (int y = 0;y < 30;y++) {
                 for (int z = 0;z < 16;z++) {
                     Block b = world.getBlock(chunkpos.x+x, y,chunkpos.z+z);
                     if (b != null) {
@@ -40,7 +40,8 @@ public class ChunkModelGenerator {
             }
         }
 
-        VertexUtil.hardnorm(vbuf);
+//        VertexUtil.hardnorm(vbuf);
+//        VertexUtil.smoothnorm(vbuf);
         return Loader.loadModelT(vbuf);
     }
 
