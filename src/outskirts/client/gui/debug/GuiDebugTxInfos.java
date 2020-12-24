@@ -3,6 +3,7 @@ package outskirts.client.gui.debug;
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.render.chunk.MarchingCubes;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.SystemUtils;
@@ -39,7 +40,10 @@ public class GuiDebugTxInfos extends Gui {
             Vector3f bpos = Outskirts.getRayPicker().getCurrentBlockPos();
             if (bpos != null) {
                 Block b = Outskirts.getRayPicker().getCurrentBlock();
-                sb.append(String.format("BlockPos: (%s) (%s) %s v:\n", b.v, b, bpos));
+                sb.append(String.format("BlockPos: (%s/ %s) (%s) %s v:\n", b.v, MarchingCubes.cubeidx(0, (x, y, z) -> {
+                    Block bl = Outskirts.getWorld().getBlock(bpos.x + x, bpos.y + y, bpos.z + z);
+                    return bl != null && !bl.isTranslucent() ? bl.v : -0.5f;
+                }), b, bpos));
             }
 
             drawString(sb.toString(), getX(), getY()+32, Colors.WHITE);

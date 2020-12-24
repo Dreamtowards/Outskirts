@@ -33,7 +33,6 @@ public class WorldGenTallGrass extends WorldGen {
                             if (downb instanceof BlockGrass && downb.v > 0) {
                                 Blocks.TALL_GRASS.v = 1;
                                 world.setBlock(bpX, bpY, bpZ, Blocks.TALL_GRASS);
-                                Log.LOGGER.info("Gen Grass "+f);
                             }
                         }
                     }

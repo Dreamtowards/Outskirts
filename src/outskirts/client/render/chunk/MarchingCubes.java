@@ -17,6 +17,8 @@ import java.util.function.Consumer;
  */
 public final class MarchingCubes {
 
+    private MarchingCubes() {}
+
     // 8 Vertices. 3d vector.
     public static float[][] tbVert =
        {{0, 0, 0},
@@ -328,6 +330,10 @@ public final class MarchingCubes {
         return Vector3f.lerp(t, p1, p2, dest);
     }
 
+    public static boolean existsvert(int cubeidx, int vertidx) {
+        return (cubeidx & (1 << vertidx)) != 0;
+    }
+
 //    // get Tri's correspunding 'Target Vertex'.
 //    private static int trivertidx(int cubeidx, int triidx) {
 //        int[] tri = MarchingCubes.tbTri[cubeidx];
@@ -363,12 +369,13 @@ public final class MarchingCubes {
             Vector3f p1 = new Vector3f(MarchingCubes.tbVert[edge[0]]);
             Vector3f p2 = new Vector3f(MarchingCubes.tbVert[edge[1]]);
 
-            Vector3f p = edgevert(isolevel, p1, p2, sampler.sample(p1), sampler.sample(p2), null);
+            Vector3f p = MarchingCubes.edgevert(isolevel, p1, p2, sampler.sample(p1), sampler.sample(p2), null);
 
-//            if (trici % 3 == 0)
-//                prm.dvertidx = MarchingCubes.trivertidx(cubeidx, trici/3);
+            prm.dvertidx = MarchingCubes.existsvert(cubeidx, edge[0]) ? edge[0] : edge[1];
             prm.trici=trici;
 
+            assert existsvert(cubeidx, prm.dvertidx);
+//            assert !existsvert(cubeidx, prm.dvertidx==edge[0]?edge[1]:edge[0]);
             trip.accept(p, prm);
 
             trici++;

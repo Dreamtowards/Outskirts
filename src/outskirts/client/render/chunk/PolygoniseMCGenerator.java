@@ -24,7 +24,7 @@ public class PolygoniseMCGenerator {
 
         MarchingCubes.marching(0.0f, (x, y, z) -> {
             Block b = world.getBlock(blockpos.x + x, blockpos.y + y, blockpos.z + z);
-            return b != null && !b.isTranslucent() ? b.v : -1;
+            return b != null && !b.isTranslucent() ? b.v : -0.5f;
         }, (v, prm) -> {
             // later to MOD pos.xz with 16. WorldPos for gen the UV.
             vbuf.positions.add(Maths.mod(blockpos.x, 16)+v.x +.5f);
@@ -36,7 +36,7 @@ public class PolygoniseMCGenerator {
             vbuf.normals.add(0f);
 
             float[] dv = MarchingCubes.tbVert[prm.dvertidx];
-            int nID = Block.REGISTRY.indexOf(world.getBlock(blockpos.x+dv[0], blockpos.y+dv[1], blockpos.z+dv[2]).getRegistryID());
+            int nID = Block.REGISTRY.indexOf(world.getBlock(blockpos.x + dv[0], blockpos.y + dv[1], blockpos.z + dv[2]).getRegistryID());
 
             vbuf.textureCoords.add((float)nID);
             vbuf.textureCoords.add(0f);

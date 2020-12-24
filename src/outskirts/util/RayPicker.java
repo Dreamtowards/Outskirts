@@ -66,7 +66,7 @@ public class RayPicker {
         prevousBlockPos=currentBlockPos;
         currentBlockPos=null;
         if (currentEntity != null) {
-            currentBlockPos = new Vector3f(currentPoint).addScaled(0.21f, rayDirection);
+            currentBlockPos = new Vector3f(currentPoint).addScaled(0.01f, rayDirection);
             currentBlockPos.set(Maths.floor(currentBlockPos.x), Maths.floor(currentBlockPos.y), Maths.floor(currentBlockPos.z));
             if (Outskirts.getWorld().getBlock(currentBlockPos) == null) {
                 currentBlockPos = null;

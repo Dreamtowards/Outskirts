@@ -1,6 +1,8 @@
 package outskirts.world.gen.feature;
 
 import outskirts.block.BlockGrass;
+import outskirts.block.BlockLeaf;
+import outskirts.block.BlockStone;
 import outskirts.init.Blocks;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
@@ -19,13 +21,13 @@ public class WorldGenTree extends WorldGen {
             for (int x = -2;x <= 2;x++) {
                 for (int z = -2;z <= 2;z++) {
                     if (new Vector3f(x,y,z).length() <= 3)
-                    world.setBlock(pos.x+x, pos.y+3+y, pos.z+z, Blocks.LEAF);
+                    world.setBlock(pos.x+x, pos.y+3+y, pos.z+z, new BlockLeaf());
                 }
             }
         }
         // trunk
         for (int i = 0;i < 5;i++) {
-            world.setBlock(pos.x, pos.y+i, pos.z, Blocks.STONE);
+            world.setBlock(pos.x, pos.y+i, pos.z, new BlockStone());
         }
 
         return true;

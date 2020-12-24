@@ -38,8 +38,8 @@ public class ChunkGenerator {
 
                     Block b = i < ytop-4 ? new BlockStone() : i<ytop-2 ? new BlockDirt() : new BlockGrass();
                     b.v = (ytop-i) / 40;
-                    if (f3 > 0.4f) {
-                        b.v -= f3/2f;
+                    if (f3 < -0.3f) {
+                        b.v = f3;
                     }
                     chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }

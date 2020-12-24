@@ -332,7 +332,6 @@ public class Test {
 
 //        LOGGER.info(Maths.mod(1, 1.0f));
 
-        LOGGER.info(NoiseGenerator.hash(0));
     }
 
     private static class ACls {

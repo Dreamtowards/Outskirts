@@ -22,9 +22,9 @@ vec2 modv2u(vec2);
 
 void main() {
 
-    if (texture(mtlDiffuseMap, vTexCoord).a == 0) {
-        discard;
-    }
+//    if (texture(mtlDiffuseMap, vTexCoord).a == 0) {
+//        discard;
+//    }
 
     gPositionDepth.xyz = FragPos;
     gPositionDepth.w = lineardepth(gl_FragCoord.z);
@@ -35,16 +35,14 @@ void main() {
     gAlbedoSpecular.a = texture(mtlSpecularMap, vTexCoord).r;
 
     int blockId = int(vTexCoord.x);
+    vec4 txfrag = blockfrags[blockId];
 
     vec2 uvPlanarX = modv2u(vec2(1.0f-FragPos.z, FragPos.y));
     vec2 uvPlanarY = modv2u(vec2(FragPos.x, 1.0f-FragPos.z));
     vec2 uvPlanarZ = modv2u(FragPos.xy);
     vec3 pweight = abs(vNorm);
 
-    vec4 txfrag = blockfrags[blockId];
-//    txfrag = vec4(0,0,1,1);
-
-    pweight /= pweight.x + pweight.y + pweight.z;
+//    pweight /= pweight.x + pweight.y + pweight.z;
 //    gAlbedoSpecular.rgb =
 //            texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x +
 //            texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y +

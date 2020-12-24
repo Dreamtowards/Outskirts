@@ -4,6 +4,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.block.Block;
+import outskirts.block.BlockStone;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiHotbar;
@@ -17,6 +18,7 @@ import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.client.render.renderer.test.TestRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.GameMode;
@@ -167,7 +169,6 @@ public class Outskirts {
     }
     //todo: GameRule LS   Separator/ NonCollision
     //tod0: DebugV OP. options
-
 
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
@@ -335,6 +336,9 @@ public class Outskirts {
                         world.setBlock(blockpos, b);
                     }
                 }
+
+                if (isKeyDown(GLFW_KEY_I))
+                    Outskirts.getWorld().setBlock(rayPicker.getCurrentBlockPos(), new BlockStone());
 
 
 
