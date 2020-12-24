@@ -14,7 +14,7 @@ import java.util.jar.Manifest;
 
 public final class Mods {
 
-    public static Registry<Mod> REGISTRY = new Registry.RegistrableRegistry<>();
+    public static final Registry<Mod> REGISTRY = new Registry<>();
 
     /**
      * register mod to the Registry. (not init)

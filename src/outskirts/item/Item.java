@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public abstract class Item implements Registrable {
 
-    public static final Registry<Item> REGISTRY = new Registry.RegistrableRegistry<>();
+    public static final Registry<Item> REGISTRY = new Registry<>();
 
     private String registryID;
 

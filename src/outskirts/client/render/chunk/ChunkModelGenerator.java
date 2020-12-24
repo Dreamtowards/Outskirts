@@ -40,8 +40,8 @@ public class ChunkModelGenerator {
             }
         }
 
-//        VertexUtil.hardnorm(vbuf);
-//        VertexUtil.smoothnorm(vbuf);
+        VertexUtil.hardnorm(vbuf);
+        VertexUtil.smoothnorm(vbuf);
         return Loader.loadModelT(vbuf);
     }
 

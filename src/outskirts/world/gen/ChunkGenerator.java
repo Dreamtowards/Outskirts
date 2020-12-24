@@ -34,7 +34,7 @@ public class ChunkGenerator {
 
                 for (int i = 0;i < 16;i++) {
 
-                    Block b = Math.random() > 0.5 ? new BlockStone() : new BlockGrass();
+                    Block b = i < ytop-2 ? new BlockStone() : new BlockGrass();
                     b.v = (ytop-i) / 16;
                     chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }

@@ -14,7 +14,7 @@ public class EntityTerrainMesh extends Entity {
         setModel(Models.GEO_CUBE);
         rigidbody().setMass(0);
         material().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
-        material().setDiffuseMap(Textures.GRASS);
+//        material().setDiffuseMap(Textures.GRASS);
     }
 
     @Override

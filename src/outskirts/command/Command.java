@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 
 public abstract class Command implements Registrable {
 
-    public static final Registry<Command> REGISTRY = new Registry.RegistrableRegistry<>();
+    public static final Registry<Command> REGISTRY = new Registry<>();
 
     private String registryID;
     private List<String> usages = new ArrayList<>();
@@ -73,7 +73,7 @@ public abstract class Command implements Registrable {
 
         if (bounds.length == 1) { // complete cmdid
             List<String> result = new ArrayList<>();
-            for (String k : REGISTRY.keySet()) {
+            for (String k : REGISTRY.keys()) {
                 if (k.startsWith(cmdid))
                     result.add(k);
             }

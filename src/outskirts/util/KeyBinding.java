@@ -17,7 +17,7 @@ public final class KeyBinding implements Registrable {
         void onInput(boolean keyState);
     }
 
-    public static final Registry<KeyBinding> REGISTRY = new Registry.RegistrableRegistry<>();
+    public static final Registry<KeyBinding> REGISTRY = new Registry<>();
 
     private String registryID;
     private int keyCode;

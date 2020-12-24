@@ -15,7 +15,7 @@ import outskirts.world.World;
 
 public abstract class Entity implements Registrable, Savable, Tickable {
 
-    public static final Registry<Class<? extends Entity>> REGISTRY = new Registry.ClassRegistry<>();
+    public static final Registry<Entity> REGISTRY = new Registry<>();
 
     private String registryID;
 
@@ -31,7 +31,7 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     public static Entity createEntity(String registryID) {
         try {
-            return REGISTRY.get(registryID).newInstance();
+            return REGISTRY.get(registryID).getClass().newInstance();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create Entity. ("+registryID, ex);
         }

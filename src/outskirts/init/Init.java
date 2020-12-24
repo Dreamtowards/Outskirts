@@ -56,9 +56,9 @@ public final class Init {
 
     private static void registerEntities(Side side) {
 
-        Entity.REGISTRY.register(side.isClient() ? EntityPlayerSP.class : EntityPlayerMP.class);
+        Entity.REGISTRY.register(side.isClient() ? new EntityPlayerSP() : new EntityPlayerMP());
 
-        Entity.REGISTRY.register(EntityStaticMesh.class);
+        Entity.REGISTRY.register(new EntityStaticMesh());
     }
 
 
@@ -68,11 +68,10 @@ public final class Init {
         Blocks.init();
 
         if (side.isClient()) {
-            for (String id : Block.REGISTRY.keySet()) {
+            for (String id : Block.REGISTRY.keys()) {
                 Block.REGISTRY.get(id).theTxFrag =
                         Block.TEXTURE_ATLAS.register(
-                                Loader.loadPNG(new Identifier("materials/mc/"+new Identifier(id).getPath()+".png").getInputStream())
-                        );
+                                Loader.loadPNG(new Identifier("materials/mc/"+new Identifier(id).getPath()+".png").getInputStream()));
             }
             Block.TEXTURE_ATLAS.buildAtlas();
 

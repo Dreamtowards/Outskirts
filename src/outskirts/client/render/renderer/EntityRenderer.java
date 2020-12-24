@@ -1,8 +1,10 @@
 package outskirts.client.render.renderer;
 
+import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.material.Material;
 import outskirts.client.material.Model;
+import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.post.PostRenderer;
@@ -11,6 +13,7 @@ import outskirts.entity.Entity;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
 import outskirts.util.vector.Matrix4f;
+import outskirts.util.vector.Vector4f;
 
 import java.util.List;
 
@@ -27,7 +30,7 @@ public class EntityRenderer extends Renderer {
 //            new ResourceLocation("shaders/entity.vsh").getInputStream(),
 //            new ResourceLocation("shaders/entity.fsh").getInputStream()
 //    );
-    private ShaderProgram shaderGbuffer = new ShaderProgram(
+    private ShaderProgram shaderGeometry = new ShaderProgram(
             new ResourceLocation("shaders/entity/geometry.vsh").getInputStream(),
             new ResourceLocation("shaders/entity/geometry.fsh").getInputStream()
     );
@@ -48,9 +51,9 @@ public class EntityRenderer extends Renderer {
 //        shader.setInt("environmentSampler", 5);
 //        shader.setInt("shadowdepthmapSampler", 6);
 
-        shaderGbuffer.useProgram();
-        shaderGbuffer.setInt("mtlDiffuseMap", 0);
-        shaderGbuffer.setInt("mtlSpecularMap", 1);
+        shaderGeometry.useProgram();
+        shaderGeometry.setInt("mtlDiffuseMap", 0);
+        shaderGeometry.setInt("mtlSpecularMap", 1);
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -137,10 +140,16 @@ public class EntityRenderer extends Renderer {
 
     public void renderGBuffer(List<Entity> entities) {
 
-        shaderGbuffer.useProgram();
+        shaderGeometry.useProgram();
 
-        shaderGbuffer.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());
-        shaderGbuffer.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
+        for (int i = 0;i < Block.REGISTRY.size();i++) {
+            TextureAtlas.Fragment txfrag = Block.REGISTRY.values().get(i).theTxFrag;
+            shaderGeometry.setVector4f("blockfrags["+i+"]",
+                    new Vector4f(txfrag.OFFSET.x, txfrag.OFFSET.y, txfrag.SCALE.x, txfrag.SCALE.y));
+        }
+
+        shaderGeometry.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());
+        shaderGeometry.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
 
         for (Entity entity : entities) {
             if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
@@ -150,7 +159,7 @@ public class EntityRenderer extends Renderer {
 
             glBindVertexArray(model.vaoID());
 
-            shaderGbuffer.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), MAT_MODELMAT_TRANS));
+            shaderGeometry.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), MAT_MODELMAT_TRANS));
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, material.getDiffuseMap().textureID());

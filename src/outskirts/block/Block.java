@@ -20,8 +20,8 @@ import java.util.Objects;
 
 public abstract class Block implements Registrable {
 
-    public static Registry<Block> REGISTRY = new Registry.RegistrableRegistry<>();
-    public static TextureAtlas TEXTURE_ATLAS = new TextureAtlas();
+    public static final Registry<Block> REGISTRY = new Registry<>();
+    public static final TextureAtlas TEXTURE_ATLAS = new TextureAtlas();
 
     private String registryID;
 

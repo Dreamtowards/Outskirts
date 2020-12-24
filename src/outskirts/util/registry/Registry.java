@@ -1,64 +1,57 @@
 package outskirts.util.registry;
 
+import outskirts.util.Val;
 import outskirts.util.Validate;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public abstract class Registry<T> {
+public final class Registry<T extends Registrable> {
 
-    protected HashMap<String, T> map = new HashMap<>();
+    private List<T> entries = new ArrayList<>();
+    private List<String> syncedkeys = new ArrayList<>();   // synced with entries
 
-    public abstract T register(T entry);
+    public T register(T entry) {
+        String registryID;
+        Validate.notNull(entry, "Registration Entry must be nonnull. (%s)", entry);
+        Validate.notNull(registryID=entry.getRegistryID(), "RegistryID must be nonnull. (%s)", entry);
+        Validate.validState(!containsKey(registryID), "RegistryID \"%s\" already been registered.", registryID);
 
-    protected final T register(String registryID, T entry) {
-        Validate.notNull(entry, "Registration must not be null (%s)", registryID);
-        Validate.notNull(registryID, "RegistryID must not be null (%s)", entry.getClass().toString());
-        Validate.validState(!containsKey(registryID), "%s's registryID '%s' is already been registered.", entry.toString(), registryID);
+        entries.add(entry);
 
-        map.put(registryID, entry);
+        rebuildSyncedKeys();
 
         return entry;
     }
 
     public int size() {
-        return map.size();
+        return entries.size();
     }
 
-    public Collection<T> values() {
-        return map.values();
+    public List<T> values() {
+        return Collections.unmodifiableList(entries);
     }
 
-    public Set<String> keySet() {
-        return map.keySet();
+    public List<String> keys() {
+        return Collections.unmodifiableList(syncedkeys);
     }
 
     public T get(String registryID) {
-        return map.get(registryID);
+        return entries.get(indexOf(registryID));
     }
 
     public boolean containsKey(String registryID) {
-        return map.containsKey(registryID);
+        return indexOf(registryID) != -1;
     }
 
-    public static class ClassRegistry<T extends Class<? extends Registrable>> extends Registry<T> {
-        @Override
-        public T register(T entry) {
-            try {
-                return register(entry.newInstance().getRegistryID(), entry);
-            } catch (InstantiationException | IllegalAccessException ex) {
-                throw new RuntimeException("Failed to create new instance, require a Empty&Accessible constructor", ex);
-            }
+    public int indexOf(String registryID) {
+        return syncedkeys.indexOf(registryID);
+    }
+
+
+    private void rebuildSyncedKeys() {
+        syncedkeys.clear();
+        for (T e : entries) {
+            syncedkeys.add(e.getRegistryID());
         }
     }
-
-    public static class RegistrableRegistry<T extends Registrable> extends Registry<T> {
-        @Override
-        public T register(T entry) {
-            return register(entry.getRegistryID(), entry);
-        }
-    }
-
 }
