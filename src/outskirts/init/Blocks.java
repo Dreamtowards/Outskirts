@@ -18,8 +18,5 @@ public final class Blocks {
         return (T)Block.REGISTRY.register(block);
     }
 
-    static void init() {
-
-    }
-
+    static void init() { }
 }

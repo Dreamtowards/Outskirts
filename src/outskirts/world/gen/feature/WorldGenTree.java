@@ -1,5 +1,6 @@
 package outskirts.world.gen.feature;
 
+import outskirts.block.BlockGrass;
 import outskirts.init.Blocks;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
@@ -10,7 +11,7 @@ public class WorldGenTree extends WorldGen {
 
     @Override
     public boolean generate(World world, Vector3f pos) {
-        if (world.getBlock(pos.x, pos.y-1, pos.z) != Blocks.DIRT)
+        if (!(world.getBlock(pos.x, pos.y-1, pos.z) instanceof BlockGrass))
             return false;
 
         // leaves

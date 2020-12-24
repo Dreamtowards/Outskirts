@@ -31,6 +31,7 @@ public final class Init {
     private static void registerPackets() {
 
 
+        //todo: refact
         Packet.registerPacket(CPacketLogin.class);
         Packet.registerPacket(SPacketDisconnect.class);
         Packet.registerPacket(SPacketLoginSuccess.class);

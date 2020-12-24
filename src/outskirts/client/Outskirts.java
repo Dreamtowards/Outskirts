@@ -330,7 +330,7 @@ public class Outskirts {
                     Vector3f blockpos = rayPicker.getCurrentBlockPos();
                     if (blockpos != null) {
                         Block b = world.getBlock(blockpos);
-                        b.v += isMouseDown(0) ? -0.001f : 0.001f;
+                        b.v += isMouseDown(0) ? -0.01f : 0.01f;
                         b.v = Maths.clamp(b.v, -1.0f, 1.0f);
                         world.setBlock(blockpos, b);
                     }

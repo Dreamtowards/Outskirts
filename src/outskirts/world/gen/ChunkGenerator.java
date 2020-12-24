@@ -1,6 +1,7 @@
 package outskirts.world.gen;
 
 import outskirts.block.Block;
+import outskirts.block.BlockDirt;
 import outskirts.block.BlockGrass;
 import outskirts.block.BlockStone;
 import outskirts.init.Blocks;
@@ -29,56 +30,22 @@ public class ChunkGenerator {
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
-                float f = noisegen.fbm(x / 32f, z / 32f, 7);
-                float ytop = 4 + f*16f;
+                float f = noisegen.fbm(x / 228f, z / 228f, 12);
+                float ytop = 14 + f*32f;
 
-                for (int i = 0;i < 16;i++) {
+                for (int i = 0;i < 50;i++) {
+                    float f3 = noisegen.noise(x/32f, i/32f, z/32f);
 
-                    Block b = i < ytop-2 ? new BlockStone() : new BlockGrass();
-                    b.v = (ytop-i) / 16;
+                    Block b = i < ytop-4 ? new BlockStone() : i<ytop-2 ? new BlockDirt() : new BlockGrass();
+                    b.v = (ytop-i) / 40;
+                    if (f3 > 0.4f) {
+                        b.v -= f3/2f;
+                    }
                     chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }
             }
         }
 
-//        for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
-//            for (int z = chunkpos.z;z < chunkpos.z+16;z++) {
-//                for (int y = 0;y < 32;y++) {
-//                    float f = noisegen.noise(x/32f, y/32f, z/32f);
-////                    if (f > 0) {
-////                        System.out.println("SET");
-//
-//                        Block b = new BlockGrass();
-//                        b.v = (f+1)/2f;
-////                        if (b.v < 0.5f)
-//                        chunk.setBlock(Maths.mod(x, 16), y, Maths.mod(z, 16), b);
-////                    }
-//                }
-//            }
-//        }
-
-//        for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
-//            for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
-//                float f = noisegen.fbm(x / 32f, z / 32f, 2);
-//
-//                int y = 10 + (int) (f * 16);
-////                    if (v >= 0)
-////                        vsection.setBlock(x, y, z, v < 1f/16f ? Blocks.GRASS : v <= 0.2f ? Blocks.DIRT : Blocks.STONE);
-//                for (int i = 0; i <= y; i++) {
-//                    Block block;
-//                    if (Math.abs(y-gspec.seaLevel) <= 2 && (i-gspec.seaLevel <= 1 || i-gspec.seaLevel > -3))
-//                        block = Blocks.SAND;
-//                    else if (i == y) block = Blocks.GRASS;
-//                    else if (i >= y-3) block = Blocks.DIRT;
-//                    else block = Blocks.STONE;
-//
-//                    vsection.setBlock(x, i, z, block);
-//                }
-//                for (int i = y+1;i <= gspec.seaLevel+1;i++) {
-//                    vsection.setBlock(x, i, z, Blocks.WATER);
-//                }
-//            }
-//        }
 
         chunk.markedRebuildModel=true;
         return chunk;
@@ -90,15 +57,12 @@ public class ChunkGenerator {
                 int topY = world.getHighestBlock(x, z);
 
                 if (NoiseGenerator.hash(x * z * 238429480) > 0.984f) {
-
                     new WorldGenTree().generate(world, new Vector3f(x, topY, z));
                 }
 
-                if (NoiseGenerator.hash(x * z * 234892374) > 0.94f) {
-
+                if (NoiseGenerator.hash(x * z * 234892374) > 0.194f) {
                     new WorldGenTallGrass().generate(world, new Vector3f(x, topY, z));
                 }
-
             }
         }
     }

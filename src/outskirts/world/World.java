@@ -104,8 +104,9 @@ public abstract class World implements Tickable {
     }
 
     public final int getHighestBlock(int x, int z) {
+        Block b;
         for (int y = 255;y >= 0;y--) {
-            if (getBlock(x, y, z) != null)
+            if ((b=getBlock(x, y, z)) != null && b.v > 0)
                 return y;
         }
         return -1;

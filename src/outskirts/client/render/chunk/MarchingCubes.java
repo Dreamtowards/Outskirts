@@ -3,6 +3,7 @@ package outskirts.client.render.chunk;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -42,7 +43,7 @@ public final class MarchingCubes {
         {2, 6},
         {3, 7}};
 
-    // 256 Cube Patterns. triangle(s). indexing to tbEdges. CCW triangles winding. norm to Outside.
+    // 256 Cube Patterns. triangle(s). indexing to tbEdges. triangles CCW winding.
     public static int[][] tbTri =
        {{},
         {0, 8, 3},
@@ -312,7 +313,7 @@ public final class MarchingCubes {
     public static int cubeidx(float isolevel, TrifFunc sampler) {
         int idx = 0;
         for (int i = 0;i < 8;i++) {
-            float[] dvert = tbVert[i];
+            float[] dvert = tbVert[i];  // d means diff
             if (sampler.sample(dvert[0], dvert[1], dvert[2]) > isolevel) {
                 idx |= 1 << i;
             }
@@ -320,15 +321,43 @@ public final class MarchingCubes {
         return idx;
     }
 
+    // Lerp to the Edge.
     // P = P1 + (isovalue - V1) (P2 - P1) / (V2 - V1)
     public static Vector3f edgevert(float isolevel, Vector3f p1, Vector3f p2, float v1, float v2, Vector3f dest) {
         float t = Maths.inverseLerp(isolevel, v1, v2);
         return Vector3f.lerp(t, p1, p2, dest);
     }
 
-    public static void marching(float isolevel, TrifFunc sampler, Consumer<Vector3f> trip) {
+//    // get Tri's correspunding 'Target Vertex'.
+//    private static int trivertidx(int cubeidx, int triidx) {
+//        int[] tri = MarchingCubes.tbTri[cubeidx];
+//        int[] e1 = MarchingCubes.tbEdge[tri[triidx*3]];
+//        int[] e2 = MarchingCubes.tbEdge[tri[triidx*3+1]];
+//        for (int i = 0;i < 2;i++) {
+//            for (int j = 0;j < 2;j++) {
+//                if (e1[i] == e2[j]) {
+//                    return e1[i];
+//                }
+//            }
+//        }
+//        throw new RuntimeException("Not found union vert. cubeidx: "+cubeidx+", triidx: "+triidx);
+//    }
+
+    public static final class PRM {
+        public int trici;
+        public int cubeidx;
+        public int dvertidx;
+    }
+
+    // may we can't define texture by triangles. because sometimes one triangle should have multi materials.
+    // may more should define texture by Fragment.?!
+
+    public static void marching(float isolevel, TrifFunc sampler, BiConsumer<Vector3f, PRM> trip) {
         int cubeidx = MarchingCubes.cubeidx(isolevel, sampler); if (cubeidx==0) return;
 
+        PRM prm = new PRM(); prm.cubeidx = cubeidx;
+
+        int trici = 0;
         for (int edgeidx : MarchingCubes.tbTri[cubeidx]) {
             int[] edge = MarchingCubes.tbEdge[edgeidx];
             Vector3f p1 = new Vector3f(MarchingCubes.tbVert[edge[0]]);
@@ -336,7 +365,13 @@ public final class MarchingCubes {
 
             Vector3f p = edgevert(isolevel, p1, p2, sampler.sample(p1), sampler.sample(p2), null);
 
-            trip.accept(p);
+//            if (trici % 3 == 0)
+//                prm.dvertidx = MarchingCubes.trivertidx(cubeidx, trici/3);
+            prm.trici=trici;
+
+            trip.accept(p, prm);
+
+            trici++;
         }
     }
 }

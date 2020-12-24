@@ -31,7 +31,7 @@ public abstract class Block implements Registrable {
 
     private float hardness = 1;
 
-    public float v = (float)Math.random();
+    public float v = .5f;
 
 
     @SideOnly(Side.CLIENT)

@@ -8,6 +8,7 @@ import outskirts.event.gui.GuiEvent;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.gen.NoiseGenerator;
 
 import java.util.*;
 import java.util.function.LongConsumer;
@@ -329,7 +330,9 @@ public class Test {
 //            System.out.print("},\n");
 //        }
 
-        LOGGER.info(Maths.mod(1, 1.0f));
+//        LOGGER.info(Maths.mod(1, 1.0f));
+
+        LOGGER.info(NoiseGenerator.hash(0));
     }
 
     private static class ACls {
