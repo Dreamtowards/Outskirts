@@ -17,14 +17,14 @@ public class WorldGenTree extends WorldGen {
             return false;
 
         // leaves
-        for (int y = 0;y < 4;y++) {
-            for (int x = -2;x <= 2;x++) {
-                for (int z = -2;z <= 2;z++) {
-                    if (new Vector3f(x,y,z).length() <= 3)
-                    world.setBlock(pos.x+x, pos.y+3+y, pos.z+z, new BlockLeaf());
-                }
-            }
-        }
+//        for (int y = 0;y < 4;y++) {
+//            for (int x = -2;x <= 2;x++) {
+//                for (int z = -2;z <= 2;z++) {
+//                    if (new Vector3f(x,y,z).length() <= 3)
+//                    world.setBlock(pos.x+x, pos.y+3+y, pos.z+z, new BlockLeaf());
+//                }
+//            }
+//        }
         // trunk
         for (int i = 0;i < 5;i++) {
             world.setBlock(pos.x, pos.y+i, pos.z, new BlockStone());

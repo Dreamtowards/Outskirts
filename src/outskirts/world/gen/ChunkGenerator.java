@@ -19,14 +19,11 @@ import java.util.Random;
 
 public class ChunkGenerator {
 
-    private Random rand = new Random();
-
     private NoiseGeneratorPerlin noisegen = new NoiseGeneratorPerlin();
 
     public Chunk generate(ChunkPos chunkpos, World world) {
         Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
         GenerationInfo gspec = new GenerationInfo();
-
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
@@ -38,14 +35,13 @@ public class ChunkGenerator {
 
                     Block b = i < ytop-4 ? new BlockStone() : i<ytop-2 ? new BlockDirt() : new BlockGrass();
                     b.v = (ytop-i) / 40;
-                    if (f3 < -0.3f) {
+                    if (f3 < -0.1f) {
                         b.v = f3;
                     }
                     chunk.setBlock(Maths.mod(x, 16), i, Maths.mod(z, 16), b);
                 }
             }
         }
-
 
         chunk.markedRebuildModel=true;
         return chunk;
