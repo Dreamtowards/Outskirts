@@ -2,6 +2,7 @@ package outskirts.util.obj;
 
 import outskirts.client.material.Model;
 import outskirts.client.material.ex.ModelData;
+import outskirts.client.render.VertexBuffer;
 import outskirts.util.CollectionUtils;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
@@ -102,6 +103,12 @@ public class OBJLoader {
     // fast vers. but big output size.
     public static String saveOBJ(Model model) {
         return OBJLoader.saveOBJ(model.indices, model.attribute(0).data, model.attribute(1).data, model.attribute(2).data);
+    }
+    public static String saveOBJ(VertexBuffer vbuf) {
+        return OBJLoader.saveOBJ(CollectionUtils.range(vbuf.positions.size()/3),
+                CollectionUtils.toArrayf(vbuf.positions),
+                CollectionUtils.toArrayf(vbuf.textureCoords),
+                CollectionUtils.toArrayf(vbuf.normals));
     }
     public static String saveOBJ(int[] vindex, float[] positions, float[] textureCoords, float[] normals) {
         StringBuilder sb = new StringBuilder();

@@ -2,14 +2,23 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import outskirts.client.render.DualContouring;
+import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.chunk.MarchingCubes;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
+import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.util.CollectionUtils;
+import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
+import outskirts.util.mx.VertexUtil;
+import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGenerator;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.function.LongConsumer;
 
@@ -332,6 +341,29 @@ public class Test {
 
 //        LOGGER.info(Maths.mod(1, 1.0f));
 
+
+//        LOGGER.info(
+//                DualContouring.fnorm(DualContouring.F_SPHERE, new Vector3f(1, 0, 0), 0.01f, new Vector3f())
+//        );
+
+        Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(new Vector3f(-5,-5,-5), new Vector3f(5,5,5)));
+
+        VertexBuffer vbuf = new VertexBuffer();
+        for (int i = 0;i < vts.length;i++) {
+            vbuf.positions.add(vts[i].x);
+            vbuf.positions.add(vts[i].y);
+            vbuf.positions.add(vts[i].z);
+            vbuf.textureCoords.add(0f);
+            vbuf.textureCoords.add(0f);
+            vbuf.normals.add(0f);
+            vbuf.normals.add(0f);
+            vbuf.normals.add(0f);
+        }
+        VertexUtil.hardnorm(vbuf);
+//        VertexUtil.smoothnorm(vbuf);
+
+        String s = OBJLoader.saveOBJ(vbuf);
+        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("ms.obj"));
     }
 
     private static class ACls {

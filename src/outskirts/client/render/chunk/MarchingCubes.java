@@ -1,6 +1,7 @@
 package outskirts.client.render.chunk;
 
 import outskirts.util.Maths;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
 import java.util.function.BiConsumer;
@@ -304,19 +305,11 @@ public final class MarchingCubes {
         {0, 3, 8},
         {}};
 
-    public interface TrifFunc {
-        float sample(float dx, float dy, float dz);
-
-        default float sample(Vector3f v) {
-            return sample(v.x, v.y, v.z);
-        }
-    }
-
-    public static int cubeidx(float isolevel, TrifFunc sampler) {
+    public static int cubeidx(float isolevel, TrifFunc dsampler) {
         int idx = 0;
         for (int i = 0;i < 8;i++) {
             float[] dvert = tbVert[i];  // d means diff
-            if (sampler.sample(dvert[0], dvert[1], dvert[2]) > isolevel) {
+            if (dsampler.sample(dvert[0], dvert[1], dvert[2]) > isolevel) {
                 idx |= 1 << i;
             }
         }
@@ -352,14 +345,14 @@ public final class MarchingCubes {
     public static final class PRM {
         public int trici;
         public int cubeidx;
-        public int dvertidx;
+        public int destvertidx;
     }
 
     // may we can't define texture by triangles. because sometimes one triangle should have multi materials.
     // may more should define texture by Fragment.?!
 
-    public static void marching(float isolevel, TrifFunc sampler, BiConsumer<Vector3f, PRM> trip) {
-        int cubeidx = MarchingCubes.cubeidx(isolevel, sampler); if (cubeidx==0) return;
+    public static void marching(float isolevel, TrifFunc dsampler, BiConsumer<Vector3f, PRM> trip) {
+        int cubeidx = MarchingCubes.cubeidx(isolevel, dsampler); if (cubeidx==0) return;
 
         PRM prm = new PRM(); prm.cubeidx = cubeidx;
 
@@ -369,12 +362,12 @@ public final class MarchingCubes {
             Vector3f p1 = new Vector3f(MarchingCubes.tbVert[edge[0]]);
             Vector3f p2 = new Vector3f(MarchingCubes.tbVert[edge[1]]);
 
-            Vector3f p = MarchingCubes.edgevert(isolevel, p1, p2, sampler.sample(p1), sampler.sample(p2), null);
+            Vector3f p = MarchingCubes.edgevert(isolevel, p1, p2, dsampler.sample(p1), dsampler.sample(p2), null);
 
-            prm.dvertidx = MarchingCubes.existsvert(cubeidx, edge[0]) ? edge[0] : edge[1];
+            prm.destvertidx = MarchingCubes.existsvert(cubeidx, edge[0]) ? edge[0] : edge[1];
             prm.trici=trici;
 
-            assert existsvert(cubeidx, prm.dvertidx);
+            assert existsvert(cubeidx, prm.destvertidx);
 //            assert !existsvert(cubeidx, prm.dvertidx==edge[0]?edge[1]:edge[0]);
             trip.accept(p, prm);
 

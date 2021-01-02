@@ -17,7 +17,11 @@ import java.util.Objects;
  */
 public class Start {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+
+        // DEFAULT: -ea
+        // OSX: -XstartOnFirstThread -Djava.awt.headless=true
+        System.setProperty("java.library.path", "libraries/platform/"+SystemUtils.OS_NAME.toLowerCase());
 
         if (CollectionUtils.contains(args, "--tmploadlibs")) { //tmp arg
             for (File file : FileUtils.listFiles(new File("libraries"))) {

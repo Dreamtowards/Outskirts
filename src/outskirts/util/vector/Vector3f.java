@@ -1,7 +1,6 @@
 package outskirts.util.vector;
 
 import outskirts.util.Maths;
-import outskirts.util.function.FloatConsumer;
 import outskirts.util.function.IntFloatFunction;
 
 import java.util.function.Consumer;
@@ -235,6 +234,12 @@ public class Vector3f extends Vector {
                 Math.abs(dest.y),
                 Math.abs(dest.z)
         );
+    }
+
+    public static void swap(Vector3f a, Vector3f b) {
+        float ax=a.x, ay=a.y, az=a.z;
+        a.set(b);
+        b.set(ax, ay, az);
     }
 
     /**

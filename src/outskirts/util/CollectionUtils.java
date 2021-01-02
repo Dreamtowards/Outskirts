@@ -64,6 +64,10 @@ public final class CollectionUtils {
         return arr;
     }
 
+    public static <T> T[] toArray(List<T> ls) {
+        return (T[])ls.toArray();
+    }
+
     public static int indexOf(Object[] array, Object find, int fromIndex, int toIndex) {
         if (find == null) { // may should't have null find..? with equals find (equals is high level than ==, ==null)
             for (int i = fromIndex; i < toIndex; i++)

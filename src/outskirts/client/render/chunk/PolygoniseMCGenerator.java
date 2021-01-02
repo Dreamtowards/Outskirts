@@ -35,7 +35,7 @@ public class PolygoniseMCGenerator {
             vbuf.normals.add(1f);
             vbuf.normals.add(0f);
 
-            float[] dv = MarchingCubes.tbVert[prm.dvertidx];
+            float[] dv = MarchingCubes.tbVert[prm.destvertidx];
             int nID = Block.REGISTRY.indexOf(world.getBlock(blockpos.x + dv[0], blockpos.y + dv[1], blockpos.z + dv[2]).getRegistryID());
 
             vbuf.textureCoords.add((float)nID);
