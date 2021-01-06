@@ -2,22 +2,16 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.render.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.chunk.MarchingCubes;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
-import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
-import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.gen.NoiseGenerator;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -349,7 +343,7 @@ public class Test {
 //        );
 
 
-        Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(new Vector3f(-5,-5,-5), new Vector3f(5,5,5)));
+        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CYLINDER, new AABB(new Vector3f(-5,-5,-5), new Vector3f(5,5,5)));
 
         VertexBuffer vbuf = new VertexBuffer();
         for (int i = 0;i < vts.length;i++) {

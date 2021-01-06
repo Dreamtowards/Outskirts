@@ -1,10 +1,8 @@
-package outskirts.client.render;
+package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
-import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
@@ -14,15 +12,44 @@ import java.util.*;
 /**
  *  Dual Contouring of Hermite Data.
  *
- * 1. notonly f(v), but also needs its gradient. which f'(v) -> vec.
+ * 1. Requirements.
+ *    f(v), but also needs its gradient information. which f'(v) -> vec.
+ *    (actually the gradient function f'(v) can be approximately obtain by diff the f(v).
  *
- * 2. for each edge which had sign-change. get the normal of the iso-intersect-point.
+ * 2. Compute the Cell Interior Feature Vertex.
+ *    For each cell, for each 12edges, find the edges which had a sign-change.                            PREPARE
+ *    when found 0, the cell have not the feature vertex. else we may found [3-12] sign-change edges.
+ *    get the intersect point and normal which the Hermite data of each edge.
  *
- * 3. for each cell which had sign-change edge. compute the interior point by those surrounding edge's p-Normal.
- *    using quadratic function. QEF method.
+ *    Compute the cell interior feature vertex x by those points v_i and normals n_i.                     COMPUTE
+ *    which minimize distanceSq of x with planes v_i n_i
+ *      E(x) = SUM (n_i · (x - v_i))^2
+ *    by Quadratic Error Function. QEF. use of Least Square method.
+ *                 (n_i·x - n_i·v_i)^2
+ *                 (Ax-b)^2                            lin.
+ *                 (Ax-b)^T (Ax-b)                     Ax=b
+ *                 xt(AtA)x - 2xt(Atb) + btb           AtAx=Atb
+ *                 x=(AtA)^-1 Atb  // E d -> 0         x=(AtA)^-1 Atb
  *
- * 4. for each edge which had sign-change, for the 4 cells which adjacent of that edge, connect the 4 vertices.
+ * 3. Connect Vertices for Build Mesh.
+ *    For each edge which had sign-change,
+ *    for the 4 cells adjacent of that edge, connect 4 vertices from that 4 cells.
  *
+ * RF.
+ * Original Paper. v1. [Tao Ju, Frank Losasso, Scott Schaefer, Joe Warren 2001]
+ * https://www.cse.wustl.edu/~taoju/research/dualContour.pdf
+ *
+ * Official Paper. Dual. Contouring: "The Secret Sauce". [Scott Schaefer, Joe Warre 2001]
+ * https://people.eecs.berkeley.edu/~jrs/meshpapers/SchaeferWarren2.pdf
+ *
+ * Basic Understanding and Related Advanced Information of D.C.
+ * https://www.boristhebrave.com/2018/04/15/dual-contouring-tutorial/
+ *
+ * ISO Extraction P.A.
+ * http://www.inf.ufrgs.br/~comba/papers/thesis/diss-leonardo.pdf
+ *
+ * QEF Solve Explanar .ALTERNATE STRATEGY
+ * https://www.mattkeeter.com/projects/qef/#alternate-constraints
  */
 public final class DualContouring {
 
@@ -32,11 +59,12 @@ public final class DualContouring {
             5.5f - (float)Math.sqrt(x*x + y*y + z*z);
 
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
-
-        return 1;
+        if (Math.abs(y) < 3)
+            return 2.5f - (float)Math.sqrt(x*x + z*z);
+        return 0;
     };
 
-    private static Vector3f findcellvertex(TrifFunc f, Vector3f p, Vector3f dest) {
+    private static Vector3f computecellvertex(TrifFunc f, Vector3f p, Vector3f dest) {
         if (dest == null) dest = new Vector3f();
         if (false)
             return dest.set(p).addScaled(.5f, Vector3f.ONE);
@@ -105,7 +133,12 @@ public final class DualContouring {
      */
     private static Vector3f solveqef(List<Vector3f> verts, List<Vector3f> norms, Vector3f dest) {
 
-        solveLstSq(verts, norms, dest);
+        try {
+            solveLstSq(verts, norms, dest);
+        } catch (ArithmeticException ex) {
+            // Zero det. Coplanar parallel. simpl do avg.
+            VertexUtil.centeravg(verts, dest);
+        }
 
 //        dest.x = Maths.clamp(dest.x, p.x, p.x+1);
 //        dest.y = Maths.clamp(dest.y, p.y, p.y+1);
@@ -146,14 +179,24 @@ public final class DualContouring {
         // do (AtA)^-1 *Atb
         return Matrix3f.transform(AtA.invert(), dest.set(Atb));
     }
+    /* R.F.
+     * https://adrianstoll.com/linear-algebra/least-squares.html  Least Squares Solve Ax=b.  MNCOMMENT Ax = b => AtAx = Atb => x ~ (AtA)'Atb.
+     * https://www.cnblogs.com/monoSLAM/p/5252917.html            Least Square LINMAT Ax=b solve.
+     * https://github.com/emilk/Dual-Contouring/blob/master/src/math/Solver.cpp                     QEF Solve. by emilk.
+     * https://github.com/Lin20/isosurface/blob/master/Isosurface/Isosurface/QEFSolver/QEFSolver.cs [XNA cpp2cs] QEF Solve. Acc SVD.  alt https://github.com/tuckbone/DualContouringCSharp/blob/master/CSharpCode/DualContouring/QefSolver.cs
+     * https://github.com/nickgildea/qef/blob/master/qef.cl                                         QEF Solve. SVD. pinv.
+     * https://github.com/M0lion/DualContouring/blob/master/Assets/Scripts/QEF.cs                   QEF Solv. directly by libs
+     * https://stackoverflow.com/questions/16734792/dual-contouring-and-quadratic-error-function    QEF Solve. people opinions.
+     */
 
     /**
-     *  Approximated Gradient. i.e. the f'(v).
+     *  Approximated Gradient. the f'(v).
      *  f'(x, y, z) = normalize(
      *      (f(x+d,y,z) - f(x-d,y,z)) / 2d,
      *      (f(x,y+d,z) - f(x,y-d,z)) / 2d,
      *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
      *   )
+     *  but actually negated. cuz its normal. pointing to outside.
      */
     public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest, float d) {
         if (dest == null) dest = new Vector3f();
@@ -175,8 +218,7 @@ public final class DualContouring {
             else {      this.v1=v1; this.v2=v2; this.v3=v3; this.v4=v4; }
         }
         private Vector3f[] tri() {
-            return new Vector3f[] { new Vector3f(v1), new Vector3f(v2), new Vector3f(v3),
-                    new Vector3f(v3), new Vector3f(v4), new Vector3f(v1)};
+            return new Vector3f[] { new Vector3f(v1), new Vector3f(v2), new Vector3f(v3), new Vector3f(v3), new Vector3f(v4), new Vector3f(v1)};
         }
     }
 
@@ -188,7 +230,7 @@ public final class DualContouring {
             for (float y=aabb.min.y; y<aabb.max.y; y++) {
                 for (float z=aabb.min.z; z<aabb.max.z; z++) {
                     Vector3f p = new Vector3f(x, y, z);
-                    Vector3f vert = findcellvertex(f, p, null);
+                    Vector3f vert = computecellvertex(f, p, null);
                     if (vert != null)  // valid cell.
                         verts.put(p, vert);
                 }
@@ -209,8 +251,7 @@ public final class DualContouring {
                                     new Vector3f(x, y, z-1),
                                     new Vector3f(x, y, z),
                                     new Vector3f(x, y-1, z),
-                                    new Vector3f(x, y-1, z-1), solid1
-                            ));
+                                    new Vector3f(x, y-1, z-1), solid1));
                     }
                     if (x > aabb.min.x && z > aabb.min.z) {  // Y AXIS.
                         solid1 = f.sample(x, y+1, z) > 0;
@@ -219,8 +260,7 @@ public final class DualContouring {
                                     new Vector3f(x, y, z-1),
                                     new Vector3f(x-1, y, z-1),
                                     new Vector3f(x-1, y, z),
-                                    new Vector3f(x, y, z), solid1
-                            ));
+                                    new Vector3f(x, y, z), solid1));
                     }
                     if (x > aabb.min.x && y > aabb.min.y) {  // Z-AXIS.
                         solid1 = f.sample(x, y, z+1) > 0;
@@ -229,8 +269,7 @@ public final class DualContouring {
                                     new Vector3f(x, y, z),
                                     new Vector3f(x-1, y, z),
                                     new Vector3f(x-1, y-1, z),
-                                    new Vector3f(x, y-1, z), solid1
-                            ));
+                                    new Vector3f(x, y-1, z), solid1));
                     }
                 }
             }

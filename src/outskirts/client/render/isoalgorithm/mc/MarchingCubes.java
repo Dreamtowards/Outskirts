@@ -1,11 +1,10 @@
-package outskirts.client.render.chunk;
+package outskirts.client.render.isoalgorithm.mc;
 
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Implemention of Paul Bourke Polygonise.  http://paulbourke.net/geometry/polygonise/

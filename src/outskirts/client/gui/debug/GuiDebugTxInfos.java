@@ -3,7 +3,7 @@ package outskirts.client.gui.debug;
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.render.chunk.MarchingCubes;
+import outskirts.client.render.isoalgorithm.mc.MarchingCubes;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.SystemUtils;

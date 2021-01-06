@@ -1,18 +1,11 @@
 package outskirts.client.render.chunk;
 
 import outskirts.block.Block;
-import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
-import outskirts.util.CollectionUtils;
+import outskirts.client.render.isoalgorithm.mc.MarchingCubes;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
-import outskirts.util.mx.VertexUtil;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
-
-import java.util.Arrays;
-import java.util.Objects;
 
 public class PolygoniseMCGenerator {
 
