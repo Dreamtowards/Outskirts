@@ -24,6 +24,7 @@ public class ChunkGenerator {
     public Chunk generate(ChunkPos chunkpos, World world) {
         Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
         GenerationInfo gspec = new GenerationInfo();
+        if (true) return chunk;
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {

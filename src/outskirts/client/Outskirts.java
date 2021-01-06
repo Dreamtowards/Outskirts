@@ -15,13 +15,17 @@ import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.inspection.GuiMC2D;
 import outskirts.client.gui.screen.*;
+import outskirts.client.material.Model;
 import outskirts.client.render.Camera;
+import outskirts.client.render.DualContouring;
 import outskirts.client.render.Light;
+import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.test.TestRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.GameMode;
+import outskirts.event.Event;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
@@ -39,6 +43,7 @@ import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.mx.VertexUtil;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -233,6 +238,29 @@ public class Outskirts {
         numFrames++;
     }
 
+    private static EntityStaticMesh emesh; {
+        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
+                Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(-5,-5,-5,5,5,5));
+                VertexBuffer vbuf = new VertexBuffer();
+                for (int i = 0;i < vts.length;i++) {
+                    vbuf.positions.add(vts[i].x);
+                    vbuf.positions.add(vts[i].y);
+                    vbuf.positions.add(vts[i].z);
+                    vbuf.textureCoords.add(0f);
+                    vbuf.textureCoords.add(0f);
+                    vbuf.normals.add(0f);
+                    vbuf.normals.add(0f);
+                    vbuf.normals.add(0f);
+                }
+                VertexUtil.hardnorm(vbuf);
+                emesh.setModel(Loader.loadModelT(vbuf)); // todo: why emesh been GhostShape.? no collide
+
+
+            }
+        });
+    }
+
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
         if (world == null)
@@ -248,6 +276,8 @@ public class Outskirts {
 //        Light.calculateApproximateAttenuation(400, lightSun.getAttenuation());
 //        lightSun.getAttenuation().set(1,0,0);
         world.lights.add(lightSun);
+
+        world.addEntity(emesh = new EntityStaticMesh());
 
 
         getPlayer().setModel(Models.GEOS_CAPSULE);

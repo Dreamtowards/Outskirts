@@ -123,7 +123,6 @@ public abstract class World implements Tickable {
             }
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
-            chunk.proxyEntity.setModel(Models.GEO_CUBE);
             Chunk finalChunk = chunk;
             Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
             for (int dx=-1;dx<=0;dx++) {
@@ -200,7 +199,7 @@ public abstract class World implements Tickable {
 
     public static int sz=2;
     {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             while (true) {
                 try {
                     Vector3f cenPos = Outskirts.getPlayer().getPosition();
@@ -224,7 +223,7 @@ public abstract class World implements Tickable {
 
                             Outskirts.getScheduler().addScheduledTask(() -> {
                                 Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
-                                c.proxyEntity.setModel(model.indices.length == 0 ? Models.GEO_SPHERE : model);
+                                c.proxyEntity.setModel(model);
                                 Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
                             });
                         }
@@ -237,6 +236,8 @@ public abstract class World implements Tickable {
                 }
             }
             LOGGER.info("ChunkLoad Thread Done.");
-        }).start();
+        });
+        t.setDaemon(true);
+        t.start();
     }
 }

@@ -101,11 +101,11 @@ public abstract class TriangleMeshShape extends ConcaveShape {
             // max at axis.
             Vector3f.set(d.set(0,0,0), i, 1);
             getfarpoint(d, fp);
-            Vector3f.set(cachedAABB.max, i, Vector3f.get(fp, i));
+            Vector3f.set(cachedAABB.max, i, fp.get(i));
             // min at axis.
             d.negate();
             getfarpoint(d, fp);
-            Vector3f.set(cachedAABB.min, i, Vector3f.get(fp, i));
+            Vector3f.set(cachedAABB.min, i, fp.get(i));
         }
     }
 

@@ -142,8 +142,8 @@ public class Vector3f extends Vector {
         );
     }
 
-    public static float dot(Vector3f left, Vector3f right) {
-        return left.x * right.x + left.y * right.y + left.z * right.z;
+    public static float dot(Vector3f a, Vector3f b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     public static float angle(Vector3f a, Vector3f b) {
@@ -255,13 +255,15 @@ public class Vector3f extends Vector {
         );
     }
 
-    public static final int SIZE = 3;  // "length" Misleading. "components" HighLv.d
-    public static float get(Vector3f src, int i) {
-        if (i==0) return src.x;
-        if (i==1) return src.y;
-        if (i==2) return src.z;
+    public float get(int i) {
+        if (i==0) return x;
+        if (i==1) return y;
+        if (i==2) return z;
         throw new IndexOutOfBoundsException();
     }
+
+    public static final int SIZE = 3;  // "length" Misleading. "components" HighLv.d
+    // for vectors, set(i, val) just be static. because instance-set may confused with set(x, y, z). but setAt(i, v) do not uniform with Matrix.set(i, j, v).
     public static float set(Vector3f dest, int i, float value) { // todo: return "dest" or setted-value ...?
         if (i==0) return dest.x=value;
         if (i==1) return dest.y=value;

@@ -116,38 +116,34 @@ public class Matrix4f extends Matrix {
         );
     }
 
-    private static float determinant3x3(float t00, float t01, float t02, float t10, float t11, float t12, float t20, float t21, float t22) {
-        return t00 * (t11 * t22 - t12 * t21) - t01 * (t10 * t22 - t12 * t20) + t02 * (t10 * t21 - t11 * t20);
-    }
-
     @Override
     public Matrix4f invert() {
-        float determinant = determinant();
-        if (determinant == 0.0f)
+        float det = determinant();
+        if (det == 0.0f)
             throw new ArithmeticException("Zero determinant matrix.");
         
-        float invDet = 1.0F / determinant;
-        float t00 =  determinant3x3(m11, m21, m31, m12, m22, m32, m13, m23, m33);
-        float t01 = -determinant3x3(m01, m21, m31, m02, m22, m32, m03, m23, m33);
-        float t02 =  determinant3x3(m01, m11, m31, m02, m12, m32, m03, m13, m33);
-        float t03 = -determinant3x3(m01, m11, m21, m02, m12, m22, m03, m13, m23);
-        float t10 = -determinant3x3(m10, m20, m30, m12, m22, m32, m13, m23, m33);
-        float t11 =  determinant3x3(m00, m20, m30, m02, m22, m32, m03, m23, m33);
-        float t12 = -determinant3x3(m00, m10, m30, m02, m12, m32, m03, m13, m33);
-        float t13 =  determinant3x3(m00, m10, m20, m02, m12, m22, m03, m13, m23);
-        float t20 =  determinant3x3(m10, m20, m30, m11, m21, m31, m13, m23, m33);
-        float t21 = -determinant3x3(m00, m20, m30, m01, m21, m31, m03, m23, m33);
-        float t22 =  determinant3x3(m00, m10, m30, m01, m11, m31, m03, m13, m33);
-        float t23 = -determinant3x3(m00, m10, m20, m01, m11, m21, m03, m13, m23);
-        float t30 = -determinant3x3(m10, m20, m30, m11, m21, m31, m12, m22, m32);
-        float t31 =  determinant3x3(m00, m20, m30, m01, m21, m31, m02, m22, m32);
-        float t32 = -determinant3x3(m00, m10, m30, m01, m11, m31, m02, m12, m32);
-        float t33 =  determinant3x3(m00, m10, m20, m01, m11, m21, m02, m12, m22);
+        float invdet = 1.0F / det;
+        float t00 =  Matrix3f.determinant(m11, m21, m31, m12, m22, m32, m13, m23, m33);
+        float t01 = -Matrix3f.determinant(m01, m21, m31, m02, m22, m32, m03, m23, m33);
+        float t02 =  Matrix3f.determinant(m01, m11, m31, m02, m12, m32, m03, m13, m33);
+        float t03 = -Matrix3f.determinant(m01, m11, m21, m02, m12, m22, m03, m13, m23);
+        float t10 = -Matrix3f.determinant(m10, m20, m30, m12, m22, m32, m13, m23, m33);
+        float t11 =  Matrix3f.determinant(m00, m20, m30, m02, m22, m32, m03, m23, m33);
+        float t12 = -Matrix3f.determinant(m00, m10, m30, m02, m12, m32, m03, m13, m33);
+        float t13 =  Matrix3f.determinant(m00, m10, m20, m02, m12, m22, m03, m13, m23);
+        float t20 =  Matrix3f.determinant(m10, m20, m30, m11, m21, m31, m13, m23, m33);
+        float t21 = -Matrix3f.determinant(m00, m20, m30, m01, m21, m31, m03, m23, m33);
+        float t22 =  Matrix3f.determinant(m00, m10, m30, m01, m11, m31, m03, m13, m33);
+        float t23 = -Matrix3f.determinant(m00, m10, m20, m01, m11, m21, m03, m13, m23);
+        float t30 = -Matrix3f.determinant(m10, m20, m30, m11, m21, m31, m12, m22, m32);
+        float t31 =  Matrix3f.determinant(m00, m20, m30, m01, m21, m31, m02, m22, m32);
+        float t32 = -Matrix3f.determinant(m00, m10, m30, m01, m11, m31, m02, m12, m32);
+        float t33 =  Matrix3f.determinant(m00, m10, m20, m01, m11, m21, m02, m12, m22);
         return set(
-                t00 * invDet, t01 * invDet, t02 * invDet, t03 * invDet,
-                t10 * invDet, t11 * invDet, t12 * invDet, t13 * invDet,
-                t20 * invDet, t21 * invDet, t22 * invDet, t23 * invDet,
-                t30 * invDet, t31 * invDet, t32 * invDet, t33 * invDet
+                t00 * invdet, t01 * invdet, t02 * invdet, t03 * invdet,
+                t10 * invdet, t11 * invdet, t12 * invdet, t13 * invdet,
+                t20 * invdet, t21 * invdet, t22 * invdet, t23 * invdet,
+                t30 * invdet, t31 * invdet, t32 * invdet, t33 * invdet
         );
     }
 
@@ -364,51 +360,51 @@ public class Matrix4f extends Matrix {
                             right.m20, right.m21, right.m22, dest);
     }
 
-    public static float get(Matrix4f src, int row, int col) {
-        if (row==0) {
-            if (col==0) return src.m00;
-            if (col==1) return src.m01;
-            if (col==2) return src.m02;
-            if (col==3) return src.m03;
-        } else if (row==1) {
-            if (col==0) return src.m10;
-            if (col==1) return src.m11;
-            if (col==2) return src.m12;
-            if (col==3) return src.m13;
-        } else if (row==2) {
-            if (col==0) return src.m20;
-            if (col==1) return src.m21;
-            if (col==2) return src.m22;
-            if (col==3) return src.m23;
-        } else if (row==3) {
-            if (col==0) return src.m30;
-            if (col==1) return src.m31;
-            if (col==2) return src.m32;
-            if (col==3) return src.m33;
+    public float get(int r, int c) {
+        if (r==0) {
+            if (c==0) return m00;
+            if (c==1) return m01;
+            if (c==2) return m02;
+            if (c==3) return m03;
+        } else if (r==1) {
+            if (c==0) return m10;
+            if (c==1) return m11;
+            if (c==2) return m12;
+            if (c==3) return m13;
+        } else if (r==2) {
+            if (c==0) return m20;
+            if (c==1) return m21;
+            if (c==2) return m22;
+            if (c==3) return m23;
+        } else if (r==3) {
+            if (c==0) return m30;
+            if (c==1) return m31;
+            if (c==2) return m32;
+            if (c==3) return m33;
         }
         throw new IndexOutOfBoundsException();
     }
-    public static float set(Matrix4f dest, float value, int row, int col) {
+    public float set(int row, int col, float v) {
         if (row==0) {
-            if (col==0) return dest.m00=value;
-            if (col==1) return dest.m01=value;
-            if (col==2) return dest.m02=value;
-            if (col==3) return dest.m03=value;
+            if (col==0) return m00=v;
+            if (col==1) return m01=v;
+            if (col==2) return m02=v;
+            if (col==3) return m03=v;
         } else if (row==1) {
-            if (col==0) return dest.m10=value;
-            if (col==1) return dest.m11=value;
-            if (col==2) return dest.m12=value;
-            if (col==3) return dest.m13=value;
+            if (col==0) return m10=v;
+            if (col==1) return m11=v;
+            if (col==2) return m12=v;
+            if (col==3) return m13=v;
         } else if (row==2) {
-            if (col==0) return dest.m20=value;
-            if (col==1) return dest.m21=value;
-            if (col==2) return dest.m22=value;
-            if (col==3) return dest.m23=value;
+            if (col==0) return m20=v;
+            if (col==1) return m21=v;
+            if (col==2) return m22=v;
+            if (col==3) return m23=v;
         } else if (row==3) {
-            if (col==0) return dest.m30=value;
-            if (col==1) return dest.m31=value;
-            if (col==2) return dest.m32=value;
-            if (col==3) return dest.m33=value;
+            if (col==0) return m30=v;
+            if (col==1) return m31=v;
+            if (col==2) return m32=v;
+            if (col==3) return m33=v;
         }
         throw new IndexOutOfBoundsException();
     }
@@ -420,7 +416,7 @@ public class Matrix4f extends Matrix {
             dest = new Matrix4f();
         for (int i = 0;i < Matrix3f.ROWS;i++) {
             for (int j = 0;j < Matrix3f.COLS;j++) {
-                Matrix4f.set(dest, Matrix3f.get(src, i, j), i, j);
+                dest.set(i, j, src.get(i, j));
             }
         }
         return dest;

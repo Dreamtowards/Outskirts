@@ -45,8 +45,8 @@ public class AxisAlignBoundingBoxConstraintSolver extends ConstraintSolver {
     }
 
     private static float aabbAxisSepf(AABB bodyAabb, AABB statiAabb, int axis) {
-        float b2t = Vector3f.get(statiAabb.min, axis) - Vector3f.get(bodyAabb.max, axis); // moDir>0
-        float t2b = Vector3f.get(statiAabb.max, axis) - Vector3f.get(bodyAabb.min, axis);
+        float b2t = statiAabb.min.get(axis) - bodyAabb.max.get(axis); // moDir>0
+        float t2b = statiAabb.max.get(axis) - bodyAabb.min.get(axis);
         return Math.abs(b2t) < Math.abs(t2b) ? b2t : t2b;
     }
 }

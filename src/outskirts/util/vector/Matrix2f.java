@@ -71,15 +71,15 @@ public class Matrix2f extends Matrix {
 
     @Override
     public Matrix2f invert() {
-        float determinant = determinant();
-        if (determinant == 0.0f)
+        float det = determinant();
+        if (det == 0.0f)
             throw new ArithmeticException("Zero determinant matrix.");
 
-        float invDet = 1.0f / determinant;
+        float invdet = 1.0f / det;
 
         return set(
-                m11 * invDet, -m01 * invDet,
-                -m10 * invDet, m00 * invDet
+                m11 * invdet, -m01 * invdet,
+                -m10 * invdet, m00 * invdet
         );
     }
 

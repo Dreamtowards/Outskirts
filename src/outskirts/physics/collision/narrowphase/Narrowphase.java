@@ -2,13 +2,11 @@ package outskirts.physics.collision.narrowphase;
 
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.collision.dispatch.CollisionObject;
-import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithm;
-import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithmConvexConcave;
-import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithmConvexConvex;
-import outskirts.physics.collision.narrowphase.collisionalgorithm.CollisionAlgorithmSphereSphere;
+import outskirts.physics.collision.narrowphase.collisionalgorithm.*;
 import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.physics.collision.shapes.ConcaveShape;
 import outskirts.physics.collision.shapes.ConvexShape;
+import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 
 import java.util.ArrayList;
@@ -34,17 +32,13 @@ public class Narrowphase {
         if ((shape1 instanceof ConvexShape && shape2 instanceof ConcaveShape) || (shape1 instanceof ConcaveShape && shape2 instanceof ConvexShape))
             return collisionAlgorithmConvexConcave;
 
-//        return new CollisionAlgorithm() { // not this. when bodies dont needsCollision, just exlusion in Broadphase.
-//            @Override
-//            public void detectCollision(CollisionObject bodyA, CollisionObject bodyB, CollisionManifold manifold) {
-//                // empty
-//            }
-//        };
         throw new UnsupportedOperationException("No CollisionAlgorithm for this pair.");
     }
 
     private boolean needsCollision(CollisionObject bodyA, CollisionObject bodyB) {
         if (bodyA.getCollisionShape() instanceof ConcaveShape && bodyB.getCollisionShape() instanceof ConcaveShape)
+            return false;
+        if (bodyA.getCollisionShape() instanceof GhostShape || bodyB.getCollisionShape() instanceof GhostShape)
             return false;
         return true;
     }

@@ -85,11 +85,11 @@ public class Matrix3f extends Matrix {
 
     @Override
     public Matrix3f invert() {
-        float determinate = determinant();
-        if (determinate == 0.0f)
+        float det = determinant();
+        if (det == 0.0f)
             throw new ArithmeticException("Zero determinant matrix.");
 
-        float invDet = 1.0F / determinate;
+        float invdet = 1.0F / det;
         float t00 =  m11 * m22 - m21 * m12;
         float t01 = -m01 * m22 + m21 * m02;
         float t02 =  m01 * m12 - m11 * m02;
@@ -101,9 +101,9 @@ public class Matrix3f extends Matrix {
         float t22 =  m00 * m11 - m10 * m01;
 
         return set(
-                t00 * invDet, t01 * invDet, t02 * invDet,
-                t10 * invDet, t11 * invDet, t12 * invDet,
-                t20 * invDet, t21 * invDet, t22 * invDet
+                t00 * invdet, t01 * invdet, t02 * invdet,
+                t10 * invdet, t11 * invdet, t12 * invdet,
+                t20 * invdet, t21 * invdet, t22 * invdet
         );
     }
 
@@ -112,6 +112,10 @@ public class Matrix3f extends Matrix {
         return  m00 * (m11 * m22 - m12 * m21) -
                 m01 * (m10 * m22 - m12 * m20) +
                 m02 * (m10 * m21 - m11 * m20);
+    }
+
+    public static float determinant(float t00, float t01, float t02, float t10, float t11, float t12, float t20, float t21, float t22) {
+        return t00 * (t11 * t22 - t12 * t21) - t01 * (t10 * t22 - t12 * t20) + t02 * (t10 * t21 - t11 * t20);
     }
 
     @Override
@@ -309,35 +313,36 @@ public class Matrix3f extends Matrix {
     }
 
 
-    public static float get(Matrix3f src, int row, int col) {
-        if (row==0) {
-            if (col==0) return src.m00;
-            if (col==1) return src.m01;
-            if (col==2) return src.m02;
-        } else if (row==1) {
-            if (col==0) return src.m10;
-            if (col==1) return src.m11;
-            if (col==2) return src.m12;
-        } else if (row==2) {
-            if (col==0) return src.m20;
-            if (col==1) return src.m21;
-            if (col==2) return src.m22;
+    public float get(int r, int c) {
+        if (r==0) {
+            if (c==0) return m00;
+            if (c==1) return m01;
+            if (c==2) return m02;
+        } else if (r==1) {
+            if (c==0) return m10;
+            if (c==1) return m11;
+            if (c==2) return m12;
+        } else if (r==2) {
+            if (c==0) return m20;
+            if (c==1) return m21;
+            if (c==2) return m22;
         }
         throw new IndexOutOfBoundsException();
     }
-    public static float set(Matrix3f dest, float value, int row, int col) {
-        if (row==0) {
-            if (col==0) return dest.m00=value;
-            if (col==1) return dest.m01=value;
-            if (col==2) return dest.m02=value;
-        } else if (row==1) {
-            if (col==0) return dest.m10=value;
-            if (col==1) return dest.m11=value;
-            if (col==2) return dest.m12=value;
-        } else if (row==2) {
-            if (col==0) return dest.m20=value;
-            if (col==1) return dest.m21=value;
-            if (col==2) return dest.m22=value;
+
+    public float set(int r, int c, float v) {
+        if (r==0) {
+            if (c==0) return m00=v;
+            if (c==1) return m01=v;
+            if (c==2) return m02=v;
+        } else if (r==1) {
+            if (c==0) return m10=v;
+            if (c==1) return m11=v;
+            if (c==2) return m12=v;
+        } else if (r==2) {
+            if (c==0) return m20=v;
+            if (c==1) return m21=v;
+            if (c==2) return m22=v;
         }
         throw new IndexOutOfBoundsException();
     }
@@ -350,7 +355,7 @@ public class Matrix3f extends Matrix {
             dest = new Matrix3f();
         for (int i = 0;i < Matrix3f.ROWS;i++) {
             for (int j = 0;j < Matrix3f.COLS;j++) {
-                Matrix3f.set(dest, Matrix4f.get(src, i, j), i, j);
+                dest.set(i, j, src.get(i, j));
             }
         }
         return dest;

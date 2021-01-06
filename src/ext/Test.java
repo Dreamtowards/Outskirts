@@ -14,6 +14,8 @@ import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
+import outskirts.util.vector.Matrix3f;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGenerator;
 
@@ -345,6 +347,7 @@ public class Test {
 //        LOGGER.info(
 //                DualContouring.fnorm(DualContouring.F_SPHERE, new Vector3f(1, 0, 0), 0.01f, new Vector3f())
 //        );
+
 
         Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(new Vector3f(-5,-5,-5), new Vector3f(5,5,5)));
 

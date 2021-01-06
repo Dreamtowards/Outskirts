@@ -23,6 +23,13 @@ public class VertexUtil {
     private static void centeravg(float[] positions) {
         throw new UnsupportedOperationException();
     }
+    public static Vector3f centeravg(List<Vector3f> vts, Vector3f dest) {
+        dest.set(0, 0, 0);
+        for (Vector3f v : vts) {
+            dest.add(v);
+        }
+        return dest.scale(1f / vts.size());
+    }
 
     public static float[] scale(float[] positions, float s) {
         for (int i = 0;i < positions.length;i+=3) {

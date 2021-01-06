@@ -1,18 +1,12 @@
 package outskirts.physics.collision.broadphase;
 
-import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.dynamics.RigidBody;
-import outskirts.util.Colors;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector3f;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 /**
  * Dynamic-Bounding-Volume-Tree.
