@@ -20,9 +20,9 @@ public class PolygoniseMCGenerator {
             return b != null && !b.isTranslucent() ? b.v : -0.5f;
         }, (v, prm) -> {
             // later to MOD pos.xz with 16. WorldPos for gen the UV.
-            vbuf.positions.add(Maths.mod(blockpos.x, 16)+v.x +.5f);
-            vbuf.positions.add(          blockpos.y        +v.y +.5f);
-            vbuf.positions.add(Maths.mod(blockpos.z, 16)+v.z +.5f);
+            vbuf.positions.add(Maths.mod(blockpos.x, 16)+v.x +.5f*0);
+            vbuf.positions.add(          blockpos.y        +v.y +.5f*0);
+            vbuf.positions.add(Maths.mod(blockpos.z, 16)+v.z +.5f*0);
 
             vbuf.normals.add(0f);
             vbuf.normals.add(1f);

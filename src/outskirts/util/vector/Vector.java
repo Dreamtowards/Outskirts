@@ -35,7 +35,7 @@ public abstract class Vector {
     static float angle(float dot, Vector a, Vector b) {  // tod0: reduce. over highlevel.
         float dls = dot / (a.length() * b.length());
         // dls = clamp(dls, -1.0F, 1.0F);
-        assert dls <= 1.0F && dls >= -1.0F;
+        assert dls <= 1.0F && dls >= -1.0F : "Ill dls "+dls;
         return (float) Math.acos(dls);
     }
 

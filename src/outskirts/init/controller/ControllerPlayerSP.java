@@ -1,4 +1,4 @@
-package outskirts.client.controller;
+package outskirts.init.controller;
 
 public class ControllerPlayerSP {
 }

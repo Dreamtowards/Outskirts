@@ -1,6 +1,7 @@
 package outskirts.util.vector;
 
 import outskirts.util.Maths;
+import outskirts.util.StringUtils;
 import outskirts.util.function.IntFloatFunction;
 
 import java.util.function.Consumer;
@@ -57,6 +58,13 @@ public class Vector3f extends Vector {
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
+        return this;
+    }
+
+    public Vector3f scale(float sx, float sy, float sz) {
+        this.x *= sx;
+        this.y *= sy;
+        this.z *= sz;
         return this;
     }
 
@@ -183,7 +191,7 @@ public class Vector3f extends Vector {
         if (dest.lengthSquared() == 0) {
             if (defnorm != null)
                 return dest.set(defnorm);
-            throw new IllegalTriangleException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
+            throw new ArithmeticException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
         }
         if (forcedir!=null && dot(dest, forcedir) < 0)
             dest.negate();
@@ -194,10 +202,6 @@ public class Vector3f extends Vector {
     }
     public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f dest) {
         return trinorm(v1, v2, v3, dest, null, null);
-    }
-
-    public static class IllegalTriangleException extends RuntimeException {
-        public IllegalTriangleException(String message) { super(message); }
     }
 
     //ext /order: num then vec because num simple, being a lightweight premise, and focus most in the latter vector
@@ -255,11 +259,22 @@ public class Vector3f extends Vector {
         );
     }
 
+    public static Vector3f floor(Vector3f dest, int u) {
+        return dest.set(Maths.floor(dest.x, u),
+                        Maths.floor(dest.y, u),
+                        Maths.floor(dest.z, u));
+    }
+
     public float get(int i) {
         if (i==0) return x;
         if (i==1) return y;
         if (i==2) return z;
         throw new IndexOutOfBoundsException();
+    }
+
+    public static Vector3f fromString(String s) {
+        float[] f = StringUtils.readNumbers(s, new float[3]);
+        return new Vector3f(f[0], f[1], f[2]);
     }
 
     public static final int SIZE = 3;  // "length" Misleading. "components" HighLv.d

@@ -348,6 +348,15 @@ public class Matrix3f extends Matrix {
     }
 
 
+    public Matrix3f setSymmetric(float m00, float m01, float m02, float m11, float m12, float m22) {
+        return set(
+                m00, m01, m02,
+                m01, m11, m12,
+                m02, m12, m22
+        );
+    }
+
+
     public static final int ROWS = 3;
     public static final int COLS = 3;
     public static Matrix3f set(Matrix3f dest, Matrix4f src) {

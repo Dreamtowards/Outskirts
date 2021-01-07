@@ -30,12 +30,15 @@ import outskirts.init.ex.Models;
 import outskirts.init.Textures;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.mx.VertexUtil;
+import outskirts.util.obj.OBJLoader;
 import outskirts.util.profiler.Profiler;
+import outskirts.util.vector.Vector;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
@@ -209,8 +212,8 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
             Vector3f bp = rayPicker.getCurrentBlockPos();
-            if (bp != null) {
-                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(bp, new Vector3f(bp).add(1,1,1)), Colors.RED);
+            if (rayPicker.getCurrentEntity() != null) {
+                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 8, 8));
                 Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().rigidbody().getAABB(), Colors.RED);
             }
 //            if (isIngame()) {
@@ -232,22 +235,61 @@ public class Outskirts {
     private static EntityStaticMesh emesh; {
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
-                Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(-5,-5,-5,5,5,5));
-                VertexBuffer vbuf = new VertexBuffer();
-                for (int i = 0;i < vts.length;i++) {
-                    vbuf.positions.add(vts[i].x);
-                    vbuf.positions.add(vts[i].y);
-                    vbuf.positions.add(vts[i].z);
-                    vbuf.textureCoords.add(0f);
-                    vbuf.textureCoords.add(0f);
-                    vbuf.normals.add(0f);
-                    vbuf.normals.add(0f);
-                    vbuf.normals.add(0f);
+                String s = OBJLoader.saveOBJ(world.getLoadedChunk(player.position().x, player.position().z).proxyEntity.getModel());
+                try {
+                    IOUtils.write(s, new File("terr.obj"));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-                VertexUtil.hardnorm(vbuf);
-                emesh.setModel(Loader.loadModelT(vbuf)); // todo: why emesh been GhostShape.? no collide
 
+//                Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(-6,-6,-6,6,6,6));
+//                VertexBuffer vbuf = new VertexBuffer();
+//                for (int i = 0;i < vts.length;i++) {
+//                    vbuf.positions.add(vts[i].x);
+//                    vbuf.positions.add(vts[i].y);
+//                    vbuf.positions.add(vts[i].z);
+//                    vbuf.textureCoords.add(0f);
+//                    vbuf.textureCoords.add(0f);
+//                    vbuf.normals.add(0f);
+//                    vbuf.normals.add(0f);
+//                    vbuf.normals.add(0f);
+//                }
+//                VertexUtil.hardnorm(vbuf);
+//                emesh.setModel(Loader.loadModelT(vbuf)); // todo: why emesh been GhostShape.? no collide
 
+                // VERT TOO FAR: Vector3f[0.0, -2257.75, -8.0]
+                // Pi:
+                // [-4.0, -1.0, -4.0],
+                // [-4.0, 0.0, -4.0],
+                // [-4.0, -1.0, -4.0],
+                // [-4.0, 0.0, -4.0]
+                // Ni
+                // [0.70706224, -0.0, 0.70715123],
+                // [0.70711005, -0.0020687343, 0.70710063],
+                // [0.70706224, -0.0, 0.70715123],
+                // [0.70711005, -0.0020687343, 0.70710063]]  PVector3f[-5.0, -1.0, -5.0]
+                // VERT TOO FAR: Vector3f[32137.953, -22253.328, -7737.3867]  Pi:[Vector3f[-1.088352, 5.0, -1.0], Vector3f[-1.0, 4.9525595, -1.0], Vector3f[-1.0, 5.0, -1.0635387]]             Ni[Vector3f[-0.5912278, -0.75780666, -0.2760048], Vector3f[-0.5912159, -0.7572552, -0.27753964], Vector3f[-0.5899029, -0.73771405, -0.32831764]]                                      PVector3f[-2.0, 4.0, -2.0]
+
+                // Vector3f[175.63477, 129.16504, -117.15137]
+                // Pi: [Vector3f[-4.566275, 1.0, -4.0],
+                // Vector3f[-4.0, 1.709915, -4.0],
+                // Vector3f[-4.0, 1.0, -4.5291433]]
+                // Ni[Vector3f[0.67689246, -0.41498968, 0.60794747],
+                // Vector3f[0.6664056, -0.6913128, 0.2792672],
+                // Vector3f[0.6433687, -0.27337834, 0.71508116]] PVector3f[-5.0, 1.0, -5.0]
+
+//                GuiVert3D.addAABB("CELL", new AABB(-5, -1, -5, -4, 0, -4), Colors.BLACK);
+//                // WHY 2 same points.?
+//                GuiVert3D.addNorm("p1", Vector3f.fromString("[-4.0, -1.0, -4.0]"), Vector3f.fromString("[0.70706224, -0.0, 0.70715123]"), Colors.RED);
+//                GuiVert3D.addNorm("p2", Vector3f.fromString("[-4.0, 0.0, -4.0]"), Vector3f.fromString("[0.70711005, -0.0020687343, 0.70710063]"), Colors.RED);
+//                GuiVert3D.addNorm("p3", Vector3f.fromString("[-4.0, -1.0, -4.0]"), Vector3f.fromString("[0.70706224, -0.0, 0.70715123]"), Colors.RED);
+//                GuiVert3D.addNorm("p4", Vector3f.fromString("[-4.0, 0.0, -4.0]"), Vector3f.fromString("[0.70711005, -0.0020687343, 0.70710063]"), Colors.RED);
+
+//                GuiVert3D.addAABB("CELL", new AABB(-5, 1, -5, -4, 2, -4), Colors.BLACK);
+//
+//                GuiVert3D.addNorm("p1", Vector3f.fromString("[-4.566275, 1.0, -4.0]"), Vector3f.fromString("[0.67689246, -0.41498968, 0.60794747]"), Colors.RED);
+//                GuiVert3D.addNorm("p2", Vector3f.fromString("[-4.0, 1.709915, -4.0]"), Vector3f.fromString("[0.6664056, -0.6913128, 0.2792672]"), Colors.RED);
+//                GuiVert3D.addNorm("p3", Vector3f.fromString("[-4.0, 1.0, -4.5291433]"), Vector3f.fromString("[0.6433687, -0.27337834, 0.71508116]"), Colors.RED);
             }
         });
     }
@@ -279,6 +321,7 @@ public class Outskirts {
 //        prb.setCollisionShape(new SphereShape(.5f));
         prb.setCollisionShape(new CapsuleShape(.4f, .6f));  // .4f,0.5f,.4f
 //        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
+        prb.setCollisionShape(new GhostShape());
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,52,0);
         prb.getAngularVelocity().scale(0);
@@ -291,35 +334,6 @@ public class Outskirts {
          getPlayer().setGamemode(GameMode.CREATIVE);
 
     }
-
-    private float diggingTime;
-    private void updateBlockDigging() {
-        Vector3f bp = rayPicker.getCurrentBlockPos();
-        if (KEY_ATTACK.isKeyDown() && bp != null) {
-            if (rayPicker.isBlockSwitched()) {  // switch block.
-                diggingTime = 0;
-            }
-            diggingTime += getDelta();
-
-            Block b = rayPicker.getCurrentBlock();
-            float completeDiggingTime = b.getHardness();
-
-            Gui.drawRect(Colors.DARK_GRAY, 200, 200, 200, 4);
-            Gui.drawRect(Colors.GREEN, 200, 200, 200*(diggingTime/completeDiggingTime), 4);
-
-            if (diggingTime >= completeDiggingTime) {  // digged
-                diggingTime = 0;
-                uSetBlockAtFocus(null, 1);
-                b.onDestroyed(world, bp);
-            }
-        }
-        // released.
-        if (KEY_ATTACK.pollReleased()) {
-            diggingTime=0;
-        }
-    }
-
-    private long lastItemUseTime;
 
     private void runTick() {
 
@@ -350,12 +364,10 @@ public class Outskirts {
 
                 if (isMouseDown(0) || isMouseDown(1)) {
                     Vector3f blockpos = rayPicker.getCurrentBlockPos();
-                    if (blockpos != null) {
-                        Block b = world.getBlock(blockpos);
-                        b.v += isMouseDown(0) ? -0.01f : 0.01f;
-                        b.v = Maths.clamp(b.v, -1.0f, 1.0f);
-                        world.setBlock(blockpos, b);
-                    }
+                    Block b = world.getBlock(blockpos);
+                    b.v += isMouseDown(0) ? -0.01f : 0.01f;
+                    b.v = Maths.clamp(b.v, -1.0f, 1.0f);
+                    world.setBlock(blockpos, b);
                 }
 
                 if (isKeyDown(GLFW_KEY_I))

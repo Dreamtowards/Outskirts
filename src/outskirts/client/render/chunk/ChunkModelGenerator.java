@@ -2,12 +2,16 @@ package outskirts.client.render.chunk;
 
 import outskirts.block.Block;
 import outskirts.client.Loader;
+import outskirts.client.Outskirts;
 import outskirts.client.material.Model;
 import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.renderer.ModelRenderer;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
@@ -23,24 +27,43 @@ public class ChunkModelGenerator {
 
         VertexBuffer vbuf = new VertexBuffer();
 
-        for (int x = 0;x < 16;x++) {
-            for (int y = 0;y < 30;y++) {
-                for (int z = 0;z < 16;z++) {
-                    Block b = world.getBlock(chunkpos.x+x, y,chunkpos.z+z);
-                    if (b != null) {
-                        Vector3f blockpos = new Vector3f(chunkpos.x+x,y,chunkpos.z+z);
-
-                        b.getVertexData(world, blockpos, vbuf);
-                    }
-                    {
-                        Vector3f blockpos = new Vector3f(chunkpos.x+x,y,chunkpos.z+z);
-                        PolygoniseMCGenerator.putPolygonise(vbuf, world, blockpos);
-                    }
-                }
+//        for (int x = 0;x < 16;x++) {
+//            for (int y = 0;y < 30;y++) {
+//                for (int z = 0;z < 16;z++) {
+//                    Block b = world.getBlock(chunkpos.x+x, y,chunkpos.z+z);
+//                    if (b != null) {
+//                        Vector3f blockpos = new Vector3f(chunkpos.x+x,y,chunkpos.z+z);
+//
+//                        b.getVertexData(world, blockpos, vbuf);
+//                    }
+//                    {
+//                        Vector3f blockpos = new Vector3f(chunkpos.x+x,y,chunkpos.z+z);
+//                        PolygoniseMCGenerator.putPolygonise(vbuf, world, blockpos);
+//                    }
+//                }
+//            }
+//        }
+//        Log.LOGGER.info("BUILD MESH");
+        for (Vector3f v : DualContouring.contouring(
+                (x, y, z) -> {
+                Block b = world.getBlock(x,y,z);
+                if (b == null) return 0;
+                return b.v;
             }
+            , new AABB(chunkpos.x, 0, chunkpos.z, chunkpos.x+16, 30, chunkpos.z+16))) {
+
+            vbuf.positions.add(v.x - chunkpos.x);
+            vbuf.positions.add(v.y);
+            vbuf.positions.add(v.z - chunkpos.z);
+
+            vbuf.textureCoords.add(0f);
+            vbuf.textureCoords.add(0f);
+            vbuf.normals.add(0f);
+            vbuf.normals.add(0f);
+            vbuf.normals.add(0f);
         }
 
-        VertexUtil.hardnorm(vbuf);
+//        VertexUtil.hardnorm(vbuf);
         VertexUtil.smoothnorm(vbuf);
         return Loader.loadModelT(vbuf);
     }

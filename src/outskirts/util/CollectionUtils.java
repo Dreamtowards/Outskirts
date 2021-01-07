@@ -5,6 +5,7 @@ import outskirts.util.function.TriConsumer;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -134,10 +135,13 @@ public final class CollectionUtils {
         return null;
     }
 
-    public static <T> T[] fill(T[] array, Supplier<T> supplier) {
+    public static <T> T[] filli(T[] array, IntFunction<T> supplier) {
         for (int i = 0;i < array.length;i++)
-            array[i] = supplier.get();
+            array[i] = supplier.apply(i);
         return array;
+    }
+    public static <T> T[] fill(T[] array, Supplier<T> supplier) {
+        return CollectionUtils.filli(array, i -> supplier.get());
     }
 
     public static <T> T[] subarray(T[] array, int beginIndex, int endIndex) {

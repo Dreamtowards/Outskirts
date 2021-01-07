@@ -42,25 +42,25 @@ void main() {
     vec2 uvPlanarZ = modv2u(FragPos.xy);
     vec3 pweight = abs(vNorm);
 
-//    pweight /= pweight.x + pweight.y + pweight.z;
+    pweight /= pweight.x + pweight.y + pweight.z;
 //    gAlbedoSpecular.rgb =
 //            texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x +
 //            texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y +
 //            texture(mtlDiffuseMap, uvPlanarZ).rgb * pweight.z;
-//    gAlbedoSpecular.rgb =
-//            texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb * pweight.x +
-//            texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb * pweight.y +
-//            texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb * pweight.z;
+    gAlbedoSpecular.rgb =
+            texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb * pweight.x +
+            texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb * pweight.y +
+            texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb * pweight.z;
 
-    int i = pweight.x > pweight.y ? (pweight.x > pweight.z ? 0 : 2) : (pweight.y > pweight.z ? 1 : 2);
+//    int i = pweight.x > pweight.y ? (pweight.x > pweight.z ? 0 : 2) : (pweight.y > pweight.z ? 1 : 2);
 //    gAlbedoSpecular.rgb =
 //            i == 0 ? texture(mtlDiffuseMap, uvPlanarX).rgb :
 //            i == 1 ? texture(mtlDiffuseMap, uvPlanarY).rgb :
 //                     texture(mtlDiffuseMap, uvPlanarZ).rgb;
-    gAlbedoSpecular.rgb =
-            i == 0 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb :
-            i == 1 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb :
-                     texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb;
+//    gAlbedoSpecular.rgb =
+//            i == 0 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb :
+//            i == 1 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb :
+//                     texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb;
 }
 
 float mod(float v, float b) {

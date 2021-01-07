@@ -38,8 +38,8 @@ public class GuiDebugTxInfos extends Gui {
             sb.append(String.format("RP_Pointer: %s\n", Outskirts.getRayPicker().getCurrentPoint()));
 
             Vector3f bpos = Outskirts.getRayPicker().getCurrentBlockPos();
-            if (bpos != null) {
-                Block b = Outskirts.getRayPicker().getCurrentBlock();
+            Block b;
+            if ((b=Outskirts.getWorld().getBlock(bpos)) != null) {
                 sb.append(String.format("BlockPos: (%s/ %s) (%s) %s v:\n", b.v, MarchingCubes.cubeidx(0, (x, y, z) -> {
                     Block bl = Outskirts.getWorld().getBlock(bpos.x + x, bpos.y + y, bpos.z + z);
                     return bl != null && !bl.isTranslucent() ? bl.v : -0.5f;

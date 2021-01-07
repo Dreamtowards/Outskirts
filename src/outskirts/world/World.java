@@ -132,7 +132,7 @@ public abstract class World implements Tickable {
                 }
             }
 
-            tryPopulate(chunkpos);
+//            tryPopulate(chunkpos);
 
             Events.EVENT_BUS.post(new ChunkLoadedEvent(chunk));
         }
@@ -214,6 +214,7 @@ public abstract class World implements Tickable {
                         if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16 || Outskirts.getWorld() == null)
                             unloadChunk(c);
                     }
+//                    provideChunk(0, 0);
                     if (Outskirts.getWorld() == null)
                         break;
 

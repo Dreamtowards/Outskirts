@@ -45,6 +45,17 @@ public final class IOUtils {
     public static long write(InputStream inputStream, OutputStream outputStream) throws IOException {
         return write(inputStream, outputStream, DEFAULT_BUFFER);
     }
+    public static long write(byte[] in, OutputStream outputStream) throws IOException {
+        return IOUtils.write(new ByteArrayInputStream(in), outputStream);
+    }
+    public static long write(String s, OutputStream outputStream) throws IOException {
+        return IOUtils.write(s.getBytes(StandardCharsets.UTF_8), outputStream);
+    }
+    public static long write(String s, File file) throws IOException {
+        return IOUtils.write(s.getBytes(StandardCharsets.UTF_8), new FileOutputStream(file));
+    }
+
+
 
     public static byte[] toByteArray(InputStream inputStream) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

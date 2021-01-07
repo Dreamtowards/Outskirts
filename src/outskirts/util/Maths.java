@@ -11,7 +11,7 @@ public final class Maths {
     //float ver PI
     public static final float PI = (float)Math.PI;
 
-    private static final float FLT_EPSILON = 1.19209290e-07f;
+    public static final float FLT_EPSILON = 1.19209290e-07f;
 
     // param force min/max ..? then return Math.max(Math.min(value, max), min)
     public static float clamp(float value, float a, float b) {

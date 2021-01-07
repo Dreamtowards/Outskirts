@@ -1,11 +1,14 @@
 package outskirts.client.render.isoalgorithm.dc;
 
+import outskirts.client.render.isoalgorithm.dc.qefsv.*;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
+import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.util.*;
 
@@ -50,24 +53,32 @@ import java.util.*;
  *
  * QEF Solve Explanar .ALTERNATE STRATEGY
  * https://www.mattkeeter.com/projects/qef/#alternate-constraints
+ *
  */
 public final class DualContouring {
 
-    private static final float DEF_D = 0.01f;
+    private static final float DEF_D = .9f;
 
     public static final TrifFunc F_SPHERE = (x, y, z) ->
-            5.5f - (float)Math.sqrt(x*x + y*y + z*z);
+            12.5f - (float)Math.sqrt(x*x + y*y + z*z);
 
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
         if (Math.abs(y) < 3)
             return 2.5f - (float)Math.sqrt(x*x + z*z);
-        return 0;
+        if (y < 3)
+            return 2.5f - (float)Math.sqrt(x*x + (y+3)*(y+3) + z*z);
+        return 3-y;
+    };
+    static NoiseGeneratorPerlin noise = new NoiseGeneratorPerlin();
+    public static final TrifFunc F_NOISE = (x, y, z) -> {
+//        if (Math.abs(x) > 10 || Math.abs(y) > 10 || Math.abs(z) > 10)
+//            return 0;
+        return noise.noise(x/18, y/8f, z/18)-0.4f;
     };
 
     private static Vector3f computecellvertex(TrifFunc f, Vector3f p, Vector3f dest) {
         if (dest == null) dest = new Vector3f();
-        if (false)
-            return dest.set(p).addScaled(.5f, Vector3f.ONE);
+//        if (true) return dest.set(p).addScaled(.5f, Vector3f.ONE);
 
         // evaluate f value at 8 corner-vert.
         float[][][] v = new float[2][2][2];
@@ -103,15 +114,40 @@ public final class DualContouring {
 
         if (scedgeverts.size() == 0)
             return null;
+//        if (scedgeverts.size() == 1)
+//            return scedgeverts.iterator().next();
+//        if (scedgeverts.size() == 2)
+//            return VertexUtil.centeravg(scedgeverts, dest);
+//        if (true) return VertexUtil.centeravg(scedgeverts, dest);
 
         List<Vector3f> vertnorms = new ArrayList<>(scedgeverts.size());
         for (Vector3f vert : scedgeverts) {
-            vertnorms.add(fnorm(f, vert, null));
+            try {
+                vertnorms.add(fnorm(f, vert, null));
+            } catch (ArithmeticException ex) {
+                System.out.println("zero len f'(v)");
+                vertnorms.add(new Vector3f(0, 1,0 ));
+            }
         }
 
-        assert scedgeverts.size() >= 3 && scedgeverts.size() <= 12;
+        assert scedgeverts.size() >= 3 && scedgeverts.size() <= 12 : "Unexcepted points size: "+scedgeverts.size();
         assert scedgeverts.size() == vertnorms.size();
-        return solveqef(scedgeverts, vertnorms, dest);
+        solveqef(scedgeverts, vertnorms, dest);
+//        VertexUtil.centeravg(scedgeverts, dest);
+//        Log.LOGGER.info("VERT "+dest);
+        if (dest.length() > 100) {
+            // VERT TOO FAR: Vector3f[0.0, -2257.75, -8.0]                Pi:[Vector3f[-4.0, -1.0, -4.0], Vector3f[-4.0, 0.0, -4.0], Vector3f[-4.0, -1.0, -4.0], Vector3f[-4.0, 0.0, -4.0]] Ni[Vector3f[0.70706224, -0.0, 0.70715123], Vector3f[0.70711005, -0.0020687343, 0.70710063], Vector3f[0.70706224, -0.0, 0.70715123], Vector3f[0.70711005, -0.0020687343, 0.70710063]]  PVector3f[-5.0, -1.0, -5.0]
+            // VERT TOO FAR: Vector3f[32137.953, -22253.328, -7737.3867]  Pi:[Vector3f[-1.088352, 5.0, -1.0], Vector3f[-1.0, 4.9525595, -1.0], Vector3f[-1.0, 5.0, -1.0635387]]             Ni[Vector3f[-0.5912278, -0.75780666, -0.2760048], Vector3f[-0.5912159, -0.7572552, -0.27753964], Vector3f[-0.5899029, -0.73771405, -0.32831764]]                                      PVector3f[-2.0, 4.0, -2.0]
+            System.err.println("VERT TOO FAR: "+dest+"  \nPi:"+scedgeverts+" \nNi"+vertnorms + " \nP"+p);
+            for (int i = 0;i < vertnorms.size();i++) {
+                System.err.println(Vector3f.dot(scedgeverts.get(i), vertnorms.get(i)));
+            }
+        }
+
+//        dest.x = Maths.clamp(dest.x, p.x, p.x+1);
+//        dest.y = Maths.clamp(dest.y, p.y, p.y+1);
+//        dest.z = Maths.clamp(dest.z, p.z, p.z+1);
+        return dest;
     }
 
     /**
@@ -133,16 +169,20 @@ public final class DualContouring {
      */
     private static Vector3f solveqef(List<Vector3f> verts, List<Vector3f> norms, Vector3f dest) {
 
-        try {
-            solveLstSq(verts, norms, dest);
-        } catch (ArithmeticException ex) {
-            // Zero det. Coplanar parallel. simpl do avg.
-            VertexUtil.centeravg(verts, dest);
-        }
+//        try {
+//            solveLstSq(verts, norms, dest);
+//        dest .set(QEFSolvDUCJM3.wCalcQEF(verts, norms));
+//        dest.set(QEFSolvNKG.doSlv(verts, norms));
+//        dest.set(QEFSolvL20.doSLV(verts, norms));
+//        dest.set(QEFSolvBFITR.getLeastSqBF(verts, norms));
+        dest.set(QEFSolvBFAVG.doAvg(verts, norms));
 
-//        dest.x = Maths.clamp(dest.x, p.x, p.x+1);
-//        dest.y = Maths.clamp(dest.y, p.y, p.y+1);
-//        dest.z = Maths.clamp(dest.z, p.z, p.z+1);
+//        } catch (ArithmeticException ex) {
+//            // Zero det. Coplanar parallel. simpl do avg.
+////            Log.LOGGER.info("zero det. do avg.");
+//            VertexUtil.centeravg(verts, dest);
+//        }
+
         return dest;
     }
 
@@ -177,13 +217,16 @@ public final class DualContouring {
         }
 
         // do (AtA)^-1 *Atb
+        if (Maths.fuzzyZero(AtA.determinant()))
+            throw new ArithmeticException();
+//        System.err.println(AtA.determinant());
         return Matrix3f.transform(AtA.invert(), dest.set(Atb));
     }
     /* R.F.
      * https://adrianstoll.com/linear-algebra/least-squares.html  Least Squares Solve Ax=b.  MNCOMMENT Ax = b => AtAx = Atb => x ~ (AtA)'Atb.
      * https://www.cnblogs.com/monoSLAM/p/5252917.html            Least Square LINMAT Ax=b solve.
      * https://github.com/emilk/Dual-Contouring/blob/master/src/math/Solver.cpp                     QEF Solve. by emilk.
-     * https://github.com/Lin20/isosurface/blob/master/Isosurface/Isosurface/QEFSolver/QEFSolver.cs [XNA cpp2cs] QEF Solve. Acc SVD.  alt https://github.com/tuckbone/DualContouringCSharp/blob/master/CSharpCode/DualContouring/QefSolver.cs
+     * https://github.com/Lin20/isosurface/blob/master/Isosurface/Isosurface/QEFSolver/QEFSolver.cs [XNA cpp2cs] QEF Solve. Acc SVD.  alt https://github.com/tuckbone/DualContouringCSharp/blob/master/CSharpCode/DualContouring/QefSolver.cs  ORI: https://github.com/nickgildea/DualContouringSample/blob/master/DualContouringSample/qef.cpp
      * https://github.com/nickgildea/qef/blob/master/qef.cl                                         QEF Solve. SVD. pinv.
      * https://github.com/M0lion/DualContouring/blob/master/Assets/Scripts/QEF.cs                   QEF Solv. directly by libs
      * https://stackoverflow.com/questions/16734792/dual-contouring-and-quadratic-error-function    QEF Solve. people opinions.
@@ -226,9 +269,9 @@ public final class DualContouring {
 
         // for each 'valid' cell, find the interior vertex.
         Map<Vector3f, Vector3f> verts = new HashMap<>();
-        for (float x=aabb.min.x; x<aabb.max.x; x++) {
-            for (float y=aabb.min.y; y<aabb.max.y; y++) {
-                for (float z=aabb.min.z; z<aabb.max.z; z++) {
+        for (float x=aabb.min.x; x<=aabb.max.x; x++) {
+            for (float y=aabb.min.y; y<=aabb.max.y; y++) {
+                for (float z=aabb.min.z; z<=aabb.max.z; z++) {
                     Vector3f p = new Vector3f(x, y, z);
                     Vector3f vert = computecellvertex(f, p, null);
                     if (vert != null)  // valid cell.
@@ -240,9 +283,9 @@ public final class DualContouring {
         // for each sign-change edge, connect its 4 adjacent cells vertex. CCW winding.
         List<QuadFace> faces = new ArrayList<>();
         boolean solid0, solid1;
-        for (float x=aabb.min.x; x<aabb.max.x; x++) {
-            for (float y=aabb.min.y; y<aabb.max.y; y++) {
-                for (float z=aabb.min.z; z<aabb.max.z; z++) {
+        for (float x=aabb.min.x; x<=aabb.max.x; x++) {
+            for (float y=aabb.min.y; y<=aabb.max.y; y++) {
+                for (float z=aabb.min.z; z<=aabb.max.z; z++) {
                     solid0 = f.sample(x,y,z) > 0;
                     if (y > aabb.min.y && z > aabb.min.z) {  // X AXIS. edge.
                         solid1 = f.sample(x+1,y,z) > 0;

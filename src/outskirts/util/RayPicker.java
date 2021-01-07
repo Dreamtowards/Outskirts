@@ -22,8 +22,7 @@ public class RayPicker {
     private Vector3f rayOrigin = new Vector3f();
     private Vector3f rayDirection = new Vector3f(Vector3f.UNIT_X);
 
-    private Vector3f currentBlockPos;
-    private Vector3f prevousBlockPos;  // for detect block-switching
+//    private Vector3f currentBlockPos;
 
     public void update() {
         Ref<Float> t = Ref.wrap(Float.MAX_VALUE);
@@ -51,7 +50,7 @@ public class RayPicker {
                             // not-cast. find from 'start'. the actually casted aabb-t should behind curr aabb-t.
                             t.value = Float.MAX_VALUE;
                         }
-                    } catch (Vector3f.IllegalTriangleException ex) {
+                    } catch (ArithmeticException ex) {
                         ex.printStackTrace();
                     }
                     continue;
@@ -63,15 +62,15 @@ public class RayPicker {
             currentPoint.set(rayOrigin).addScaled(collT, rayDirection);
         }
 
-        prevousBlockPos=currentBlockPos;
-        currentBlockPos=null;
-        if (currentEntity != null) {
-            currentBlockPos = new Vector3f(currentPoint).addScaled(0.01f, rayDirection);
-            currentBlockPos.set(Maths.floor(currentBlockPos.x), Maths.floor(currentBlockPos.y), Maths.floor(currentBlockPos.z));
-            if (Outskirts.getWorld().getBlock(currentBlockPos) == null) {
-                currentBlockPos = null;
-            }
-        }
+//        prevousBlockPos=currentBlockPos;
+//        currentBlockPos=null;
+//        if (currentEntity != null) {
+//            currentBlockPos = new Vector3f(currentPoint).addScaled(0.01f, rayDirection);
+//            currentBlockPos.set(Maths.floor(currentBlockPos.x), Maths.floor(currentBlockPos.y), Maths.floor(currentBlockPos.z));
+//            if (Outskirts.getWorld().getBlock(currentBlockPos) == null) {
+//                currentBlockPos = null;
+//            }
+//        }
     }
 
     private Entity getCloserAabbEntity(Vector3f raypos, Vector3f raydir, Ref<Float> thanT, List<Entity> excepts) {
@@ -104,12 +103,9 @@ public class RayPicker {
     }
 
     public Vector3f getCurrentBlockPos() {
-        return currentBlockPos;
+        return Vector3f.floor(new Vector3f(currentPoint).addScaled(0.5f, Vector3f.ONE), 1);
     }
-    public Block getCurrentBlock() {
-        return Outskirts.getWorld().getBlock(currentBlockPos);
-    }
-    public boolean isBlockSwitched() {
-        return !Objects.equals(prevousBlockPos, currentBlockPos);
-    }
+//    public Block getCurrentBlock() {
+//        return Outskirts.getWorld().getBlock(currentBlockPos);
+//    }
 }

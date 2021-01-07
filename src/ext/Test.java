@@ -13,9 +13,13 @@ import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
+import java.util.List;
 import java.util.function.LongConsumer;
 
 import static java.lang.Math.random;
@@ -342,8 +346,20 @@ public class Test {
 //                DualContouring.fnorm(DualContouring.F_SPHERE, new Vector3f(1, 0, 0), 0.01f, new Vector3f())
 //        );
 
+//        for (int i=0; i<8; i++) {
+//            LOGGER.info(new Vector3f(Math.signum(i & 4), Math.signum(i & 2), Math.signum(i & 1)));
+//        }
+//
+//        LOGGER.info((0));
+//        byte b = -1;
+//        LOGGER.info(b);
+//        LOGGER.info((byte)~b);
+//        System.exit(1);
+        //todo: NORM GEN DBG.
+        LOGGER.info("STRT");
 
-        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CYLINDER, new AABB(new Vector3f(-5,-5,-5), new Vector3f(5,5,5)));
+        Vector3f v = new Vector3f().addScaled(20, Vector3f.ONE);
+        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CYLINDER, new AABB(v, new Vector3f(v).negate()));
 
         VertexBuffer vbuf = new VertexBuffer();
         for (int i = 0;i < vts.length;i++) {
