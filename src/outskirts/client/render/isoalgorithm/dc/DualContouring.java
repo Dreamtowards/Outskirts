@@ -132,22 +132,7 @@ public final class DualContouring {
 
         assert scedgeverts.size() >= 3 && scedgeverts.size() <= 12 : "Unexcepted points size: "+scedgeverts.size();
         assert scedgeverts.size() == vertnorms.size();
-        solveqef(scedgeverts, vertnorms, dest);
-//        VertexUtil.centeravg(scedgeverts, dest);
-//        Log.LOGGER.info("VERT "+dest);
-        if (dest.length() > 100) {
-            // VERT TOO FAR: Vector3f[0.0, -2257.75, -8.0]                Pi:[Vector3f[-4.0, -1.0, -4.0], Vector3f[-4.0, 0.0, -4.0], Vector3f[-4.0, -1.0, -4.0], Vector3f[-4.0, 0.0, -4.0]] Ni[Vector3f[0.70706224, -0.0, 0.70715123], Vector3f[0.70711005, -0.0020687343, 0.70710063], Vector3f[0.70706224, -0.0, 0.70715123], Vector3f[0.70711005, -0.0020687343, 0.70710063]]  PVector3f[-5.0, -1.0, -5.0]
-            // VERT TOO FAR: Vector3f[32137.953, -22253.328, -7737.3867]  Pi:[Vector3f[-1.088352, 5.0, -1.0], Vector3f[-1.0, 4.9525595, -1.0], Vector3f[-1.0, 5.0, -1.0635387]]             Ni[Vector3f[-0.5912278, -0.75780666, -0.2760048], Vector3f[-0.5912159, -0.7572552, -0.27753964], Vector3f[-0.5899029, -0.73771405, -0.32831764]]                                      PVector3f[-2.0, 4.0, -2.0]
-            System.err.println("VERT TOO FAR: "+dest+"  \nPi:"+scedgeverts+" \nNi"+vertnorms + " \nP"+p);
-            for (int i = 0;i < vertnorms.size();i++) {
-                System.err.println(Vector3f.dot(scedgeverts.get(i), vertnorms.get(i)));
-            }
-        }
-
-//        dest.x = Maths.clamp(dest.x, p.x, p.x+1);
-//        dest.y = Maths.clamp(dest.y, p.y, p.y+1);
-//        dest.z = Maths.clamp(dest.z, p.z, p.z+1);
-        return dest;
+        return solveqef(scedgeverts, vertnorms, dest);
     }
 
     /**

@@ -49,14 +49,17 @@ public class ChunkModelGenerator {
                 Block b = world.getBlock(x,y,z);
                 if (b == null) return 0;
                 return b.v;
-            }
-            , new AABB(chunkpos.x, 0, chunkpos.z, chunkpos.x+16, 30, chunkpos.z+16))) {
+            }, new AABB(chunkpos.x, 0, chunkpos.z, chunkpos.x+16, 30, chunkpos.z+16))) {
 
             vbuf.positions.add(v.x - chunkpos.x);
             vbuf.positions.add(v.y);
             vbuf.positions.add(v.z - chunkpos.z);
 
-            vbuf.textureCoords.add(0f);
+            float blkId = 0;
+            Block blk = world.getBlock(Vector3f.floor(v, 1f));
+            if (blk != null)
+                blkId = (float)Block.REGISTRY.indexOf(blk.getRegistryID());
+            vbuf.textureCoords.add(blkId);
             vbuf.textureCoords.add(0f);
             vbuf.normals.add(0f);
             vbuf.normals.add(0f);
@@ -65,7 +68,27 @@ public class ChunkModelGenerator {
 
 //        VertexUtil.hardnorm(vbuf);
         VertexUtil.smoothnorm(vbuf);
-        return Loader.loadModelT(vbuf);
+
+        float[] barycd = new float[vbuf.positions.size()];
+        for (int i = 0;i < barycd.length;i+=9) {
+            barycd[i]=1; barycd[i+1]=0; barycd[i+2]=0;
+            barycd[i+3]=0; barycd[i+4]=1; barycd[i+5]=0;
+            barycd[i+6]=0; barycd[i+7]=0; barycd[i+8]=1;
+        }
+
+        float[] blid = new float[vbuf.positions.size()];
+        for (int i = 0;i<blid.length;i+=9) {
+            float v1id = vbuf.textureCoords.get((i/3)*2);
+            float v2id = vbuf.textureCoords.get(((i/3)+1)*2);
+            float v3id = vbuf.textureCoords.get(((i/3)+2)*2);
+            for (int j=0; j<3; j++) {
+                blid[i+j*3]   = v1id;
+                blid[i+j*3+1] = v2id;
+                blid[i+j*3+2] = v3id;
+            }
+        }
+
+        return Loader.loadModel(3,vbuf.posarr(), 2,vbuf.uvarr(), 3,vbuf.normarr(), 3,vbuf.posarr(), 3,barycd, 3,blid);
     }
 
     private static Vector3f[] CUBE_FACES_DIRS = new Vector3f[] {

@@ -1,5 +1,6 @@
 package outskirts.client.render;
 
+import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -15,6 +16,11 @@ public final class VertexBuffer {
         positions.add(x);
         positions.add(y);
         positions.add(z);
+    }
+    public void getpos(int i, Vector3f dest) {
+        dest.x = positions.get(i);
+        dest.y = positions.get(i+1);
+        dest.z = positions.get(i+2);
     }
 
     public void adduv(float x, float y) {
@@ -34,5 +40,16 @@ public final class VertexBuffer {
     }
     public void setnorm(int i, Vector3f n) {
         setnorm(i, n.x, n.y, n.z);
+    }
+
+
+    public float[] posarr() {
+        return CollectionUtils.toArrayf(positions);
+    }
+    public float[] uvarr() {
+        return CollectionUtils.toArrayf(textureCoords);
+    }
+    public float[] normarr() {
+        return CollectionUtils.toArrayf(normals);
     }
 }

@@ -28,7 +28,7 @@ public class ChunkGenerator {
 
         for (int x = chunkpos.x;x < chunkpos.x+16;x++) {
             for (int z = chunkpos.z; z < chunkpos.z + 16; z++) {
-                float f = noisegen.fbm(x / 228f, z / 228f, 12);
+                float f = noisegen.fbm(x / 128f, z / 128f, 12);
                 float ytop = 14 + f*32f;
 
                 for (int i = 0;i < 50;i++) {
@@ -36,7 +36,7 @@ public class ChunkGenerator {
 
                     Block b = i < ytop-4 ? new BlockStone() : i<ytop-2 ? new BlockDirt() : new BlockGrass();
                     b.v = (ytop-i) / 40;
-                    if (f3 < -0.1f) {
+                    if (f3 < 0) {
                         b.v = f3;
                     }
 //                    b.v = i < 4 ? 1 : -1;

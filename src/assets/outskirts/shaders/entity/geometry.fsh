@@ -6,6 +6,8 @@ layout (location = 2) out vec4 gAlbedoSpecular;
 in vec3 FragPos;
 in vec3 vNorm;
 in vec2 vTexCoord;
+in vec3 ACCTRI_BARYCD;
+flat in vec3 ACCTRI_BLXID;
 
 uniform sampler2D mtlDiffuseMap;
 uniform sampler2D mtlSpecularMap;
@@ -19,6 +21,12 @@ float inverseLerp(float, float, float);
 float lineardepth(float);
 float mod(float, float);
 vec2 modv2u(vec2);
+
+vec3 tripSample(vec4 txfrag, vec2[3] uvPlanar, vec3 pweight) {
+    return texture(mtlDiffuseMap, txfrag.xy+uvPlanar[0]*txfrag.zw).rgb * pweight.x +
+           texture(mtlDiffuseMap, txfrag.xy+uvPlanar[1]*txfrag.zw).rgb * pweight.y +
+           texture(mtlDiffuseMap, txfrag.xy+uvPlanar[2]*txfrag.zw).rgb * pweight.z;
+}
 
 void main() {
 
@@ -34,12 +42,14 @@ void main() {
 //    gAlbedoSpecular.rgb = texture(mtlDiffuseMap, vTexCoord).rgb;
     gAlbedoSpecular.a = texture(mtlSpecularMap, vTexCoord).r;
 
-    int blockId = int(vTexCoord.x);
-    vec4 txfrag = blockfrags[blockId];
+    vec4 v1txfrag = blockfrags[int(ACCTRI_BLXID.x)];
+    vec4 v2txfrag = blockfrags[int(ACCTRI_BLXID.y)];
+    vec4 v3txfrag = blockfrags[int(ACCTRI_BLXID.z)];
 
-    vec2 uvPlanarX = modv2u(vec2(1.0f-FragPos.z, FragPos.y));
-    vec2 uvPlanarY = modv2u(vec2(FragPos.x, 1.0f-FragPos.z));
-    vec2 uvPlanarZ = modv2u(FragPos.xy);
+    vec2 uvPlanar[3];
+    uvPlanar[0] = modv2u(vec2(1.0f-FragPos.z, FragPos.y));
+    uvPlanar[1] = modv2u(vec2(FragPos.x, 1.0f-FragPos.z));
+    uvPlanar[2] = modv2u(FragPos.xy);
     vec3 pweight = abs(vNorm);
 
     pweight /= pweight.x + pweight.y + pweight.z;
@@ -47,10 +57,10 @@ void main() {
 //            texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x +
 //            texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y +
 //            texture(mtlDiffuseMap, uvPlanarZ).rgb * pweight.z;
-    gAlbedoSpecular.rgb =
-            texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb * pweight.x +
-            texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb * pweight.y +
-            texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb * pweight.z;
+    gAlbedoSpecular.rgb = tripSample(v1txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.x +
+                          tripSample(v2txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.y +
+                          tripSample(v3txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.z;
+
 
 //    int i = pweight.x > pweight.y ? (pweight.x > pweight.z ? 0 : 2) : (pweight.y > pweight.z ? 1 : 2);
 //    gAlbedoSpecular.rgb =
@@ -58,9 +68,9 @@ void main() {
 //            i == 1 ? texture(mtlDiffuseMap, uvPlanarY).rgb :
 //                     texture(mtlDiffuseMap, uvPlanarZ).rgb;
 //    gAlbedoSpecular.rgb =
-//            i == 0 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarX*txfrag.zw).rgb :
-//            i == 1 ? texture(mtlDiffuseMap, txfrag.xy+uvPlanarY*txfrag.zw).rgb :
-//                     texture(mtlDiffuseMap, txfrag.xy+uvPlanarZ*txfrag.zw).rgb;
+//            i == 0 ? texture(mtlDiffuseMap, v1txfrag.xy+uvPlanarX*v1txfrag.zw).rgb :
+//            i == 1 ? texture(mtlDiffuseMap, v1txfrag.xy+uvPlanarY*v1txfrag.zw).rgb :
+//                     texture(mtlDiffuseMap, v1txfrag.xy+uvPlanarZ*v1txfrag.zw).rgb;
 }
 
 float mod(float v, float b) {

@@ -259,7 +259,7 @@ public class Vector3f extends Vector {
         );
     }
 
-    public static Vector3f floor(Vector3f dest, int u) {
+    public static Vector3f floor(Vector3f dest, float u) {
         return dest.set(Maths.floor(dest.x, u),
                         Maths.floor(dest.y, u),
                         Maths.floor(dest.z, u));

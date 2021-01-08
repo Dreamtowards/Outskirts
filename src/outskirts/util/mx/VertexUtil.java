@@ -111,7 +111,7 @@ public class VertexUtil {
 //
 //    }
 
-    // angle weighted shared-pos norms. but dont avg angle 45'+ norm.
+    // angle weighted shared-pos norms avg. but have avg AngelControl.
     public static void smoothnorm(VertexBuffer vbuf) {
         Map<Vector3f, List<Vector3f>> vnorms = new HashMap<>();
         Vector3f v1=new Vector3f(), v2=new Vector3f(), v3=new Vector3f();
@@ -119,13 +119,16 @@ public class VertexUtil {
         Vector3f norm = new Vector3f();
         Vector3f avgnorm = new Vector3f();
         for (int i=0; i<vbuf.positions.size(); i+=9) {
-            Vector3f.set(v1, vbuf.positions::get, i);
-            Vector3f.set(v2, vbuf.positions::get, i+3);
-            Vector3f.set(v3, vbuf.positions::get, i+6);
+            vbuf.getpos(i, v1);
+            vbuf.getpos(i+3, v2);
+            vbuf.getpos(i+6, v3);
 
             try {
                 Vector3f.trinorm(v1, v2, v3, norm);
-            } catch (ArithmeticException ex) { Log.LOGGER.info("fail calc tri norm."); }
+            } catch (ArithmeticException ex) {
+                norm.set(Vector3f.UNIT_Y);
+                Log.LOGGER.info("fail calc tri norm.");
+            }
 
             float a1 = Vector3f.angle(Vector3f.sub(v2, v1, angv1), Vector3f.sub(v3, v1, angv2));
             float a2 = Vector3f.angle(Vector3f.sub(v3, v2, angv1), Vector3f.sub(v1, v2, angv2));
@@ -151,7 +154,12 @@ public class VertexUtil {
                 if (Vector3f.angle(norm, n) < Math.toRadians(75f))
                     avgnorm.add(n);
             }
-            avgnorm.normalize();
+            try {
+                avgnorm.normalize();
+            } catch (ArithmeticException ex) {
+                norm.set(Vector3f.UNIT_Y);
+                Log.LOGGER.info("fail norm. no valid avg.");
+            }
 
             vbuf.normals.set(i,   avgnorm.x);
             vbuf.normals.set(i+1, avgnorm.y);
