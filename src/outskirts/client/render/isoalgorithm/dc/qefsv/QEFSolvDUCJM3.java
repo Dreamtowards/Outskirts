@@ -1,5 +1,6 @@
 package outskirts.client.render.isoalgorithm.dc.qefsv;
 
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.StringUtils;
 import outskirts.util.vector.Vector3f;
 
@@ -49,11 +50,11 @@ public class QEFSolvDUCJM3 {
             nms[i][1] = norms.get(i).y;
             nms[i][2] = norms.get(i).z;
         }
-        float[] mp = calcQEF(vts, nms);
+        float[] mp = calcQEF(vts, nms, AABB.bounding(verts, null) );
         return new Vector3f(mp[0], mp[1], mp[2]);
     }
 
-    private static float[] calcQEF( float[][] inters, float[][] norms ) {
+    private static float[] calcQEF( float[][] inters, float[][] norms , AABB aabb ) {
         int numint = inters.length;
 
         float[] ata = new float[6];
@@ -111,16 +112,18 @@ public class QEFSolvDUCJM3 {
 //        System.out.println("error: "+error);
 //        System.out.println("mp: "+ Arrays.toString(mp));
 
-//        if(CLAMP)
-//        {
+        boolean CLAMP = true;
+        if(CLAMP)
+        {
 //            if ( mp[0] < st[0] || mp[1] < st[1] || mp[2] < st[2] ||
 //                    mp[0] > st[0] + len || mp[1] > st[1] + len || mp[2] > st[2] + len )
-//            {
-//                mp[0] = pt[0] ;
-//                mp[1] = pt[1] ;
-//                mp[2] = pt[2] ;
-//            }
-//        }
+            if (!aabb.contains( new Vector3f(mp), 0.00001f ))
+            {
+                mp[0] = pt[0] ;
+                mp[1] = pt[1] ;
+                mp[2] = pt[2] ;
+            }
+        }
         return mp;
     }
 

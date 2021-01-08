@@ -1,5 +1,7 @@
 package outskirts.client.render;
 
+import outskirts.util.vector.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,5 +26,13 @@ public final class VertexBuffer {
         normals.add(x);
         normals.add(y);
         normals.add(z);
+    }
+    public void setnorm(int i, float x, float y, float z) {
+        normals.set(i,   x);
+        normals.set(i+1, y);
+        normals.set(i+2, z);
+    }
+    public void setnorm(int i, Vector3f n) {
+        setnorm(i, n.x, n.y, n.z);
     }
 }

@@ -60,7 +60,7 @@ public final class DualContouring {
     private static final float DEF_D = .9f;
 
     public static final TrifFunc F_SPHERE = (x, y, z) ->
-            12.5f - (float)Math.sqrt(x*x + y*y + z*z);
+            2.5f - (float)Math.sqrt(x*x + y*y + z*z);
 
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
         if (Math.abs(y) < 3)
@@ -169,59 +169,16 @@ public final class DualContouring {
      */
     private static Vector3f solveqef(List<Vector3f> verts, List<Vector3f> norms, Vector3f dest) {
 
-//        try {
-//            solveLstSq(verts, norms, dest);
-//        dest .set(QEFSolvDUCJM3.wCalcQEF(verts, norms));
+        dest.set(QEFSolvDUCJM3.wCalcQEF(verts, norms));
 //        dest.set(QEFSolvNKG.doSlv(verts, norms));
 //        dest.set(QEFSolvL20.doSLV(verts, norms));
 //        dest.set(QEFSolvBFITR.getLeastSqBF(verts, norms));
-        dest.set(QEFSolvBFAVG.doAvg(verts, norms));
-
-//        } catch (ArithmeticException ex) {
-//            // Zero det. Coplanar parallel. simpl do avg.
-////            Log.LOGGER.info("zero det. do avg.");
-//            VertexUtil.centeravg(verts, dest);
-//        }
+//        dest.set(QEFSolvBFAVG.doAvg(verts, norms));
+//        dest.set(QEFSolvAxbLINRLstSq.solvLstSq(verts, norms));
 
         return dest;
     }
 
-    private static Vector3f solveLstSq(List<Vector3f> verts, List<Vector3f> norms, Vector3f dest) {
-        Matrix3f AtA = new Matrix3f();
-        Vector3f Atb = new Vector3f();
-
-        if (verts.size() == 3) {
-            AtA.set(norms.get(0).x, norms.get(0).y, norms.get(0).z,
-                    norms.get(1).x, norms.get(1).y, norms.get(1).z,
-                    norms.get(2).x, norms.get(2).y, norms.get(2).z);
-            Atb.set(Vector3f.dot(norms.get(0), verts.get(0)),
-                    Vector3f.dot(norms.get(1), verts.get(1)),
-                    Vector3f.dot(norms.get(2), verts.get(2)));
-        } else {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    float f = 0;
-                    for (int k = 0; k < verts.size(); k++) {
-                        f += norms.get(k).get(i) * norms.get(k).get(j);
-                    }
-                    AtA.set(i, j, f);
-                }
-            }
-            for (int i = 0; i < 3; i++) {
-                float f = 0;
-                for (int k = 0; k < verts.size(); k++) {
-                    f += norms.get(k).get(i) * Vector3f.dot(verts.get(k), norms.get(k));
-                }
-                Vector3f.set(Atb, i, f);
-            }
-        }
-
-        // do (AtA)^-1 *Atb
-        if (Maths.fuzzyZero(AtA.determinant()))
-            throw new ArithmeticException();
-//        System.err.println(AtA.determinant());
-        return Matrix3f.transform(AtA.invert(), dest.set(Atb));
-    }
     /* R.F.
      * https://adrianstoll.com/linear-algebra/least-squares.html  Least Squares Solve Ax=b.  MNCOMMENT Ax = b => AtAx = Atb => x ~ (AtA)'Atb.
      * https://www.cnblogs.com/monoSLAM/p/5252917.html            Least Square LINMAT Ax=b solve.

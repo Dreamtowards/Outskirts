@@ -355,11 +355,14 @@ public class Test {
 //        LOGGER.info(b);
 //        LOGGER.info((byte)~b);
 //        System.exit(1);
+        LOGGER.info(Vector3f.angle(new Vector3f(0.9951376f, -0.09597331f, 0.02214509f),
+                new Vector3f(0.9951376f, -0.09597331f, 0.02214509f)));
+
         //todo: NORM GEN DBG.
         LOGGER.info("STRT");
 
         Vector3f v = new Vector3f().addScaled(20, Vector3f.ONE);
-        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CYLINDER, new AABB(v, new Vector3f(v).negate()));
+        Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(v, new Vector3f(v).negate()));
 
         VertexBuffer vbuf = new VertexBuffer();
         for (int i = 0;i < vts.length;i++) {

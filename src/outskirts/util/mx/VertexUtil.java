@@ -2,6 +2,7 @@ package outskirts.util.mx;
 
 import outskirts.client.render.VertexBuffer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
@@ -110,6 +111,7 @@ public class VertexUtil {
 //
 //    }
 
+    // angle weighted shared-pos norms. but dont avg angle 45'+ norm.
     public static void smoothnorm(VertexBuffer vbuf) {
         Map<Vector3f, List<Vector3f>> vnorms = new HashMap<>();
         Vector3f v1=new Vector3f(), v2=new Vector3f(), v3=new Vector3f();
@@ -134,14 +136,20 @@ public class VertexUtil {
             snPutNorm(vnorms, v1, new Vector3f(norm).scale(a1));
             snPutNorm(vnorms, v2, new Vector3f(norm).scale(a2));
             snPutNorm(vnorms, v3, new Vector3f(norm).scale(a3));
+
+            vbuf.setnorm(i, norm);
+            vbuf.setnorm(i+3, norm);
+            vbuf.setnorm(i+6, norm);
         }
 
         for (int i=0; i<vbuf.positions.size(); i+=3) {
             Vector3f.set(v1, vbuf.positions::get, i);
+            Vector3f.set(norm, vbuf.normals::get, i);
 
             avgnorm.set(0,0,0);
             for (Vector3f n : vnorms.get(v1)) {
-                avgnorm.add(n);
+                if (Vector3f.angle(norm, n) < Math.toRadians(75f))
+                    avgnorm.add(n);
             }
             avgnorm.normalize();
 
