@@ -4,9 +4,6 @@ import outskirts.client.render.isoalgorithm.dc.qefsv.*;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
-import outskirts.util.logging.Log;
-import outskirts.util.mx.VertexUtil;
-import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
@@ -57,10 +54,17 @@ import java.util.*;
  */
 public final class DualContouring {
 
-    private static final float DEF_D = .9f;
+    private static final float DEF_D = .009f;
 
     public static final TrifFunc F_SPHERE = (x, y, z) ->
+            true ? 2.5f - ((Math.abs(x)+Math.abs(y)+Math.abs(z))/3f) :
             2.5f - (float)Math.sqrt(x*x + y*y + z*z);
+    public static final TrifFunc F_CUBE = (x, y, z) -> {
+//        x /=2;
+        Vector3f dv = Vector3f.abs(new Vector3f(x,y,z));
+        int maxAxis = Maths.maxi(dv.x, dv.y, dv.z);
+        return 2f - Math.abs(dv.get(maxAxis));
+    };
 
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
         if (Math.abs(y) < 3)
@@ -154,7 +158,7 @@ public final class DualContouring {
      */
     private static Vector3f solveqef(List<Vector3f> verts, List<Vector3f> norms, Vector3f dest) {
 
-        dest.set(QEFSolvDUCJM3.wCalcQEF(verts, norms));
+        dest.set(QEFSolvDCJAM3.wCalcQEF(verts, norms));
 //        dest.set(QEFSolvNKG.doSlv(verts, norms));
 //        dest.set(QEFSolvL20.doSLV(verts, norms));
 //        dest.set(QEFSolvBFITR.getLeastSqBF(verts, norms));

@@ -34,6 +34,16 @@ public final class Maths {
         return value;
     }
 
+    public static int maxi(float... v) {
+        assert v.length > 0;
+        int mxi = 0;
+        for (int i=0; i<v.length; i++) {
+            if (v[i] > v[mxi])
+                mxi = i;
+        }
+        return mxi;
+    }
+
     /**
      * @return a or b who closer to 0
      * rename to absmin(), and deprecated.

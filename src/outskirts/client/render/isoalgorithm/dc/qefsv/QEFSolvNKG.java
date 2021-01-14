@@ -8,13 +8,14 @@ import outskirts.util.vector.Vector4f;
 
 import java.util.List;
 
+// https://github.com/nickgildea/qef/blob/master/qef.cl
 public class QEFSolvNKG {
 
     public static void main(String[] args) {
 
 
         Log.LOGGER.info(
-                doSlv(QEFSolvDUCJM3.TEST_Pi, QEFSolvDUCJM3.TEST_Ni)
+                doSlv(QEFSolvDCJAM3.TEST_Pi, QEFSolvDCJAM3.TEST_Ni)
         );
 
     }

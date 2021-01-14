@@ -24,6 +24,7 @@ import java.util.function.LongConsumer;
 
 import static java.lang.Math.random;
 import static outskirts.util.logging.Log.LOGGER;
+import static java.lang.System.out;
 
 public class Test {
 
@@ -355,14 +356,25 @@ public class Test {
 //        LOGGER.info(b);
 //        LOGGER.info((byte)~b);
 //        System.exit(1);
-        LOGGER.info(Vector3f.angle(new Vector3f(0.9951376f, -0.09597331f, 0.02214509f),
-                new Vector3f(0.9951376f, -0.09597331f, 0.02214509f)));
+//        LOGGER.info(Vector3f.angle(new Vector3f(0.9951376f, -0.09597331f, 0.02214509f),
+//                new Vector3f(0.9951376f, -0.09597331f, 0.02214509f)));
+
+
+        for (float y=3; y>=0; y--) {
+            out.print("y"+y+" |  ");
+            for (float x=0; x<6; x++) {
+                float v = DualContouring.F_CUBE.sample(x, y, 0);
+
+                out.printf("%4s  ", v);
+            }
+            out.print("\n");
+        }
 
         //todo: NORM GEN DBG.
         LOGGER.info("STRT");
 
         Vector3f v = new Vector3f().addScaled(20, Vector3f.ONE);
-        Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(v, new Vector3f(v).negate()));
+        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CUBE, new AABB(v, new Vector3f(v).negate()));
 
         VertexBuffer vbuf = new VertexBuffer();
         for (int i = 0;i < vts.length;i++) {

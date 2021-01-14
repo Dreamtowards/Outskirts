@@ -12,7 +12,7 @@ public class QEFSolvBFITR {
     public static void main(String[] args) {
 
         LOGGER.info(
-                getLeastSqBF(QEFSolvDUCJM3.TEST_Pi, QEFSolvDUCJM3.TEST_Ni)
+                getLeastSqBF(QEFSolvDCJAM3.TEST_Pi, QEFSolvDCJAM3.TEST_Ni)
         );
 
     }

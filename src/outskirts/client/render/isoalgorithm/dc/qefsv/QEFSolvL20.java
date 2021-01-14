@@ -11,7 +11,7 @@ public class QEFSolvL20 {
 
     public static void main(String[] args) {
 
-        Log.LOGGER.info(doSLV(QEFSolvDUCJM3.TEST_Pi, QEFSolvDUCJM3.TEST_Ni));
+        Log.LOGGER.info(doSLV(QEFSolvDCJAM3.TEST_Pi, QEFSolvDCJAM3.TEST_Ni));
     }
 
     public static Vector3f doSLV(List<Vector3f> vs, List<Vector3f> ns) {
@@ -119,6 +119,7 @@ public class QEFSolvL20 {
         }
     }
 
+    // https://github.com/Lin20/isosurface/blob/master/Isosurface/Isosurface/QEFSolver/SMat3.cs
     private static float Mat3Fnorm(Matrix3f m) {
         return (float)Math.sqrt(
                   (m.m00 * m.m00) + (m.m01 * m.m01) + (m.m02 * m.m02)

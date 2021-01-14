@@ -165,6 +165,24 @@ public class Outskirts {
 //            });
 //        }));
 
+        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
+                float r = 10;
+                for (float x=-r; x<r; x++) {
+                    for (float y=-r; y<r; y++) {
+                        for (float z=-r; z<r; z++) {
+                            Vector3f dv = new Vector3f(x,y,z);
+                            Vector3f v = new Vector3f(player.position()).add(dv);
+                            Block b = world.getBlock(v);;
+                            if (b==null)continue;
+                            b.v = DualContouring.F_CUBE.sample(dv);
+                            world.setBlock(v,b);
+                        }
+                    }
+                }
+            }
+        });
+
     }
     //todo: GameRule LS   Separator/ NonCollision
     //tod0: DebugV OP. options
@@ -214,6 +232,9 @@ public class Outskirts {
             Vector3f bp = rayPicker.getCurrentBlockPos();
             if (rayPicker.getCurrentEntity() != null) {
                 Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 8, 8));
+                Outskirts.renderEngine.getModelRenderer().drawOutline(
+                        new AABB(bp, new Vector3f(bp).add(1,1,1)),
+                        Colors.RED);
                 Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().rigidbody().getAABB(), Colors.RED);
             }
 //            if (isIngame()) {

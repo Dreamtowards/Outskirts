@@ -17,6 +17,9 @@ public final class VertexBuffer {
         positions.add(y);
         positions.add(z);
     }
+    public void addpos(Vector3f v) {
+        addpos(v.x, v.y, v.z);
+    }
     public void getpos(int i, Vector3f dest) {
         dest.x = positions.get(i);
         dest.y = positions.get(i+1);
