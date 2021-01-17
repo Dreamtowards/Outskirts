@@ -13,9 +13,6 @@ import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
@@ -369,6 +366,7 @@ public class Test {
             }
             out.print("\n");
         }
+
 
         //todo: NORM GEN DBG.
         LOGGER.info("STRT");

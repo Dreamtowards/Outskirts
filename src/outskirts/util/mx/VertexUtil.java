@@ -151,7 +151,7 @@ public class VertexUtil {
 
             avgnorm.set(0,0,0);
             for (Vector3f n : vnorms.get(v1)) {
-                if (Vector3f.angle(norm, n) < Math.toRadians(75f))
+                if (Vector3f.angle(norm, n) < Math.toRadians(45))
                     avgnorm.add(n);
             }
             try {

@@ -54,16 +54,16 @@ import java.util.*;
  */
 public final class DualContouring {
 
-    private static final float DEF_D = .009f;
+    private static final float DEF_D = .9f;
 
     public static final TrifFunc F_SPHERE = (x, y, z) ->
             true ? 2.5f - ((Math.abs(x)+Math.abs(y)+Math.abs(z))/3f) :
-            2.5f - (float)Math.sqrt(x*x + y*y + z*z);
+                   2.5f - (float)Math.sqrt(x*x + y*y + z*z);
     public static final TrifFunc F_CUBE = (x, y, z) -> {
 //        x /=2;
         Vector3f dv = Vector3f.abs(new Vector3f(x,y,z));
         int maxAxis = Maths.maxi(dv.x, dv.y, dv.z);
-        return 2f - Math.abs(dv.get(maxAxis));
+        return 2.5f - Math.abs(dv.get(maxAxis));
     };
 
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
@@ -83,6 +83,7 @@ public final class DualContouring {
     private static Vector3f computecellvertex(TrifFunc f, Vector3f p, Vector3f dest) {
         if (dest == null) dest = new Vector3f();
 //        if (true) return dest.set(p).addScaled(.5f, Vector3f.ONE);
+
 
         // evaluate f value at 8 corner-vert.
         float[][][] v = new float[2][2][2];

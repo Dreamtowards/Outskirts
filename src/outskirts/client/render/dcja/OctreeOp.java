@@ -140,14 +140,6 @@ public final class OctreeOp {
         }
     }
 
-//    // [[pair1_octIdx, pair2_octIdx, axis]]
-//    public static final int[][] OCTREE_FACEPAIR = {
-//            {0,4},{1,5},{2,6},{3,7},  // X
-//            {0,2},{1,3},{4,6},{5,7},  // Y
-//            {0,1},{2,3},{4,5},{6,7}}; // Z
-
-    private static int dbgI=0;
-    private static int dbgLV=0;
     public static final int[][] EDGEADJACENT = {
             {0,1,2,3},{4,5,6,7},  // X
             {0,4,1,5},{2,6,3,7},  // Y
@@ -157,9 +149,6 @@ public final class OctreeOp {
         if (node == null) return;
         if (node.type() == TYPE_INTERNAL) {
             InternalNode internal = (InternalNode) node;
-
-//            String dpf = String.format("#%5s |"+ StringUtils.repeat(" ", dbgLV++), dbgI++);
-//            System.out.println(dpf+"CELL {");
 
             // 8 Cell calls
             for (int i = 0; i < 8; i++) {
@@ -183,17 +172,6 @@ public final class OctreeOp {
                 }
                 doEdgeContour(edgeadjacent, i / 2, vbuf);
             }
-//            // 6 edge calls
-//            OctreeNode[] ecd = new OctreeNode[4] ;
-//            for (int i = 0 ; i < 6 ; i ++ ) {
-//
-//                for ( int j = 0 ; j < 4 ; j ++ ) {
-//                    ecd[j] = ((InternalNode)node).child[ cellProcEdgeMask[ i ][j] ] ;
-//                }
-//
-//                doEdgeContour( ecd, i/2, vbuf ); ;
-//            }
-//            System.out.println(dpf+"}");dbgLV--;
         }
     }
 
@@ -211,9 +189,6 @@ public final class OctreeOp {
         if (facepair[0] == null || facepair[1] == null) return;
         if (facepair[0].type() == TYPE_INTERNAL || facepair[1].type() == TYPE_INTERNAL) {
 
-//            String dpf = String.format("#%5s |"+ StringUtils.repeat(" ", dbgLV++), dbgI++);
-//            System.out.println(dpf+"FACE {");
-
             // 4 Face calls.  in one axis.
             OctreeNode[] interFacepair = new OctreeNode[2];
             for (int i = 0; i < 4; i++) {
@@ -221,45 +196,24 @@ public final class OctreeOp {
 //                interFacepair[0] = facepair[0].type() == TYPE_INTERNAL ? ((InternalNode)facepair[0]).child[EDGE[axis*4 +i][0]] : facepair[0];
 //                interFacepair[1] = facepair[1].type() == TYPE_INTERNAL ? ((InternalNode)facepair[1]).child[EDGE[axis*4 +i][1]] : facepair[1];
 
-                int[] c = { faceProcFaceMask[ axis ][ i ][ 0 ], faceProcFaceMask[ axis ][ i ][ 1 ] };
                 for ( int j = 0 ; j < 2 ; j ++ ) {
-                    if ( facepair[j].type() == TYPE_LEAF ) {
-                        interFacepair[j] = facepair[j] ;
-                    } else {
-                        interFacepair[j] = ((InternalNode) facepair[ j ] ).child[ c[j] ] ;
-                    }
+                    interFacepair[j] = facepair[j].type()==TYPE_INTERNAL ? ((InternalNode)facepair[j]).child[ faceProcFaceMask[ axis ][ i ][j] ] : facepair[j] ;
                 }
-                doFaceContour(interFacepair, faceProcFaceMask[ axis ][ i ][ 2 ], vbuf);  // axis
+                doFaceContour(interFacepair, axis, vbuf);  // axis
             }
 
             // 4 Edge calls.
             int[][] orders = {{ 0, 0, 1, 1 }, { 0, 1, 0, 1 }} ;
             OctreeNode[] interEdgeadjacent = new OctreeNode[4] ;
             for (int i = 0;i < 4;i++) {
-//                int order = faceProcEdgeMask[ axis ][ i ][ 0 ];
-//                for (int j = 0;j < 4;j++) {
-//                    interEdgeadjacent[j] =
-//                            facepair[orders[order][j]].type()==TYPE_INTERNAL ? ((InternalNode)facepair[orders[order][j]]).child[ faceProcEdgeMask[axis][i][1+j] ] :
-//                            facepair[orders[order][i]];
-//                }
-                int[] c = { faceProcEdgeMask[ axis ][ i ][ 1 ], faceProcEdgeMask[ axis ][ i ][ 2 ],
-                        faceProcEdgeMask[ axis ][ i ][ 3 ], faceProcEdgeMask[ axis ][ i ][ 4 ] };
                 int order = faceProcEdgeMask[ axis ][ i ][ 0 ];
-
-                for ( int j = 0 ; j < 4 ; j ++ ) {
-                    if ( facepair[orders[order][j]].type() == TYPE_LEAF )
-                    {
-                        interEdgeadjacent[j] = facepair[orders[order][j]] ;
-                    }
-                    else
-                    {
-                        interEdgeadjacent[j] = ( (InternalNode) facepair[ orders[order][ j ] ] ).child[ c[j] ] ;
-                    }
+                for (int j = 0;j < 4;j++) {
+                    interEdgeadjacent[j] =
+                            facepair[orders[order][j]].type()==TYPE_INTERNAL ? ((InternalNode)facepair[orders[order][j]]).child[ faceProcEdgeMask[axis][i][1+j] ] :
+                            facepair[orders[order][i]];
                 }
                 doEdgeContour(interEdgeadjacent, faceProcEdgeMask[ axis ][ i ][ 5 ], vbuf);
             }
-
-//            System.out.println(dpf+"}");dbgLV--;
         }
     }
 
@@ -269,53 +223,23 @@ public final class OctreeOp {
             {{6,4,2,0,2},{7,5,3,1,2}},
     };
     private static void doEdgeContour(OctreeNode[] edgeadjacent, int axis, VertexBuffer vbuf) {
-//        if (edgeadjacent[0]==null || edgeadjacent[1]==null || edgeadjacent[2]==null || edgeadjacent[3]==null) return;
-        if ( ! ( edgeadjacent[0] != null && edgeadjacent[1] != null && edgeadjacent[2] != null && edgeadjacent[3] != null) )
-            return ;
-
-//        String dpf = String.format("#%5s |"+ StringUtils.repeat(" ", dbgLV++), dbgI++);
-//        System.out.println(dpf+"EDGE {");
-
-        if (dbgI == 60) {
-            System.out.println(Arrays.toString(edgeadjacent));
-        }
+        if (edgeadjacent[0]==null || edgeadjacent[1]==null || edgeadjacent[2]==null || edgeadjacent[3]==null) return;
 
         if (edgeadjacent[0].type() == TYPE_LEAF && edgeadjacent[1].type() == TYPE_LEAF &&
             edgeadjacent[2].type() == TYPE_LEAF && edgeadjacent[3].type() == TYPE_LEAF) {
             processEdgeVertex(edgeadjacent, axis, vbuf);
         } else {
             // 2 Edge calls.
-//            OctreeNode[] interEdgeadjacent = new OctreeNode[4];
-//            for (int i = 0;i < 2;i++) {
-//
-//                for (int j = 0;j < 4;j++) {
-//                    interEdgeadjacent[j] = edgeadjacent[j].type()==TYPE_INTERNAL ? ((InternalNode)edgeadjacent[j]).child[edgeProcEdgeMask[axis][i][j]] : edgeadjacent[j];
-//                }
-//
-//                doEdgeContour(interEdgeadjacent, edgeProcEdgeMask[ axis ][ i ][ 4 ], vbuf);
-//            }
-            OctreeNode[] ecd = new OctreeNode[4] ;
-            for (int i = 0 ; i < 2 ; i ++ ) {
-                int[] c = { edgeProcEdgeMask[ axis ][ i ][ 0 ],
-                        edgeProcEdgeMask[ axis ][ i ][ 1 ],
-                        edgeProcEdgeMask[ axis ][ i ][ 2 ],
-                        edgeProcEdgeMask[ axis ][ i ][ 3 ] } ;
+            OctreeNode[] interEdgeadjacent = new OctreeNode[4];
+            for (int i = 0;i < 2;i++) {
 
-                for ( int j = 0 ; j < 4 ; j ++ ) {
-                    if ( edgeadjacent[j].type() == TYPE_LEAF )
-                    {
-                        ecd[j] = edgeadjacent[j] ;
-                    }
-                    else
-                    {
-                        ecd[j] = ((InternalNode) edgeadjacent[j]).child[ c[j] ] ;
-                    }
+                for (int j = 0;j < 4;j++) {
+                    interEdgeadjacent[j] = edgeadjacent[j].type()==TYPE_INTERNAL ? ((InternalNode)edgeadjacent[j]).child[edgeProcEdgeMask[axis][i][j]] : edgeadjacent[j];
                 }
 
-                doEdgeContour( ecd, edgeProcEdgeMask[ axis ][ i ][ 4 ], vbuf ); ;
+                doEdgeContour(interEdgeadjacent, edgeProcEdgeMask[ axis ][ i ][ 4 ], vbuf);
             }
         }
-//        System.out.println(dpf+"}");dbgLV--;
     }
 
     public static final int[][] EDGE = {{0,4},{1,5},{2,6},{3,7},  // X
@@ -323,7 +247,6 @@ public final class OctreeOp {
                                         {0,1},{2,3},{4,5},{6,7}}; // Z
 
     public static final int[][] processEdgeMask = {{3,2,1,0},{7,5,6,4},{11,10,9,8}} ;
-    public static final int[][] edgevmap = {{0,4},{1,5},{2,6},{3,7},{0,2},{1,3},{4,6},{5,7},{0,1},{2,3},{4,5},{6,7}};
     private static void processEdgeVertex(OctreeNode[] edgeadjacent, int axis, VertexBuffer vbuf) {
 
         int mindep = rtTreeDepth+1;
@@ -338,8 +261,8 @@ public final class OctreeOp {
 //                int edgev1 = EDGE[axis*4+i][0];
 //                int edgev2 = EDGE[axis*4+i][1];
                 int ed = processEdgeMask[axis][i] ;
-                int edgev1 = edgevmap[ed][0] ;
-                int edgev2 = edgevmap[ed][1] ;
+                int edgev1 = EDGE[ed][0] ;
+                int edgev2 = EDGE[ed][1] ;
 
                 if (leaf.depth < mindep) {
                     mindep = leaf.depth;
