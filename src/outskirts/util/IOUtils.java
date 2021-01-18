@@ -180,6 +180,13 @@ public final class IOUtils {
         writeFully(os, writeLong(DEFAULT_BUFFER, 0, l), 0, 8);
     }
 
+
+    public static float readFloat(InputStream is) throws IOException {
+        return Float.intBitsToFloat(readInt(is));
+    }
+    public static void writeFloat(OutputStream os, float f) throws IOException {
+        writeInt(os, Float.floatToIntBits(f));
+    }
     /**
      * ISO 10646 .UTF-8 Specification.
      * but actually only supports 1bytes, 2bytes, and 3bytes char. (Unicode range U+0000 - U+FFFF.)

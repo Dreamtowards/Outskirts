@@ -96,16 +96,16 @@ public abstract class TriangleMeshShape extends ConcaveShape {
     private AABB cachedAABB = new AABB();
     private void recalcAABB() {
         Vector3f d = new Vector3f();
-        Vector3f fp = new Vector3f();
+        Vector3f farp = new Vector3f();
         for (int i = 0;i < 3;i++) {
             // max at axis.
-            Vector3f.set(d.set(0,0,0), i, 1);
-            getfarpoint(d, fp);
-            Vector3f.set(cachedAABB.max, i, fp.get(i));
+            d.set(0,0,0).setv(i, 1);
+            getfarpoint(d, farp);
+            cachedAABB.max.setv(i, farp.get(i));
             // min at axis.
             d.negate();
-            getfarpoint(d, fp);
-            Vector3f.set(cachedAABB.min, i, fp.get(i));
+            getfarpoint(d, farp);
+            cachedAABB.min.setv(i, farp.get(i));
         }
     }
 

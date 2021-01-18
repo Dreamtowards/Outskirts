@@ -8,6 +8,7 @@ import outskirts.util.vector.Vector3f;
 
 import java.util.*;
 
+/* (Shinked Util name.)  */
 public class VertexUtil {
 
     // needs rename.
@@ -47,9 +48,10 @@ public class VertexUtil {
         // assert vbuf.indices == null;
         Vector3f v1 = new Vector3f(), v2 = new Vector3f(), v3 = new Vector3f(), norm = new Vector3f();
         for (int i = begini;i < endi;i+=9) {
-            Vector3f.set(v1, vbuf.positions::get, i);
-            Vector3f.set(v2, vbuf.positions::get, i+3);
-            Vector3f.set(v3, vbuf.positions::get, i+6);
+            vbuf.getpos(i, v1);
+            vbuf.getpos(i+3, v2);
+            vbuf.getpos(i+6, v3);
+
             try {
                 Vector3f.trinorm(v1, v2, v3, norm);
             } catch (ArithmeticException ex) {
@@ -57,11 +59,9 @@ public class VertexUtil {
                 norm.set(Vector3f.UNIT_Y);
             }
 
-            for (int j = 0;j < 3;j++) {
-                vbuf.normals.set(i+j*3, norm.x);
-                vbuf.normals.set(i+j*3+1, norm.y);
-                vbuf.normals.set(i+j*3+2, norm.z);
-            }
+            vbuf.setnorm(i, norm);
+            vbuf.setnorm(i+3, norm);
+            vbuf.setnorm(i+6, norm);
         }
     }
     public static void hardnorm(VertexBuffer vbuf, int begini) {

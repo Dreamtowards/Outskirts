@@ -271,6 +271,19 @@ public class Vector3f extends Vector {
         if (i==2) return z;
         throw new IndexOutOfBoundsException();
     }
+    public float setv(int i, float v) {  // dosent confuse with set(vec). v means scalar value.
+        if (i==0) return x=v;
+        if (i==1) return y=v;
+        if (i==2) return z=v;
+        throw new IndexOutOfBoundsException();
+    }
+
+    public float addv(int i, float v) {
+        if (i==0) return x+=v;
+        if (i==1) return y+=v;
+        if (i==2) return z+=v;
+        throw new IndexOutOfBoundsException();
+    }
 
     public static Vector3f fromString(String s) {
         float[] f = StringUtils.readNumbers(s, new float[3]);
@@ -278,16 +291,9 @@ public class Vector3f extends Vector {
     }
 
     public static final int SIZE = 3;  // "length" Misleading. "components" HighLv.d
-    // for vectors, set(i, val) just be static. because instance-set may confused with set(x, y, z). but setAt(i, v) do not uniform with Matrix.set(i, j, v).
-    public static float set(Vector3f dest, int i, float value) { // todo: return "dest" or setted-value ...?
-        if (i==0) return dest.x=value;
-        if (i==1) return dest.y=value;
-        if (i==2) return dest.z=value;
-        throw new IndexOutOfBoundsException();
-    }
     public static Vector3f set(Vector3f dest, IntFloatFunction getter, int from) {
         for (int i = 0;i < Vector3f.SIZE;i++) {
-            Vector3f.set(dest, i, getter.get(from+i));
+            dest.setv(i, getter.get(from+i));
         }
         return dest;
     }

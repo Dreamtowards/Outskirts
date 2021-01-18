@@ -20,7 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public final class SystemUtils {
+/*
+ * this class Util suffix dosent has 's'(Utils). because "System-Utils" needs been shink. cuz the heavy conn.
+ */
+public final class SystemUtil {
 
     private static String _GET_OS_NAME() {
         String osname = System.getProperty("os.name").toLowerCase();

@@ -1,16 +1,9 @@
-import net.java.games.input.*;
 import outskirts.client.main.Main;
-import outskirts.mod.Mods;
 import outskirts.util.CollectionUtils;
 import outskirts.util.FileUtils;
-import outskirts.util.HttpUtils;
-import outskirts.util.SystemUtils;
-import outskirts.util.logging.Log;
+import outskirts.util.SystemUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * tmp launcher class. simple setup and launch main program
@@ -21,12 +14,12 @@ public class Start {
 
         // DEFAULT: -ea
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
-        System.setProperty("org.lwjgl.librarypath", "libraries/platform/"+SystemUtils.OS_NAME.toLowerCase());
+        System.setProperty("org.lwjgl.librarypath", "libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase());
 
         if (CollectionUtils.contains(args, "--tmploadlibs")) { //tmp arg
             for (File file : FileUtils.listFiles(new File("libraries"))) {
                 if (file.isFile() && file.getName().endsWith(".jar")) {
-                    SystemUtils.addClasspath(file);
+                    SystemUtil.addClasspath(file);
                 }
             }
         }

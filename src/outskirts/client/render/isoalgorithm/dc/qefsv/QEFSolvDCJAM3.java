@@ -112,7 +112,7 @@ public class QEFSolvDCJAM3 {
 //        System.out.println("error: "+error);
 //        System.out.println("mp: "+ Arrays.toString(mp));
 
-        boolean CLAMP = true;
+        boolean CLAMP = false;
         if(CLAMP)
         {
 //            if ( mp[0] < st[0] || mp[1] < st[1] || mp[2] < st[2] ||

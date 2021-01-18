@@ -3,11 +3,14 @@ package outskirts.client.render.isoalgorithm.dc;
 import outskirts.util.vector.Vector3f;
 
 /**
- * HermiteData of the sign-changed Edge.
+ * HermiteData of a 'sign-changed' Edge.
  */
 public final class HermiteData {
 
-    private Vector3f p = new Vector3f();
-    private Vector3f n = new Vector3f();
+    /** Intersection Point on the Edge. */
+    public final Vector3f point = new Vector3f();
+
+    /** Exact Normal of the Surface on the Intersection Point. */
+    public final Vector3f norm = new Vector3f();
 
 }

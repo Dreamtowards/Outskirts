@@ -48,7 +48,7 @@ public class QEFSolvAxbLINRLstSq {
                 for (int k = 0; k < verts.size(); k++) {
                     f += norms.get(k).get(i) * Vector3f.dot(verts.get(k), norms.get(k));
                 }
-                Vector3f.set(Atb, i, f);
+                Atb.setv(i, f);
             }
         }
 

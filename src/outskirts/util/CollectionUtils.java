@@ -225,7 +225,7 @@ public final class CollectionUtils {
         return arr;
     }
 
-    // actually not good. not common, but useful in Generate FakeIndices(EBO)
+    // actually not good. not common, but useful in Generate FakeIndices(EBO).  DO NOT JUST USE FOR FOREACH!!... thats cause joke.
     public static int[] range(int len) {
         return range(0, len);
     }
@@ -234,6 +234,17 @@ public final class CollectionUtils {
         for (int i = 0;i < arr.length;i++)
             arr[i] = from+i;
         return arr;
+    }
+
+    private static int nulli(Object[] arr) {
+        int i = 0;
+        for (Object e : arr) {
+            if (e == null) i++;
+        }
+        return i;
+    }
+    public static int nonnulli(Object[] arr) {
+        return arr.length - nulli(arr);
     }
 
     /**

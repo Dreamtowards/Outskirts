@@ -1,17 +1,18 @@
 package outskirts.client.render.dcja;
 
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.HermiteData;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
-import outskirts.util.StringUtils;
+import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static outskirts.client.render.dcja.OctreeNode.TYPE_INTERNAL;
@@ -37,9 +38,6 @@ public final class OctreeOp {
 
 
 
-    private static int rtTreeSize;
-    private static int rtTreeDepth;
-
     private static InternalNode root;
 
     public static InternalNode readDCF(DataInputStream is) throws IOException {
@@ -48,9 +46,9 @@ public final class OctreeOp {
 
         is.skip(8);
 
-        rtTreeSize = readCInt(is);  // length
+        int rtTreeSize = readCInt(is);  // length
 
-        rtTreeDepth = 0 ;
+        int rtTreeDepth = 0 ;
         int temp = 1 << rtTreeSize;
         while ( temp < rtTreeSize) {
             rtTreeDepth++ ;
@@ -59,31 +57,37 @@ public final class OctreeOp {
 
         System.out.printf("Dimensions: %d Depth: %d\n", rtTreeSize, rtTreeDepth) ;
 
-        return (InternalNode) doReadDCF( is, new Vector3f(0,0,0), rtTreeSize, rtTreeDepth ) ;
+        return (InternalNode) doReadDCF( is, new Vector3f(0,0,0), rtTreeSize ) ;
     }
 
-    private static final Vector3f[] OCTREE_RELPOS = CollectionUtils.filli(new Vector3f[8], i ->
+    private static final Vector3f[] Vert = CollectionUtils.filli(new Vector3f[8], i ->
                 new Vector3f(Math.signum(i & 4), Math.signum(i & 2), Math.signum(i & 1)));
     // 000, 001, 010, 011, 100, 101, 110, 111
 
 
-    private static OctreeNode doReadDCF(DataInputStream is, Vector3f relpos, int treesz, int treedep) throws IOException {
+    private static void printdebug(String s) {
+        Log.LOGGER.info(s);
+    }
+    private static OctreeNode doReadDCF(DataInputStream is, Vector3f relpos, int treesz) throws IOException {
         switch (readCInt(is)) {
             case 1: {  // Empty node.
+                printdebug("WRITE::NULL");
                 is.skip(2);
                 return null;
             }
             case 0: {  // InternalNode
+                printdebug("WRITE::INTERNAL");
                 InternalNode node = new InternalNode();
 
                 int halfsz = treesz/2;
                 for (int i=0; i<8; i++) {
-                    Vector3f childrelpos = new Vector3f(relpos).addScaled(halfsz, OCTREE_RELPOS[i]);
-                    node.child[i] = doReadDCF(is, childrelpos, halfsz, treedep-1);
+                    Vector3f childrelpos = new Vector3f(relpos).addScaled(halfsz, Vert[i]);
+                    node.child[i] = doReadDCF(is, childrelpos, halfsz );
                 }
                 return node;
             }
             case 2: {  // LeafNode
+                printdebug("WRITE::LEAF");
                 short[] signs = new short[8];
                 for (int i = 0;i < 8;i++) {
                     signs[i] = readCShort(is);
@@ -93,30 +97,71 @@ public final class OctreeOp {
                     if (signs[i] != 0)
                         sign |= (1 << i);
                 }
+                printdebug(" -VSIGN: "+Integer.toBinaryString(sign & 0xff));
 
+                printdebug(" -EgSZ: n");
+                LeafNode leaf = new LeafNode(sign, Vector3f.ZERO);
                 List<Vector3f> verts = new ArrayList<>();
                 List<Vector3f> norms = new ArrayList<>();
                 for (int i = 0;i < 12;i++) {
                     int has = readCInt(is);
-
                     if (has != 0) {
+                        printdebug(" -EgI: "+i);
                         float off = readFloat(is);
+                        printdebug(" -Eg.t: "+off);
 
-                        norms.add(new Vector3f(readFloat(is), readFloat(is), readFloat(is)));
+                        norms.add(leaf.ns[i]=new Vector3f(readFloat(is), readFloat(is), readFloat(is)));
 
                         int axis = i / 4;
                         int base = EDGE[i][0];
-                        Vector3f vert = new Vector3f(relpos).addScaled(treesz, OCTREE_RELPOS[base]);
-                        Vector3f.set(vert, axis, vert.get(axis) + off);
+                        Vector3f vert = new Vector3f(relpos).addScaled(treesz, Vert[base]);
+                        vert.addv(axis, off);
                         verts.add(vert);
+                        leaf.ps[i] = vert;
+                        printdebug(" -Eg.p: "+vert);
+                        printdebug(" -Eg.n: "+norms.get(norms.size()-1));
                     }
                 }
-
+                leaf.min.set(relpos);
+                leaf.size = treesz;
+                leaf.vert.set( QEFSolvDCJAM3.wCalcQEF(verts, norms) );
+                printdebug(" -Eg.FP::: : "+leaf.vert);
                 if (verts.size() > 0)
-                    return new LeafNode(treedep, sign, QEFSolvDCJAM3.wCalcQEF(verts, norms));
+                    return leaf;
                 else return null;
             }
             default: throw new RuntimeException("Wrong type.");
+        }
+    }
+
+    /**
+     * the result octree is non pos,size. needs be reconstruct to init pos, size.
+     */
+    public static Octree convertToDCAR(OctreeNode src) {
+        if (src == null) {
+            return null;
+        } else if (src.type() == TYPE_INTERNAL) {
+            InternalNode intern = (InternalNode)src;
+            Octree.InternalNode out = new Octree.InternalNode();
+            for (int i=0;i<8;i++) {
+                out.child(i, convertToDCAR(intern.child[i]));
+            }
+            return out;
+        } else {
+            LeafNode leaf = (LeafNode)src;
+            Octree.LeafNode out = new Octree.LeafNode(new Vector3f(leaf.min), leaf.size);
+            for (int i=0;i<12;i++) {
+                if (leaf.ns[i] != null) {
+                    HermiteData h = new HermiteData();
+                    h.point.set(leaf.ps[i]);
+                    h.norm.set(leaf.ns[i]);
+                    out.edges[i] = h;
+                }
+            }
+            for (int i=0;i<8;i++) {
+                out.sign(i, leaf.sign(i));
+            }
+            return out;
         }
     }
 
@@ -249,7 +294,7 @@ public final class OctreeOp {
     public static final int[][] processEdgeMask = {{3,2,1,0},{7,5,6,4},{11,10,9,8}} ;
     private static void processEdgeVertex(OctreeNode[] edgeadjacent, int axis, VertexBuffer vbuf) {
 
-        int mindep = rtTreeDepth+1;
+        float minsz = Float.MAX_VALUE; // dcja: depth: bigger means big-size, smaller means less-size.
         int minI = -1;
         boolean[] signs = new boolean[4];
 
@@ -260,18 +305,18 @@ public final class OctreeOp {
 
 //                int edgev1 = EDGE[axis*4+i][0];
 //                int edgev2 = EDGE[axis*4+i][1];
-                int ed = processEdgeMask[axis][i] ;
-                int edgev1 = EDGE[ed][0] ;
-                int edgev2 = EDGE[ed][1] ;
+                int edgeIdx = processEdgeMask[axis][i] ;
+                int v1 = EDGE[edgeIdx][0] ;
+                int v2 = EDGE[edgeIdx][1] ;
 
-                if (leaf.depth < mindep) {
-                    mindep = leaf.depth;
+                if (leaf.size < minsz) {
+                    minsz = leaf.size;
                     minI = i;
 
-                    flip = leaf.sign(edgev1) > 0;
+                    flip = leaf.sign(v1) > 0;
                 }
 
-                signs[i] = leaf.sign(edgev1) != leaf.sign(edgev2);
+                signs[i] = leaf.sign(v1) != leaf.sign(v2);
             }
         }
 //        String dpf = String.format("#%5s |"+ StringUtils.repeat(" ", dbgLV), dbgI++);

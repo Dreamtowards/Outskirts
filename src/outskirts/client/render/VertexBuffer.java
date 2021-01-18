@@ -1,8 +1,15 @@
 package outskirts.client.render;
 
 import outskirts.util.CollectionUtils;
+import outskirts.util.IOUtils;
+import outskirts.util.StringUtils;
+import outskirts.util.mx.VertexUtil;
+import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,5 +61,20 @@ public final class VertexBuffer {
     }
     public float[] normarr() {
         return CollectionUtils.toArrayf(normals);
+    }
+
+    public void inituvnorm() {
+        for (int i = 0;i < positions.size()/3;i++) {
+            adduv(0, 0);
+            addnorm(0, 0, 0);
+        }
+        VertexUtil.hardnorm(this);
+    }
+    public void tmpsaveobjfile(String filename) {
+        try {
+            IOUtils.write(OBJLoader.saveOBJ(this), new FileOutputStream(filename));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

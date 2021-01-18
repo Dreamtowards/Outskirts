@@ -17,7 +17,6 @@ import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.Light;
-import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
@@ -35,10 +34,8 @@ import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.profiler.Profiler;
-import outskirts.util.vector.Vector;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
@@ -53,7 +50,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.util.SystemUtils.IS_OSX;
+import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {

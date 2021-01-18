@@ -31,8 +31,8 @@ public class AxisAlignBoundingBoxConstraintSolver extends ConstraintSolver {
                 float z = aabbAxisSepf(bodyAABB, otherAABB, 2);
 
             int mni = Math.abs(x)<Math.abs(y)? Math.abs(x)<Math.abs(z)?0:2 : Math.abs(y)<Math.abs(z)?1:2;
-            Vector3f.set(bodyB.getLinearVelocity(), mni, 0);
-            Vector3f.set(dPos, mni, mni==0?x:mni==1?y:z);
+            bodyB.getLinearVelocity().setv(mni, 0);
+            dPos.setv(mni, mni==0?x:mni==1?y:z);
 //            Log.LOGGER.info("x:{}, y:{}, z:{}",x,y,z);
 
             if (mni==1)

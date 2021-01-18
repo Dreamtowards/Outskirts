@@ -9,7 +9,6 @@ import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.PacketHandlerPlayServer;
 import outskirts.server.OutskirtsServer;
-import outskirts.util.SystemUtils;
 import outskirts.util.logging.Log;
 
 import java.io.IOException;

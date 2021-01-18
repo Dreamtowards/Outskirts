@@ -1,5 +1,7 @@
 package outskirts.client.render.dcja;
 
+import outskirts.client.render.isoalgorithm.dc.Octree;
+
 import java.io.*;
 
 public class DCJA {
@@ -10,7 +12,13 @@ public class DCJA {
 
         System.out.printf("Done reading.\n") ;
 
+        Octree out = OctreeOp.convertToDCAR(rootnode);
+        Octree.writeOctree(new FileOutputStream("conv.octree"), out);
+
         OctreeOp.buildMesh(rootnode);
+
+
+
 
     }
 

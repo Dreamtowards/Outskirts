@@ -1,13 +1,10 @@
 package outskirts.mod;
 
-import outskirts.util.SystemUtils;
-import outskirts.util.Validate;
-import outskirts.util.logging.Log;
+import outskirts.util.SystemUtil;
 import outskirts.util.registry.Registry;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -23,7 +20,7 @@ public final class Mods {
     public static void registerInit(File modloc) {
         try {
             Mod.Manifest manifest = loadManifest(modloc);
-            SystemUtils.addClasspath(modloc);
+            SystemUtil.addClasspath(modloc);
 
             Mod mod = (Mod)Class.forName(manifest.getMain()).newInstance();
             mod.manifest = manifest;

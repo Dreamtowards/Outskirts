@@ -6,7 +6,7 @@ import outskirts.client.gui.Gui;
 import outskirts.client.render.isoalgorithm.mc.MarchingCubes;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
-import outskirts.util.SystemUtils;
+import outskirts.util.SystemUtil;
 import outskirts.util.vector.Vector3f;
 
 public class GuiDebugTxInfos extends Gui {
@@ -22,7 +22,7 @@ public class GuiDebugTxInfos extends Gui {
     {
         addOnDrawListener(e -> {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("\nU/T: %s / %s | JVM_Max: %s\n", FileUtils.toDisplaySize(SystemUtils.MEM_USED), FileUtils.toDisplaySize(SystemUtils.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtils.MEM_MAXIMUM)));
+            sb.append(String.format("\nU/T: %s / %s | JVM_Max: %s\n", FileUtils.toDisplaySize(SystemUtil.MEM_USED), FileUtils.toDisplaySize(SystemUtil.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtil.MEM_MAXIMUM)));
 
             currSecFrames++;
             deltaSumUntilOne += Outskirts.getDelta();

@@ -5,7 +5,7 @@ import outskirts.client.gui.Gui;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.Maths;
-import outskirts.util.SystemUtils;
+import outskirts.util.SystemUtil;
 import outskirts.util.vector.Vector4f;
 
 public class GuiMemoryLog extends Gui {
@@ -20,18 +20,18 @@ public class GuiMemoryLog extends Gui {
         setHeight(300);
 
         addOnDrawListener(e -> {
-            SystemUtils.updateMemoryInfo(); // Utils supports..  // updates states
+            SystemUtil.updateMemoryInfo(); // Utils supports..  // updates states
 
             float UNIT_TIME_LEN = cycleTime / memlog.length; // timeLength of a log-unit. in seconds.
 
             elapsedPartial += Outskirts.getDelta();
             if (elapsedPartial > UNIT_TIME_LEN) {
                 elapsedPartial = 0;
-                memlog[writePointer = (++writePointer % memlog.length)] = SystemUtils.MEM_USED;
+                memlog[writePointer = (++writePointer % memlog.length)] = SystemUtil.MEM_USED;
             }
 
-            long memMax = SystemUtils.MEM_MAXIMUM;
-            long memTotal = SystemUtils.MEM_TOTAL;
+            long memMax = SystemUtil.MEM_MAXIMUM;
+            long memTotal = SystemUtil.MEM_TOTAL;
 
             // draw background
             drawRect(Colors.BLACK40, getX(), getY(), getWidth(), getHeight());

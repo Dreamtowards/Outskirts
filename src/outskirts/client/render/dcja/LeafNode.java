@@ -8,7 +8,6 @@ public class LeafNode extends OctreeNode {
 
     private int signs;
 
-    public int depth;
 
     public Vector3f vert = new Vector3f();
 
@@ -16,8 +15,13 @@ public class LeafNode extends OctreeNode {
     public float[] atb = new float[3];
     public float btb;
 
-    public LeafNode(int lv, int sg, Vector3f vert) {
-        this.depth = lv;
+    public Vector3f[] ps = new Vector3f[12];
+    public Vector3f[] ns = new Vector3f[12];
+
+    public float size;
+    public final Vector3f min = new Vector3f();
+
+    public LeafNode(int sg, Vector3f vert) {
         this.signs = sg;
 
         this.vert.set(vert);
@@ -32,14 +36,13 @@ public class LeafNode extends OctreeNode {
 
     int sign ( int index )
     {
-        return (( signs >> index ) & 1 );
+        return (( signs >> index ) & 1 ) == 1 ? 1 : -1;
     };
 
     @Override
     public String toString() {
         return "LeafNode{" +
                 "signs=" + signs +
-                ", depth=" + depth +
                 ", vert=" + vert +
                 '}';
     }

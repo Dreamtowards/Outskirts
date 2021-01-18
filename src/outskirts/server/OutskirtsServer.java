@@ -13,7 +13,7 @@ import outskirts.server.management.PlayerList;
 import outskirts.server.management.PlayerManager;
 import outskirts.util.GameTimer;
 import outskirts.util.Side;
-import outskirts.util.SystemUtils;
+import outskirts.util.SystemUtil;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.logging.Log;
@@ -181,7 +181,7 @@ public class OutskirtsServer {
             long overload = usednano - stepnano;
             Log.warn("Server overload! tick over %sms (used %sms), skipping %s tick(s).", overload/1_000_000, usednano/1_000_000, overload/stepnano);
         } else {
-            SystemUtils.nanosleep(stepnano - usednano);
+            SystemUtil.nanosleep(stepnano - usednano);
         }
     }
 
