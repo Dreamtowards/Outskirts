@@ -1,8 +1,6 @@
 package outskirts.client.render.chunk;
 
-import outskirts.block.Block;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 

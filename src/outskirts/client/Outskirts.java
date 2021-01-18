@@ -15,7 +15,7 @@ import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
@@ -172,7 +172,7 @@ public class Outskirts {
                             Vector3f v = new Vector3f(player.position()).add(dv);
                             Block b = world.getBlock(v);;
                             if (b==null)continue;
-                            b.v = DualContouring.F_CUBE.sample(dv);
+                            b.v = DualContouringUniformGridDensitySmpl.F_CUBE.sample(dv);
                             world.setBlock(v,b);
                         }
                     }

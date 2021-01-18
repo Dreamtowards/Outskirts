@@ -265,6 +265,7 @@ public class Vector3f extends Vector {
                         Maths.floor(dest.z, u));
     }
 
+
     public float get(int i) {
         if (i==0) return x;
         if (i==1) return y;
@@ -283,6 +284,13 @@ public class Vector3f extends Vector {
         if (i==1) return y+=v;
         if (i==2) return z+=v;
         throw new IndexOutOfBoundsException();
+    }
+
+    public Vector3f add(float f) {
+        return add(f, f, f);
+    }
+    public Vector3f sub(float f) {
+        return sub(f, f, f);
     }
 
     public static Vector3f fromString(String s) {

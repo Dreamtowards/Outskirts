@@ -2,24 +2,18 @@ package outskirts.client.render.chunk;
 
 import outskirts.block.Block;
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
 import outskirts.client.material.Model;
 import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.ChunkPos;
 import outskirts.world.World;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChunkModelGenerator {
 
@@ -44,7 +38,7 @@ public class ChunkModelGenerator {
 //            }
 //        }
 //        Log.LOGGER.info("BUILD MESH");
-        for (Vector3f v : DualContouring.contouring(
+        for (Vector3f v : DualContouringUniformGridDensitySmpl.contouring(
                 (x, y, z) -> {
                 Block b = world.getBlock(x,y,z);
                 if (b == null) return 0;

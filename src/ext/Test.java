@@ -2,8 +2,9 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.function.LongConsumer;
 
 import static java.lang.Math.random;
+import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 import static java.lang.System.out;
 
@@ -357,39 +359,31 @@ public class Test {
 //                new Vector3f(0.9951376f, -0.09597331f, 0.02214509f)));
 
 
-        for (float y=3; y>=0; y--) {
-            out.print("y"+y+" |  ");
-            for (float x=0; x<6; x++) {
-                float v = DualContouring.F_CUBE.sample(x, y, 0);
-
-                out.printf("%4s  ", v);
-            }
-            out.print("\n");
-        }
+//        for (float y=3; y>=0; y--) {
+//            out.print("y"+y+" |  ");
+//            for (float x=0; x<6; x++) {
+//                float v = DualContouringUniformGridDensitySmpl.F_CUBE.sample(x, y, 0);
+//
+//                out.printf("%4s  ", v);
+//            }
+//            out.print("\n");
+//        }
 
 
         //todo: NORM GEN DBG.
         LOGGER.info("STRT");
 
         Vector3f v = new Vector3f().addScaled(20, Vector3f.ONE);
-        Vector3f[] vts = DualContouring.contouring(DualContouring.F_CUBE, new AABB(v, new Vector3f(v).negate()));
+        Vector3f[] vts = DualContouringUniformGridDensitySmpl.contouring((x,y,z) ->
+                        -DistFunctions.capsule(vec3(x,y,z), vec3(0,0,0), vec3(5,0,0), 3)
+                , new AABB(v, new Vector3f(v).negate()));
 
         VertexBuffer vbuf = new VertexBuffer();
-        for (int i = 0;i < vts.length;i++) {
-            vbuf.positions.add(vts[i].x);
-            vbuf.positions.add(vts[i].y);
-            vbuf.positions.add(vts[i].z);
-            vbuf.textureCoords.add(0f);
-            vbuf.textureCoords.add(0f);
-            vbuf.normals.add(0f);
-            vbuf.normals.add(0f);
-            vbuf.normals.add(0f);
+        for (Vector3f vt : vts) {
+            vbuf.addpos(vt);
         }
-        VertexUtil.hardnorm(vbuf);
-//        VertexUtil.smoothnorm(vbuf);
-
-        String s = OBJLoader.saveOBJ(vbuf);
-        IOUtils.write(new ByteArrayInputStream(s.getBytes()), new FileOutputStream("ms.obj"));
+        vbuf.inituvnorm();
+        vbuf.tmpsaveobjfile("ms.obj");
     }
 
     private static class ACls {

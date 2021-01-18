@@ -4,7 +4,6 @@ import outskirts.client.render.VertexBuffer;
 import outskirts.util.vector.Vector3f;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static outskirts.client.render.isoalgorithm.dc.Octree.EDGE;
@@ -115,7 +114,7 @@ public final class DualContouringAR {
 
     public static final int[][] processEdgeMask = {{3,2,1,0},{7,5,6,4},{11,10,9,8}} ;
     private static void processEdgeVertex(Octree[] eadjacent, int axis, VertexBuffer vbuf) {
-        float minDepth = Float.MAX_VALUE;  // min depth means smallest one.?
+        float minsz = Float.MAX_VALUE;  // min depth means smallest one.?
         int minI = -1;
         boolean[] signchanged = new boolean[4];
         boolean flip = false;
@@ -126,8 +125,8 @@ public final class DualContouringAR {
             int v1 = EDGE[processEdgeMask[axis][i]][0] ;
             int v2 = EDGE[processEdgeMask[axis][i]][1] ;
 
-            if (leaf.size < minDepth) {  // have different depth in there together.?
-                minDepth = leaf.size;
+            if (leaf.size < minsz) {  // have different depth in there together.?
+                minsz = leaf.size;
                 minI = i;
 
                 flip = leaf.sign(v1) > 0;
@@ -152,7 +151,7 @@ public final class DualContouringAR {
 
     public static void main(String[] args) throws IOException {
 
-        Octree node = Octree.readOctree(new FileInputStream("conv.octree"), new Vector3f(0, 0, 0), 64);
+        Octree node = Octree.readOctree(new FileInputStream("conv.octree"), new Vector3f(0, 0, 0), 16);
 
         VertexBuffer vbuf = DualContouringAR.contouring(node);
 

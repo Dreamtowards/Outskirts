@@ -1,6 +1,7 @@
 package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.isoalgorithm.dc.qefsv.*;
+import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
@@ -52,25 +53,19 @@ import java.util.*;
  * https://www.mattkeeter.com/projects/qef/#alternate-constraints
  *
  */
-public final class DualContouring {
+public final class DualContouringUniformGridDensitySmpl {
 
-    private static final float DEF_D = .9f;
 
     public static final TrifFunc F_SPHERE = (x, y, z) ->
-            true ? 2.5f - ((Math.abs(x)+Math.abs(y)+Math.abs(z))/3f) :
                    2.5f - (float)Math.sqrt(x*x + y*y + z*z);
-    public static final TrifFunc F_CUBE = (x, y, z) -> {
-//        x /=2;
+    public static final TrifFunc F_CUBE = (x, y, z) -> { // x /=2;
         Vector3f dv = Vector3f.abs(new Vector3f(x,y,z));
         int maxAxis = Maths.maxi(dv.x, dv.y, dv.z);
         return 2.5f - Math.abs(dv.get(maxAxis));
     };
-
     public static final TrifFunc F_CYLINDER = (x, y, z) -> {
-        if (Math.abs(y) < 3)
-            return 2.5f - (float)Math.sqrt(x*x + z*z);
-        if (y < 3)
-            return 2.5f - (float)Math.sqrt(x*x + (y+3)*(y+3) + z*z);
+        if (Math.abs(y) < 3) return 2.5f - (float)Math.sqrt(x*x + z*z);
+        if (y < 3) return 2.5f - (float)Math.sqrt(x*x + (y+3)*(y+3) + z*z);
         return 3-y;
     };
     static NoiseGeneratorPerlin noise = new NoiseGeneratorPerlin();
@@ -128,7 +123,7 @@ public final class DualContouring {
         List<Vector3f> vertnorms = new ArrayList<>(scedgeverts.size());
         for (Vector3f vert : scedgeverts) {
             try {
-                vertnorms.add(fnorm(f, vert, null));
+                vertnorms.add(DistFunctions.fnorm(f, vert, null));
             } catch (ArithmeticException ex) {
                 System.out.println("zero len f'(v)");
                 vertnorms.add(new Vector3f(0, 1,0 ));
@@ -179,27 +174,6 @@ public final class DualContouring {
      * https://stackoverflow.com/questions/16734792/dual-contouring-and-quadratic-error-function    QEF Solve. people opinions.
      */
 
-    /**
-     *  Approximated Gradient. the f'(v).
-     *  f'(x, y, z) = normalize(
-     *      (f(x+d,y,z) - f(x-d,y,z)) / 2d,
-     *      (f(x,y+d,z) - f(x,y-d,z)) / 2d,
-     *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
-     *   )
-     *  but actually negated. cuz its normal. pointing to outside.
-     */
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest, float d) {
-        if (dest == null) dest = new Vector3f();
-        float denom = 1f / (2f*d);
-        return dest.set(
-                (f.sample(p.x+d, p.y, p.z) - f.sample(p.x-d, p.y, p.z)) * denom,
-                (f.sample(p.x, p.y+d, p.z) - f.sample(p.x, p.y-d, p.z)) * denom,
-                (f.sample(p.x, p.y, p.z+d) - f.sample(p.x, p.y, p.z-d)) * denom
-        ).normalize().negate();
-    }
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest) {
-        return fnorm(f, p, dest, DEF_D);
-    }
 
     private static class QuadFace {
         private Vector3f v1, v2, v3, v4;
