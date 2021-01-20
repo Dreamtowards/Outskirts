@@ -5,7 +5,7 @@ import outskirts.client.Loader;
 import outskirts.client.material.Model;
 import outskirts.client.material.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
+import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.renderer.ModelRenderer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;

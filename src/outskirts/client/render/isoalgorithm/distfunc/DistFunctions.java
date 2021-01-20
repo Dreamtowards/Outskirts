@@ -16,41 +16,19 @@ import static outskirts.util.vector.Vector3f.dot;
  * inner < 0, surface == 0, outer > 0.
  *
  * there has a problem. solid=negative or solid=positive.
- * when solid=pos (inner>0), its can consider that Solid is have actually number amount. and outer is not amount, neg-amount.
- * when solid=neg (inner<0), there is more mathmaticly. 1. negatives is more Less in numercially.
+ * when solid=pos (inner>0),
+ *   its can consider that Solid is have actually number amount. and outer is not amount, neg-amount.
+ *   as represent as signs in a byte, 1 as solid, 0 as empty, are more intuitive.
+ * when solid=neg (inner<0), there is more mathmaticly.  negatives is more Less in numercially.
  *   you can consider if you offset all num to 0+, then lesser number first as ground.
- *   2. the gradient vector directly as outer-side normal.
- *   3. its Really SDF Distance Function format.
- *   4. Phillp T., Inigo Q. are uses.
- *   5. however this is not density function. but distance functions.  ??
- *   6. however when want use density function, just mul -1 just ok.
+ *   ?the gradient vector directly as outer-side normal.
+ *   the SDF Distance Function format.
+ *   Phillp T. were uses.
  *
  * [Inigo Quilez] https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
  */
 public final class DistFunctions {
 
-    private static final float DEF_D = .001f;
-
-    /**
-     *  Approximated Gradient. the f'(v). use of Finite Differential.
-     *  f'(x, y, z) = normalize(
-     *      (f(x+d,y,z) - f(x-d,y,z)) / 2d,
-     *      (f(x,y+d,z) - f(x,y-d,z)) / 2d,
-     *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
-     *   )
-     */
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest, float d) {
-        if (dest == null) dest = new Vector3f();
-        float denom = 1f / (2f*d);
-        return dest.set(
-                (f.sample(p.x+d, p.y, p.z) - f.sample(p.x-d, p.y, p.z)) * denom,
-                (f.sample(p.x, p.y+d, p.z) - f.sample(p.x, p.y-d, p.z)) * denom,
-                (f.sample(p.x, p.y, p.z+d) - f.sample(p.x, p.y, p.z-d)) * denom
-        ).normalize();
-    }
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest) {
-        return fnorm(f, p, dest, DEF_D);
-    }
 
 
 

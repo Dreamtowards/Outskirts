@@ -2,20 +2,18 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
+import outskirts.client.render.isoalgorithm.dc.DCOctreeGen;
+import outskirts.client.render.isoalgorithm.dc.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.IOUtils;
 import outskirts.util.logging.Log;
-import outskirts.util.mx.VertexUtil;
-import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.util.*;
 import java.util.List;
 import java.util.function.LongConsumer;
@@ -23,7 +21,6 @@ import java.util.function.LongConsumer;
 import static java.lang.Math.random;
 import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
 import static outskirts.util.logging.Log.LOGGER;
-import static java.lang.System.out;
 
 public class Test {
 
@@ -370,18 +367,27 @@ public class Test {
 //        }
 
 
+//        Octree.Leaf lf = new Octree.Leaf(vec3(1,1,1), 10);
+//        LOGGER.info("INIT: "+lf.collapsed());
+//        for (int i = 0;i < 8;i++) {
+//            lf.sign(i, true);
+//            LOGGER.info("i "+i+" "+lf.collapsed());
+//        }
+
+
         //todo: NORM GEN DBG.
         LOGGER.info("STRT");
 
-        Vector3f v = new Vector3f().addScaled(20, Vector3f.ONE);
-        Vector3f[] vts = DualContouringUniformGridDensitySmpl.contouring((x,y,z) ->
-                        -DistFunctions.capsule(vec3(x,y,z), vec3(0,0,0), vec3(5,0,0), 3)
-                , new AABB(v, new Vector3f(v).negate()));
+        Octree node = DCOctreeGen.fromSDF(vec3(-5), 10,
+                (x,y,z)-> -DistFunctions.boundingbox(vec3(x,y,z),
+                        vec3(3f,2f,4f), .3f), 0, 5);
+        node = Octree.collapse(node);
+//        Octree.dbgprint(node, 0, "");
 
-        VertexBuffer vbuf = new VertexBuffer();
-        for (Vector3f vt : vts) {
-            vbuf.addpos(vt);
-        }
+        Octree.dbgaabbobj(node, "aabb.obj", vec3(-5), 10);
+
+        VertexBuffer vbuf = DualContouring.contouring(node);
+
         vbuf.inituvnorm();
         vbuf.tmpsaveobjfile("ms.obj");
     }

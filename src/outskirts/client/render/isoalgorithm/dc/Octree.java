@@ -5,8 +5,10 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Maths;
+import outskirts.util.Val;
 import outskirts.util.vector.Vector3f;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,9 +16,9 @@ import java.util.Arrays;
 
 public abstract class Octree {
 
-    public static final byte TYPE_NULL = 0;       // storage only.
-    public static final byte TYPE_INTERNAL = 1;
-    public static final byte TYPE_LEAF = 2;
+    private static final byte TYPE_NULL = 0;       // storage only.
+    private static final byte TYPE_INTERNAL = 1;
+    private static final byte TYPE_LEAF = 2;
 
     /**   2+-----+6
      *    /|    /|
@@ -35,6 +37,13 @@ public abstract class Octree {
             new Vector3f(1, 1, 1)
     };
 
+    /**       -          |          /     AXIS XYZ.
+     *     +--2--+    +-----+    +-----+
+     *    /|    /|   /4    /6   9|    11
+     *   +--3--+ |  +-----+ |  +-----+ |
+     *   | +--0|-+  5 +---7-+  | +---|-+
+     *   |/    |/   |/    |/   |8    |10
+     *   +--1--+    +-----+    +-----+    */
     public static final int[][] EDGE =
            {{0,4},{1,5},{2,6},{3,7},  // X
             {0,2},{1,3},{4,6},{5,7},  // Y
@@ -53,10 +62,13 @@ public abstract class Octree {
     public final boolean isInternal() { return type() == TYPE_INTERNAL; }
     public final boolean isLeaf() { return type() == TYPE_LEAF; }
 
+    /**
+     * Is 'Empty'. from view of tree-structure.  is the node can be clear/collaspe.
+     */
+    public abstract boolean collapsed();
 
 
-
-    public static class InternalNode extends Octree {
+    public static class Internal extends Octree {
 
         private Octree[] children = new Octree[8];
 
@@ -69,6 +81,11 @@ public abstract class Octree {
 
         @Override
         public byte type() { return TYPE_INTERNAL; }
+
+        @Override
+        public boolean collapsed() {
+            return CollectionUtils.nonnulli(children) == 0;
+        }
     }
 
 
@@ -76,11 +93,15 @@ public abstract class Octree {
      * Stores Hermite Data.  Rd. Material.
      *
      */
-    public static class LeafNode extends Octree {
+    public static class Leaf extends Octree {
 
-        /** Cell Vertices Signums.  NotNumVal. Jus. 8 bits.  0: Negative(-1), 1: Positive(+1).  indices.{76543210} */
+        private static final byte SG_FULL = (byte)0xFF;
+        private static final byte SG_EMPTY = (byte)0x00;
+
+        /** Cell Vertices Signums.  NotNumVal. Jus. 8 bits.  0: Negative(-1)(Empty), 1: Positive(+1)(Solid).  indices.{76543210} */
         private byte vsign;
 
+        // is there has data-repeat.? some edge are shared.
         /** Hermite data for Edges.  only sign-changed edge are nonnull. else just null element. */
         public final HermiteData[] edges = new HermiteData[12];
 
@@ -92,7 +113,7 @@ public abstract class Octree {
 
         private int materialIdx;
 
-        public LeafNode(Vector3f minVal, float size) {
+        public Leaf(Vector3f minVal, float size) {
             this.min.set(minVal);
             this.size = size;
         }
@@ -103,8 +124,17 @@ public abstract class Octree {
         public int sign(int vi) { assert vi >= 0 && vi < 8;
             return ((vsign >>> vi) & 1) == 1 ? 1 : -1;
         }
-        public void sign(int vi, int sign) { assert sign==-1 || sign==1; assert vi >= 0 && vi < 8;
-            vsign |= (sign==1 ? 1 : 0) << vi;
+        public void sign(int vi, boolean solid) { assert vi >= 0 && vi < 8;
+            vsign |= (solid ? 1 : 0) << vi;
+        }
+
+        public void computefp() {
+            Octree.computefeaturepoint(this);
+        }
+
+        @Override
+        public boolean collapsed() {
+            return vsign == SG_FULL || vsign == SG_EMPTY;
         }
 
         public AABB aabb(AABB dest) {
@@ -113,7 +143,7 @@ public abstract class Octree {
     }
 
 
-    private static void computefeaturepoint(Octree.LeafNode cell) {
+    private static void computefeaturepoint(Octree.Leaf cell) {
         int sz = CollectionUtils.nonnulli(cell.edges);
         Vector3f[] ps = new Vector3f[sz];
         Vector3f[] ns = new Vector3f[sz];
@@ -125,8 +155,10 @@ public abstract class Octree {
                 i++;
             }
         }
+        if (ps.length != 0)
         cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
     }
+
 
 
 
@@ -136,7 +168,7 @@ public abstract class Octree {
             case TYPE_NULL:
                 return null;
             case TYPE_INTERNAL: {
-                InternalNode internal = new InternalNode();
+                Octree.Internal internal = new Octree.Internal();
                 float subsize = size/2f;
                 Vector3f submin = new Vector3f();
                 for (int i = 0;i < 8;i++) {
@@ -145,7 +177,7 @@ public abstract class Octree {
                 }
                 return internal; }
             case TYPE_LEAF: {
-                LeafNode leaf = new LeafNode(min, size);  // leaf.min, size. depth
+                Octree.Leaf leaf = new Octree.Leaf(min, size);  // leaf.min, size. depth
                 leaf.vsign = IOUtils.readByte(is);
 
                 int sz = IOUtils.readByte(is);
@@ -165,8 +197,7 @@ public abstract class Octree {
 
                     leaf.edges[idx] = h;
                 }
-
-                computefeaturepoint(leaf);
+                leaf.computefp();
 
                 // METADATA byte[short]
                 return leaf; }
@@ -183,10 +214,10 @@ public abstract class Octree {
         if (node.isInternal()) {
             IOUtils.writeByte(os, TYPE_INTERNAL);
             for (int i = 0;i < 8;i++) {
-                writeOctree(os, ((InternalNode)node).child(i));
+                writeOctree(os, ((Octree.Internal)node).child(i));
             }
         } else {
-            LeafNode leaf = (LeafNode)node;
+            Octree.Leaf leaf = (Octree.Leaf)node;
             IOUtils.writeByte(os, TYPE_LEAF);
 
             IOUtils.writeByte(os, leaf.vsign);
@@ -211,5 +242,65 @@ public abstract class Octree {
             }
             // METADATA byte[short]
         }
+    }
+
+
+
+
+    public static Octree collapse(Octree node) {
+        if (node.isInternal()) {
+            Octree.Internal internal = (Octree.Internal)node;
+            for (int i = 0;i < 8;i++) {
+                internal.child(i, collapse(internal.child(i)));
+            }
+        }
+        return node.collapsed() ? null : node;
+    }
+
+    public static void dbgprint(Octree node, int dep, String pf) {
+        System.out.printf("L%s|%s%s", dep, " ".repeat(dep*2), pf);
+        if (node == null) {
+            System.out.println("[NULL]");
+        } else if (node.isInternal()) {
+            System.out.println("[INTERNAL]");
+            Internal intern = (Internal)node;
+            for (int i = 0;i < 8;i++) {
+                dbgprint(intern.child(i), dep+1, "@"+i);
+            }
+        } else {
+            Leaf lf = (Leaf)node;
+            System.out.println(String.format("[LEAF] fp:%-38s  |min:%-22s sz:%-8s|  esz:%s", lf.featurepoint, lf.min,lf.size, CollectionUtils.nonnulli(lf.edges)));
+        }
+    }
+
+    public static void dbgaabbobj(Octree node, String outobj, Vector3f min, float sz) {
+        StringBuilder sb = new StringBuilder();
+        dbgaabbobj(sb, node, min, sz, Val.zero());
+        try {
+            IOUtils.write(sb.toString(), new File(outobj));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    private static void dbgaabbobj(StringBuilder sb, Octree node, Vector3f min, float size, Val vi) {
+        if (node == null) return;
+        dbgAppendAABB(sb, min, size, vi);
+        if (node.isInternal()) {
+            Vector3f tmp = new Vector3f();
+            for (int i = 0;i < 8;i++) {
+                dbgaabbobj(sb, ((Internal)node).child(i), tmp.set(min).addScaled(size/2f,VERT[i]),size/2f,vi);
+            }
+        }
+    }
+    private static void dbgAppendAABB(StringBuilder obj, Vector3f min, float sz, Val vi) {
+        Vector3f p = new Vector3f();
+        for (int i = 0;i < 8;i++) {
+            p.set(min).addScaled(sz, VERT[i]);
+            obj.append(String.format("v %s %s %s\n",p.x,p.y,p.z));
+        }
+        for (int i = 0;i < 12;i++) {
+            obj.append(String.format("l %s %s\n",(int)vi.val+1+EDGE[i][0], (int)vi.val+1+EDGE[i][1]));
+        }
+        vi.val += 8;
     }
 }

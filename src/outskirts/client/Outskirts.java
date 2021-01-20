@@ -15,7 +15,7 @@ import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
-import outskirts.client.render.isoalgorithm.dc.DualContouringUniformGridDensitySmpl;
+import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;

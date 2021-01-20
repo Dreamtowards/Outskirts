@@ -84,7 +84,7 @@ public final class ReflectionUtils {
             throw new RuntimeException("Failed to allocate this instance.");
         }
     }
-    private static Class<?> defineClass(String name, byte[] bytes) {
-        return UNSAFE.defineClass(name, bytes, 0, bytes.length, ClassLoader.getSystemClassLoader(), null);
-    }
+//    private static Class<?> defineClass(String name, byte[] bytes) {
+//        return UNSAFE.defineClass(name, bytes, 0, bytes.length, ClassLoader.getSystemClassLoader(), null);
+//    }
 }

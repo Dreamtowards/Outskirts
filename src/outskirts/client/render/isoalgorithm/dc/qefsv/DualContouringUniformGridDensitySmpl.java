@@ -1,5 +1,6 @@
-package outskirts.client.render.isoalgorithm.dc;
+package outskirts.client.render.isoalgorithm.dc.qefsv;
 
+import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.qefsv.*;
 import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -123,7 +124,7 @@ public final class DualContouringUniformGridDensitySmpl {
         List<Vector3f> vertnorms = new ArrayList<>(scedgeverts.size());
         for (Vector3f vert : scedgeverts) {
             try {
-                vertnorms.add(DistFunctions.fnorm(f, vert, null));
+                vertnorms.add(DualContouring.fnorm(f, vert, null));
             } catch (ArithmeticException ex) {
                 System.out.println("zero len f'(v)");
                 vertnorms.add(new Vector3f(0, 1,0 ));

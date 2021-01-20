@@ -83,7 +83,7 @@ public class Vector3f extends Vector {
 
     @Override
     public String toString() {
-        return "Vector3f[" + this.x + ", " + this.y + ", " + this.z + "]";
+        return "[" + this.x + ", " + this.y + ", " + this.z + "]";
     }
 
     @Override
