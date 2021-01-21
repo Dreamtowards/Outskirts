@@ -146,7 +146,6 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
         return dest.set(rootNode.volume);
     }
 
-public static boolean vb = false;
     @Override
     public boolean raycast(Vector3f raypos, Vector3f raydir, Val t, Vector3f ndest) {
         t.val = Float.MAX_VALUE;
@@ -154,15 +153,12 @@ public static boolean vb = false;
         Vector2f tmpaabbr = new Vector2f();
         AABB aaraybb = null;  // Axis-Aligned ray optimize. both for accurecy and performence.
         for (int i = 0;i < 3;i++) {
-            if (abs(raydir.get(i)) == 1f) {
-                aaraybb = new AABB(raypos, raypos);
+            if (abs(raydir.get(i)) == 1f) { aaraybb = new AABB(raypos, raypos);
                 aaraybb.min.setv(i, Float.NEGATIVE_INFINITY);
-                aaraybb.max.setv(i, Float.POSITIVE_INFINITY);
-                break;
-            }
+                aaraybb.max.setv(i, Float.POSITIVE_INFINITY);  break; }
         }
         AABB faaraybb = aaraybb;
-        walkNode(rootNode, n -> {  //todo: ray-triangle had 'Hermitedata-sampling' problem. the ray-aabb looks hidden the problem.
+        walkNode(rootNode, n -> {
             // had coll the tri aabb volume. go walk through -> true. and do real-test is that intersects ray-tri.
             if (faaraybb!=null?AABB.intersects(faaraybb, n.volume,Maths.FLT_EPSILON) : Maths.intersectRayAabb(raypos, raydir, n.volume, tmpaabbr)) {
                 if (n.isLeaf()) { //if (vb) System.err.println("Leaf Intersec");

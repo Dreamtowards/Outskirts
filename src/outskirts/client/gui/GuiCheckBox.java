@@ -1,17 +1,10 @@
 package outskirts.client.gui;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiText;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.event.EventBus;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.Colors;
 import outskirts.util.Identifier;
-import outskirts.util.vector.Vector4f;
 
 import java.util.function.Consumer;
 

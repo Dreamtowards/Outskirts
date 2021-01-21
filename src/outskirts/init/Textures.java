@@ -1,9 +1,8 @@
 package outskirts.init;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.util.ResourceLocation;
-import outskirts.util.Side;
 
 // should uses EntityMaterials insteads indies Models and Textures ..?
 

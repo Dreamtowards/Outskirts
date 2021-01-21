@@ -2,13 +2,10 @@ package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.ModelRenderer;
-import outskirts.client.render.renderer.RenderEngine;
-import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;

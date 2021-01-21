@@ -1,10 +1,8 @@
 package outskirts.util.obj;
 
-import outskirts.client.material.Model;
-import outskirts.client.material.ex.ModelData;
+import outskirts.client.render.Model;
 import outskirts.client.render.VertexBuffer;
 import outskirts.util.CollectionUtils;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
@@ -12,60 +10,66 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Float.parseFloat;
-import static java.lang.Integer.parseInt;
-import static outskirts.util.StringUtils.explode;
 import static outskirts.util.StringUtils.explodeSpaces;
 
 public class OBJLoader {
 
-    public static ModelData loadOBJ(InputStream inputStream) {
+    public static VertexBuffer loadOBJ(InputStream is) {
         List<Vector3f> tbPositions = new ArrayList<>();     // OBJ data table
         List<Vector2f> tbTextureCoords = new ArrayList<>(); // OBJ data table
         List<Vector3f> tbNormals = new ArrayList<>();       // OBJ data table
-        List<String> rawVertices = new ArrayList<>();       // all vertices. allowed duplicate elements.
+        List<String> tris = new ArrayList<>();       // all vertices. allowed duplicate elements.
 
-        readObjFile(inputStream, tbPositions, tbTextureCoords, tbNormals, rawVertices);
+        readObjFile(is, tbPositions, tbTextureCoords, tbNormals, tris);
 
-        List<String> tbDisjointVertices = new ArrayList<>(new HashSet<>(rawVertices));
+//        List<String> tbVerticesSet = new ArrayList<>(new HashSet<>(tris));
+//        // exporting data.
+//        int tbvtxsz = tbDisjointVertices.size(); // "vertex table" size.
+//        int[] out_indices = new int[rawVertices.size()]; {
+//            for (int i = 0;i < rawVertices.size();i++) {
+//                out_indices[i] = tbDisjointVertices.indexOf(rawVertices.get(i));
+//            }
+//        }
+//        float[] out_positions = new float[tbvtxsz * 3];
+//        float[] out_textureCoords = new float[tbvtxsz * 2];
+//        float[] out_normals = new float[tbvtxsz * 3];
+//
+//        int i = 0;
+//        for (String objv : tbDisjointVertices) {
+//            String[] bound = objv.split("/");
+//
+//            Vector3f POS = tbPositions.get(Integer.parseInt(bound[0])-1);
+//            out_positions[i*3]   = POS.x;
+//            out_positions[i*3+1] = POS.y;
+//            out_positions[i*3+2] = POS.z;
+//
+//            Vector2f TEX = tbTextureCoords.get(Integer.parseInt(bound[1])-1);
+//            out_textureCoords[i * 2] = TEX.x;
+//            out_textureCoords[i * 2 + 1] = TEX.y;
+//
+//            Vector3f NORM = tbNormals.get(Integer.parseInt(bound[2])-1);
+//            out_normals[i * 3] = NORM.x;
+//            out_normals[i * 3 + 1] = NORM.y;
+//            out_normals[i * 3 + 2] = NORM.z;
+//            i++;
+//        }
+//        return new ModelData(out_indices, out_positions, out_textureCoords, out_normals);
 
-        // exporting data.
-        int tbvtxsz = tbDisjointVertices.size(); // "vertex table" size.
-        int[] out_indices = new int[rawVertices.size()]; {
-            for (int i = 0;i < rawVertices.size();i++) {
-                out_indices[i] = tbDisjointVertices.indexOf(rawVertices.get(i));
-            }
+        VertexBuffer vbuf = new VertexBuffer();
+        for (String tri3v : tris) {
+            String[] bound = tri3v.split("/");
+            vbuf.addpos(tbPositions.get(Integer.parseInt(bound[0])-1));
+            vbuf.adduv(tbTextureCoords.get(Integer.parseInt(bound[1])-1));
+            vbuf.addnorm(tbNormals.get(Integer.parseInt(bound[2])-1));
         }
-        float[] out_positions = new float[tbvtxsz * 3];
-        float[] out_textureCoords = new float[tbvtxsz * 2];
-        float[] out_normals = new float[tbvtxsz * 3];
-
-        int i = 0;
-        for (String objv : tbDisjointVertices) {
-            String[] bound = objv.split("/");
-
-            Vector3f POS = tbPositions.get(Integer.parseInt(bound[0])-1);
-            out_positions[i*3]   = POS.x;
-            out_positions[i*3+1] = POS.y;
-            out_positions[i*3+2] = POS.z;
-
-            Vector2f TEX = tbTextureCoords.get(Integer.parseInt(bound[1])-1);
-            out_textureCoords[i * 2] = TEX.x;
-            out_textureCoords[i * 2 + 1] = TEX.y;
-
-            Vector3f NORM = tbNormals.get(Integer.parseInt(bound[2])-1);
-            out_normals[i * 3] = NORM.x;
-            out_normals[i * 3 + 1] = NORM.y;
-            out_normals[i * 3 + 2] = NORM.z;
-            i++;
-        }
-
-        return new ModelData(out_indices, out_positions, out_textureCoords, out_normals);
+        return vbuf;
     }
 
-    private static void readObjFile(InputStream inputStream, List<Vector3f> positions, List<Vector2f> textureCoords, List<Vector3f> normals, List<String> rawVertices) {
+    private static void readObjFile(InputStream inputStream, List<Vector3f> positions, List<Vector2f> textureCoords, List<Vector3f> normals, List<String> tris) {
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         String line;
         int lineNum = 0;
@@ -84,9 +88,9 @@ public class OBJLoader {
             } else if (line.startsWith("f ")) {  // v,vt,vn table all beeing Read-Only when start reading f.  but not a exception validate
                 tableCompleted=true;
                 String[] s = explodeSpaces(line);
-                rawVertices.add(s[1]);
-                rawVertices.add(s[2]);
-                rawVertices.add(s[3]);
+                tris.add(s[1]);
+                tris.add(s[2]);
+                tris.add(s[3]);
             }
             lineNum++;
         }

@@ -3,9 +3,8 @@ package outskirts.client;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL;
-import outskirts.client.material.Model;
-import outskirts.client.material.ex.ModelData;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Model;
+import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
@@ -30,8 +29,8 @@ import static org.lwjgl.opengl.GL12.glTexImage3D;
 import static org.lwjgl.opengl.GL12.glTexSubImage3D;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class Loader {
@@ -64,14 +63,14 @@ public final class Loader {
     /**
      * Load "General 3D Vertices Data" with Tangents. (positions:vec3, textureCoords:vec2, normals:vec3)
      */
-    public static Model loadModelTAN(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
+    private static Model loadModelT(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
         float[] tangents = new float[positions.length];
         Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
         return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
     }
     public static Model loadModelT(VertexBuffer vbuf, Function<float[], float[]> posproc) {
         int vsz = vbuf.positions.size()/3;
-        return Loader.loadModelTAN(CollectionUtils.range(vsz),
+        return Loader.loadModelT(CollectionUtils.range(vsz),
                 posproc.apply(CollectionUtils.toArrayf(vbuf.positions)),
                 CollectionUtils.toArrayf(vbuf.textureCoords),
                 CollectionUtils.toArrayf(vbuf.normals));
@@ -100,12 +99,12 @@ public final class Loader {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
 
-    public static Model loadOBJ(InputStream inputStream, Ref<ModelData> mdat) { // boolean center .?
+    public static Model loadOBJ(InputStream is, Ref<VertexBuffer> mdatrf) { // boolean center .?
         try {
-            ModelData modeldat = OBJLoader.loadOBJ(inputStream);
-            if (mdat != null)
-                mdat.value = modeldat;
-            return Loader.loadModelTAN(modeldat.indices, modeldat.positions, modeldat.textureCoords, modeldat.normals);
+            VertexBuffer vbuf = OBJLoader.loadOBJ(is);
+            if (mdatrf != null)
+                mdatrf.value = vbuf;
+            return Loader.loadModelT(vbuf);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);
         }

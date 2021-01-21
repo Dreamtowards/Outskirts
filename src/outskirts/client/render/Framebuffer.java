@@ -2,13 +2,9 @@ package outskirts.client.render;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Texture;
 import outskirts.util.CollectionUtils;
-import outskirts.util.logging.Log;
 
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.LinkedList;
 
 import static org.lwjgl.opengl.GL30.*;

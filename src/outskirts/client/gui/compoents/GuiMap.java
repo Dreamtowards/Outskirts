@@ -2,16 +2,12 @@ package outskirts.client.gui.compoents;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiDrag;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.event.EventHandler;
-import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -19,9 +15,7 @@ import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 

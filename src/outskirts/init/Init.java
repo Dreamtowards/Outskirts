@@ -2,7 +2,7 @@ package outskirts.init;
 
 import outskirts.block.Block;
 import outskirts.client.Loader;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
@@ -20,7 +20,6 @@ import outskirts.network.play.packet.SPacketChatMessage;
 import outskirts.util.IOUtils;
 import outskirts.util.Identifier;
 import outskirts.util.Side;
-import outskirts.util.logging.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;

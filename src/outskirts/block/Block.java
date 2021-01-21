@@ -1,12 +1,8 @@
 package outskirts.block;
 
-import outskirts.client.material.TextureAtlas;
+import outskirts.client.render.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.chunk.ChunkModelGenerator;
-import outskirts.client.render.chunk.PolygoniseMCGenerator;
-import outskirts.entity.Entity;
 import outskirts.entity.EntityDropItem;
-import outskirts.init.Blocks;
 import outskirts.item.Item;
 import outskirts.item.stack.ItemStack;
 import outskirts.util.Side;
@@ -15,8 +11,6 @@ import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
-
-import java.util.Objects;
 
 public abstract class Block implements Registrable {
 

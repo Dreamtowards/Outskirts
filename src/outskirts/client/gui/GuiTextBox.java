@@ -2,19 +2,13 @@ package outskirts.client.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.FontRenderer;
-import outskirts.event.Cancellable;
 import outskirts.event.client.input.CharInputEvent;
-import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
-import outskirts.util.vector.Vector2i;
-
-import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 

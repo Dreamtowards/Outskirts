@@ -2,7 +2,7 @@ package outskirts.client.render.renderer.skybox;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.init.ex.Models;

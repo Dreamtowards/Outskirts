@@ -2,14 +2,12 @@ package outskirts.client.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.event.EventBus;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.Validate;
-import outskirts.util.logging.Log;
 
 import java.util.function.Consumer;
 

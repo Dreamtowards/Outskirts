@@ -2,8 +2,6 @@ package outskirts.item;
 
 import outskirts.block.Block;
 import outskirts.client.gui.Gui;
-import outskirts.client.material.Texture;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.item.stack.ItemStack;
 import outskirts.util.Colors;
 import outskirts.util.Side;
@@ -11,8 +9,6 @@ import outskirts.util.SideOnly;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.world.World;
-
-import java.util.Objects;
 
 public abstract class Item implements Registrable {
 

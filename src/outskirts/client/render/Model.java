@@ -1,4 +1,4 @@
-package outskirts.client.material;
+package outskirts.client.render;
 
 import static org.lwjgl.opengl.ARBVertexArrayObject.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL11.*;

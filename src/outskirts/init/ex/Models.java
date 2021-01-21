@@ -1,14 +1,11 @@
 package outskirts.init.ex;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Model;
+import outskirts.client.render.Model;
 import outskirts.client.render.VertexBuffer;
 import outskirts.util.Identifier;
 import outskirts.util.Side;
 import outskirts.util.SideOnly;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 @SideOnly(Side.CLIENT)
 public final class Models {

@@ -1,7 +1,7 @@
 package outskirts.client.gui;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.util.Identifier;
 
 public class GuiSwitch extends Gui implements Gui.Checkable {

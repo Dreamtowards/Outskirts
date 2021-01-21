@@ -2,19 +2,15 @@ package outskirts.client.render.renderer.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.gui.Gui;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.Renderer;
-import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.*;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
-import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector4f;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;

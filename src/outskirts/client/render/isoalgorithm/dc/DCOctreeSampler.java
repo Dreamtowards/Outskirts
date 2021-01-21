@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 import static outskirts.util.CollectionUtils.range;
 
-public class DCOctreeGen {
+public class DCOctreeSampler {
 
     public static Octree fromSDF(Vector3f min, float size, TrifFunc f, int depthcap) {
         return sample(min, size, lf -> {

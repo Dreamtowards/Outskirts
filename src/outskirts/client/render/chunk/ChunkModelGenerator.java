@@ -2,8 +2,8 @@ package outskirts.client.render.chunk;
 
 import outskirts.block.Block;
 import outskirts.client.Loader;
-import outskirts.client.material.Model;
-import outskirts.client.material.TextureAtlas;
+import outskirts.client.render.Model;
+import outskirts.client.render.TextureAtlas;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.renderer.ModelRenderer;

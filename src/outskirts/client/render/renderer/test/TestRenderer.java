@@ -1,7 +1,7 @@
 package outskirts.client.render.renderer.test;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Model;
+import outskirts.client.render.Model;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Identifier;

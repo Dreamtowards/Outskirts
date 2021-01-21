@@ -1,6 +1,6 @@
 package outskirts.client.gui;
 
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 
 public class GuiImage extends Gui {
 

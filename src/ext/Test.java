@@ -2,35 +2,28 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
-import outskirts.client.material.ex.ModelData;
-import outskirts.client.render.isoalgorithm.dc.DCOctreeGen;
+import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
-import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
-import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
-import outskirts.util.Maths;
-import outskirts.util.Val;
+import outskirts.util.CollectionUtils;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.logging.Log;
-import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
-import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.LongConsumer;
 
-import static java.lang.Math.floor;
 import static java.lang.Math.random;
 import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
 import static outskirts.util.logging.Log.LOGGER;
@@ -404,12 +397,12 @@ public class Test {
 
 //        Octree node = DCOctreeGen.fromSDF(vec3(-5), 10, D_FUNC, 5);
 //        LOGGER.info("Read OBJ.");
-        ModelData md = OBJLoader.loadOBJ(new FileInputStream("exa1.obj"));
-        AABB bd = AABB.bounding(md.positions, null);bd.grow(0.00001f);
+        VertexBuffer inVbuf = OBJLoader.loadOBJ(new FileInputStream("stool.obj"));
+        AABB bd = AABB.bounding(inVbuf.posarr(), null);bd.grow(0.00001f);
         LOGGER.info("model aabb: "+bd); // AABB[[5.306239, 5.3062587, 0.7999878], [10.693726, 10.693727, 15.199997]]
 
         LOGGER.info("Sampling mesh");
-        Raycastable mesh = new BvhTriangleMeshShape(md.indices, md.positions);
+        Raycastable mesh = new BvhTriangleMeshShape(CollectionUtils.range(inVbuf.positions.size()/3), inVbuf.posarr());
 
 //        BvhTriangleMeshShape.vb=true;
 //        Val t = Val.zero(); Vector3f n = new Vector3f();
@@ -430,7 +423,7 @@ public class Test {
 //                System.exit(0);
         Vector3f min = vec3(-10f); min.set(bd.min);
         float size = 20; size = Math.max(Math.max(bd.max.x-bd.min.x, bd.max.y-bd.min.y), bd.max.z-bd.min.z);
-        Octree node = DCOctreeGen.fromMESH(min, size, mesh, 5);
+        Octree node = DCOctreeSampler.fromMESH(min, size, mesh, 5);
 //        node = DCOctreeGen.fromSDF(min, size, D_FUNC, 5);
         LOGGER.info("Collapse octree.");
         node = Octree.collapse(node);

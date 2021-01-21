@@ -1,17 +1,12 @@
 package outskirts.client.animation.animated;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
 import outskirts.client.animation.Animation;
 import outskirts.client.animation.dae.DaeLoader;
-import outskirts.client.material.Model;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Model;
+import outskirts.client.render.Texture;
 import outskirts.util.Identifier;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
-
-import java.util.Map;
 
 public class AnimatedModel {
 

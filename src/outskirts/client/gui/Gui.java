@@ -2,8 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.material.Texture;
-import outskirts.client.render.renderer.gui.FontRenderer;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.Event;
@@ -11,15 +10,12 @@ import outskirts.event.EventBus;
 import outskirts.event.Events;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
-import outskirts.util.Colors;
 import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -27,7 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.lang.Float.NaN;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 

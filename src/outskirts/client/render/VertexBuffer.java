@@ -5,6 +5,7 @@ import outskirts.util.IOUtils;
 import outskirts.util.StringUtils;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.obj.OBJLoader;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// todo: mode indexing.?
 public final class VertexBuffer {
 
     public List<Float> positions = new ArrayList<>();
@@ -37,11 +39,17 @@ public final class VertexBuffer {
         textureCoords.add(x);
         textureCoords.add(y);
     }
+    public void adduv(Vector2f v) {
+        adduv(v.x, v.y);
+    }
 
     public void addnorm(float x, float y, float z) {
         normals.add(x);
         normals.add(y);
         normals.add(z);
+    }
+    public void addnorm(Vector3f v) {
+        addnorm(v.x, v.y, v.z);
     }
     public void setnorm(int i, float x, float y, float z) {
         normals.set(i,   x);
@@ -62,6 +70,7 @@ public final class VertexBuffer {
     public float[] normarr() {
         return CollectionUtils.toArrayf(normals);
     }
+
 
     public void inituvnorm() {
         for (int i = 0;i < positions.size()/3;i++) {

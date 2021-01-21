@@ -1,10 +1,6 @@
 package outskirts.client.render.renderer;
 
-import outskirts.client.material.Model;
 import outskirts.client.render.shader.ShaderProgram;
-import outskirts.util.logging.Log;
-
-import static org.lwjgl.opengl.GL11.*;
 
 /**
  * for the base class:

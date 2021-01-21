@@ -1,8 +1,7 @@
 package outskirts.entity;
 
 import outskirts.block.Block;
-import outskirts.client.material.Model;
-import outskirts.init.Textures;
+import outskirts.client.render.Model;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;

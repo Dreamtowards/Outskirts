@@ -1,14 +1,10 @@
 package outskirts.entity;
 
-import outskirts.client.Loader;
-import outskirts.client.material.Model;
+import outskirts.client.render.Model;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
-import outskirts.storage.SAVERS;
 import outskirts.storage.dst.DObject;
-
-import java.io.ByteArrayInputStream;
 
 public class EntityStaticMesh extends Entity {
 

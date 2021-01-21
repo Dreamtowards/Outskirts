@@ -7,12 +7,10 @@ import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiScrollPanel;
 import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.event.EventPriority;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
-
-import static java.lang.Float.NaN;
 
 /**
  * should not be a Entity Window.

@@ -1,8 +1,8 @@
 package outskirts.client.render.renderer.post;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Model;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Model;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Identifier;

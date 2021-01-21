@@ -1,6 +1,6 @@
 package outskirts.entity;
 
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;

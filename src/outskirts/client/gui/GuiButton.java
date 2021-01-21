@@ -4,12 +4,10 @@ import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.audio.AudioSource;
-import outskirts.client.material.Texture;
-import outskirts.event.EventHandler;
+import outskirts.client.render.Texture;
 import outskirts.init.Sounds;
 import outskirts.util.Colors;
 import outskirts.util.ResourceLocation;
-import outskirts.util.vector.Vector4f;
 
 public class GuiButton extends Gui {
 

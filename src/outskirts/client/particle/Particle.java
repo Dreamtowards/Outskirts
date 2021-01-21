@@ -1,8 +1,6 @@
 package outskirts.client.particle;
 
-import outskirts.client.Loader;
-import outskirts.client.material.Model;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.util.vector.Vector3f;
 
 public class Particle {

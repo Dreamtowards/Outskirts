@@ -4,7 +4,7 @@ import outskirts.client.Loader;
 import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Texture;
 import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;

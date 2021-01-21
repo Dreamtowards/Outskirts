@@ -2,14 +2,13 @@ package outskirts.world;
 
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Model;
+import outskirts.client.render.Model;
 import outskirts.client.render.Light;
 import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
-import outskirts.init.ex.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.util.GameTimer;

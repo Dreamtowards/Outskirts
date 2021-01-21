@@ -2,7 +2,7 @@ package outskirts.client.render.renderer.particle;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Model;
+import outskirts.client.render.Model;
 import outskirts.client.particle.Particle;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;

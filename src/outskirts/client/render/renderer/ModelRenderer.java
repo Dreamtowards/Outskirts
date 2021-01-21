@@ -2,8 +2,8 @@ package outskirts.client.render.renderer;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Model;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Model;
+import outskirts.client.render.Texture;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.*;

@@ -3,18 +3,16 @@ package outskirts.client.render.renderer.map;
 import outskirts.block.Block;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Model;
-import outskirts.client.material.Texture;
+import outskirts.client.render.Model;
+import outskirts.client.render.Texture;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.Chunk;
-import outskirts.world.chunk.ChunkPos;
 
 import java.awt.image.BufferedImage;
 

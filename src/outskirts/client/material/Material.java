@@ -1,5 +1,7 @@
 package outskirts.client.material;
 
+import outskirts.client.render.Texture;
+
 //todo: problem: Texture/Model should like Vector/mat that 100% reuseable.? or just Unmodifiable...
 public final class Material {
 

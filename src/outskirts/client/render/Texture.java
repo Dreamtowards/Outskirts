@@ -1,4 +1,4 @@
-package outskirts.client.material;
+package outskirts.client.render;
 
 import outskirts.client.Loader;
 import outskirts.util.Colors;
