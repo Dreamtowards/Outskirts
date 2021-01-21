@@ -13,7 +13,7 @@ public class EntityGeoShape extends Entity {
         setRegistryID("geo_shape");
 
         if (Side.CURRENT == Side.CLIENT) {
-            getMaterial().setDiffuseMap(Texture.UNIT);
+            getRenderPerferences().setDiffuseMap(Texture.UNIT);
             if (shape instanceof BoxShape) {
                 setModel(Models.GEO_CUBE);
                 tmp_boxSphere_scale.set(((BoxShape)shape).getHalfExtent());

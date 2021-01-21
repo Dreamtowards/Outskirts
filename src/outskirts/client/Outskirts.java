@@ -16,7 +16,7 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
-import outskirts.client.render.Light;
+import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
@@ -332,7 +332,7 @@ public class Outskirts {
 
 
         getPlayer().setModel(Models.GEOS_CAPSULE);
-        getPlayer().getMaterial().setDiffuseMap(Textures.CONTAINER);
+        getPlayer().getRenderPerferences().setDiffuseMap(Textures.CONTAINER);
         getPlayer().tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
         RigidBody prb = getPlayer().getRigidBody();
 //        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));

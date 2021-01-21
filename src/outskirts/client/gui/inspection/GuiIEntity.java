@@ -41,7 +41,7 @@ public class GuiIEntity extends Gui {
             );
 
             registerInspectionField(Entity.class, "GIMaterial", entity ->
-                    new GuiIMaterial(entity.getMaterial())
+                    new GuiIMaterial(entity.getRenderPerferences())
             );
 
             registerInspectionField(Entity.class, "Common", entity ->

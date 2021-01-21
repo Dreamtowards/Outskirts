@@ -3,7 +3,7 @@ package outskirts.world;
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
-import outskirts.client.render.Light;
+import outskirts.client.render.lighting.Light;
 import outskirts.client.render.chunk.ChunkModelGenerator;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
@@ -201,7 +201,7 @@ public abstract class World implements Tickable {
         Thread t = new Thread(() -> {
             while (true) {
                 try {
-                    Vector3f cenPos = Outskirts.getPlayer().getPosition();
+                    Vector3f cenPos = Outskirts.getPlayer().position();
                     int cenX=floor(cenPos.x,16), cenZ=floor(cenPos.z,16);
     //                int sz = 1;
                     for (int i = -sz;i <= sz;i++) {

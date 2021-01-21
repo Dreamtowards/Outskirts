@@ -13,7 +13,7 @@ public class EntityTerrainMesh extends Entity {
 
         setModel(Models.EMPTY);
         rigidbody().setMass(0);
-        material().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
+        getRenderPerferences().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
 //        material().setDiffuseMap(Textures.GRASS);
     }
 

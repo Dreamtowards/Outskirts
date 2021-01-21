@@ -8,4 +8,8 @@ public interface Savable {
 
     // maybe shoudn't uses "on" because the 'on' like a time-related event, but there are just 'Operations', not events.
     DObject onWrite(DObject mp);
+
+    static Savable of(Object obj) {
+        return null;
+    }
 }

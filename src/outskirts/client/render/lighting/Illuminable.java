@@ -1,4 +1,4 @@
-package outskirts.client.render;
+package outskirts.client.render.lighting;
 
 import java.util.List;
 

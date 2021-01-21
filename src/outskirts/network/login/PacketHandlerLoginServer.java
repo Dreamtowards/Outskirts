@@ -43,7 +43,7 @@ public class PacketHandlerLoginServer {
         connection.sendPacket(new SPacketLoginSuccess());
 
         Log.info("Player %s[%s]{%s, %s} logged in.", player.getName(),
-                connection.channel().remoteAddress(), player.getWorld().getRegistryID(), player.getPosition());
+                connection.channel().remoteAddress(), player.getWorld().getRegistryID(), player.position());
 
         OutskirtsServer.getOnlinePlayers().sendBroadcast(String.format("%s logged in.", player.getName()));
     }

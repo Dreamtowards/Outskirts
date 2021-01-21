@@ -2,7 +2,7 @@ package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.render.Light;
+import outskirts.client.render.lighting.Light;
 import outskirts.util.Colors;
 
 public class GuiILightsList extends Gui {

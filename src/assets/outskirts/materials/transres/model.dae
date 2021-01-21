@@ -75,9 +75,9 @@
     </effect>
   </library_effects>
   <library_materials>
-    <material id="Material-material" name="Material">
+    <renderPerferences id="Material-renderPerferences" name="Material">
       <instance_effect url="#Material-effect"/>
-    </material>
+    </renderPerferences>
   </library_materials>
   <library_geometries>
     <geometry id="Cube-mesh" name="Cube">
@@ -124,7 +124,7 @@
         <vertices id="Cube-mesh-vertices">
           <input semantic="POSITION" source="#Cube-mesh-positions"/>
         </vertices>
-        <polylist material="Material-material" count="1420">
+        <polylist renderPerferences="Material-renderPerferences" count="1420">
           <input semantic="VERTEX" source="#Cube-mesh-vertices" offset="0"/>
           <input semantic="NORMAL" source="#Cube-mesh-normals" offset="1"/>
           <input semantic="TEXCOORD" source="#Cube-mesh-map-0" offset="2" set="0"/>
@@ -886,7 +886,7 @@
           <skeleton>#Torso</skeleton>
           <bind_material>
             <technique_common>
-              <instance_material symbol="Material-material" target="#Material-material">
+              <instance_material symbol="Material-renderPerferences" target="#Material-renderPerferences">
                 <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
               </instance_material>
             </technique_common>

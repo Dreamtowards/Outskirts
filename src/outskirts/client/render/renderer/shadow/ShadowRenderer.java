@@ -67,9 +67,9 @@ public class ShadowRenderer extends Renderer {
         for (Entity entity : entities) {
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, entity.getMaterial().getDiffuseMap().textureID());
+            glBindTexture(GL_TEXTURE_2D, entity.getRenderPerferences().getDiffuseMap().textureID());
 
-            shader.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), null));
+            shader.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.position(), entity.tmp_boxSphere_scale, entity.rotation(), null));
 
             glBindVertexArray(entity.getModel().vaoID());
             glDrawElements(GL_TRIANGLES, entity.getModel().vertexCount(), GL_UNSIGNED_INT, 0);

@@ -32,10 +32,10 @@ public class CommandSummon extends Command {
         Entity entity = Entity.createEntity(registryID);
 
         if (args.length >= 2)
-            entity.getPosition().set(parseVector3f(args[1]));
+            entity.position().set(parseVector3f(args[1]));
 
         ((EntityPlayerMP)entity).getWorld().addEntity(entity);
 
-        sender.sendMessage("Summoned %s in %s", entity.getRegistryID(), entity.getPosition());
+        sender.sendMessage("Summoned %s in %s", entity.getRegistryID(), entity.position());
     }
 }

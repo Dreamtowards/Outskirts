@@ -20,7 +20,7 @@ public class SceneIniter {
         try {
             planeGround.setModel(Loader.loadOBJ(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/islandblend.obj")));
 
-            planeGround.getMaterial().setDiffuseMap(Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/island_diff.png")));
+            planeGround.getRenderPerferences().setDiffuseMap(Loader.loadTexture(new FileInputStream("/Users/dreamtowards/Documents/Modeling/Blender/island_diff.png")));
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -1,6 +1,6 @@
 package outskirts.entity;
 
-import outskirts.client.material.Material;
+import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.SAVERS;
@@ -21,7 +21,7 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     private RigidBody rigidbody = new RigidBody();
 
-    private Material material = new Material();
+    private RenderPerferences renderPerferences = new RenderPerferences();
     private Model model;
 
     // ref to the world
@@ -31,7 +31,7 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     public static Entity createEntity(String registryID) {
         try {
-            return REGISTRY.get(registryID).getClass().newInstance();
+            return REGISTRY.get(registryID).getClass().getDeclaredConstructor().newInstance();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create Entity. ("+registryID, ex);
         }
@@ -42,11 +42,8 @@ public abstract class Entity implements Registrable, Savable, Tickable {
         return entity;
     }
 
-    public final Material getMaterial() {
-        return material;
-    }
-    public final Material material() {
-        return material;
+    public final RenderPerferences getRenderPerferences() {
+        return renderPerferences;
     }
 
     public final Model getModel() {
@@ -60,18 +57,14 @@ public abstract class Entity implements Registrable, Savable, Tickable {
     public final RigidBody getRigidBody() {
         return rigidbody;
     }
-    public final RigidBody rigidbody() {
+    public final RigidBody rigidbody() { // Feel One-Body.
         return rigidbody;
     }
 
-    // dep.?
-    public final Vector3f getPosition() {
-        return rigidbody.transform().origin;
-    }
     public final Vector3f position() {
         return rigidbody.transform().origin;
     }
-    public final Matrix3f getRotation() {
+    public final Matrix3f rotation() {
         return rigidbody.transform().basis;
     }
 
@@ -95,6 +88,7 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
         SAVERS.RIGIDBODY.read(getRigidBody(), (DObject)mp.get("rigidbody"));
 
+//        Savable.of(rigidbody()).onRead(mp.getDObject("rigidbody"));
 
     }
 
@@ -103,6 +97,8 @@ public abstract class Entity implements Registrable, Savable, Tickable {
         mp.put("registryID", registryID);
 
         mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DObject()));
+
+//        Savable.of(getRigidBody()).onWrite(new DObject());
 
         return mp;
     }

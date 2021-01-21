@@ -1,7 +1,7 @@
 package outskirts.storage;
 
 import outskirts.client.Loader;
-import outskirts.client.material.Material;
+import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;
 import outskirts.physics.collision.shapes.convex.ConvexHullShape;
@@ -179,9 +179,9 @@ public final class SAVERS {
 //        }
 //    };
 
-    public static final Saver<Material> MATERIAL = new Saver<Material>() {
+    public static final Saver<RenderPerferences> MATERIAL = new Saver<RenderPerferences>() {
         @Override
-        public void read(Material obj, DObject mp) {
+        public void read(RenderPerferences obj, DObject mp) {
 
             obj.setDiffuseMap(Loader.loadTexture((byte[])mp.get("diffuseMap")));
             obj.setEmissionMap(Loader.loadTexture((byte[])mp.get("emissionMap")));
@@ -197,7 +197,7 @@ public final class SAVERS {
         }
 
         @Override
-        public DObject write(Material obj, DObject mp) {
+        public DObject write(RenderPerferences obj, DObject mp) {
 
             mp.put("diffuseMap", Loader.savePNG(obj.getDiffuseMap()));
             mp.put("emissionMap", Loader.savePNG(obj.getEmissionMap()));

@@ -1,8 +1,7 @@
-package outskirts.client.render;
+package outskirts.client.render.lighting;
 
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 
 public final class Light {
 

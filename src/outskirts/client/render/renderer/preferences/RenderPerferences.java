@@ -1,9 +1,9 @@
-package outskirts.client.material;
+package outskirts.client.render.renderer.preferences;
 
 import outskirts.client.render.Texture;
 
 //todo: problem: Texture/Model should like Vector/mat that 100% reuseable.? or just Unmodifiable...
-public final class Material {
+public final class RenderPerferences {
 
     private Texture diffuseMap = Texture.UNIT; // Diffuse Map. the Surface Texture.
     private Texture emissionMap = Texture.ZERO;
@@ -19,7 +19,7 @@ public final class Material {
     public Texture getDiffuseMap() {
         return diffuseMap;
     }
-    public Material setDiffuseMap(Texture diffuseMap) {
+    public RenderPerferences setDiffuseMap(Texture diffuseMap) {
         this.diffuseMap = diffuseMap;
         return this;
     }
@@ -27,7 +27,7 @@ public final class Material {
     public Texture getEmissionMap() {
         return emissionMap;
     }
-    public Material setEmissionMap(Texture emissionMap) {
+    public RenderPerferences setEmissionMap(Texture emissionMap) {
         this.emissionMap = emissionMap;
         return this;
     }
@@ -35,7 +35,7 @@ public final class Material {
     public Texture getNormalMap() {
         return normalMap;
     }
-    public Material setNormalMap(Texture normalMap) {
+    public RenderPerferences setNormalMap(Texture normalMap) {
         this.normalMap = normalMap;
         return this;
     }
@@ -44,21 +44,21 @@ public final class Material {
     public Texture getSpecularMap() {
         return specularMap;
     }
-    public Material setSpecularMap(Texture specularMap) {
+    public RenderPerferences setSpecularMap(Texture specularMap) {
         this.specularMap = specularMap;
         return this;
     }
     public float getSpecularStrength() {
         return specularStrength;
     }
-    public Material setSpecularStrength(float specularStrength) {
+    public RenderPerferences setSpecularStrength(float specularStrength) {
         this.specularStrength = specularStrength;
         return this;
     }
     public float getShininess() {
         return shininess;
     }
-    public Material setShininess(float shininess) {
+    public RenderPerferences setShininess(float shininess) {
         this.shininess = shininess;
         return this;
     }
@@ -66,19 +66,19 @@ public final class Material {
     public Texture getDisplacementMap() {
         return displacementMap;
     }
-    public Material setDisplacementMap(Texture displacementMap) {
+    public RenderPerferences setDisplacementMap(Texture displacementMap) {
         this.displacementMap = displacementMap;
         return this;
     }
     public float getDisplacementScale() {
         return displacementScale;
     }
-    public Material setDisplacementScale(float displacementScale) {
+    public RenderPerferences setDisplacementScale(float displacementScale) {
         this.displacementScale = displacementScale;
         return this;
     }
 
-    public final Material set(Material m) {
+    public final RenderPerferences set(RenderPerferences m) {
 
         setDiffuseMap(m.getDiffuseMap());
         setEmissionMap(m.getEmissionMap());

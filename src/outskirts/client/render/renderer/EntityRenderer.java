@@ -2,11 +2,11 @@ package outskirts.client.render.renderer;
 
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
-import outskirts.client.material.Material;
+import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.client.render.TextureAtlas;
 import outskirts.client.render.Framebuffer;
-import outskirts.client.render.Light;
+import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
@@ -155,16 +155,16 @@ public class EntityRenderer extends Renderer {
             if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
                 continue;
             Model model = entity.getModel();
-            Material material = entity.getMaterial();
+            RenderPerferences renderPerferences = entity.getRenderPerferences();
 
             glBindVertexArray(model.vaoID());
 
-            shaderGeometry.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), MAT_MODELMAT_TRANS));
+            shaderGeometry.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.position(), entity.tmp_boxSphere_scale, entity.rotation(), MAT_MODELMAT_TRANS));
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, material.getDiffuseMap().textureID());
+            glBindTexture(GL_TEXTURE_2D, renderPerferences.getDiffuseMap().textureID());
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, material.getSpecularMap().textureID());
+            glBindTexture(GL_TEXTURE_2D, renderPerferences.getSpecularMap().textureID());
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }

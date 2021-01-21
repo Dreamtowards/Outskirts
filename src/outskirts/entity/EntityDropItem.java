@@ -35,7 +35,7 @@ public class EntityDropItem extends Entity {
 
 //            rigidbody().setCollisionShape(new ConvexHullShape(QuickHull.quickHull(prf.value)));
             rigidbody().setCollisionShape(new SphereShape(.1f));
-            getMaterial().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
+            getRenderPerferences().setDiffuseMap(Block.TEXTURE_ATLAS.getAtlasTexture());
         } else {
             setModel(Models.GEO_CUBE);
             rigidbody().setCollisionShape(new BoxShape(1,1,1));
