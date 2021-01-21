@@ -87,6 +87,9 @@ public class AABB {
     public AABB grow(Vector3f vec) {
         return grow(vec.x, vec.y, vec.z);
     }
+    public AABB grow(float f) {
+        return grow(f, f, f);
+    }
 
     public AABB expand(Vector3f vec) {
         if (vec.x < 0f) min.x += vec.x;
@@ -143,13 +146,16 @@ public class AABB {
         return translate(trans.x*scalar, trans.y*scalar, trans.z*scalar);
     }
 
-    private boolean intersects(AABB other) {
-        return  min.x < other.max.x && max.x > other.min.x &&
-                min.y < other.max.y && max.y > other.min.y &&
-                min.z < other.max.z && max.z > other.min.z;
+    private boolean intersects(AABB other, float e) {
+        return  min.x < other.max.x+e && max.x > other.min.x-e &&
+                min.y < other.max.y+e && max.y > other.min.y-e &&
+                min.z < other.max.z+e && max.z > other.min.z-e;
+    }
+    public static boolean intersects(AABB a, AABB b, float e) {
+        return a.intersects(b, e);
     }
     public static boolean intersects(AABB a, AABB b) {
-        return a.intersects(b);
+        return a.intersects(b, 0);
     }
     
     public boolean intersectsX(AABB other) {

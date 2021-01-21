@@ -18,6 +18,8 @@ public class Vector3f extends Vector {
     public static final Vector3f UNIT_Y = new Vector3f(0.0f, 1.0f, 0.0f);
     public static final Vector3f UNIT_Z = new Vector3f(0.0f, 0.0f, 1.0f);
 
+    public static final Vector3f[] AXES = new Vector3f[] {UNIT_X, UNIT_Y, UNIT_Z};
+
     public float x;
     public float y;
     public float z;
@@ -178,7 +180,7 @@ public class Vector3f extends Vector {
 
     //ext
     /**
-     * calculate Normal Vetcor of the Triangle. not had normalized.
+     * calculate Normal Vetcor of the Triangle.  normalized.
      * @param v1,v2,v3 the Triangle.
      * @param forcedir the angle between Triangle-Normal AND normdir, will keeps in <= 90'. (when > 90', just negated the norm.). Nullable
      */
@@ -195,7 +197,7 @@ public class Vector3f extends Vector {
         }
         if (forcedir!=null && dot(dest, forcedir) < 0)
             dest.negate();
-        return dest;
+        return dest.normalize();
     }
     public static Vector3f trinorm(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f dest, Vector3f forcedir) {
         return trinorm(v1, v2, v3, dest, forcedir, null);
@@ -265,6 +267,9 @@ public class Vector3f extends Vector {
                         Maths.floor(dest.z, u));
     }
 
+    public static boolean isFinite(Vector3f v) {
+        return Float.isFinite(v.x) && Float.isFinite(v.y) && Float.isFinite(v.z);
+    }
 
     public float get(int i) {
         if (i==0) return x;

@@ -2,6 +2,7 @@ package ext;
 
 import ext.srt.QuickSort;
 import ext.srt.Sort;
+import outskirts.client.material.ex.ModelData;
 import outskirts.client.render.isoalgorithm.dc.DCOctreeGen;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
@@ -11,13 +12,25 @@ import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.Raycastable;
+import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
+import outskirts.physics.collision.shapes.concave.TriangleMeshShape;
+import outskirts.util.Maths;
+import outskirts.util.Val;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.logging.Log;
+import outskirts.util.mx.VertexUtil;
+import outskirts.util.obj.OBJLoader;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.gen.NoiseGeneratorPerlin;
 
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.List;
 import java.util.function.LongConsumer;
 
+import static java.lang.Math.floor;
 import static java.lang.Math.random;
 import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
 import static outskirts.util.logging.Log.LOGGER;
@@ -374,20 +387,67 @@ public class Test {
 //            LOGGER.info("i "+i+" "+lf.collapsed());
 //        }
 
+//        Vector2f v2 = new Vector2f();
+//        AABB aabb1 = new AABB(0,0,0,1,1,1);
+//        LOGGER.info(Maths.intersectRayAabb(vec3(1,0,0), vec3(0,1,0), aabb1, v2));
 
-        //todo: NORM GEN DBG.
-        LOGGER.info("STRT");
+//        float INF = Float.POSITIVE_INFINITY;
+//        LOGGER.info(AABB.intersects(aabb1, new AABB(0,-INF,0,0,INF,0), 0.001f));
+//        System.out.println(" "+Float.POSITIVE_INFINITY*-1);
+//        System.out.println(" "+Float.POSITIVE_INFINITY*0);
+//        System.exit(0);
+        NoiseGeneratorPerlin nois = new NoiseGeneratorPerlin();
+        TrifFunc D_FUNC = (x,y,z)-> nois.noise(x/8f,y/8f,z/8f);//-DistFunctions.boundingbox(vec3(x,y,z), vec3(3f,2f,4f), .3f);
 
-        Octree node = DCOctreeGen.fromSDF(vec3(-5), 10,
-                (x,y,z)-> -DistFunctions.boundingbox(vec3(x,y,z),
-                        vec3(3f,2f,4f), .3f), 0, 5);
+//        todo: NORM GEN DBG.
+//        LOGGER.info("STRT");
+
+//        Octree node = DCOctreeGen.fromSDF(vec3(-5), 10, D_FUNC, 5);
+//        LOGGER.info("Read OBJ.");
+        ModelData md = OBJLoader.loadOBJ(new FileInputStream("exa1.obj"));
+        AABB bd = AABB.bounding(md.positions, null);bd.grow(0.00001f);
+        LOGGER.info("model aabb: "+bd); // AABB[[5.306239, 5.3062587, 0.7999878], [10.693726, 10.693727, 15.199997]]
+
+        LOGGER.info("Sampling mesh");
+        Raycastable mesh = new BvhTriangleMeshShape(md.indices, md.positions);
+
+//        BvhTriangleMeshShape.vb=true;
+//        Val t = Val.zero(); Vector3f n = new Vector3f();
+//        boolean itst = mesh.raycast(vec3(2,0,0), vec3(-1,0,0), t, n);  // 1, 0,1,0
+//        boolean itst = mesh.raycast(vec3(0), Vector3f.fromString("[-0.6666667, -0.33333334, -0.6666667]"), t, n);  // 1, 0,1,0
+//        LOGGER.info(" cast result: "+itst+" t="+t.val+", n:"+n); int i = 0;
+//        for (float x = -4;x <= 4; x++) {
+//            for (float y = -4;y <= 4;y++) {
+//                for (float z = -4;z <= 4;z++) {
+//                    if (x==0&&y==0&&z==0) continue;
+//                    Vector3f dir = vec3(x,y,z).normalize();
+//                    assert mesh.raycast(vec3(0), dir, t, n) : "DIR: "+dir+" t:"+t.val;
+//                    LOGGER.info(t.val+"  "+dir+"    n: "+n);
+////                    LOGGER.info(i++ +"/"+(9*9*9) + " x"+x+" y" + y + " z " + z);
+//                }
+//            }
+//        }
+//                System.exit(0);
+        Vector3f min = vec3(-10f); min.set(bd.min);
+        float size = 20; size = Math.max(Math.max(bd.max.x-bd.min.x, bd.max.y-bd.min.y), bd.max.z-bd.min.z);
+        Octree node = DCOctreeGen.fromMESH(min, size, mesh, 5);
+//        node = DCOctreeGen.fromSDF(min, size, D_FUNC, 5);
+        LOGGER.info("Collapse octree.");
         node = Octree.collapse(node);
 //        Octree.dbgprint(node, 0, "");
 
-        Octree.dbgaabbobj(node, "aabb.obj", vec3(-5), 10);
-
+        LOGGER.info("CONTOURING.");
         VertexBuffer vbuf = DualContouring.contouring(node);
 
+        LOGGER.info("Write aabb");
+        Octree.DBG_AABB_LEAF=true;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=false;
+        Octree.dbgaabbobj(node, "aabb_l.obj", min, size);
+        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=true;Octree.DBG_AABB_HERMIT=false;
+        Octree.dbgaabbobj(node, "aabb_i.obj", min, size);
+        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=true;
+        Octree.dbgaabbobj(node, "aabb_h.obj", min, size);
+
+        LOGGER.info("Write Output.");
         vbuf.inituvnorm();
         vbuf.tmpsaveobjfile("ms.obj");
     }

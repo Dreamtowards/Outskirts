@@ -3,11 +3,9 @@ package outskirts.physics.collision.shapes.concave;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.ConcaveShape;
 import outskirts.physics.collision.shapes.Raycastable;
-import outskirts.util.CollectionUtils;
-import outskirts.util.Colors;
-import outskirts.util.Maths;
-import outskirts.util.Ref;
+import outskirts.util.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
@@ -20,6 +18,8 @@ import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+
+import static java.lang.StrictMath.abs;
 
 /**
  * BoundingVolumeHierarchy TriangleMeshShape.
@@ -146,24 +146,32 @@ public class BvhTriangleMeshShape extends TriangleMeshShape {
         return dest.set(rootNode.volume);
     }
 
-
+public static boolean vb = false;
     @Override
-    public boolean raycast(Vector3f raypos, Vector3f raydir, Ref<Float> t) {
-        t.value = Float.MAX_VALUE;
-        Ref<Float> tmp = Ref.wrap();
+    public boolean raycast(Vector3f raypos, Vector3f raydir, Val t, Vector3f ndest) {
+        t.val = Float.MAX_VALUE;
+        Val tmp = Val.zero();
         Vector2f tmpaabbr = new Vector2f();
-        walkNode(rootNode, n -> {
+        AABB aaraybb = null;  // Axis-Aligned ray optimize. both for accurecy and performence.
+        for (int i = 0;i < 3;i++) {
+            if (abs(raydir.get(i)) == 1f) {
+                aaraybb = new AABB(raypos, raypos);
+                aaraybb.min.setv(i, Float.NEGATIVE_INFINITY);
+                aaraybb.max.setv(i, Float.POSITIVE_INFINITY);
+                break;
+            }
+        }
+        AABB faaraybb = aaraybb;
+        walkNode(rootNode, n -> {  //todo: ray-triangle had 'Hermitedata-sampling' problem. the ray-aabb looks hidden the problem.
             // had coll the tri aabb volume. go walk through -> true. and do real-test is that intersects ray-tri.
-            if (Maths.intersectRayAabb(raypos, raydir, n.volume, tmpaabbr)) {
-                if (n.isLeaf()) {
+            if (faaraybb!=null?AABB.intersects(faaraybb, n.volume,Maths.FLT_EPSILON) : Maths.intersectRayAabb(raypos, raydir, n.volume, tmpaabbr)) {
+                if (n.isLeaf()) { //if (vb) System.err.println("Leaf Intersec");
                     Vector3f[] tri = getTriangle(n.triangleIndex, TMP_TRIANGE);
-                    if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp)) {
-                        t.value = Math.min(t.value, tmp.value);
-                    }
+                    ConcaveShape.intersectsRayTriangle(raypos, raydir, tri, tmp, t, ndest);
                 }
                 return true;
             } else return false;  // just not keep to through the node ('s children).
         });
-        return t.value != Float.MAX_VALUE;
+        return t.val != Float.MAX_VALUE;
     }
 }

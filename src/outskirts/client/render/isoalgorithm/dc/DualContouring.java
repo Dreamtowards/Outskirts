@@ -1,6 +1,7 @@
 package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.VertexBuffer;
+import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
@@ -152,12 +153,12 @@ public final class DualContouring {
                 minsz = leaf.size;
                 minidx = i;
 
-                flip = leaf.sign(v1) > 0;
-                assert i == 0 : "Not Same Size.?";
+                flip = leaf.solid(v1); // ?? is this sign right.?
             }
+            assert leaf.size == ((Octree.Leaf)eadjacent[0]).size : "Not Same Size.?";
 
-            signchanged[i] = leaf.sign(v1) != leaf.sign(v2);
-            assert signchanged[i] == signchanged[0] : "Diff Sign?!";
+            signchanged[i] = leaf.solid(v1) != leaf.solid(v2);
+//            assert signchanged[i] == signchanged[0] : "Diff Sign?!";
         }
 
         if (signchanged[minidx]) {
@@ -185,62 +186,5 @@ public final class DualContouring {
     }
 
 
-
-    /**
-     *  Approximated Gradient. the f'(v). use of Finite Differential.
-     *  f'(x, y, z) = normalize(
-     *      (f(x+d,y,z) - f(x-d,y,z)) / 2d,
-     *      (f(x,y+d,z) - f(x,y-d,z)) / 2d,
-     *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
-     *   )
-     */
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest, float d) {
-        if (dest == null) dest = new Vector3f();
-        float denom = 1f / (2f*d);
-        return dest.set(
-                (f.sample(p.x+d, p.y, p.z) - f.sample(p.x-d, p.y, p.z)) * denom,
-                (f.sample(p.x, p.y+d, p.z) - f.sample(p.x, p.y-d, p.z)) * denom,
-                (f.sample(p.x, p.y, p.z+d) - f.sample(p.x, p.y, p.z-d)) * denom
-        ).normalize();
-    }
-    public static Vector3f fnorm(TrifFunc f, Vector3f p, Vector3f dest) {
-        return fnorm(f, p, dest, .001f);
-    }
-
-    /**
-     * Sample from SignedDensityFunction.
-     * required: cell.min, cell.size.
-     * samples:  cell.edges, cell.sign
-     */
-    public static void sampleSDF(Octree.Leaf cell, TrifFunc f) {
-        float[] v = new float[8];
-        Vector3f tmpp = new Vector3f();
-        for (int i = 0;i < 8;i++) {
-            v[i] = f.sample( tmpp.set(cell.min).addScaled(cell.size, VERT[i]) );
-            cell.sign(i, v[i] > 0);
-        }
-
-        Arrays.fill(cell.edges, null);
-        for (int i = 0;i < 12;i++) {
-            int[] edge = EDGE[i];
-            float val0 = v[edge[0]];
-            float val1 = v[edge[1]];
-            if (val0>0 != val1>0) {
-                HermiteData h = new HermiteData();
-
-                int axis = i/4;
-                float t = Maths.inverseLerp(0, val0, val1);
-                h.point.set(cell.min).addScaled(cell.size, VERT[edge[0]]).addv(axis, t*cell.size);
-
-                fnorm(f, h.point, h.norm);
-                cell.edges[i] = h;
-            }
-        }
-    }
-
-
-    public static void sampleMESH(Octree.Leaf cell, VertexBuffer vbuftrisps) {
-
-    }
 
 }

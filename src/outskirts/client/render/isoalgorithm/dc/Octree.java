@@ -1,11 +1,14 @@
 package outskirts.client.render.isoalgorithm.dc;
 
+import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.Val;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
 import java.io.File;
@@ -37,6 +40,7 @@ public abstract class Octree {
             new Vector3f(1, 1, 1)
     };
 
+    // from Min to Max in each Edge.
     /**       -          |          /     AXIS XYZ.
      *     +--2--+    +-----+    +-----+
      *    /|    /|   /4    /6   9|    11
@@ -103,7 +107,7 @@ public abstract class Octree {
 
         // is there has data-repeat.? some edge are shared.
         /** Hermite data for Edges.  only sign-changed edge are nonnull. else just null element. */
-        public final HermiteData[] edges = new HermiteData[12];
+        private final HermiteData[] edges = new HermiteData[12];
 
         public final Vector3f featurepoint = new Vector3f();
 
@@ -121,13 +125,14 @@ public abstract class Octree {
         @Override
         public byte type() { return TYPE_LEAF; }
 
-        public int sign(int vi) { assert vi >= 0 && vi < 8;
-            return ((vsign >>> vi) & 1) == 1 ? 1 : -1;
+        public boolean solid(int vi) { assert vi >= 0 && vi < 8;
+            return ((vsign >>> vi) & 1) == 1;
         }
         public void sign(int vi, boolean solid) { assert vi >= 0 && vi < 8;
             vsign |= (solid ? 1 : 0) << vi;
         }
 
+        // when..? not just after change, but just when update-needed. when read-fp.
         public void computefp() {
             Octree.computefeaturepoint(this);
         }
@@ -137,6 +142,26 @@ public abstract class Octree {
             return vsign == SG_FULL || vsign == SG_EMPTY;
         }
 
+        public void clearedges() {
+            Arrays.fill(edges, null);
+        }
+        public int validedges() {
+            return CollectionUtils.nonnulli(edges);
+        }
+
+
+        public void validate() {
+            assert !collapsed() || validedges() == 0;
+            for (int i = 0;i < 12;i++) {
+                HermiteData h = edges[i];
+                if (h != null) {
+                    assert Vector3f.isFinite(h.point) && Vector3f.isFinite(h.norm);
+                    int axis = Octree.edgeaxis(i);
+                    float f = h.point.get(axis) - min.get(axis);
+                    assert f >= 0 && f <= size;
+                }
+            }
+        }
         public AABB aabb(AABB dest) {
             return dest.set(min.x, min.y, min.z, min.x+size, min.y+size, min.z+size);
         }
@@ -144,19 +169,21 @@ public abstract class Octree {
 
 
     private static void computefeaturepoint(Octree.Leaf cell) {
-        int sz = CollectionUtils.nonnulli(cell.edges);
+        int sz = cell.validedges();
         Vector3f[] ps = new Vector3f[sz];
         Vector3f[] ns = new Vector3f[sz];
-        int i = 0;
+        int j = 0;
         for (HermiteData h : cell.edges) {
             if (h != null) {
-                ps[i] = h.point;
-                ns[i] = h.norm;
-                i++;
+                ps[j] = h.point;
+                ns[j] = h.norm;  j++;
             }
         }
-        if (ps.length != 0)
-        cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+        if (ps.length != 0) {
+            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+//            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
+        }
+        assert Vector3f.isFinite(cell.featurepoint) : "Illegal fp("+cell.featurepoint+") ps:"+Arrays.toString(ps)+", ns:"+Arrays.toString(ns);
     }
 
 
@@ -185,11 +212,8 @@ public abstract class Octree {
                     int idx = IOUtils.readByte(is);
                     HermiteData h = new HermiteData();
 
-                    int axis = idx/4;
-                    float t = IOUtils.readFloat(is); assert t >= 0F && t <= 1F;
-                    h.point.set(leaf.min)
-                           .addScaled(size, VERT[EDGE[idx][0]])  // offset to edge-base-vert.
-                           .addv(axis, leaf.size*t);
+                    float t = IOUtils.readFloat(is);
+                    edgelerp(leaf, idx, t, h.point);
 
                     h.norm.x = IOUtils.readFloat(is);
                     h.norm.y = IOUtils.readFloat(is);
@@ -230,7 +254,7 @@ public abstract class Octree {
                 if (h != null) {
                     IOUtils.writeByte(os, (byte)i);
 
-                    int axis = i/4;
+                    int axis = edgeaxis(i);
                     float minf = leaf.min.get(axis);
                     float t = Maths.inverseLerp(h.point.get(axis), minf, minf+leaf.size);  assert t >= 0F && t <= 1F;
                     IOUtils.writeFloat(os, t);
@@ -245,9 +269,11 @@ public abstract class Octree {
     }
 
 
-
-
+    /**
+     * Collapse Empty nodes.
+     */
     public static Octree collapse(Octree node) {
+        if (node==null) return null;
         if (node.isInternal()) {
             Octree.Internal internal = (Octree.Internal)node;
             for (int i = 0;i < 8;i++) {
@@ -256,6 +282,88 @@ public abstract class Octree {
         }
         return node.collapsed() ? null : node;
     }
+
+    /**
+     * Edge Lerp of Actually Cell.
+     */
+    private static void edgelerp(Octree.Leaf cell, int edgei, float t, Vector3f dest) {
+        assert t >= 0F && t <= 1F;
+        int axis = edgeaxis(edgei);
+        dest.set(cell.min)
+                .addScaled(cell.size, VERT[EDGE[edgei][0]])  // offset to edge-base-vert.
+                .addv(axis, cell.size*t);
+    }
+    private static int edgeaxis(int edgei) {
+        return edgei/4;
+    }
+
+
+
+
+    /**
+     * Sample from SignedDensityFunction.
+     * required: cell.min, cell.size.
+     * samples:  cell.edges, cell.sign
+     */
+    public static void sampleSDF(Octree.Leaf cell, TrifFunc f) {
+        float[] v = new float[8];
+        Vector3f tmpp = new Vector3f();
+        for (int i = 0;i < 8;i++) {
+            v[i] = f.sample( tmpp.set(cell.min).addScaled(cell.size, VERT[i]) );
+            cell.sign(i, v[i] > 0);
+        }
+
+        cell.clearedges();
+        for (int i = 0;i < 12;i++) {
+            int[] edge = EDGE[i];
+            float val0 = v[edge[0]],val1 = v[edge[1]];
+            if (val0>0 != val1>0) {
+                HermiteData h = new HermiteData();
+
+                float t = Maths.inverseLerp(0, val0, val1);
+                edgelerp(cell, i, t, h.point);
+
+                Maths.grad(f, h.point, h.norm);
+                cell.edges[i] = h;
+            }
+        }
+    }
+
+    /**
+     * Sample from TriangleMesh. CCW winding.
+     */
+    public static void sampleMESH(Octree.Leaf cell, Raycastable mesh) {
+        cell.clearedges();
+
+        Vector3f edgebase = new Vector3f();
+        Val t = Val.zero();  // ray actually length. not 0-1.
+        Vector3f n = new Vector3f();
+        for (int i = 0;i < 12;i++) {
+            int[] edge = EDGE[i];
+            edgelerp(cell, i, 0f, edgebase);
+            Vector3f AXIS = Vector3f.AXES[edgeaxis(i)];
+            if (mesh.raycast(edgebase, AXIS, t, n) && t.val <= cell.size) {  assert t.val >= 0 && t.val <= cell.size;
+                HermiteData h = new HermiteData();
+
+                h.point.set(edgebase).addScaled(t.val, AXIS);
+                h.norm.set(n);
+
+                cell.edges[i] = h;
+                boolean vbasesolid = Vector3f.dot(AXIS, n) > 0;  // edge-base-vert 'behind' the norm. solid.
+                cell.sign(edge[0], vbasesolid);  // there are not appear duplicated-setting. not all edge has intersects.
+                cell.sign(edge[1], !vbasesolid);
+            }
+        }
+        cell.validate();
+    }
+
+
+
+
+
+
+
+    //  DEBUG.
 
     public static void dbgprint(Octree node, int dep, String pf) {
         System.out.printf("L%s|%s%s", dep, " ".repeat(dep*2), pf);
@@ -275,16 +383,29 @@ public abstract class Octree {
 
     public static void dbgaabbobj(Octree node, String outobj, Vector3f min, float sz) {
         StringBuilder sb = new StringBuilder();
-        dbgaabbobj(sb, node, min, sz, Val.zero());
+        dbgaabbobj(sb, node, min, sz, Val.of(1));
         try {
             IOUtils.write(sb.toString(), new File(outobj));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
+    public static boolean DBG_AABB_LEAF = true;
+    public static boolean DBG_AABB_INTERN = true;
+    public static boolean DBG_AABB_HERMIT = true;
     private static void dbgaabbobj(StringBuilder sb, Octree node, Vector3f min, float size, Val vi) {
         if (node == null) return;
-        dbgAppendAABB(sb, min, size, vi);
+        if ((DBG_AABB_LEAF && node.isLeaf()) || (DBG_AABB_INTERN && node.isInternal()))
+            dbgAppendAABB(sb, min, size, vi);
+        if (DBG_AABB_HERMIT && node.isLeaf()) {
+            Leaf lf = (Leaf)node;
+            for (int i = 0;i < 12;i++) {
+                HermiteData h = lf.edges[i];
+                if (h != null) {
+                    dbgAppendLine(sb, h.point, new Vector3f(h.point).addScaled(lf.size*.8f, h.norm), vi);
+                }
+            }
+        }
         if (node.isInternal()) {
             Vector3f tmp = new Vector3f();
             for (int i = 0;i < 8;i++) {
@@ -299,8 +420,14 @@ public abstract class Octree {
             obj.append(String.format("v %s %s %s\n",p.x,p.y,p.z));
         }
         for (int i = 0;i < 12;i++) {
-            obj.append(String.format("l %s %s\n",(int)vi.val+1+EDGE[i][0], (int)vi.val+1+EDGE[i][1]));
+            obj.append(String.format("l %s %s\n",(int)vi.val+EDGE[i][0], (int)vi.val+EDGE[i][1]));
         }
         vi.val += 8;
+    }
+    private static void dbgAppendLine(StringBuilder obj, Vector3f v1, Vector3f v2, Val vi) {
+        obj.append(String.format("v %s %s %s\n",v1.x,v1.y,v1.z));
+        obj.append(String.format("v %s %s %s\n",v2.x,v2.y,v2.z));
+        obj.append(String.format("l %s %s\n",(int)vi.val, (int)vi.val+1));
+        vi.val += 2;
     }
 }

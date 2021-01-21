@@ -33,14 +33,22 @@ public abstract class ConcaveShape extends CollisionShape implements Raycastable
 
     // linear. fullwalk. slow.
     @Override
-    public boolean raycast(Vector3f raypos, Vector3f raydir, Ref<Float> t) {
-        t.value = Float.MAX_VALUE;
-        Ref<Float> tmp = Ref.wrap();
+    public boolean raycast(Vector3f raypos, Vector3f raydir, Val t, Vector3f ndest) {
+        t.val = Float.MAX_VALUE;
+        Val tmp = Val.zero(); // artibary.
         collideTriangles(AABB.INFINITY, (i, tri) -> {
-            if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp)) {
-                t.value = Math.min(t.value, tmp.value);
-            }
+            intersectsRayTriangle(raypos, raydir, tri, tmp, t, ndest);
         });
-        return t.value != Float.MAX_VALUE;
+        return t.val != Float.MAX_VALUE;
+    }
+
+    protected static void intersectsRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f[] tri, Val tmp, Val t, Vector3f ndest) {
+        if (Maths.intersectRayTriangle(raypos, raydir, tri[0], tri[1], tri[2], tmp) && tmp.val >= 0) {
+            if (tmp.val < t.val) {
+                t.val = tmp.val;
+                if (ndest != null)
+                    Vector3f.trinorm(tri[0], tri[1], tri[2], ndest);
+            }
+        }
     }
 }

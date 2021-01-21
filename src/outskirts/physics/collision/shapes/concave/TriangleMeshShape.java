@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
  * Triangle vertices data. localspace.
  */
 //todo: setMesh(indices, positions) .?
-public abstract class TriangleMeshShape extends ConcaveShape {
+public class TriangleMeshShape extends ConcaveShape {
 
     /**
      * indices of positions vector. index unit is vec3. (not scalar).

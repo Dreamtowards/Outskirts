@@ -36,15 +36,15 @@ public class RayPicker {
                 excepts.add(found);
                 CollisionShape collshape = found.getRigidBody().getCollisionShape();
                 if (collshape instanceof Raycastable) {
-                    Ref<Float> tmp = Ref.wrap();
+                    Val tmp =Val.zero();
                     Vector3f relpos = new Vector3f(rayOrigin).sub(found.getRigidBody().transform().origin);
                     try {
                         if (((Raycastable)collshape).raycast(relpos, rayDirection, tmp)) {  // rayDirection modelMatrix rot.
                             // the casted result is more 'Near'.
-                            if (tmp.value < collT) {
+                            if (tmp.val < collT) {
                                 currentEntity=found;
-                                collT = tmp.value;
-                                t.value = tmp.value;
+                                collT = tmp.val;
+                                t.value = tmp.val;
                             }
                         } else {
                             // not-cast. find from 'start'. the actually casted aabb-t should behind curr aabb-t.

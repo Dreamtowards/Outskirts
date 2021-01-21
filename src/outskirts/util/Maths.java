@@ -1,6 +1,7 @@
 package outskirts.util;
 
 import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.*;
 
@@ -230,6 +231,28 @@ public final class Maths {
         return (int)mod((float)v, (float)b);
     }
 
+
+    /**
+     *  Approximated Gradient. the f'(v). use of Finite Differential.
+     *  f'(x, y, z) = normalize(
+     *      (f(x+d,y,z) - f(x-d,y,z)) / 2d,
+     *      (f(x,y+d,z) - f(x,y-d,z)) / 2d,
+     *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
+     *   )
+     */
+    public static Vector3f grad(TrifFunc f, Vector3f p, Vector3f dest, float d) {
+        if (dest == null) dest = new Vector3f();
+        float denom = 1f / (2f*d);
+        return dest.set(
+                (f.sample(p.x+d, p.y, p.z) - f.sample(p.x-d, p.y, p.z)) * denom,
+                (f.sample(p.x, p.y+d, p.z) - f.sample(p.x, p.y-d, p.z)) * denom,
+                (f.sample(p.x, p.y, p.z+d) - f.sample(p.x, p.y, p.z-d)) * denom
+        ).normalize();
+    }
+    public static Vector3f grad(TrifFunc f, Vector3f p, Vector3f dest) {
+        return grad(f, p, dest, .001f);
+    }
+
     // deprecated. use sequence rotations to get the dir
     /**
      * @param pitch,yaw in radians
@@ -355,10 +378,10 @@ public final class Maths {
         Vector3f OA = Vector3f.sub(A, O, null); //todo opts
         return Vector3f.dot(OA, N) / Vector3f.dot(R, N);
     }
-    public static boolean intersectRayPlane(Vector3f raypos, Vector3f raydir, Vector3f planepos, Vector3f planenorm, Ref<Float> t) {
+    public static boolean intersectRayPlane(Vector3f raypos, Vector3f raydir, Vector3f planepos, Vector3f planenorm, Val t) {
         float f = Maths.intersectRayPlanef(raypos, raydir, planepos, planenorm);
-        if (Float.isNaN(f)) return false;
-        t.value=f;
+        if (!Float.isFinite(f)) return false;
+        t.val=f;
         return true;
     }
 
@@ -399,7 +422,7 @@ public final class Maths {
         tFar = tymax < tFar || Float.isNaN(tFar) ? tymax : tFar;
         tNear = Math.max(tzmin, tNear);
         tFar = Math.min(tzmax, tFar);
-        if (tNear <= tFar && tFar >= 0.0f) {
+        if (tNear <= tFar && tFar >= 0) {
             result.x = tNear;
             result.y = tFar;
             return true;
@@ -439,31 +462,35 @@ public final class Maths {
         return false;
     }
 
-    public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Ref<Float> t) {
+    /**
+     * @param t neg or pos. neg: "Triangle behind Ray", pos: "Triangle front Ray".
+     */
+    public static boolean intersectRayTriangle(Vector3f raypos, Vector3f raydir, Vector3f A, Vector3f B, Vector3f C, Val t) {
         Vector3f N = Vector3f.trinorm(A, B, C, null);
         if (!intersectRayPlane(raypos, raydir, A, N, t))
             return false;
-        Vector3f P = new Vector3f(raypos).addScaled(t.value, raydir);
+        float e = FLT_EPSILON;
+        Vector3f P = new Vector3f(raypos).addScaled(t.val, raydir);
         Vector3f AB = Vector3f.sub(B, A, null);
         Vector3f AC = Vector3f.sub(C, A, null);
         Vector3f AP = Vector3f.sub(P, A, null);
         Vector3f ABNorm = Vector3f.cross(AB, N, null);
-        if (Vector3f.dot(ABNorm, AC) > 0) ABNorm.negate();
-        if (Vector3f.dot(ABNorm, AP) > 0) return false;
+        if (Vector3f.dot(ABNorm, AC) > e) ABNorm.negate();
+        if (Vector3f.dot(ABNorm, AP) > e) return false;
 
         Vector3f BC = Vector3f.sub(C, B, null);
         Vector3f BA = Vector3f.sub(A, B, null);
         Vector3f BP = Vector3f.sub(P, B, null);
         Vector3f BCNorm = Vector3f.cross(BC, N, null);
-        if (Vector3f.dot(BCNorm, BA) > 0) BCNorm.negate();
-        if (Vector3f.dot(BCNorm, BP) > 0) return false;
+        if (Vector3f.dot(BCNorm, BA) > e) BCNorm.negate();
+        if (Vector3f.dot(BCNorm, BP) > e) return false;
 
         Vector3f CA = Vector3f.sub(A, C, null);
         Vector3f CB = Vector3f.sub(B, C, null);
         Vector3f CP = Vector3f.sub(P, C, null);
         Vector3f CANorm = Vector3f.cross(CA, N, null);
-        if (Vector3f.dot(CANorm, CB) > 0) CANorm.negate();
-        if (Vector3f.dot(CANorm, CP) > 0) return false;
+        if (Vector3f.dot(CANorm, CB) > e) CANorm.negate();
+        if (Vector3f.dot(CANorm, CP) > e) return false;
         return true;
     }
 
@@ -514,6 +541,10 @@ public final class Maths {
         float w = (dABAB * dAPAC - dABAC * dAPAB) / denom;
         return dest.set(1.0f - v - w, v, w);
     }
+
+
+
+
     /**
      * @param x,y the point, oriented from left-top
      * @param dest the Vector2f is stories in Heap.. dest for cache supports. cause this method be used too much times
