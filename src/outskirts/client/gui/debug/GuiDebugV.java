@@ -2,7 +2,6 @@ package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
-import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;

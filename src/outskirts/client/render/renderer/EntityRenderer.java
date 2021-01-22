@@ -182,12 +182,12 @@ public class EntityRenderer extends Renderer {
             shaderCompose.setInt("lightCount", lightCount);
             for (int i = 0;i < lightCount;i++) {
                 Light light = lights.get(i);
-                shaderCompose.setVector3f(uniform_lights$color[i], light.getColor());
-                shaderCompose.setVector3f(uniform_lights$position[i], light.getPosition());
-                shaderCompose.setVector3f(uniform_lights$attenuation[i], light.getAttenuation());
-                shaderCompose.setVector3f(uniform_lights$direction[i], light.getDirection());
-                shaderCompose.setFloat(uniform_lights$coneAngleInner[i], (float)Math.cos(light.getConeAngleInner()));
-                shaderCompose.setFloat(uniform_lights$coneAngleOuter[i], (float)Math.cos(light.getConeAngleOuter()));
+                shaderCompose.setVector3f(uniform_lights$color[i], light.color());
+                shaderCompose.setVector3f(uniform_lights$position[i], light.position());
+                shaderCompose.setVector3f(uniform_lights$attenuation[i], light.attenuation());
+                shaderCompose.setVector3f(uniform_lights$direction[i], light.direction());
+                shaderCompose.setFloat(uniform_lights$coneAngleInner[i], (float)Math.cos(light.coneAngle().x));
+                shaderCompose.setFloat(uniform_lights$coneAngleOuter[i], (float)Math.cos(light.coneAngle().y));
             }
         }
 

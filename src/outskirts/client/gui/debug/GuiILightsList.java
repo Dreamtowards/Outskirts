@@ -15,7 +15,7 @@ public class GuiILightsList extends Gui {
 
             for (Light light : Outskirts.getWorld().lights) {
 
-                Gui.drawWorldpoint(light.getPosition(), (x, y) -> {
+                Gui.drawWorldpoint(light.position(), (x, y) -> {
                     drawString("Light", x,y, Colors.WHITE);
                 });
             }

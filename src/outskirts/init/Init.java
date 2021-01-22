@@ -1,8 +1,6 @@
 package outskirts.init;
 
 import outskirts.block.Block;
-import outskirts.client.Loader;
-import outskirts.client.render.Texture;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
@@ -12,20 +10,12 @@ import outskirts.entity.player.EntityPlayerSP;
 import outskirts.init.ex.Models;
 import outskirts.item.Item;
 import outskirts.item.ItemBlock;
-import outskirts.material.Material;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;
 import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.packet.SPacketChatMessage;
-import outskirts.util.IOUtils;
-import outskirts.util.Identifier;
 import outskirts.util.Side;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public final class Init {
 

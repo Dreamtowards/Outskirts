@@ -19,14 +19,7 @@ public final class Models {
     public static final Model GEO_CONE = loadOBJ("materials/geo/cone.obj");
     public static final Model GEOS_CAPSULE = loadOBJ("materials/_capsule.obj");// loadOBJ("materials/aya091/091_W_Aya_10K.obj");
 
-//    private static Model loadMDL() {
-//        try {
-//            MDL.MDLData mdat = MDL.loadMDL(new FileInputStream("mdl-fts/aya091_10K.mdl"));
-//            return Loader.loadModelTAN(mdat.indices, mdat.layouts.get(0), mdat.layouts.get(1), mdat.layouts.get(2));
-//        } catch (FileNotFoundException ex) {
-//            throw new RuntimeException(ex);
-//        }
-//    }
+
 
     private static Model loadOBJ(String resource) {
         return Loader.loadOBJ(new Identifier(resource).getInputStream());

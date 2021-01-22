@@ -1,6 +1,7 @@
 package outskirts.client.render.lighting;
 
 import outskirts.util.Maths;
+import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
 public final class Light {
@@ -27,43 +28,31 @@ public final class Light {
      * SpotLight
      */
     private Vector3f direction = new Vector3f(Vector3f.UNIT_X); // Direction (unit vector
-    // name as SpotConeInner ..?
-    private float coneAngleInner; // Spot Cone Angle. in radians. INNER == OUTER means disable Spot-Light.
-    private float coneAngleOuter;
 
-    public Vector3f getPosition() {
+    /**
+     * SpotLight ConeAngle. x: InnerAngle, y: OuterAngle.
+     * in radians. INNER == OUTER means disable Spot-Light.
+     */
+    private Vector2f coneangle = new Vector2f();
+
+    public Vector3f position() {
         return position;
     }
 
-    public Vector3f getColor() {
+    public Vector3f color() {
         return color;
     }
 
-    public Vector3f getAttenuation() {
+    public Vector3f attenuation() {
         return attenuation;
     }
 
-    public Vector3f getDirection() {
+    public Vector3f direction() {
         return direction;
     }
 
-    public float getConeAngleInner() {
-        return coneAngleInner;
-    }
-    public void setConeAngleInner(float coneAngleInner) {
-        this.coneAngleInner = coneAngleInner;
-    }
-
-    public float getConeAngleOuter() {
-        return coneAngleOuter;
-    }
-    public void setConeAngleOuter(float coneAngleOuter) {
-        this.coneAngleOuter = coneAngleOuter;
-    }
-
-    public final void setConeAngleInnerOuter(float coneAngleInner, float coneAngleOuter) {
-        setConeAngleInner(coneAngleInner);
-        setConeAngleOuter(coneAngleOuter);
+    public Vector2f coneAngle() {
+        return coneangle;
     }
 
 
@@ -84,7 +73,7 @@ public final class Light {
             {3250, 0.0014f, 0.000007f}
     };
 
-    public static Vector3f calculateApproximateAttenuation(float distance, Vector3f dest) {
+    public static Vector3f approximateAttenuation(float distance, Vector3f dest) {
         distance = Maths.clamp(distance, ATTE_VTABLE[0][0], ATTE_VTABLE[ATTE_VTABLE.length-1][0]-0.001f);
         int section = -1;
         for (int i = 0;i < ATTE_VTABLE.length-1;i++) {

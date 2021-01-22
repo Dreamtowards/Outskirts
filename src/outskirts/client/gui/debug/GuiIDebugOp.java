@@ -1,21 +1,5 @@
 package outskirts.client.gui.debug;
 
-import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiPopupMenu;
-import outskirts.client.gui.GuiSlider;
-import outskirts.client.gui.ex.GuiIngame;
-import outskirts.client.gui.ex.GuiWindow;
-import outskirts.client.gui.inspection.GuiIEntity;
-import outskirts.client.render.renderer.post.PostRenderer;
-import outskirts.entity.EntityStaticMesh;
-import outskirts.event.EventPriority;
-import outskirts.init.ex.Models;
-import outskirts.util.vector.Matrix3f;
-
-import static org.lwjgl.opengl.GL11.*;
-import static outskirts.util.logging.Log.LOGGER;
-
 public class GuiIDebugOp {
 
 //    public static GuiPopupMenu debugMenu = new GuiPopupMenu();

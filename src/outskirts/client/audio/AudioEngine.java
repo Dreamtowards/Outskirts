@@ -24,26 +24,21 @@ public final class AudioEngine {
     private long currentDevice;
 
     public AudioEngine() {
-        try
-        {
-            currentDevice = alcOpenDevice((ByteBuffer)null);
-            if (currentDevice == NULL)
-                throw new IllegalStateException("Failed to open the default device.");
 
-            ALCCapabilities deviceCaps = ALC.createCapabilities(currentDevice);
+        currentDevice = alcOpenDevice((ByteBuffer)null);
+        assert currentDevice != NULL : "Failed to open the default device.";
 
-            alcContext = alcCreateContext(currentDevice, (IntBuffer)null);
-            alcSetThreadContext(alcContext);
-            AL.createCapabilities(deviceCaps);
+        ALCCapabilities deviceCaps = ALC.createCapabilities(currentDevice);
 
-            // AL.create();
+        alcContext = alcCreateContext(currentDevice, (IntBuffer)null);
+        alcSetThreadContext(alcContext);
+        AL.createCapabilities(deviceCaps);
 
-            LOGGER.info("AudioEngine initialized. AL_I: {} / {}, devispec {}", alGetString(AL_VENDOR), alGetString(AL_VERSION), alcGetString(currentDevice, ALC_DEVICE_SPECIFIER));
-        }
-        catch (Throwable ex)
-        {
-            throw new RuntimeException("Failed to init OpenAL.", ex);
-        }
+        // AL.create();
+
+        LOGGER.info("AudioEngine initialized. AL_I: {} / {}, devispec {}", alGetString(AL_VENDOR), alGetString(AL_VERSION), alcGetString(currentDevice, ALC_DEVICE_SPECIFIER));
+
+
 
         alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
     }
