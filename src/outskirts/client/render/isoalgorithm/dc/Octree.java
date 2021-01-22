@@ -180,8 +180,8 @@ public abstract class Octree {
             }
         }
         if (ps.length != 0) {
-            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
-//            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
+//            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
         }
         assert Vector3f.isFinite(cell.featurepoint) : "Illegal fp("+cell.featurepoint+") ps:"+Arrays.toString(ps)+", ns:"+Arrays.toString(ns);
     }

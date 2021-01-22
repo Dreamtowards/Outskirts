@@ -7,16 +7,19 @@ import outskirts.mod.Mod;
 import outskirts.util.SystemUtil;
 import outskirts.util.logging.Log;
 
+import static outskirts.util.logging.Log.LOGGER;
+
 public class ExtMOD extends Mod {
 
     {
         Events.EVENT_BUS.register(this);
+        System.out.println("init<>");
     }
 
     @EventHandler
     public void init(WindowResizedEvent event) {
 
-        Log.info("loaded. des: %s, loc: %s", getManifest().getDescription(),
+        Log.info("loaded. des: {}, loc: {}", getManifest().getDescription(),
                 SystemUtil.getProgramLocation(ExtMOD.class));
 
     }

@@ -1,4 +1,4 @@
-package ext.testing;
+package ext.etc;
 
 import org.junit.Test;
 import outskirts.physics.collision.broadphase.bounding.AABB;

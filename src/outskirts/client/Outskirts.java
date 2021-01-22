@@ -15,6 +15,7 @@ import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
+import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
@@ -253,12 +254,9 @@ public class Outskirts {
     private static EntityStaticMesh emesh; {
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
-                String s = OBJLoader.saveOBJ(world.getLoadedChunk(player.position().x, player.position().z).proxyEntity.getModel());
-                try {
-                    IOUtils.write(s, new File("terr.obj"));
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                VertexBuffer.of(world.getLoadedChunk(player.position().x, player.position().z).proxyEntity.getModel())
+                    .tmpsaveobjfile("terr.obj");
+
 
 //                Vector3f[] vts = DualContouring.contouring(DualContouring.F_SPHERE, new AABB(-6,-6,-6,6,6,6));
 //                VertexBuffer vbuf = new VertexBuffer();

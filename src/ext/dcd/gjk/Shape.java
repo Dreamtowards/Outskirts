@@ -1,4 +1,4 @@
-package ext.cd.gjk;
+package ext.dcd.gjk;
 
 import outskirts.util.vector.Vector3f;
 

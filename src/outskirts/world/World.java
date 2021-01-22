@@ -9,6 +9,7 @@ import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
+import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.util.GameTimer;
@@ -30,7 +31,7 @@ public abstract class World implements Tickable {
 
     private List<Entity> entities = new ArrayList<>();
 
-    public List<Light> lights = new ArrayList<>();
+    public List<Light> lights = new ArrayList<>(); // better get from entities.
 
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
 
@@ -88,7 +89,7 @@ public abstract class World implements Tickable {
     }
 
     public Block getBlock(int x, int y, int z) {
-        Chunk chunk = getLoadedChunk(floor(x, 16), floor(z, 16));
+        Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null)
             return null;
         if (y < 0 || y >= 256) return null;
@@ -111,6 +112,17 @@ public abstract class World implements Tickable {
         return -1;
     }
 
+    public Material getMaterial(float x, float y, float z) {
+        Chunk chunk = getLoadedChunk(x, z);
+        if (chunk == null) return null;
+
+//        chunk.getMaterial()
+        return null;
+    }
+
+    /**
+     * @param x,z world_coordinate.any
+     */
     public Chunk provideChunk(float x, float z) {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
@@ -172,6 +184,9 @@ public abstract class World implements Tickable {
         chunkLoader.saveChunk(chunk);
     }
 
+    /**
+     * @param x,z world_coordinate.any
+     */
     @Nullable
     public Chunk getLoadedChunk(float x, float z) {
         return loadedChunks.get(ChunkPos.asLong(x, z));

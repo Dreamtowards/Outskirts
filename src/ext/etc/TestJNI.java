@@ -1,11 +1,7 @@
-package ext.testing;
+package ext.etc;
 
-import ext.testing.JniPlt;
 import org.junit.Test;
 import outskirts.util.logging.Log;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class TestJNI {
 

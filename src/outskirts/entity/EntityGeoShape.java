@@ -12,7 +12,7 @@ public class EntityGeoShape extends Entity {
     public EntityGeoShape(CollisionShape shape) {
         setRegistryID("geo_shape");
 
-        if (Side.CURRENT == Side.CLIENT) {
+        if (Side.CURRENT.isClient()) {
             getRenderPerferences().setDiffuseMap(Texture.UNIT);
             if (shape instanceof BoxShape) {
                 setModel(Models.GEO_CUBE);

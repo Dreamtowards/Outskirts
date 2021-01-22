@@ -124,14 +124,14 @@ public class NoiseGeneratorPerlin {
     // i.e. perm[(255+1)%256]=perm[256]=perm[0]
     private final int[] perm = new int[257];
 
-    public NoiseGeneratorPerlin(int[] tperm) {
+    private NoiseGeneratorPerlin(int[] tperm) {
         initPermutation(tperm);
     }
     public NoiseGeneratorPerlin() {
         initPermutation(DEFAULT_PERMUTATION);
     }
-    public NoiseGeneratorPerlin(Random rand) {
-        initPermutation(CollectionUtils.shufflei(CollectionUtils.range(256), rand));
+    public NoiseGeneratorPerlin(long seed) {
+        initPermutation(CollectionUtils.shufflei(CollectionUtils.range(256), new Random(seed)));
     }
 
     // param tperm: Standard Permutauion Table. len256, random order array [0, 255] distinct.

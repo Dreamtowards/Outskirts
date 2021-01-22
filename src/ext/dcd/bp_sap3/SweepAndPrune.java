@@ -1,4 +1,4 @@
-package ext.cd.bp_sap3;
+package ext.dcd.bp_sap3;
 
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.CollectionUtils;

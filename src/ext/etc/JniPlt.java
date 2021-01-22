@@ -1,4 +1,4 @@
-package ext.testing;
+package ext.etc;
 
 public class JniPlt {
 

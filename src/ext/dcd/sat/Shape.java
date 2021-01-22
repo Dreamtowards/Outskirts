@@ -1,4 +1,4 @@
-package ext.cd.sat;
+package ext.dcd.sat;
 
 import outskirts.util.vector.Vector3f;
 

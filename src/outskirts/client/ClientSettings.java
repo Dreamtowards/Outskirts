@@ -70,23 +70,19 @@ public final class ClientSettings {
         }
 
         /**
-         * the arguments like --width="730" --height="500" --fullscreen
+         * the arguments like --width 730 --height "500" --fullscreen --some-path "with blanks"
+         * system already parsed the "" Quoted strings.
          */
         private static Map<String, String> parse(String[] args) {
             Map<String, String> map = new HashMap<>();
-            for (String item : args) {
-                if (!item.startsWith("--")) {
-                    LOGGER.warn("Illegal program argument: \"{}\", skipped.", item);
-                    continue;
+            for (int i = 0;i < args.length;) {
+                assert args[i].startsWith("--") : "Illegal program argument key: "+args[i]+". dosent startsWith '--'";
+                String key = args[i++].substring(2);
+                String value = null;
+                if (i < args.length && !args[i].startsWith("--")) {
+                    value = args[i++];
                 }
-                if (item.contains("=")) {
-                    String key = item.substring("--".length(), item.indexOf("="));
-                    String value = item.substring(item.indexOf("=") + 1);
-                    map.put(key, value);
-                } else {
-                    String key = item.substring("--".length());
-                    map.put(key, null);
-                }
+                map.put(key, value);
             }
             return map;
         }

@@ -1,4 +1,4 @@
-package ext.testing;
+package ext.etc;
 
 import outskirts.util.DigestUtils;
 import outskirts.util.StringUtils;

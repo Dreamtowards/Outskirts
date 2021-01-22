@@ -2,9 +2,6 @@ package outskirts.mod;
 
 import outskirts.util.registry.Registrable;
 
-import java.io.IOException;
-import java.util.jar.Attributes;
-
 public abstract class Mod implements Registrable {
 
     Mod.Manifest manifest;
@@ -39,7 +36,7 @@ public abstract class Mod implements Registrable {
             return description;
         }
 
-        static Manifest parse(java.util.jar.Attributes attr) throws IOException {
+        static Manifest parse(java.util.jar.Attributes attr) {
             Manifest manifest = new Manifest();
 
             manifest.id = attr.getValue("ID");

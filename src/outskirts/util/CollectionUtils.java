@@ -43,9 +43,16 @@ public final class CollectionUtils {
     }
 
 
-    public static <E> List<E> asList(List<E> dest, E... elements) {
+    static <E> List<E> asList(List<E> dest, E... elements) {
         dest.addAll(Arrays.asList(elements));
         return dest;
+    }
+
+    public static List<Float> asList(float... fs) {
+        List<Float> ls = new ArrayList<>(fs.length);
+        for (float f : fs)
+            ls.add(f);
+        return ls;
     }
 
     public static float[] toArrayf(List<Float> list) {

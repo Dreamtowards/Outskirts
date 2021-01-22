@@ -12,6 +12,7 @@ import outskirts.entity.player.EntityPlayerSP;
 import outskirts.init.ex.Models;
 import outskirts.item.Item;
 import outskirts.item.ItemBlock;
+import outskirts.material.Material;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;
@@ -22,6 +23,7 @@ import outskirts.util.Identifier;
 import outskirts.util.Side;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -67,20 +69,7 @@ public final class Init {
 
         Blocks.init();
 
-        if (side.isClient()) {
-            for (String id : Block.REGISTRY.keys()) {
-                Block.REGISTRY.get(id).theTxFrag =
-                        Block.TEXTURE_ATLAS.register(
-                                Loader.loadPNG(new Identifier("materials/mc/"+new Identifier(id).getPath()+".png").getInputStream()));
-            }
-            Block.TEXTURE_ATLAS.buildAtlas();
-
-            try {
-                IOUtils.write(new ByteArrayInputStream(Loader.savePNG(Texture.glfGetTexImage(Block.TEXTURE_ATLAS.getAtlasTexture()))), new FileOutputStream("blxatlas.png"));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+        Materials.init();
 
         Items.init();
 

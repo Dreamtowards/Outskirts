@@ -32,7 +32,7 @@ public final class Mods {
     }
 
     private static Mod.Manifest loadManifest(File modloc) throws IOException {
-        final String MANIFOLD_PATH = "META-INF/MODMETA.MF";
+        final String MANIFOLD_PATH = "META-INF/MODMETA.MF";  // MOD.MF
 
         if (modloc.isFile()) {
             JarFile j = new JarFile(modloc);

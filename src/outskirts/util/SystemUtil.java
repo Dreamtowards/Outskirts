@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static outskirts.util.logging.Log.LOGGER;
 
 /*
  * this class Util suffix dosent has 's'(Utils). because "System-Utils" needs been shink. cuz the heavy conn.
@@ -44,6 +45,9 @@ public final class SystemUtil {
     public static final boolean IS_OSX = OS_NAME.equals("Mac");
     public static final boolean IS_WINDOWS = OS_NAME.equals("Windows");
     public static final boolean IS_LINUX = OS_NAME.equals("Linux");
+
+    // JAVA VERSION
+    public static final int RUNTIME_VERSION = 9;
 
     public static boolean openURL(String uri) {
         try {
@@ -78,20 +82,28 @@ public final class SystemUtil {
      */
     public static synchronized void addClasspath(File classpath) {
         try {
-            URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            URL pathURL = classpath.toURI().toURL();
+            if (RUNTIME_VERSION >= 9) {  // REQUIRED JVM ARGS: java --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+                ClassLoader appclassloader = ClassLoader.getSystemClassLoader();  // ClassLoader$AppClassLoader.
+                Field UCP = appclassloader.getClass().getDeclaredField("ucp"); UCP.setAccessible(true);
+                Method ADDURL = UCP.getType().getDeclaredMethod("addURL", URL.class);
 
-            //if the classpath already been loaded
-            if (CollectionUtils.contains(loader.getURLs(), pathURL)) {
-                Log.warn("Already added classpath \"%s\". Ignore", pathURL);
-                return;
+                ADDURL.invoke(UCP.get(appclassloader), classpath.toURI().toURL());
+            } else {
+                URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                URL pathURL = classpath.toURI().toURL();
+
+                //if the classpath already been loaded
+                if (CollectionUtils.contains(loader.getURLs(), pathURL)) {
+                    LOGGER.warn("Already added classpath \"{}\". Ignore", pathURL);
+                    return;
+                }
+
+                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(loader, pathURL);
             }
-
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(loader, pathURL);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to add classpath. ("+classpath, ex);
         }
     }
 

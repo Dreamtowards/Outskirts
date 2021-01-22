@@ -1,4 +1,4 @@
-package ext.testing;
+package ext.etc;
 
 import outskirts.network.Packet;
 import outskirts.network.PacketBuffer;

@@ -5,6 +5,7 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 import outskirts.util.CollectionUtils;
+import outskirts.util.Maths;
 import outskirts.util.Ref;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
@@ -27,6 +28,12 @@ public class DCOctreeSampler {
             Octree.sampleMESH(lf, mesh);
             lf.computefp();
         }, 0, depthcap);
+    }
+    public static Octree fromMESH(VertexBuffer vbuf, int depthcap) {
+        AABB aabb = AABB.bounding(vbuf.positions, null).grow(0.00001f);
+        float sz = Maths.max(aabb.max.x-aabb.min.x, aabb.max.y-aabb.min.y, aabb.max.z-aabb.min.z);
+        BvhTriangleMeshShape mesh = new BvhTriangleMeshShape(CollectionUtils.range(vbuf.positions.size()/3), vbuf.posarr());
+        return fromMESH(aabb.min, sz, mesh, depthcap);
     }
 
     private static Octree sample(Vector3f min, float size, Consumer<Octree.Leaf> samp, int currdep, int depthcap) {

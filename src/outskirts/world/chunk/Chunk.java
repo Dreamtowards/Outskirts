@@ -2,10 +2,12 @@ package outskirts.world.chunk;
 
 import outskirts.block.Block;
 import outskirts.client.Outskirts;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityDropItem;
 import outskirts.entity.EntityTerrainMesh;
 import outskirts.entity.player.EntityPlayer;
+import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DArray;
@@ -16,6 +18,8 @@ import outskirts.world.World;
 public class Chunk implements Savable {
 
     private Section[] sections = CollectionUtils.fill(new Section[16], Section::new);  // 16*16*256
+
+    private Octree[] secs = new Octree[16];
 
     public final int x;
     public final int z;
@@ -45,6 +49,11 @@ public class Chunk implements Savable {
     }
 
 
+//    public Octree findOctree(float x, float y, float z) {
+//
+//    }
+
+
     public boolean markedRebuildModel = false;
     public EntityTerrainMesh proxyEntity = new EntityTerrainMesh();
 
@@ -55,19 +64,19 @@ public class Chunk implements Savable {
     @Override
     public void onRead(DObject mp) {
 
-        DObject mpMetadata = mp.getDObject("metadata"); {
+        {   DObject mpMetadata = mp.getDObject("metadata");
             populated = mpMetadata.getBoolean("populated");
         }
 
-        DArray<DObject> mpEntities = mp.getDArray("entities"); {
+        {   DArray<DObject> mpEntities = mp.getDArray("entities");
             for (DObject mpEntity : mpEntities) {
                 Entity entity = Entity.loadEntity(mpEntity);
                 getWorld().addEntity(entity);
             }
         }
 
-        DObject mpTerrain = mp.getDObject("terrain"); {
-            DArray lsBlocks = mpTerrain.getDArray("blocks"); {
+        {   DObject mpTerrain = mp.getDObject("terrain");
+            {   DArray lsBlocks = mpTerrain.getDArray("blocks");
                 int i = 0;
                 for (int x = 0;x < 16;x++) {
                     for (int y = 0;y < 32;y++) {

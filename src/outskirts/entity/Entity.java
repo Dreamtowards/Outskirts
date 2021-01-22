@@ -19,9 +19,9 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     private String registryID;
 
-    private RigidBody rigidbody = new RigidBody();
+    private final RigidBody rigidbody = new RigidBody();
 
-    private RenderPerferences renderPerferences = new RenderPerferences();
+    private final RenderPerferences renderPerferences = new RenderPerferences();
     private Model model;
 
     // ref to the world

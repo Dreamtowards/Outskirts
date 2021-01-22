@@ -35,8 +35,7 @@ public final class ChunkPos {
     }
 
     public static long asLong(float x, float z) {
-        x = Maths.floor(x, 16);
-        z = Maths.floor(z, 16);
+        x = Maths.floor(x, 16); z = Maths.floor(z, 16);
         return (((int)x & 0xFFFFFFFFL) << 32) | ((int)z & 0xFFFFFFFFL);
     }
 

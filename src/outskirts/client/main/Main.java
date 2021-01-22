@@ -4,6 +4,8 @@ import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.util.Side;
 
+import java.util.Arrays;
+
 /**
  * A indie class to bootstrap client Outskirts
  * That will more clear. than main() in Outskirts.java or readArgument-impl in main()

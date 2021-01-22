@@ -1,13 +1,6 @@
-package ext.testing;
+package ext.etc;
 
-import org.junit.Assert;
 import org.junit.Test;
-import outskirts.util.Maths;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Matrix3f;
-import outskirts.util.vector.Matrix4f;
-import outskirts.util.vector.Quaternion;
-import outskirts.util.vector.Vector3f;
 
 public class TestMathematics {
 

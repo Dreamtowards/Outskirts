@@ -45,6 +45,10 @@ public final class Maths {
         return mxi;
     }
 
+    public static float max(float a, float b, float c) {
+        return Math.max(Math.max(a, b), c);
+    }
+
     /**
      * @return a or b who closer to 0
      * rename to absmin(), and deprecated.

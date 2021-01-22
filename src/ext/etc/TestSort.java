@@ -1,4 +1,4 @@
-package ext.testing;
+package ext.etc;
 
 import org.junit.Test;
 import outskirts.util.vector.Vector3f;

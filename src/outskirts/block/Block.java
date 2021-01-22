@@ -37,7 +37,6 @@ public abstract class Block implements Registrable {
     }
 
     public void onDestroyed(World world, Vector3f blockpos) {
-
         EntityDropItem dropItem = new EntityDropItem(new ItemStack(Item.ofBlock(this)));
 
         dropItem.position().set(blockpos).add(0.5f, 0.5f, 0.5f);

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // todo: mode indexing.?
@@ -71,6 +72,15 @@ public final class VertexBuffer {
         return CollectionUtils.toArrayf(normals);
     }
 
+    public static VertexBuffer of(Model model) {
+        if (model.indices == null) {
+            VertexBuffer vbuf = new VertexBuffer();
+            vbuf.positions.addAll(CollectionUtils.asList(model.attribute(0).data));
+            vbuf.textureCoords.addAll(CollectionUtils.asList(model.attribute(1).data));
+            vbuf.normals.addAll(CollectionUtils.asList(model.attribute(2).data));
+            return vbuf;
+        } else throw new UnsupportedOperationException();
+    }
 
     public void inituvnorm() {
         for (int i = 0;i < positions.size()/3;i++) {

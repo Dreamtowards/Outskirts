@@ -1,4 +1,4 @@
-package ext.cd.sat;
+package ext.dcd.sat;
 
 public class Projection {
 

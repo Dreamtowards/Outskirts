@@ -42,11 +42,14 @@ public final class IOUtils {
         return written;
     }
 
-    public static long write(InputStream inputStream, OutputStream outputStream) throws IOException {
-        return write(inputStream, outputStream, DEFAULT_BUFFER);
+    public static long write(InputStream is, OutputStream os) throws IOException {
+        return write(is, os, DEFAULT_BUFFER);
     }
-    public static long write(byte[] in, OutputStream outputStream) throws IOException {
-        return IOUtils.write(new ByteArrayInputStream(in), outputStream);
+    public static long write(byte[] in, OutputStream os) throws IOException {
+        return IOUtils.write(new ByteArrayInputStream(in), os);
+    }
+    public static long write(byte[] in, File file) throws IOException {
+        return IOUtils.write(new ByteArrayInputStream(in), new FileOutputStream(file));
     }
     public static long write(String s, OutputStream outputStream) throws IOException {
         return IOUtils.write(s.getBytes(StandardCharsets.UTF_8), outputStream);
@@ -57,9 +60,9 @@ public final class IOUtils {
 
 
 
-    public static byte[] toByteArray(InputStream inputStream) throws IOException {
+    public static byte[] toByteArray(InputStream is) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(inputStream, out);
+        write(is, out);
         return out.toByteArray();
     }
 

@@ -1,6 +1,14 @@
 package outskirts.init;
 
 import outskirts.block.*;
+import outskirts.client.Loader;
+import outskirts.client.render.Texture;
+import outskirts.util.IOUtils;
+import outskirts.util.Identifier;
+import outskirts.util.Side;
+
+import java.io.File;
+import java.io.IOException;
 
 public final class Blocks {
 
@@ -18,5 +26,24 @@ public final class Blocks {
         return (T)Block.REGISTRY.register(block);
     }
 
-    static void init() { }
+    static void init() {
+
+
+
+        if (Side.CURRENT.isClient()) {
+            for (String id : Block.REGISTRY.keys()) {
+                Block.REGISTRY.get(id).theTxFrag =
+                        Block.TEXTURE_ATLAS.register(
+                                Loader.loadPNG(new Identifier("materials/mc/"+new Identifier(id).getPath()+".png").getInputStream()));
+            }
+            Block.TEXTURE_ATLAS.buildAtlas();
+
+            try {
+                IOUtils.write(Loader.savePNG(Texture.glfGetTexImage(Block.TEXTURE_ATLAS.getAtlasTexture())), new File("blxatlas.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }
 }

@@ -5,6 +5,7 @@ import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 
 import java.util.Arrays;
+import java.util.List;
 
 //2 vec is more flexibly and look-better than 6 float
 public class AABB {
@@ -71,7 +72,7 @@ public class AABB {
         return containsEquals(aabb.min) && containsEquals(aabb.max);
     }
 
-    // for continous checking. the point (EqGr>=Min && Ls<Max)
+    // for continous checking. the point (EqGr>=Min && Ls<Max)  //todo: the naming has problem.
     public boolean containsEqLs(float x, float y, float z) {
         return x >= min.x && x < max.x && y >= min.y && y < max.y && z >= min.z && z < max.z;
     }
@@ -213,6 +214,15 @@ public class AABB {
         dest.set(vertices[0],vertices[1],vertices[2], vertices[0],vertices[1],vertices[2]);
         for (int i = 0;i < vertices.length/3;i++) {
             dest.include(vertices[i*3], vertices[i*3+1], vertices[i*3+2]);
+        }
+        return dest;
+    }
+    public static AABB bounding(List<Float> vts, AABB dest) {  // wrap
+        if (dest == null)
+            dest = new AABB();
+        dest.set(vts.get(0),vts.get(1),vts.get(2), vts.get(0),vts.get(1),vts.get(2));
+        for (int i = 0;i < vts.size()/3;i++) {
+            dest.include(vts.get(i*3), vts.get(i*3+1), vts.get(i*3+2));
         }
         return dest;
     }
