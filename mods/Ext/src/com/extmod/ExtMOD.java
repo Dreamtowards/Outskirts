@@ -7,8 +7,6 @@ import outskirts.mod.Mod;
 import outskirts.util.SystemUtil;
 import outskirts.util.logging.Log;
 
-import static outskirts.util.logging.Log.LOGGER;
-
 public class ExtMOD extends Mod {
 
     {

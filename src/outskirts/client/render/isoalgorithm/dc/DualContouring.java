@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static outskirts.client.render.isoalgorithm.dc.Octree.EDGE;
 import static outskirts.client.render.isoalgorithm.dc.Octree.VERT;
@@ -49,6 +50,7 @@ public final class DualContouring {
 
 
     public static VertexBuffer contouring(Octree node) {
+        Objects.requireNonNull(node);
         VertexBuffer vbuf = new VertexBuffer();
         doCellContour(node, vbuf);
         return vbuf;
@@ -155,7 +157,7 @@ public final class DualContouring {
 
                 flip = leaf.solid(v1); // ?? is this sign right.?
             }
-            assert leaf.size == ((Octree.Leaf)eadjacent[0]).size : "Not Same Size.?";
+//            assert leaf.size == ((Octree.Leaf)eadjacent[0]).size : "Not Same Size.?";
 
             signchanged[i] = leaf.solid(v1) != leaf.solid(v2);
 //            assert signchanged[i] == signchanged[0] : "Diff Sign?!";

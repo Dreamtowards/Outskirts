@@ -1,11 +1,12 @@
 package outskirts.client.render.isoalgorithm.distfunc;
 
-import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec2;
+import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
 import static outskirts.util.Maths.clamp;
 import static outskirts.util.vector.Vector3f.abs;
 import static outskirts.util.vector.Vector3f.dot;
@@ -93,22 +94,9 @@ public final class DistFunctions {
 
     //  UTILITIES
 
-    public static Vector3f vec3(Vector3f v) {
-        return vec3(v.x, v.y, v.z);
-    }
-    public static Vector3f vec3(float f) {
-        return vec3(f,f,f);
-    }
-    public static Vector3f vec3(float x, float y, float z) {
-        return new Vector3f(x, y, z);
-    }
     public static Vector3f maxv(Vector3f dest, float f) {
         return dest.set(Math.max(dest.x, f),
                         Math.max(dest.y, f),
                         Math.max(dest.z, f));
-    }
-
-    private static Vector2f vec2(float x, float y) {
-        return new Vector2f(x, y);
     }
 }

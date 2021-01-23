@@ -10,6 +10,8 @@ import outskirts.util.Side;
 import java.io.File;
 import java.io.IOException;
 
+import static outskirts.util.logging.Log.LOGGER;
+
 public final class Blocks {
 
     public static final BlockStone STONE = register(new BlockStone());
@@ -27,8 +29,6 @@ public final class Blocks {
     }
 
     static void init() {
-
-
 
         if (Side.CURRENT.isClient()) {
             for (String id : Block.REGISTRY.keys()) {

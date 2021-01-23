@@ -5,7 +5,6 @@ import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
 import outskirts.world.gen.NoiseGeneratorPerlin;
@@ -13,7 +12,7 @@ import outskirts.world.gen.NoiseGeneratorPerlin;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
+import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class TestDualc {
@@ -21,7 +20,7 @@ public class TestDualc {
     @Test
     public void samplMesh() throws FileNotFoundException {
 
-        Octree node = DCOctreeSampler.fromMESH(OBJLoader.loadOBJ(new FileInputStream("exa1.obj")), 5);
+        Octree node = DCOctreeSampler.fromMESH(OBJLoader.loadOBJ(new FileInputStream("terr2.obj")), 6);
 
 
         buildAndWrite(node);
@@ -43,7 +42,12 @@ public class TestDualc {
 
         Octree node = DCOctreeSampler.fromSDF(vec3(0), 30, FUNC, 5);
 
+        ((Octree.Internal) node).child(0, DCOctreeSampler.fromSDF(vec3(0), 15, FUNC, 3));
+
         buildAndWrite(node);
+
+        LOGGER.info("Write aabbs.");
+        Octree.dbgaabb3vs(node, vec3(0), 30, "aabb");
     }
 
     private void buildAndWrite(Octree node) {
@@ -53,17 +57,19 @@ public class TestDualc {
         LOGGER.info("CONTOURING.");
         VertexBuffer vbuf = DualContouring.contouring(node);
 
-//        LOGGER.info("Write aabb");
-//        Octree.DBG_AABB_LEAF=true;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=false;
-//        Octree.dbgaabbobj(node, "aabb_l.obj", min, size);
-//        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=true;Octree.DBG_AABB_HERMIT=false;
-//        Octree.dbgaabbobj(node, "aabb_i.obj", min, size);
-//        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=true;
-//        Octree.dbgaabbobj(node, "aabb_h.obj", min, size);
-
         LOGGER.info("Write Output.");
         vbuf.inituvnorm();
         vbuf.tmpsaveobjfile("ms.obj");
+    }
+
+
+    @Test
+    public void testVertIndex() {
+
+        LOGGER.info(
+                -18%3
+        );
+
     }
 
 }

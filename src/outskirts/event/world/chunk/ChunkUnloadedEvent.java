@@ -2,9 +2,9 @@ package outskirts.event.world.chunk;
 
 import outskirts.world.chunk.Chunk;
 
-public class ChunkMeshBuildedEvent extends ChunkEvent {
+public class ChunkUnloadedEvent extends ChunkEvent {
 
-    public ChunkMeshBuildedEvent(Chunk chunk) {
+    public ChunkUnloadedEvent(Chunk chunk) {
         super(chunk);
     }
 }

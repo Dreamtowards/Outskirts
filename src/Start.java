@@ -13,7 +13,7 @@ import java.net.URLClassLoader;
 /**
  * tmp launcher class. simple setup and launch main program
  */
-public class Start {
+public final class Start {
 
     public static void main(String[] args) throws Exception {
 

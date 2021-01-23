@@ -31,10 +31,11 @@ public class ItemBlock extends Item {
     @Override
     public boolean onItemUse(World world, ItemStack itemstack) {
 
-        if (ClientSettings.uSetBlockAtFocus(getBlock(), -1)) {
-            itemstack.shrink(1);
-            return true;
-        } else return false;
+//        if (ClientSettings.uSetBlockAtFocus(getBlock(), -1)) {
+//            itemstack.shrink(1);
+//            return true;
+//        } else return false;
+        return false;
     }
 
     public Block getBlock() {

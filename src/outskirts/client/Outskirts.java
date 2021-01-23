@@ -16,6 +16,8 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.HermiteData;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
@@ -39,6 +41,7 @@ import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -50,6 +53,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.*;
+import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
 import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -162,23 +166,23 @@ public class Outskirts {
 //            });
 //        }));
 
-        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
-                float r = 10;
-                for (float x=-r; x<r; x++) {
-                    for (float y=-r; y<r; y++) {
-                        for (float z=-r; z<r; z++) {
-                            Vector3f dv = new Vector3f(x,y,z);
-                            Vector3f v = new Vector3f(player.position()).add(dv);
-                            Block b = world.getBlock(v);;
-                            if (b==null)continue;
-                            b.v = DualContouringUniformGridDensitySmpl.F_CUBE.sample(dv);
-                            world.setBlock(v,b);
-                        }
-                    }
-                }
-            }
-        });
+//        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+//            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
+//                float r = 10;
+//                for (float x=-r; x<r; x++) {
+//                    for (float y=-r; y<r; y++) {
+//                        for (float z=-r; z<r; z++) {
+//                            Vector3f dv = new Vector3f(x,y,z);
+//                            Vector3f v = new Vector3f(player.position()).add(dv);
+//                            Block b = world.getBlock(v);;
+//                            if (b==null)continue;
+//                            b.v = DualContouringUniformGridDensitySmpl.F_CUBE.sample(dv);
+//                            world.setBlock(v,b);
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
     }
     //todo: GameRule LS   Separator/ NonCollision
@@ -226,13 +230,13 @@ public class Outskirts {
             glDisable(GL_DEPTH_TEST);
             rootGUI.onLayout();
             rootGUI.onDraw();
-            Vector3f bp = rayPicker.getCurrentBlockPos();
-            if (rayPicker.getCurrentEntity() != null) {
-                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 8, 8));
-                Outskirts.renderEngine.getModelRenderer().drawOutline(
-                        new AABB(bp, new Vector3f(bp).add(1,1,1)),
-                        Colors.RED);
-                Outskirts.renderEngine.getModelRenderer().drawOutline(rayPicker.getCurrentEntity().rigidbody().getAABB(), Colors.RED);
+            if (world!=null&&rayPicker.getCurrentEntity() != null) {
+                Vector3f bp = rayPicker.getCurrentPoint();
+                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 4, 4));
+                Vector3f base = Vector3f.floor(vec3(bp), 16f);
+
+                drawOctreeOp(world.getLoadedChunk(bp).octree(bp.y), base, 16, vec3(bp).sub(base).scale(1/16f));
+//                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(base, vec3(base).add(16,16,16)), Colors.RED);
             }
 //            if (isIngame()) {
 //                updateBlockDigging();
@@ -250,16 +254,29 @@ public class Outskirts {
         numFrames++;
     }
 
-    private static EntityStaticMesh emesh;
-    {
-        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
-                VertexBuffer.of(
-                        world.getLoadedChunk(player.position().x, player.position().z).proxyEntity.getModel()
-                ).tmpsaveobjfile("terr.obj");
+    private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
+        if (node.isInternal()) {
+            renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.GRAY);
+
+            int idx = Octree.cellidx(rp);
+//            Vector3f rpCopy = vec3(rp);
+            Octree sub = ((Octree.Internal)node).child(idx);
+//            if (sub == null) return;
+            Octree.cellrpclip(idx, rp);
+            drawOctreeOp(sub, vec3(min).addScaled(sz/2f, Octree.VERT[idx]), sz/2f, rp);
+        } else {
+            renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.RED);
+            Octree.Leaf leaf = (Octree.Leaf)node;
+            for (int i=0;i<12;i++) {
+                HermiteData h = leaf.edges[i];
+                if (h != null) {
+                    Vector3f base = vec3(h.point).add(Vector3f.floor(vec3(min),16f));
+                    renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.8f,h.norm), Colors.DARK_RED);
+                }
             }
-        });
+        }
     }
+
 
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
@@ -270,8 +287,6 @@ public class Outskirts {
         lightSun.position().set(40, 50, 40);
         lightSun.color().set(1, 1, 1).scale(1.2f);
         world.lights.add(lightSun);
-
-        world.addEntity(emesh = new EntityStaticMesh());
 
 
         getPlayer().setModel(Models.GEOS_CAPSULE);
@@ -323,16 +338,16 @@ public class Outskirts {
 //                }
 
 
-                if (isMouseDown(0) || isMouseDown(1)) {
-                    Vector3f blockpos = rayPicker.getCurrentBlockPos();
-                    Block b = world.getBlock(blockpos);
-                    b.v += isMouseDown(0) ? -0.01f : 0.01f;
-                    b.v = Maths.clamp(b.v, -1.0f, 1.0f);
-                    world.setBlock(blockpos, b);
-                }
+//                if (isMouseDown(0) || isMouseDown(1)) {
+//                    Vector3f blockpos = rayPicker.getCurrentBlockPos();
+//                    Block b = world.getBlock(blockpos);
+//                    b.v += isMouseDown(0) ? -0.01f : 0.01f;
+//                    b.v = Maths.clamp(b.v, -1.0f, 1.0f);
+//                    world.setBlock(blockpos, b);
+//                }
 
-                if (isKeyDown(GLFW_KEY_I))
-                    Outskirts.getWorld().setBlock(rayPicker.getCurrentBlockPos(), new BlockStone());
+//                if (isKeyDown(GLFW_KEY_I))
+//                    Outskirts.getWorld().setBlock(rayPicker.getCurrentBlockPos(), new BlockStone());
 
 
 

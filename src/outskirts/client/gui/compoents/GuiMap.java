@@ -5,7 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.render.Texture;
 import outskirts.event.EventHandler;
-import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
+import outskirts.event.world.chunk.ChunkMeshBuiltEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2f;
@@ -16,7 +16,9 @@ import outskirts.world.chunk.ChunkPos;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class GuiMap extends GuiDrag {
@@ -26,6 +28,7 @@ public class GuiMap extends GuiDrag {
 
     private Vector2f currentBlock = new Vector2f();
 
+    private Set<ChunkPos> texUpdateQueue = new HashSet<>();
     private Map<ChunkPos, Texture> mapChunkFrags = new HashMap<>();
 
     public GuiMap() {
@@ -44,7 +47,9 @@ public class GuiMap extends GuiDrag {
             Outskirts.getWorld().getLoadedChunks().forEach(this::loadChunkImage);
         });
 
-        addGlobalEventListener(ChunkMeshBuildedEvent.class, e -> loadChunkImage(e.getChunk()));
+        addGlobalEventListener(ChunkMeshBuiltEvent.class, e -> {
+            texUpdateQueue.add(ChunkPos.of(e.getChunk()));
+        });
     }
 
     private void loadChunkImage(Chunk chunk) {
@@ -54,6 +59,12 @@ public class GuiMap extends GuiDrag {
 
     @EventHandler
     private void onDlaw(OnDrawEvent e) {
+
+        for (ChunkPos cpos : texUpdateQueue) {
+            loadChunkImage(Outskirts.getWorld().getLoadedChunk(cpos));
+        }
+        texUpdateQueue.clear();
+
 
         Vector2f morigin = morigin();
 

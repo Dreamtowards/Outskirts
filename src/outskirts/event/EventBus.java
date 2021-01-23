@@ -131,11 +131,12 @@ public class EventBus {
         }
     }
 
+    // not 'semmrtry' to registerAll()...
     /**
      * @return false when nothing was been unregistered
      */
-    public boolean unregister(Object functionOrUnregisterTag) {
-        return handlers.removeIf(handler -> handler.function == functionOrUnregisterTag || handler.unregisterTag == functionOrUnregisterTag);
+    public boolean unregister(Object funcOrTag) {
+        return handlers.removeIf(h -> h.function == funcOrTag || h.unregisterTag == funcOrTag);
     }
 
     /**

@@ -52,13 +52,13 @@ public class MapRenderer extends Renderer {
 
         shader.setFloat("clipHeight", clipHeight);
 
-        Model model = chunk.proxyEntity.getModel();
-        glBindVertexArray(model.vaoID());
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, Block.TEXTURE_ATLAS.getAtlasTexture().textureID());
-
-        glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
+//        Model model = chunk.proxyEntity.getModel();
+//        glBindVertexArray(model.vaoID());
+//
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, Block.TEXTURE_ATLAS.getAtlasTexture().textureID());
+//
+//        glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
 

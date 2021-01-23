@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import static org.lwjgl.opengl.GL30.*;
 
 // in package glw .?
-public class Framebuffer {
+public final class Framebuffer {
 
     private final int fboID;
     private int width=1; // tmp init alloc

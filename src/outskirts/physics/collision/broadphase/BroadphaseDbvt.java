@@ -100,6 +100,7 @@ public class BroadphaseDbvt extends Broadphase {
     }
 
     private void insertLeaf(DbvtNode leaf) {
+        Objects.requireNonNull(leaf);
         if (rootNode == null)  { rootNode = leaf; rootNode.parent=null; return; }
         if (rootNode.isLeaf()) { rootNode = DbvtNode.newInternal(rootNode, leaf); rootNode.wrapChildVolume(); rootNode.parent=null; return; }
         DbvtNode sibling = rootNode;

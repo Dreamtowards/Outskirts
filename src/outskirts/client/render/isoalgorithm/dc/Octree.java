@@ -107,7 +107,7 @@ public abstract class Octree {
 
         // is there has data-repeat.? some edge are shared.
         /** Hermite data for Edges.  only sign-changed edge are nonnull. else just null element. */
-        private final HermiteData[] edges = new HermiteData[12];
+        public final HermiteData[] edges = new HermiteData[12];
 
         public final Vector3f featurepoint = new Vector3f();
 
@@ -180,8 +180,8 @@ public abstract class Octree {
             }
         }
         if (ps.length != 0) {
-//            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
-            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
+            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+//            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
         }
         assert Vector3f.isFinite(cell.featurepoint) : "Illegal fp("+cell.featurepoint+") ps:"+Arrays.toString(ps)+", ns:"+Arrays.toString(ns);
     }
@@ -270,6 +270,23 @@ public abstract class Octree {
 
 
     /**
+     * Edge Lerp of Actually Cell.
+     */
+    public static Vector3f edgelerp(Octree.Leaf cell, int edgei, float t, Vector3f dest) {
+        if (dest==null)dest=new Vector3f();
+        assert t >= 0F && t <= 1F;
+        int axis = edgeaxis(edgei);
+        dest.set(cell.min)
+                .addScaled(cell.size, VERT[EDGE[edgei][0]])  // offset to edge-base-vert.
+                .addv(axis, cell.size*t);
+        return dest;
+    }
+    private static int edgeaxis(int edgei) {
+        return edgei/4;
+    }
+
+
+    /**
      * Collapse Empty nodes.
      */
     public static Octree collapse(Octree node) {
@@ -284,17 +301,33 @@ public abstract class Octree {
     }
 
     /**
-     * Edge Lerp of Actually Cell.
+     * @param rp rel-unit-pos in the InternalNode. xyz:[0-1).
      */
-    private static void edgelerp(Octree.Leaf cell, int edgei, float t, Vector3f dest) {
-        assert t >= 0F && t <= 1F;
-        int axis = edgeaxis(edgei);
-        dest.set(cell.min)
-                .addScaled(cell.size, VERT[EDGE[edgei][0]])  // offset to edge-base-vert.
-                .addv(axis, cell.size*t);
+    public static int cellidx(Vector3f rp) {
+        assert rp.x>=0&&rp.x<1 && rp.y>=0&&rp.y<1 && rp.z>=0&&rp.z<1 : "Position Outbound. "+rp;
+        int x = Math.round(rp.x);
+        int y = Math.round(rp.y);
+        int z = Math.round(rp.z);
+        return (x << 2) | (y << 1) | z;
     }
-    private static int edgeaxis(int edgei) {
-        return edgei/4;
+    public static Vector3f cellrpclip(int idx, Vector3f dest) { // [0.62, 0.42, 0.023], idx: 4, edit: [2.1273065, 0.4278543, 0.02373588]
+        Vector3f v = VERT[idx];
+        return dest.addScaled(-0.5f, v).scale(2f);
+    }
+
+    /**
+     * @param rp Modifiable
+     */
+    public static Octree.Leaf findOctree(Octree node, Vector3f rp) {
+        if (node.isInternal()) {
+            int idx = cellidx(rp);
+            Octree sub = ((Octree.Internal)node).child(idx);
+            if (sub == null) return null;
+            cellrpclip(idx, rp);
+            return findOctree(sub, rp);
+        } else {
+            return (Octree.Leaf)node;
+        }
     }
 
 
@@ -390,9 +423,20 @@ public abstract class Octree {
             ex.printStackTrace();
         }
     }
-    public static boolean DBG_AABB_LEAF = true;
-    public static boolean DBG_AABB_INTERN = true;
-    public static boolean DBG_AABB_HERMIT = true;
+    private static boolean DBG_AABB_LEAF = true;
+    private static boolean DBG_AABB_INTERN = true;
+    private static boolean DBG_AABB_HERMIT = true;
+    private static void dbgaabbobjmode(boolean leaf, boolean intern, boolean hermit) {
+        DBG_AABB_LEAF=leaf; DBG_AABB_INTERN=intern; DBG_AABB_HERMIT=hermit;
+    }
+    public static void dbgaabb3vs(Octree node, Vector3f min, float size, String outprefix) {
+        dbgaabbobjmode(true, false, false);
+        Octree.dbgaabbobj(node, outprefix+"_l.obj", min, size);
+        dbgaabbobjmode(false, true, false);
+        Octree.dbgaabbobj(node, outprefix+"_i.obj", min, size);
+        dbgaabbobjmode(false, false, true);
+        Octree.dbgaabbobj(node, outprefix+"_h.obj", min, size);
+    }
     private static void dbgaabbobj(StringBuilder sb, Octree node, Vector3f min, float size, Val vi) {
         if (node == null) return;
         if ((DBG_AABB_LEAF && node.isLeaf()) || (DBG_AABB_INTERN && node.isInternal()))

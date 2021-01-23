@@ -152,17 +152,17 @@ public final class ClientSettings {
             Gui.toggleVisible(GuiDebugV.INSTANCE);
     });
 
-    public static boolean uSetBlockAtFocus(Block b, int dfSign) {
-        RayPicker rp = Outskirts.getRayPicker();
-        if (rp.getCurrentEntity() == null)
-            return false;
-        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign > 0 ? 0.0001f : -0.5f, rp.getRayDirection());
-        int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
-
-        Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
-        Outskirts.getWorld().setBlock(bX,bY,bZ, b);
-        return true;
-    }
+//    public static boolean uSetBlockAtFocus(Block b, int dfSign) {
+//        RayPicker rp = Outskirts.getRayPicker();
+//        if (rp.getCurrentEntity() == null)
+//            return false;
+//        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign > 0 ? 0.0001f : -0.5f, rp.getRayDirection());
+//        int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
+//
+//        Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
+//        Outskirts.getWorld().setBlock(bX,bY,bZ, b);
+//        return true;
+//    }
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", GLFW_MOUSE_BUTTON_RIGHT, KeyBinding.TYPE_MOUSE, "categories.gameplay");
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", GLFW_MOUSE_BUTTON_LEFT, KeyBinding.TYPE_MOUSE, "categories.gameplay");

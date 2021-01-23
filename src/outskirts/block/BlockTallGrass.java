@@ -1,8 +1,6 @@
 package outskirts.block;
 
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.chunk.ChunkModelGenerator;
-import outskirts.init.Blocks;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
@@ -19,6 +17,6 @@ public class BlockTallGrass extends Block {
     public void getVertexData(World world, Vector3f blockpos, VertexBuffer vbuf) {
 
 
-        ChunkModelGenerator.putTallgrassCrossFaces(vbuf, blockpos, Blocks.TALL_GRASS.theTxFrag);
+//        ChunkModelGenerator.putTallgrassCrossFaces(vbuf, blockpos, Blocks.TALL_GRASS.theTxFrag);
     }
 }

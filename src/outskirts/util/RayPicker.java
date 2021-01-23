@@ -22,8 +22,6 @@ public class RayPicker {
     private Vector3f rayOrigin = new Vector3f();
     private Vector3f rayDirection = new Vector3f(Vector3f.UNIT_X);
 
-//    private Vector3f currentBlockPos;
-
     public void update() {
         Ref<Float> t = Ref.wrap(Float.MAX_VALUE);
         float collT = Float.MAX_VALUE;  // t of only really exact raycast.
@@ -102,10 +100,4 @@ public class RayPicker {
         return rayDirection;
     }
 
-    public Vector3f getCurrentBlockPos() {
-        return Vector3f.floor(new Vector3f(currentPoint).addScaled(0.5f, Vector3f.ONE), 1);
-    }
-//    public Block getCurrentBlock() {
-//        return Outskirts.getWorld().getBlock(currentBlockPos);
-//    }
 }

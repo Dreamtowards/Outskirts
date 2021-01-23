@@ -13,8 +13,8 @@ public class WorldGenTree extends WorldGen {
 
     @Override
     public boolean generate(World world, Vector3f pos) {
-        if (!(world.getBlock(pos.x, pos.y-1, pos.z) instanceof BlockGrass))
-            return false;
+//        if (!(world.getBlock(pos.x, pos.y-1, pos.z) instanceof BlockGrass))
+//            return false;
 
         // leaves
 //        for (int y = 0;y < 4;y++) {
@@ -26,9 +26,9 @@ public class WorldGenTree extends WorldGen {
 //            }
 //        }
         // trunk
-        for (int i = 0;i < 5;i++) {
-            world.setBlock(pos.x, pos.y+i, pos.z, new BlockStone());
-        }
+//        for (int i = 0;i < 5;i++) {
+//            world.setBlock(pos.x, pos.y+i, pos.z, new BlockStone());
+//        }
 
         return true;
     }

@@ -12,6 +12,7 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 import outskirts.util.CollectionUtils;
+import outskirts.util.SystemUtil;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.logging.Log;
 import outskirts.util.obj.OBJLoader;
@@ -19,13 +20,13 @@ import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.LongConsumer;
 
 import static java.lang.Math.random;
-import static outskirts.client.render.isoalgorithm.distfunc.DistFunctions.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Test {
@@ -389,20 +390,20 @@ public class Test {
 //        System.out.println(" "+Float.POSITIVE_INFINITY*-1);
 //        System.out.println(" "+Float.POSITIVE_INFINITY*0);
 //        System.exit(0);
-        NoiseGeneratorPerlin nois = new NoiseGeneratorPerlin();
-        TrifFunc D_FUNC = (x,y,z)-> nois.noise(x/8f,y/8f,z/8f);//-DistFunctions.boundingbox(vec3(x,y,z), vec3(3f,2f,4f), .3f);
+//        NoiseGeneratorPerlin nois = new NoiseGeneratorPerlin();
+//        TrifFunc D_FUNC = (x,y,z)-> nois.noise(x/8f,y/8f,z/8f);//-DistFunctions.boundingbox(vec3(x,y,z), vec3(3f,2f,4f), .3f);
 
-//        todo: NORM GEN DBG.
+//        tod0: NORM GEN DBG.
 //        LOGGER.info("STRT");
 
 //        Octree node = DCOctreeGen.fromSDF(vec3(-5), 10, D_FUNC, 5);
 //        LOGGER.info("Read OBJ.");
-        VertexBuffer inVbuf = OBJLoader.loadOBJ(new FileInputStream("stool.obj"));
-        AABB bd = AABB.bounding(inVbuf.posarr(), null);bd.grow(0.00001f);
-        LOGGER.info("model aabb: "+bd); // AABB[[5.306239, 5.3062587, 0.7999878], [10.693726, 10.693727, 15.199997]]
-
-        LOGGER.info("Sampling mesh");
-        Raycastable mesh = new BvhTriangleMeshShape(CollectionUtils.range(inVbuf.positions.size()/3), inVbuf.posarr());
+//        VertexBuffer inVbuf = OBJLoader.loadOBJ(new FileInputStream("stool.obj"));
+//        AABB bd = AABB.bounding(inVbuf.posarr(), null);bd.grow(0.00001f);
+//        LOGGER.info("model aabb: "+bd); // AABB[[5.306239, 5.3062587, 0.7999878], [10.693726, 10.693727, 15.199997]]
+//
+//        LOGGER.info("Sampling mesh");
+//        Raycastable mesh = new BvhTriangleMeshShape(CollectionUtils.range(inVbuf.positions.size()/3), inVbuf.posarr());
 
 //        BvhTriangleMeshShape.vb=true;
 //        Val t = Val.zero(); Vector3f n = new Vector3f();
@@ -421,42 +422,38 @@ public class Test {
 //            }
 //        }
 //                System.exit(0);
-        Vector3f min = vec3(-10f); min.set(bd.min);
-        float size = 20; size = Math.max(Math.max(bd.max.x-bd.min.x, bd.max.y-bd.min.y), bd.max.z-bd.min.z);
-        Octree node = DCOctreeSampler.fromMESH(min, size, mesh, 5);
-//        node = DCOctreeGen.fromSDF(min, size, D_FUNC, 5);
-        LOGGER.info("Collapse octree.");
-        node = Octree.collapse(node);
+//        Vector3f min = vec3(-10f); min.set(bd.min);
+//        float size = 20; size = Math.max(Math.max(bd.max.x-bd.min.x, bd.max.y-bd.min.y), bd.max.z-bd.min.z);
+//        Octree node = DCOctreeSampler.fromMESH(min, size, mesh, 5);
+////        node = DCOctreeGen.fromSDF(min, size, D_FUNC, 5);
+//        LOGGER.info("Collapse octree.");
+//        node = Octree.collapse(node);
 //        Octree.dbgprint(node, 0, "");
 
-        LOGGER.info("CONTOURING.");
-        VertexBuffer vbuf = DualContouring.contouring(node);
+//        LOGGER.info("CONTOURING.");
+//        VertexBuffer vbuf = DualContouring.contouring(node);
+//
+//        LOGGER.info("Write aabb");
+//        Octree.DBG_AABB_LEAF=true;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=false;
+//        Octree.dbgaabbobj(node, "aabb_l.obj", min, size);
+//        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=true;Octree.DBG_AABB_HERMIT=false;
+//        Octree.dbgaabbobj(node, "aabb_i.obj", min, size);
+//        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=true;
+//        Octree.dbgaabbobj(node, "aabb_h.obj", min, size);
+//
+//        LOGGER.info("Write Output.");
+//        vbuf.inituvnorm();
+//        vbuf.tmpsaveobjfile("ms.obj");
 
-        LOGGER.info("Write aabb");
-        Octree.DBG_AABB_LEAF=true;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=false;
-        Octree.dbgaabbobj(node, "aabb_l.obj", min, size);
-        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=true;Octree.DBG_AABB_HERMIT=false;
-        Octree.dbgaabbobj(node, "aabb_i.obj", min, size);
-        Octree.DBG_AABB_LEAF=false;Octree.DBG_AABB_INTERN=false;Octree.DBG_AABB_HERMIT=true;
-        Octree.dbgaabbobj(node, "aabb_h.obj", min, size);
+        List<String> s = new ArrayList<>();
 
-        LOGGER.info("Write Output.");
-        vbuf.inituvnorm();
-        vbuf.tmpsaveobjfile("ms.obj");
+        s.add("AA");
+        s.add("AA");
+        s.add("BB");
+        s.remove("AA");
+        System.out.println(s);
     }
 
-    private static class ACls {
-
-        private String s = "abcde";
-
-        public ACls() {
-            LOGGER.info("Def Constr");
-        }
-        public ACls(String s) {
-            LOGGER.info(s);
-        }
-
-    }
 
 
     @EventHandler

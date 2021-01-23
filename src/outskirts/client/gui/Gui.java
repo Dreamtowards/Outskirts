@@ -526,7 +526,7 @@ public class Gui {
      * @param interpolator the interpolation value generator
      */
     public final void attachTransform(float from, float to, float duration, BiConsumer<Gui, Float> applicator, Function<Float, Float> interpolator, int easeMode, float pass) {
-        addOnDrawListener(new Consumer<OnDrawEvent>() {
+        addOnDrawListener(new Consumer<>() {
             private float passed = pass;
             @Override
             public void accept(OnDrawEvent e) {
@@ -603,8 +603,12 @@ public class Gui {
         return attachListener(DetachEvent.class, lsr);
     }
 
+    private boolean isAttached() {  // naming mounted.?
+        return getParent() != EMPTY || this instanceof GuiRoot;
+    }
+
     public final <E extends Event> void addGlobalEventListener(Class<E> eventclass, Consumer<E> lsr) {
-        if (getParent() != EMPTY || this instanceof GuiRoot)  // the gui has already attached. just register immidiately.
+        if (isAttached())  // the gui has already attached. now register immidiately.
             Events.EVENT_BUS.register(eventclass, lsr);
         addOnAttachListener(e -> {
             Events.EVENT_BUS.unregister(lsr);

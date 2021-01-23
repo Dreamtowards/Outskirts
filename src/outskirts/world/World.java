@@ -1,14 +1,15 @@
 package outskirts.world;
 
-import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
+import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.lighting.Light;
-import outskirts.client.render.chunk.ChunkModelGenerator;
+import outskirts.client.render.chunk.ChunkModelGenWorker;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
-import outskirts.event.world.chunk.ChunkMeshBuildedEvent;
+import outskirts.event.world.chunk.ChunkMeshBuiltEvent;
+import outskirts.event.world.chunk.ChunkUnloadedEvent;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
@@ -29,7 +30,7 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public abstract class World implements Tickable {
 
-    private List<Entity> entities = new ArrayList<>();
+    private final List<Entity> entities = new ArrayList<>();
 
     public List<Light> lights = new ArrayList<>(); // better get from entities.
 
@@ -41,76 +42,87 @@ public abstract class World implements Tickable {
 
     private ChunkLoader chunkLoader = new ChunkLoader();
 
+    private ChunkRenderDispatcher crd = new ChunkRenderDispatcher();
+
     public void addEntity(Entity entity) {
         entity.setWorld(this);
-        entities.add(entity);
+        synchronized (entities) {
+            entities.add(entity);
+        }
         dynamicsWorld.addCollisionObject(entity.getRigidBody());
     }
 
     public void removeEntity(Entity entity) {
-        entity.setWorld(null);
-        entities.remove(entity);
+        synchronized (entities) {
+            assert entities.remove(entity) : "No such evtity.";
+        }
         dynamicsWorld.removeCollisionObject(entity.getRigidBody());
+        entity.setWorld(null);
     }
 
     public List<Entity> getEntities() {
-        return Collections.unmodifiableList(entities);
+        synchronized (entities) {
+            return Collections.unmodifiableList(entities);
+        }
     }
 
     public List<Entity> getEntities(AABB contains) {
         // todo: Accumulate algorithms. use of B.P.
         List<Entity> entities = new ArrayList<>();
-        for (Entity e : getEntities()) {
-            if (contains.containsEqLs(e.position()))
-                entities.add(e);
+        synchronized (this.entities) {
+            for (Entity e : getEntities()) {
+                if (contains.containsEqLs(e.position()))
+                    entities.add(e);
+            }
         }
         return entities;
     }
 
 
-    public void setBlock(int x, int y, int z, Block b) {
-        Chunk chunk = provideChunk(floor(x, 16), floor(z, 16));
-//        assert chunk != null;
-        chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
+//    public void setBlock(int x, int y, int z, Block b) {
+//        Chunk chunk = provideChunk(floor(x, 16), floor(z, 16));
+////        assert chunk != null;
+//        chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
+//
+//        for (int dx=-1;dx<=1;dx++) {
+//            for (int dz=-1;dz<=1;dz++) {
+//                Chunk c = getLoadedChunk(x+dx, z+dz);
+//                if (c != null)
+//                    c.markedRebuildModel=true;
+//            }
+//        }
+//    }
+//    public void setBlock(float x, float y, float z, Block b) {
+//        setBlock((int)x, (int)y, (int)z, b);
+//    }
+//    public void setBlock(Vector3f blockpos, Block b) {
+//        setBlock(blockpos.x, blockpos.y, blockpos.z, b);
+//    }
 
-        for (int dx=-1;dx<=1;dx++) {
-            for (int dz=-1;dz<=1;dz++) {
-                Chunk c = getLoadedChunk(x+dx, z+dz);
-                if (c != null)
-                    c.markedRebuildModel=true;
-            }
-        }
-    }
-    public void setBlock(float x, float y, float z, Block b) {
-        setBlock((int)x, (int)y, (int)z, b);
-    }
-    public void setBlock(Vector3f blockpos, Block b) {
-        setBlock(blockpos.x, blockpos.y, blockpos.z, b);
-    }
+//    public Block getBlock(int x, int y, int z) {
+//        Chunk chunk = getLoadedChunk(x, z);
+//        if (chunk == null)
+//            return null;
+//        if (y < 0 || y >= 256) return null;
+//
+//        return chunk.getBlock(mod(x, 16), y, mod(z, 16));
+//    }
+//    public Block getBlock(float x, float y, float z) {
+//        return getBlock((int)x, (int)y, (int)z);
+//    }
+//    public Block getBlock(Vector3f blockpos) {
+//        return getBlock(blockpos.x, blockpos.y, blockpos.z);
+//    }
 
-    public Block getBlock(int x, int y, int z) {
-        Chunk chunk = getLoadedChunk(x, z);
-        if (chunk == null)
-            return null;
-        if (y < 0 || y >= 256) return null;
-
-        return chunk.getBlock(mod(x, 16), y, mod(z, 16));
-    }
-    public Block getBlock(float x, float y, float z) {
-        return getBlock((int)x, (int)y, (int)z);
-    }
-    public Block getBlock(Vector3f blockpos) {
-        return getBlock(blockpos.x, blockpos.y, blockpos.z);
-    }
-
-    public final int getHighestBlock(int x, int z) {
-        Block b;
-        for (int y = 255;y >= 0;y--) {
-            if ((b=getBlock(x, y, z)) != null && b.v > 0)
-                return y;
-        }
-        return -1;
-    }
+    // use for gen on ground top
+//    public final int getHighestBlock(int x, int z) {
+//        Block b;
+//        for (int y = 255;y >= 0;y--) {
+//            if ((b=getBlock(x, y, z)) != null && b.v > 0)
+//                return y;
+//        }
+//        return -1;
+//    }
 
     public Material getMaterial(float x, float y, float z) {
         Chunk chunk = getLoadedChunk(x, z);
@@ -123,7 +135,7 @@ public abstract class World implements Tickable {
     /**
      * @param x,z world_coordinate.any
      */
-    public Chunk provideChunk(float x, float z) {
+    public final Chunk provideChunk(float x, float z) {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
@@ -134,18 +146,19 @@ public abstract class World implements Tickable {
             }
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
-            Chunk finalChunk = chunk;
-            Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
-            for (int dx=-1;dx<=0;dx++) {
-                for (int dz=-1;dz<=0;dz++) {
-                    Chunk c = getLoadedChunk(x+dx*16, z+dz*16);
-                    if (c!=null)c.markedRebuildModel=true;
-                }
-            }
+//            Chunk finalChunk = chunk;
+//            Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
+//            for (int dx=-1;dx<=0;dx++) {
+//                for (int dz=-1;dz<=0;dz++) {
+//                    Chunk c = getLoadedChunk(x+dx*16, z+dz*16);
+//                    if (c!=null)c.markedRebuildModel=true;
+//                }
+//            }
 
 //            tryPopulate(chunkpos);
 
-            Events.EVENT_BUS.post(new ChunkLoadedEvent(chunk));
+            Chunk fchunk = chunk;
+            Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkLoadedEvent(fchunk)));
         }
         return chunk;
     }
@@ -179,7 +192,8 @@ public abstract class World implements Tickable {
 
     public void unloadChunk(Chunk chunk) {
         loadedChunks.remove(ChunkPos.asLong(chunk.x, chunk.z));
-        Outskirts.getScheduler().addScheduledTask(() -> removeEntity(chunk.proxyEntity));
+
+        Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk)));
 
         chunkLoader.saveChunk(chunk);
     }
@@ -191,8 +205,14 @@ public abstract class World implements Tickable {
     public Chunk getLoadedChunk(float x, float z) {
         return loadedChunks.get(ChunkPos.asLong(x, z));
     }
+    public final Chunk getLoadedChunk(ChunkPos chunkpos) {
+        return getLoadedChunk(chunkpos.x, chunkpos.z);
+    }
+    public final Chunk getLoadedChunk(Vector3f p) {
+        return getLoadedChunk(p.x, p.z);
+    }
 
-    public Collection<Chunk> getLoadedChunks() {
+    public final Collection<Chunk> getLoadedChunks() {
         return Collections.unmodifiableCollection(loadedChunks.values());
     }
 
@@ -228,21 +248,9 @@ public abstract class World implements Tickable {
                         if (Math.abs(c.x-cenX) > sz*16 || Math.abs(c.z-cenZ) > sz*16 || Outskirts.getWorld() == null)
                             unloadChunk(c);
                     }
-//                    provideChunk(0, 0);
                     if (Outskirts.getWorld() == null)
                         break;
 
-                    for (Chunk c : loadedChunks.values()) {
-                        if (c.markedRebuildModel) {
-                            c.markedRebuildModel = false;
-
-                            Outskirts.getScheduler().addScheduledTask(() -> {
-                                Model model = new ChunkModelGenerator().buildModel(ChunkPos.of(c), this);
-                                c.proxyEntity.setModel(model);
-                                Events.EVENT_BUS.post(new ChunkMeshBuildedEvent(c));
-                            });
-                        }
-                    }
 
                     Thread.sleep(20);
                 } catch (Exception ex) {

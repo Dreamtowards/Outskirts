@@ -1,17 +1,14 @@
 package outskirts.network.login;
 
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.screen.GuiScreenDisconnect;
-import outskirts.client.gui.screen.GuiScreenMainMenu;
 import outskirts.event.EventHandler;
 import outskirts.event.conn.ChannelInactiveEvent;
 import outskirts.network.ChannelHandler;
 import outskirts.network.login.packet.SPacketDisconnect;
 import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.PacketHandlerPlayClient;
-import outskirts.util.logging.Log;
 import outskirts.world.WorldClient;
 
 public class PacketHandlerLoginClient {
