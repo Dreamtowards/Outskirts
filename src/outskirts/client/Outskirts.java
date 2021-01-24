@@ -3,10 +3,7 @@ package outskirts.client;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
-import outskirts.block.Block;
-import outskirts.block.BlockStone;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiDebugV;
@@ -16,11 +13,13 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.dc.qefsv.DualContouringUniformGridDensitySmpl;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.client.render.renderer.debug.test.DebugTestRenderer;
+import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.GameMode;
@@ -40,8 +39,8 @@ import outskirts.util.concurrent.Scheduler;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
+import outskirts.world.chunk.ChunkPos;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -53,7 +52,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -183,11 +182,41 @@ public class Outskirts {
 //                }
 //            }
 //        });
+        debugTestRenderer = new DebugTestRenderer();
 
+        debugVisualGeoRenderer = new DebugVisualGeoRenderer();
     }
     //todo: GameRule LS   Separator/ NonCollision
     //tod0: DebugV OP. options
 
+    DebugTestRenderer debugTestRenderer;
+    DebugVisualGeoRenderer debugVisualGeoRenderer;
+
+    private static EntityStaticMesh entityStaticMesh;
+    {
+        SystemUtil.debugAddKeyHook(GLFW_KEY_I, () -> {
+            ChunkPos cp = ChunkPos.of(player.position());
+
+            VertexBuffer vbuf = new VertexBuffer();
+
+            Octree[] fp = new Octree[2];
+            fp[0] = world.getLoadedChunk(cp).octree(0);
+            fp[1] = world.getLoadedChunk(cp.x+16, cp.z).octree(0);
+
+            DualContouring.doFaceContour(fp, 0, vbuf);
+
+            for (int i = 0;i < vbuf.positions.size()/3;i++) {
+                float x = vbuf.positions.get(i*3);
+                if (x < 8) {
+                    vbuf.positions.set(i*3, x+16);
+                }
+            }
+
+            vbuf.inituvnorm();
+            entityStaticMesh.position().set(cp.x, 0, cp.z);
+            entityStaticMesh.setModel(Loader.loadModelT(vbuf));
+        });
+    }
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -232,15 +261,12 @@ public class Outskirts {
             rootGUI.onDraw();
             if (world!=null&&rayPicker.getCurrentEntity() != null) {
                 Vector3f bp = rayPicker.getCurrentPoint();
-                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 4, 4));
+//                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 4, 4));
                 Vector3f base = Vector3f.floor(vec3(bp), 16f);
-
                 drawOctreeOp(world.getLoadedChunk(bp).octree(bp.y), base, 16, vec3(bp).sub(base).scale(1/16f));
-//                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(base, vec3(base).add(16,16,16)), Colors.RED);
+
+                debugVisualGeoRenderer.render(world.crd.findSection(bp).proxyentity());
             }
-//            if (isIngame()) {
-//                updateBlockDigging();
-//            }
 
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
@@ -257,11 +283,8 @@ public class Outskirts {
     private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
         if (node.isInternal()) {
             renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.GRAY);
-
             int idx = Octree.cellidx(rp);
-//            Vector3f rpCopy = vec3(rp);
             Octree sub = ((Octree.Internal)node).child(idx);
-//            if (sub == null) return;
             Octree.cellrpclip(idx, rp);
             drawOctreeOp(sub, vec3(min).addScaled(sz/2f, Octree.VERT[idx]), sz/2f, rp);
         } else {
@@ -288,6 +311,7 @@ public class Outskirts {
         lightSun.color().set(1, 1, 1).scale(1.2f);
         world.lights.add(lightSun);
 
+        world.addEntity(entityStaticMesh=new EntityStaticMesh());
 
         getPlayer().setModel(Models.GEOS_CAPSULE);
         getPlayer().getRenderPerferences().setDiffuseMap(Textures.CONTAINER);
@@ -521,7 +545,7 @@ public class Outskirts {
 
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-        window = glfwCreateWindow(1, 1, "ENGNE", NULL, NULL);
+        window = glfwCreateWindow(1, 1, "ENGNNE", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create window.");
 

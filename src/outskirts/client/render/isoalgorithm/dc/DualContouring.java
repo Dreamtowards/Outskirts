@@ -31,23 +31,6 @@ public final class DualContouring {
              {0,4,1,5},{2,6,3,7},  // Y
              {0,2,4,6},{1,3,5,7}}; // Z
 
-    /**
-     * Reversed EDGE_ADJACENT. for getting recorrespounding slot. in EdgeContour phase.
-     */
-    public static final int[][] EDGE_ADJACENT_REV =
-            {{3,2,1,0},{7,6,5,4},
-             {5,1,4,0},{7,3,6,2},
-             {6,4,2,0},{7,5,3,1}};
-
-    /**
-     * Diagonal of EDGE in a cell. indexing to EDGE.
-     * use for get inter-centric-edge of 4 inter-cells on one axis.  in processEdgeVertex phase.
-     */
-    public static final int[] EDGE_DIAG =
-            {3, 2, 1, 0,    // X
-             7, 5, 6, 4,    // Y
-             11,10,9, 8};   // Z
-
 
     public static VertexBuffer contouring(Octree node) {
         Objects.requireNonNull(node);
@@ -86,12 +69,12 @@ public final class DualContouring {
         }
     }
 
-    public static final int[][] FacepInterEdgeTb = {
+    public static final int[][] axisFace4PrepEdgeTb = {
             {1,4,0,5,1,1},{1,6,2,7,3,1},{0,4,6,0,2,2},{0,5,7,1,3,2},
             {0,2,3,0,1,0},{0,6,7,4,5,0},{1,2,0,6,4,2},{1,3,1,7,5,2},
             {1,1,0,3,2,0},{1,5,4,7,6,0},{0,1,5,0,4,1},{0,3,7,2,6,1}
     };
-    private static void doFaceContour(Octree[] facepair, int axis, VertexBuffer vbuf) {
+    public static void doFaceContour(Octree[] facepair, int axis, VertexBuffer vbuf) {
         if (facepair[0]==null || facepair[1]==null) return;
         if (facepair[0].isInternal() || facepair[1].isInternal()) {
 
@@ -105,10 +88,10 @@ public final class DualContouring {
             }
 
             // 4 Edge calls. 4 interedges between 2 facepair. 2 * 2 face-prep-axes
-            int[][] pairside = {{ 0, 0, 1, 1 }, { 0, 1, 0, 1 }} ;  // 2type. indexing to source-pair.
+            int[][] pairside = {{ 0, 0, 1, 1 }, { 0, 1, 0, 1 }} ;  // 2type. indexing to src-pair.
             Octree[] eadjacent = new Octree[4];
             for (int i = 0;i < 4;i++) {
-                int[] tb = FacepInterEdgeTb[axis*4+i];
+                int[] tb = axisFace4PrepEdgeTb[axis*4+i];
                 for (int j = 0;j < 4;j++) {
                     int pIdx = pairside[ tb[0] ][j];  // index of src-pair.
                     eadjacent[j] = facepair[pIdx].isInternal() ? ((Octree.Internal)facepair[pIdx]).child(tb[1+j]) : facepair[pIdx];
@@ -118,7 +101,7 @@ public final class DualContouring {
         }
     }
 
-    private static void doEdgeContour(Octree[] eadjacent, int axis, VertexBuffer vbuf) {
+    public static void doEdgeContour(Octree[] eadjacent, int axis, VertexBuffer vbuf) {
         if (eadjacent[0]==null || eadjacent[1]==null || eadjacent[2]==null || eadjacent[3]==null) return;
 
         if (eadjacent[0].isLeaf() && eadjacent[1].isLeaf() && eadjacent[2].isLeaf() && eadjacent[3].isLeaf()) {
@@ -126,9 +109,9 @@ public final class DualContouring {
         } else {
             Octree[] subadjacent = new Octree[4];
             for (int i = 0;i < 2;i++) {
-                int[] subidx = EDGE_ADJACENT_REV[axis*2+i];
                 for (int j = 0;j < 4;j++) {
-                    subadjacent[j] = eadjacent[j].isInternal() ? ((Octree.Internal)eadjacent[j]).child(subidx[j]) : eadjacent[j];
+                    int egdiagcell = EDGE_ADJACENT[axis*2+i][3-j];  // Diagonal Cell of the Edge.
+                    subadjacent[j] = eadjacent[j].isInternal() ? ((Octree.Internal)eadjacent[j]).child(egdiagcell) : eadjacent[j];
                 }
                 doEdgeContour(subadjacent, axis, vbuf);
             }
@@ -136,57 +119,42 @@ public final class DualContouring {
     }
 
     /**
+     * 2 Triangles forms a Quad. indexing to 4 edge-adjacents [0,3].  CCW winding.
+     * QUAD: |3  2|
+     *       |1  0|
+     */
+    private static int[] ADJACENT_QUADTRIV = {0, 2, 3, 0, 3, 1};
+
+    /**
      * @param eadjacent same size inter-cells. 4 on one same parent.  ??
      */
     private static void processEdgeVertex(Octree[] eadjacent, int axis, VertexBuffer vbuf) {
         float minsz = Float.MAX_VALUE;  // min depth means smallest one.?
-        int minidx = -1;
-        boolean[] signchanged = new boolean[4];
+        boolean minsz_signchanged = false;
         boolean flip = false;
 
         for (int i = 0;i < 4;i++) {
             Octree.Leaf leaf = (Octree.Leaf)eadjacent[i];
 
-            int edge = EDGE_DIAG[axis*4 + i];
-            int v1 = EDGE[ edge ][0] ;
-            int v2 = EDGE[ edge ][1] ;
+            // "Diagonal EDGE in a Cell". for access centric-'shared'-edge on one axis.
+            int[] centricedge = EDGE[axis*4 +(3-i)];
+            int v0 = centricedge[0] ;
+            int v1 = centricedge[1] ;
 
-            if (leaf.size < minsz) {  // have different depth in there together.?
+            if (leaf.size < minsz) {  // there might have diff size, diff sign-change cells/edges. just listen to smallest one.
                 minsz = leaf.size;
-                minidx = i;
 
                 flip = leaf.solid(v1); // ?? is this sign right.?
+
+                minsz_signchanged = leaf.solid(v0) != leaf.solid(v1);
             }
-//            assert leaf.size == ((Octree.Leaf)eadjacent[0]).size : "Not Same Size.?";
-
-            signchanged[i] = leaf.solid(v1) != leaf.solid(v2);
-//            assert signchanged[i] == signchanged[0] : "Diff Sign?!";
         }
 
-        if (signchanged[minidx]) {
-            vbuf.addpos(((Octree.Leaf)eadjacent[0]).featurepoint);
-            vbuf.addpos(((Octree.Leaf)eadjacent[flip ? 3 : 1]).featurepoint);
-            vbuf.addpos(((Octree.Leaf)eadjacent[flip ? 1 : 3]).featurepoint);
-
-            vbuf.addpos(((Octree.Leaf)eadjacent[0]).featurepoint);
-            vbuf.addpos(((Octree.Leaf)eadjacent[flip ? 2 : 3]).featurepoint);
-            vbuf.addpos(((Octree.Leaf)eadjacent[flip ? 3 : 2]).featurepoint);
+        if (minsz_signchanged) {  // put the QUAD. 2tri 6vts.
+            for (int i = 0;i < 6;i++) {
+                int idx = ADJACENT_QUADTRIV[flip ? 5-i : i];
+                vbuf.addpos(((Octree.Leaf)eadjacent[idx]).featurepoint);
+            }
         }
     }
-
-
-
-
-    public static void main(String[] args) throws IOException {
-
-        Octree node = Octree.readOctree(new FileInputStream("conv.octree"), new Vector3f(0, 0, 0), 16);
-
-        VertexBuffer vbuf = DualContouring.contouring(node);
-
-        vbuf.inituvnorm();
-        vbuf.tmpsaveobjfile("conv.obj");
-    }
-
-
-
 }

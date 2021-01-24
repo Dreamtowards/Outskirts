@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 public abstract class Octree {
 
@@ -41,6 +42,8 @@ public abstract class Octree {
     };
 
     // from Min to Max in each Edge.
+    // orders as X, Y, Z.
+    // Diagonal Edge in Cell is in-axis-flip-index edge.  i.e. diag of edge[axis*4 +i] is edge[axis*4 +(3-i)]
     /**       -          |          /     AXIS XYZ.
      *     +--2--+    +-----+    +-----+
      *    /|    /|   /4    /6   9|    11
@@ -180,8 +183,8 @@ public abstract class Octree {
             }
         }
         if (ps.length != 0) {
-            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
-//            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
+//            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
         }
         assert Vector3f.isFinite(cell.featurepoint) : "Illegal fp("+cell.featurepoint+") ps:"+Arrays.toString(ps)+", ns:"+Arrays.toString(ns);
     }
@@ -330,6 +333,16 @@ public abstract class Octree {
         }
     }
 
+    public static void forEach(Octree node, Consumer<Octree> call) {
+        if (node==null) return;
+        call.accept(node);
+        if (node.isInternal()) {
+            Octree.Internal intern = (Octree.Internal)node;
+            for (int i = 0;i < 8;i++) {
+                forEach(intern.child(i), call);
+            }
+        }
+    }
 
 
 
@@ -356,7 +369,7 @@ public abstract class Octree {
                 float t = Maths.inverseLerp(0, val0, val1);
                 edgelerp(cell, i, t, h.point);
 
-                Maths.grad(f, h.point, h.norm);
+                Maths.grad(f, h.point, h.norm).negate();  // neg(): for positive-solid field gradient, the actuall normal is its neg.
                 cell.edges[i] = h;
             }
         }
@@ -389,6 +402,7 @@ public abstract class Octree {
         }
         cell.validate();
     }
+
 
 
 

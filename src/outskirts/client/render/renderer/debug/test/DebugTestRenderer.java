@@ -1,4 +1,4 @@
-package outskirts.client.render.renderer.test;
+package outskirts.client.render.renderer.debug.test;
 
 import outskirts.client.Loader;
 import outskirts.client.render.Model;
@@ -9,17 +9,19 @@ import outskirts.util.Identifier;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
-public class TestRenderer extends Renderer {
+public class DebugTestRenderer extends Renderer {
 
     private ShaderProgram shader = new ShaderProgram(
-            new Identifier("shaders/test/test.vsh").getInputStream(),
-            new Identifier("shaders/test/test.fsh").getInputStream()
+            new Identifier("shaders/debug/test/test.vsh").getInputStream(),
+            new Identifier("shaders/debug/test/test.fsh").getInputStream(),
+            new Identifier("shaders/debug/test/test.gsh").getInputStream()
     );
 
     private Model model = Loader.loadModel(3, new float[]{
-            0, 0, 0,
-            1, 0, 0,
-            .5f, 1, 0
+            .5f, .5f, 0,
+            -.5f, .5f, 0,
+            -.5f, -.5f, 0,
+            .5f, -.5f, 0
     });
 
     public void doRender() {
@@ -28,7 +30,7 @@ public class TestRenderer extends Renderer {
 
         glBindVertexArray(model.vaoID());
 
-        glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_POINTS, model.vertexCount(), GL_UNSIGNED_INT, 0);
 
     }
 

@@ -6,15 +6,18 @@ import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.render.renderer.post.PostRenderer;
+import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.GameMode;
 import outskirts.event.EventPriority;
 import outskirts.init.ex.Models;
 import outskirts.util.Colors;
 import outskirts.util.vector.Matrix3f;
+import outskirts.util.vector.Vector4f;
 import outskirts.world.World;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -59,12 +62,19 @@ public class GuiDebugV extends Gui {
                         new GuiText("DebugV"),
                         new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
                         new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible)),
+                        new GuiText("GEO Rd. RENDERING."),
                         new GuiCheckBox("BasisVisual").exec(g->initCBL(g, true, basisv::setVisible)),
                         new GuiCheckBox("GBuff/v").exec(g->initCBL(g, false, gbufv::setVisible)),
-                        new GuiText("COMM"),
+                        new GuiCheckBox("FE/NormV").exec(g->{
+                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
+                        }),
+                        new GuiCheckBox("FE/BordV").exec(g->{
+                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.DARK_GRAY, g));
+                        }),
                         new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL))),
+                        new GuiText("COMM"),
                         new GuiComboBox().exec((GuiComboBox g) -> {
-                            g.getOptions().addAll(Arrays.asList(
+                            g.getOptions().addAll(List.of(
                                     new GuiText("SURVIVAL"),
                                     new GuiText("CREATIVE"),
                                     new GuiText("SPECTATOR")
@@ -122,6 +132,17 @@ public class GuiDebugV extends Gui {
                         })
                 )
         );
+    }
+
+    private static void renderDVGIfFEOkRGCk(Vector4f ncol, Vector4f bcol, Gui g) {
+        if (!((Checkable)g).isChecked())
+            return;
+        Entity entity = Outskirts.getRayPicker().getCurrentEntity();
+        if (entity != null) {
+            Outskirts.renderEngine.getDebugVisualGeoRenderer().normColor.set(ncol);
+            Outskirts.renderEngine.getDebugVisualGeoRenderer().borderColor.set(bcol);
+            Outskirts.renderEngine.getDebugVisualGeoRenderer().render(entity);
+        }
     }
 
     private static void initCBL(Gui g, boolean dfb, Consumer<Boolean> onchecked) {

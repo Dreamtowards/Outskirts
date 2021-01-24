@@ -1,6 +1,8 @@
 package outskirts.util;
 
 import outskirts.client.Outskirts;
+import outskirts.event.Events;
+import outskirts.event.client.input.KeyboardEvent;
 import outskirts.util.logging.Log;
 import sun.misc.Unsafe;
 
@@ -168,5 +170,12 @@ public final class SystemUtil {
             if (Outskirts.isKeyDown(GLFW_KEY_K))
                 break;
         }
+    }
+    public static void debugAddKeyHook(int key, Runnable r) {
+        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
+            if (e.getKeyState() && e.getKey() == key) {
+                r.run();
+            }
+        });
     }
 }

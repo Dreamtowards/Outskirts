@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-Class: 
+Class-Path: lwjgl.jar jogg-0.0.7.jar junit-4.10.jar lwjgl-glfw.jar asm-a
+ ll-5.1.jar jinput-2.0.9.jar jsr305-3.0.1.jar lwjgl-openal.jar lwjgl-ope
+ ngl.jar lwjgl-tinyfd.jar jorbis-0.0.15.jar json-20171018.jar typetools-
+ 0.4.4.jar log4j-api-2.13.1.jar log4j-core-2.13.1.jar netty-all-4.0.23.F
+ inal.jar
+

@@ -1,14 +1,12 @@
 package outskirts.world;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.Model;
 import outskirts.client.render.chunk.ChunkRenderDispatcher;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.lighting.Light;
-import outskirts.client.render.chunk.ChunkModelGenWorker;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
-import outskirts.event.world.chunk.ChunkMeshBuiltEvent;
 import outskirts.event.world.chunk.ChunkUnloadedEvent;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -42,7 +40,7 @@ public abstract class World implements Tickable {
 
     private ChunkLoader chunkLoader = new ChunkLoader();
 
-    private ChunkRenderDispatcher crd = new ChunkRenderDispatcher();
+    public ChunkRenderDispatcher crd = new ChunkRenderDispatcher();
 
     public void addEntity(Entity entity) {
         entity.setWorld(this);
@@ -79,41 +77,6 @@ public abstract class World implements Tickable {
     }
 
 
-//    public void setBlock(int x, int y, int z, Block b) {
-//        Chunk chunk = provideChunk(floor(x, 16), floor(z, 16));
-////        assert chunk != null;
-//        chunk.setBlock(mod(x, 16), y, mod(z, 16), b);
-//
-//        for (int dx=-1;dx<=1;dx++) {
-//            for (int dz=-1;dz<=1;dz++) {
-//                Chunk c = getLoadedChunk(x+dx, z+dz);
-//                if (c != null)
-//                    c.markedRebuildModel=true;
-//            }
-//        }
-//    }
-//    public void setBlock(float x, float y, float z, Block b) {
-//        setBlock((int)x, (int)y, (int)z, b);
-//    }
-//    public void setBlock(Vector3f blockpos, Block b) {
-//        setBlock(blockpos.x, blockpos.y, blockpos.z, b);
-//    }
-
-//    public Block getBlock(int x, int y, int z) {
-//        Chunk chunk = getLoadedChunk(x, z);
-//        if (chunk == null)
-//            return null;
-//        if (y < 0 || y >= 256) return null;
-//
-//        return chunk.getBlock(mod(x, 16), y, mod(z, 16));
-//    }
-//    public Block getBlock(float x, float y, float z) {
-//        return getBlock((int)x, (int)y, (int)z);
-//    }
-//    public Block getBlock(Vector3f blockpos) {
-//        return getBlock(blockpos.x, blockpos.y, blockpos.z);
-//    }
-
     // use for gen on ground top
 //    public final int getHighestBlock(int x, int z) {
 //        Block b;
@@ -124,12 +87,10 @@ public abstract class World implements Tickable {
 //        return -1;
 //    }
 
-    public Material getMaterial(float x, float y, float z) {
-        Chunk chunk = getLoadedChunk(x, z);
+    public Octree getOctree(Vector3f p) {
+        Chunk chunk = getLoadedChunk(p);
         if (chunk == null) return null;
-
-//        chunk.getMaterial()
-        return null;
+        return chunk.octree(p.y);
     }
 
     /**

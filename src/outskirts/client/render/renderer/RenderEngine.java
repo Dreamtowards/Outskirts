@@ -4,6 +4,7 @@ import org.lwjgl.Version;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Framebuffer;
+import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.client.render.renderer.map.MapRenderer;
@@ -12,6 +13,7 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
+import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
@@ -39,6 +41,7 @@ public final class RenderEngine {
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();
     private MapRenderer mapRenderer = new MapRenderer();
+    private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -204,5 +207,8 @@ public final class RenderEngine {
     }
     public MapRenderer getMapRenderer() {
         return mapRenderer;
+    }
+    public DebugVisualGeoRenderer getDebugVisualGeoRenderer() {
+        return debugVisualGeoRenderer;
     }
 }

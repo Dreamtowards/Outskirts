@@ -4,20 +4,16 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.util.Ref;
 import outskirts.util.SystemUtil;
-import outskirts.util.mx.VertexUtil;
 
 import java.util.function.Supplier;
 
-import static outskirts.util.logging.Log.LOGGER;
-
-public class ChunkModelGenWorker implements Runnable {
+public class ChunkModelBuildWorker implements Runnable {
 
     private Supplier<RenderSection> taskpoller;
 
-    public ChunkModelGenWorker(Supplier<RenderSection> taskpoller) {
+    public ChunkModelBuildWorker(Supplier<RenderSection> taskpoller) {
         this.taskpoller = taskpoller;
     }
 
@@ -27,7 +23,7 @@ public class ChunkModelGenWorker implements Runnable {
             RenderSection rs = taskpoller.get();
             if (rs != null) {
                 Ref<int[]> vertm = Ref.wrap();
-                VertexBuffer vbuf = ChunkModelGen.buildModel(rs, vertm);
+                VertexBuffer vbuf = ChunkMeshGen.buildModel(rs, vertm);
                 if (vbuf == null)
                     continue;
 

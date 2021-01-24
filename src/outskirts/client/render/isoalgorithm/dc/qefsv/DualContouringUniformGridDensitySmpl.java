@@ -1,8 +1,5 @@
 package outskirts.client.render.isoalgorithm.dc.qefsv;
 
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
-import outskirts.client.render.isoalgorithm.dc.qefsv.*;
-import outskirts.client.render.isoalgorithm.distfunc.DistFunctions;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;

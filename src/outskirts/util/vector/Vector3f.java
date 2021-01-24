@@ -284,11 +284,12 @@ public class Vector3f extends Vector {
         throw new IndexOutOfBoundsException();
     }
 
-    public float addv(int i, float v) {
-        if (i==0) return x+=v;
-        if (i==1) return y+=v;
-        if (i==2) return z+=v;
-        throw new IndexOutOfBoundsException();
+    public Vector3f addv(int i, float v) {
+        if (i==0) x+=v;
+        else if (i==1) y+=v;
+        else if (i==2) z+=v;
+        else throw new IndexOutOfBoundsException();
+        return this;
     }
 
     public Vector3f add(float f) {

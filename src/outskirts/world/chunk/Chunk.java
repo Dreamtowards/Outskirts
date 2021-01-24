@@ -10,11 +10,10 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DArray;
 import outskirts.storage.dst.DObject;
-import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
-import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 public class Chunk implements Savable {
 
@@ -43,12 +42,20 @@ public class Chunk implements Savable {
 
 
 
+    private int octidx(float ypos) {
+        if (ypos >= 256 || ypos < 0) return -1;
+        return (int)(ypos/16f);
+    }
     public Octree octree(float ypos) {
-        return octrees[(int)(ypos/16f)];
+        int i = octidx(ypos);
+        if (i==-1) return null;
+        return octrees[i];
     }
     public Octree octree(float ypos, Octree node) {
+        int i = octidx(ypos);
         assert node.isInternal();
-        return octrees[(int)(ypos/16f)] = node;
+        assert i != -1;
+        return octrees[i] = node;
     }
 
 

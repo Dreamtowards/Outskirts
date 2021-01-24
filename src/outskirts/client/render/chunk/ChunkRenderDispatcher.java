@@ -1,8 +1,5 @@
 package outskirts.client.render.chunk;
 
-import outskirts.client.Outskirts;
-import outskirts.client.render.Model;
-import outskirts.client.render.VertexBuffer;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
@@ -12,15 +9,14 @@ import outskirts.world.chunk.ChunkPos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 public class ChunkRenderDispatcher {
 
     private final List<RenderSection> rendersections = new ArrayList<>();
 
-    private ChunkModelGenWorker worker = new ChunkModelGenWorker(this::pollTask);
+    private ChunkModelBuildWorker worker = new ChunkModelBuildWorker(this::pollTask);
 
     public ChunkRenderDispatcher() {
 
@@ -39,6 +35,12 @@ public class ChunkRenderDispatcher {
             rs.position().set(cpos.x, i*16, cpos.z);
             rs.markDirty();
             e.getWorld().addEntity(rs.proxyentity());
+            for (int j = 0;j<3;j++) {
+                markRebuild(vec3(rs.position()).addv(j, -16));
+            }
+            markRebuild(vec3(rs.position()).add(0, -16, -16));
+            markRebuild(vec3(rs.position()).add(-16, 0, -16));
+            markRebuild(vec3(rs.position()).add(-16, -16, 0));
             synchronized (rendersections) {
                 rendersections.add(rs);
             }
@@ -58,7 +60,7 @@ public class ChunkRenderDispatcher {
         }
     }
 
-    private RenderSection findRenderSection(Vector3f pos) {
+    public RenderSection findSection(Vector3f pos) {
         Vector3f secpos = Vector3f.floor(vec3(pos), 16f);
         for (RenderSection rs : rendersections) {
             if (rs.position().equals(secpos)) return rs;
@@ -66,8 +68,11 @@ public class ChunkRenderDispatcher {
         return null;
     }
 
-    public void markForRebuild(Vector3f pos) {
-        findRenderSection(pos).markDirty();
+    public boolean markRebuild(Vector3f pos) {
+        RenderSection rs = findSection(pos);
+        if (rs == null) return false;
+        rs.markDirty();
+        return true;
     }
 
     public RenderSection pollTask() {

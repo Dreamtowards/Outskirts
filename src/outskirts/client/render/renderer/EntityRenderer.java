@@ -10,6 +10,7 @@ import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
+import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
 import outskirts.util.vector.Matrix4f;
@@ -31,8 +32,9 @@ public class EntityRenderer extends Renderer {
 //            new ResourceLocation("shaders/entity.fsh").getInputStream()
 //    );
     private ShaderProgram shaderGeometry = new ShaderProgram(
-            new ResourceLocation("shaders/entity/geometry.vsh").getInputStream(),
-            new ResourceLocation("shaders/entity/geometry.fsh").getInputStream()
+            new Identifier("shaders/entity/geometry.vsh").getInputStream(),
+            new Identifier("shaders/entity/geometry.fsh").getInputStream(),
+            new Identifier("shaders/entity/geometry.gsh").getInputStream()
     );
     private ShaderProgram shaderCompose = new ShaderProgram(
             new ResourceLocation("shaders/entity/compose.vsh").getInputStream(),

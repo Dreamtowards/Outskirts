@@ -26,20 +26,22 @@ public final class ShaderProgram {
 
     private int vertexShader;
     private int fragmentShader;
+    private int geometryShader = -1;
 
     private Map<String, Integer> uniformLocationMap = new HashMap<>(); // cache of UniformLocation(s). for lesser VM access
 
-    public ShaderProgram(InputStream vertexShaderSource, InputStream fragmentShaderSource) {
-        try {
-            vertexShader = loadShader(GL_VERTEX_SHADER, vertexShaderSource);
-            fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to load shader.", ex);
-        }
+    public ShaderProgram(InputStream vsh, InputStream fsh, InputStream gsh) {
+
+        vertexShader = loadShader(GL_VERTEX_SHADER, vsh);
+        fragmentShader = loadShader(GL_FRAGMENT_SHADER, fsh);
+        if (gsh != null)
+            geometryShader = loadShader(GL_GEOMETRY_SHADER, gsh);
 
         programID = glCreateProgram();
         glAttachShader(programID, vertexShader);
         glAttachShader(programID, fragmentShader);
+        if (geometryShader != -1)
+            glAttachShader(programID, geometryShader);
 
         glLinkProgram(programID);
         if (glGetProgrami(programID, GL_LINK_STATUS) == GL_FALSE) {
@@ -50,24 +52,33 @@ public final class ShaderProgram {
 
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+        if (geometryShader != -1)
+            glDeleteShader(geometryShader);
+    }
+    public ShaderProgram(InputStream vsh, InputStream fsh) {
+        this(vsh, fsh, null);
     }
 
-    private static int loadShader(int shaderType, InputStream sourceInputStream) throws IOException {
-        int shaderID = glCreateShader(shaderType);
+    private static int loadShader(int shaderType, InputStream srcis) {
+        try {
+            int shaderID = glCreateShader(shaderType);
 
-        String shaderSource = IOUtils.toString(sourceInputStream);
+            String shaderSrc = IOUtils.toString(srcis);
 
-        glShaderSource(shaderID, shaderSource);
-        glCompileShader(shaderID);
+            glShaderSource(shaderID, shaderSrc);
+            glCompileShader(shaderID);
 
-        if (glGetShaderi(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-            String shadername = getShaderTypeName(shaderType);
-            LOGGER.warn("##### GL Shader Compile Error ({}) #####", shadername);
-            LOGGER.warn(glGetShaderInfoLog(shaderID, 1024));
-            throw new IllegalStateException("GL Shader Compile Error (" + shadername + ")");
+            if (glGetShaderi(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
+                String shadername = getShaderTypeName(shaderType);
+                LOGGER.warn("##### GL Shader Compile Error ({}) #####", shadername);
+                LOGGER.warn(glGetShaderInfoLog(shaderID, 1024));
+                throw new IllegalStateException("GL Shader Compile Error (" + shadername + ")");
+            }
+
+            return shaderID;
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to loadShader().", ex);
         }
-
-        return shaderID;
     }
 
     private static String getShaderTypeName(int shaderType) {
@@ -94,6 +105,8 @@ public final class ShaderProgram {
 
         glDetachShader(programID, vertexShader);
         glDetachShader(programID, fragmentShader);
+        if (geometryShader != -1)
+            glDetachShader(programID, geometryShader);
 
         glDeleteProgram(programID);
     }

@@ -1,4 +1,4 @@
-package outskirts.client.render.isoalgorithm.distfunc;
+package outskirts.client.render.isoalgorithm.sdf;
 
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;

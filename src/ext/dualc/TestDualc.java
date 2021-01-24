@@ -7,12 +7,14 @@ import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
+import outskirts.util.vector.Vector3f;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import static outskirts.client.render.isoalgorithm.distfunc.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class TestDualc {
@@ -69,6 +71,19 @@ public class TestDualc {
         LOGGER.info(
                 -18%3
         );
+
+    }
+
+    @Test
+    public void maintest() throws IOException {
+
+
+        Octree node = Octree.readOctree(new FileInputStream("conv.octree"), new Vector3f(0, 0, 0), 16);
+
+        VertexBuffer vbuf = DualContouring.contouring(node);
+
+        vbuf.inituvnorm();
+        vbuf.tmpsaveobjfile("conv.obj");
 
     }
 
