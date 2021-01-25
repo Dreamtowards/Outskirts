@@ -43,16 +43,18 @@ public abstract class World implements Tickable {
     public ChunkRenderDispatcher crd = new ChunkRenderDispatcher();
 
     public void addEntity(Entity entity) {
-        entity.setWorld(this);
+        assert !entities.contains(entity);
         synchronized (entities) {
             entities.add(entity);
         }
         dynamicsWorld.addCollisionObject(entity.getRigidBody());
+        entity.setWorld(this);
     }
 
     public void removeEntity(Entity entity) {
+        assert entities.contains(entity);
         synchronized (entities) {
-            assert entities.remove(entity) : "No such evtity.";
+            entities.remove(entity);
         }
         dynamicsWorld.removeCollisionObject(entity.getRigidBody());
         entity.setWorld(null);
@@ -192,7 +194,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=2;
+    public static int sz=1;
     {
         Thread t = new Thread(() -> {
             while (true) {

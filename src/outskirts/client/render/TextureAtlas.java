@@ -7,6 +7,8 @@ import outskirts.util.vector.Vector2f;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,6 +57,10 @@ public final class TextureAtlas {
 
         //load build atlas texture
         this.texture = Loader.loadTexture(atlasBufferedImage);
+    }
+
+    public List<Fragment> fragments() {
+        return Collections.unmodifiableList(atlasFragments);
     }
 
     public Fragment register(BufferedImage bufferedImage) {

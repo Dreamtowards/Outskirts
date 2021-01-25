@@ -44,11 +44,11 @@ public class GuiVert3D extends Gui {
 
         private static Vert readFromJSON(JSONObject json) {
             Vert vert = new Vert();
-            vert.position = vec3(json.getString("position"));
+            vert.position = vec3fs(json.getString("position"));
             if (json.has("name"))
                 vert.name = json.getString("name");
             if (json.has("color"))
-                vert.color = vec4(json.getString("color"));
+                vert.color = vec4fs(json.getString("color"));
             if (json.has("connect")) {
                 vert.connectNames = StringUtils.explode(json.getString("connect"), ",");
                 for (int i = 0;i < vert.connectNames.length;i++)
@@ -240,7 +240,7 @@ public class GuiVert3D extends Gui {
         });
     }
 
-    private static Vector3f vec3(String str) {
+    private static Vector3f vec3fs(String str) {
         Vector3f vec = new Vector3f();
         String[] s = StringUtils.explode(str, ",");
         for (int i = 0;i < s.length;i++) {
@@ -254,7 +254,7 @@ public class GuiVert3D extends Gui {
         return vec;
     }
 
-    private static Vector4f vec4(String str) {
+    private static Vector4f vec4fs(String str) {
         Vector4f vec = new Vector4f();
         String[] s = StringUtils.explode(str, ",");
         for (int i = 0;i < s.length;i++) {

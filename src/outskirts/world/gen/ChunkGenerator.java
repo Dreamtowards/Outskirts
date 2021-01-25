@@ -1,6 +1,6 @@
 package outskirts.world.gen;
 
-import outskirts.client.render.isoalgorithm.dc.DCOctreeSampler;
+import outskirts.client.render.isoalgorithm.dc.samp.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.util.function.TrifFunc;
 import outskirts.world.World;

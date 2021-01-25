@@ -4,6 +4,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiDebugV;
@@ -27,8 +28,10 @@ import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
+import outskirts.init.Materials;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
+import outskirts.material.Material;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.GhostShape;
@@ -196,25 +199,19 @@ public class Outskirts {
     {
         SystemUtil.debugAddKeyHook(GLFW_KEY_I, () -> {
             ChunkPos cp = ChunkPos.of(player.position());
+            Vector3f bs = vec3(cp.x, 0, cp.z);
+            Octree nd = world.getOctree(bs);
 
-            VertexBuffer vbuf = new VertexBuffer();
-
-            Octree[] fp = new Octree[2];
-            fp[0] = world.getLoadedChunk(cp).octree(0);
-            fp[1] = world.getLoadedChunk(cp.x+16, cp.z).octree(0);
-
-            DualContouring.doFaceContour(fp, 0, vbuf);
-
-            for (int i = 0;i < vbuf.positions.size()/3;i++) {
-                float x = vbuf.positions.get(i*3);
-                if (x < 8) {
-                    vbuf.positions.set(i*3, x+16);
+            Octree.forEach(nd, n -> {
+                if (n.isLeaf()) {
+                    Octree.Leaf lf = (Octree.Leaf)n;
+                    if (vec3(lf.min).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
+                        lf.material = isMouseDown(2) ? Materials.DIRT : Materials.GRASS;
+                    }
                 }
-            }
+            });
 
-            vbuf.inituvnorm();
-            entityStaticMesh.position().set(cp.x, 0, cp.z);
-            entityStaticMesh.setModel(Loader.loadModelT(vbuf));
+            world.crd.markRebuild(bs);
         });
     }
 
@@ -261,11 +258,10 @@ public class Outskirts {
             rootGUI.onDraw();
             if (world!=null&&rayPicker.getCurrentEntity() != null) {
                 Vector3f bp = rayPicker.getCurrentPoint();
-//                Gui.drawWorldpoint(bp, (x, y) -> Gui.drawRect(Colors.RED, x, y, 4, 4));
                 Vector3f base = Vector3f.floor(vec3(bp), 16f);
-                drawOctreeOp(world.getLoadedChunk(bp).octree(bp.y), base, 16, vec3(bp).sub(base).scale(1/16f));
-
-                debugVisualGeoRenderer.render(world.crd.findSection(bp).proxyentity());
+                Octree nd = world.getOctree(bp);
+                if (nd != null)
+                    drawOctreeOp(nd, base, 16, vec3(bp).sub(base).scale(1/16f));
             }
 
             glEnable(GL_DEPTH_TEST);
@@ -297,6 +293,7 @@ public class Outskirts {
                     renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.8f,h.norm), Colors.DARK_RED);
                 }
             }
+            Gui.drawWorldpoint(min, (x, y) -> Gui.drawString("S"+leaf.size, x, y, Colors.GRAY, 8));
         }
     }
 

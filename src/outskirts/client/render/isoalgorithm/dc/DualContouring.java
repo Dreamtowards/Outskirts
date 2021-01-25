@@ -1,6 +1,7 @@
 package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.VertexBuffer;
+import outskirts.material.Material;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.util.Maths;
 import outskirts.util.function.TrifFunc;
@@ -153,7 +154,9 @@ public final class DualContouring {
         if (minsz_signchanged) {  // put the QUAD. 2tri 6vts.
             for (int i = 0;i < 6;i++) {
                 int idx = ADJACENT_QUADTRIV[flip ? 5-i : i];
-                vbuf.addpos(((Octree.Leaf)eadjacent[idx]).featurepoint);
+                Octree.Leaf lf = (Octree.Leaf)eadjacent[idx];
+                vbuf.addpos(lf.featurepoint);
+                vbuf.verttags.add((float)Material.REGISTRY.indexOf(lf.material.getRegistryID()));
             }
         }
     }

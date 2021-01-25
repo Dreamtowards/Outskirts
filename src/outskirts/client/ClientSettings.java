@@ -2,7 +2,6 @@ package outskirts.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import outskirts.block.Block;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiMap;
 import outskirts.client.gui.compoents.GuiScreenMapView;

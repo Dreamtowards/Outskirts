@@ -108,7 +108,7 @@ public class EventBus {
                         try {
                             method.invoke(owner, event);
                         } catch (IllegalAccessException | InvocationTargetException ex) {
-                            throw new RuntimeException("Failed to invoke this Method EventHandler.", ex);
+                            throw new RuntimeException("Failed to invoke this Method EventHandler.", ex.getCause());
                         }
                     };
                 }

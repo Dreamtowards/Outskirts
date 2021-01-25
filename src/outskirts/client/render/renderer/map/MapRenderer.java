@@ -1,6 +1,5 @@
 package outskirts.client.render.renderer.map;
 
-import outskirts.block.Block;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;

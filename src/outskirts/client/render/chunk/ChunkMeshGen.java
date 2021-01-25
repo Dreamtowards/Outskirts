@@ -4,26 +4,28 @@ import outskirts.client.Outskirts;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.util.CollectionUtils;
 import outskirts.util.Ref;
 import outskirts.util.mx.VertexUtil;
 import outskirts.world.World;
 import outskirts.world.chunk.Chunk;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class ChunkMeshGen {
 
-    public static VertexBuffer buildModel(RenderSection rs, Ref<int[]> vertm) {
+    public static VertexBuffer buildModel(RenderSection rs, Ref<float[]> vertm) {
 
         World world = Outskirts.getWorld();
         if (world==null) return null;
-        Chunk chunk = world.getLoadedChunk(rs.position());
-        if (chunk==null) return null;
-        Octree node = chunk.octree(rs.position().y);
-        if (node ==null) return null;
+        Octree node = Outskirts.getWorld().getOctree(rs.position());
+        if (node==null) return null;
 
         VertexBuffer vbuf = DualContouring.contouring(node);
 
@@ -84,9 +86,8 @@ public class ChunkMeshGen {
 
         VertexUtil.smoothnorm(vbuf);
 
-//        LOGGER.info("MODEL GEN.D.");
-
-        vertm.value = new int[vbuf.positions.size()/3];
+        vertm.value = CollectionUtils.toArrayf((List<Float>)(Object)vbuf.verttags);
+        assert vertm.value.length == vbuf.positions.size()/3;
 
         return vbuf;
     }

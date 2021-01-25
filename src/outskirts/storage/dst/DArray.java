@@ -11,7 +11,7 @@ public class DArray<E> implements List<E> {
     private List<E> ls;
 
     public DArray() {
-        this(new ArrayList());
+        this(new ArrayList<>());
     }
 
     public DArray(List ls) {

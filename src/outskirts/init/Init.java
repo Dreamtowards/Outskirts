@@ -1,6 +1,5 @@
 package outskirts.init;
 
-import outskirts.block.Block;
 import outskirts.command.Command;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
@@ -19,53 +18,19 @@ import outskirts.util.Side;
 
 public final class Init {
 
-    private static void registerPackets() {
-
-
-        //todo: refact
-        Packet.registerPacket(CPacketLogin.class);
-        Packet.registerPacket(SPacketDisconnect.class);
-        Packet.registerPacket(SPacketLoginSuccess.class);
-
-        Packet.registerPacket(outskirts.network.play.packet.SPacketDisconnect.class);
-        Packet.registerPacket(SPacketChatMessage.class);
-
-
-        Packet.buildRegistry();
-    }
-
-    private static void registerCommands() {
-
-        Command.REGISTRY.register(new CommandShutdown());
-        Command.REGISTRY.register(new CommandKick());
-        Command.REGISTRY.register(new CommandSummon());
-        Command.REGISTRY.register(new CommandPlayerlist());
-        Command.REGISTRY.register(new CommandSay());
-
-    }
-
-
-
-    private static void registerEntities(Side side) {
-
-        Entity.REGISTRY.register(side.isClient() ? new EntityPlayerSP() : new EntityPlayerMP());
-
-        Entity.REGISTRY.register(new EntityStaticMesh());
-    }
-
 
     //use event to register/release..?
     public static void registerAll(Side side) {
 
-        Blocks.init();
-
         Materials.init();
+
+        MaterialTextures.init();
 
         Items.init();
 
-        for (Block b : Block.REGISTRY.values()) {
-            Item.REGISTRY.register(new ItemBlock(b));
-        }
+//        for (Block b : Block.REGISTRY.values()) {
+//            Item.REGISTRY.register(new ItemBlock(b));
+//        }
 
         if (side.isClient()) {
 
@@ -85,4 +50,38 @@ public final class Init {
         registerEntities(side);
     }
 
+
+    private static void registerPackets() {
+
+
+        //todo: refact
+        Packet.registerPacket(CPacketLogin.class);
+        Packet.registerPacket(SPacketDisconnect.class);
+        Packet.registerPacket(SPacketLoginSuccess.class);
+
+        Packet.registerPacket(outskirts.network.play.packet.SPacketDisconnect.class);
+        Packet.registerPacket(SPacketChatMessage.class);
+
+
+        Packet.buildRegistry();
+    }
+
+
+
+    private static void registerCommands() {
+
+        Command.REGISTRY.register(new CommandShutdown());
+        Command.REGISTRY.register(new CommandKick());
+        Command.REGISTRY.register(new CommandSummon());
+        Command.REGISTRY.register(new CommandPlayerlist());
+        Command.REGISTRY.register(new CommandSay());
+
+    }
+
+    private static void registerEntities(Side side) {
+
+        Entity.REGISTRY.register(side.isClient() ? new EntityPlayerSP() : new EntityPlayerMP());
+
+        Entity.REGISTRY.register(new EntityStaticMesh());
+    }
 }

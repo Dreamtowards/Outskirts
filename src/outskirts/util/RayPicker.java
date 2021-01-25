@@ -1,6 +1,5 @@
 package outskirts.util;
 
-import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
 import outskirts.physics.collision.shapes.CollisionShape;
@@ -23,7 +22,7 @@ public class RayPicker {
     private Vector3f rayDirection = new Vector3f(Vector3f.UNIT_X);
 
     public void update() {
-        Ref<Float> t = Ref.wrap(Float.MAX_VALUE);
+        Val t = Val.of(Float.MAX_VALUE);
         float collT = Float.MAX_VALUE;  // t of only really exact raycast.
         List<Entity> excepts = new ArrayList<>(Collections.singletonList(Outskirts.getPlayer()));
 
@@ -42,11 +41,11 @@ public class RayPicker {
                             if (tmp.val < collT) {
                                 currentEntity=found;
                                 collT = tmp.val;
-                                t.value = tmp.val;
+                                t.val = tmp.val;
                             }
                         } else {
                             // not-cast. find from 'start'. the actually casted aabb-t should behind curr aabb-t.
-                            t.value = Float.MAX_VALUE;
+                            t.val = Float.MAX_VALUE;
                         }
                     } catch (ArithmeticException ex) {
                         ex.printStackTrace();
@@ -71,13 +70,13 @@ public class RayPicker {
 //        }
     }
 
-    private Entity getCloserAabbEntity(Vector3f raypos, Vector3f raydir, Ref<Float> thanT, List<Entity> excepts) {
+    private Entity getCloserAabbEntity(Vector3f raypos, Vector3f raydir, Val thanT, List<Entity> excepts) {
         Vector2f TMP = new Vector2f();
         Entity closestAabbEntity = null;
         for (Entity entity : Outskirts.getWorld().getEntities()) {
             if (excepts.contains(entity)) continue;
-            if (Maths.intersectRayAabb(raypos, raydir, entity.getRigidBody().getAABB(), TMP) && TMP.x < thanT.value) {
-                thanT.value = TMP.x;
+            if (Maths.intersectRayAabb(raypos, raydir, entity.getRigidBody().getAABB(), TMP) && TMP.x < thanT.val) {
+                thanT.val = TMP.x;
                 closestAabbEntity = entity;
             }
         }

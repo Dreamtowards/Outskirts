@@ -6,13 +6,13 @@ layout (location = 2) out vec4 gAlbedoSpecular;
 in vec3 FragPos;
 in vec3 vNorm;
 in vec2 vTexCoord;
-in vec3 ACCTRI_BARYCD;
-flat in vec3 ACCTRI_BLXID;
+in vec3 TriWeight;
+flat in vec3 TriMtlId;
 
 uniform sampler2D mtlDiffuseMap;
 uniform sampler2D mtlSpecularMap;
 
-uniform vec4 blockfrags[256];
+uniform vec4 mtlfrags[256];
 
 const float P_NEAR = 0.1f;
 const float P_FAR  = 1000.0f;
@@ -42,9 +42,9 @@ void main() {
 //    gAlbedoSpecular.rgb = texture(mtlDiffuseMap, vTexCoord).rgb;
     gAlbedoSpecular.a = texture(mtlSpecularMap, vTexCoord).r;
 
-    vec4 v1txfrag = blockfrags[int(ACCTRI_BLXID.x)];
-    vec4 v2txfrag = blockfrags[int(ACCTRI_BLXID.y)];
-    vec4 v3txfrag = blockfrags[int(ACCTRI_BLXID.z)];
+    vec4 v1txfrag = mtlfrags[int(TriMtlId.x)];
+    vec4 v2txfrag = mtlfrags[int(TriMtlId.y)];
+    vec4 v3txfrag = mtlfrags[int(TriMtlId.z)];
 
     vec2 uvPlanar[3];
     uvPlanar[0] = modv2u(vec2(1.0f-FragPos.z, FragPos.y));
@@ -57,9 +57,9 @@ void main() {
 //            texture(mtlDiffuseMap, uvPlanarX).rgb * pweight.x +
 //            texture(mtlDiffuseMap, uvPlanarY).rgb * pweight.y +
 //            texture(mtlDiffuseMap, uvPlanarZ).rgb * pweight.z;
-    gAlbedoSpecular.rgb = tripSample(v1txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.x +
-                          tripSample(v2txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.y +
-                          tripSample(v3txfrag, uvPlanar, pweight) * ACCTRI_BARYCD.z;
+    gAlbedoSpecular.rgb = tripSample(v1txfrag, uvPlanar, pweight) * TriWeight.x +
+                          tripSample(v2txfrag, uvPlanar, pweight) * TriWeight.y +
+                          tripSample(v3txfrag, uvPlanar, pweight) * TriWeight.z;
 
 
 //    int i = pweight.x > pweight.y ? (pweight.x > pweight.z ? 0 : 2) : (pweight.y > pweight.z ? 1 : 2);

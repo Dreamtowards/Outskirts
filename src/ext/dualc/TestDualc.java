@@ -2,7 +2,7 @@ package ext.dualc;
 
 import org.junit.Test;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.DCOctreeSampler;
+import outskirts.client.render.isoalgorithm.dc.samp.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.util.function.TrifFunc;

@@ -1,6 +1,5 @@
 package outskirts.client.render.renderer;
 
-import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
@@ -10,6 +9,7 @@ import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
+import outskirts.init.MaterialTextures;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
@@ -21,16 +21,15 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
+import static outskirts.util.logging.Log.LOGGER;
 
 /**
  * EntityRenderer. a high-level renderer, for Entity
  */
 public class EntityRenderer extends Renderer {
 
-//    private ShaderProgram shader = new ShaderProgram(
-//            new ResourceLocation("shaders/entity.vsh").getInputStream(),
-//            new ResourceLocation("shaders/entity.fsh").getInputStream()
-//    );
     private ShaderProgram shaderGeometry = new ShaderProgram(
             new Identifier("shaders/entity/geometry.vsh").getInputStream(),
             new Identifier("shaders/entity/geometry.fsh").getInputStream(),
@@ -144,10 +143,10 @@ public class EntityRenderer extends Renderer {
 
         shaderGeometry.useProgram();
 
-        for (int i = 0;i < Block.REGISTRY.size();i++) {
-            TextureAtlas.Fragment txfrag = Block.REGISTRY.values().get(i).theTxFrag;
-            shaderGeometry.setVector4f("blockfrags["+i+"]",
-                    new Vector4f(txfrag.OFFSET.x, txfrag.OFFSET.y, txfrag.SCALE.x, txfrag.SCALE.y));
+        int i = 0;
+        for (TextureAtlas.Fragment frag : MaterialTextures.TEXTURE_ATLAS.fragments()) {
+            shaderGeometry.setVector4f("mtlfrags["+i+"]", vec4(frag.OFFSET.x, frag.OFFSET.y, frag.SCALE.x, frag.SCALE.y));
+            i++;
         }
 
         shaderGeometry.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());

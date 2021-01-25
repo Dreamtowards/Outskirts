@@ -22,6 +22,8 @@ public final class VertexBuffer {
     public List<Float> textureCoords = new ArrayList<>();
     public List<Float> normals = new ArrayList<>();
 
+    public List<Object> verttags = new ArrayList<>();
+
     public void addpos(float x, float y, float z) {
         positions.add(x);
         positions.add(y);

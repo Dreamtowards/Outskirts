@@ -4,15 +4,12 @@ public final class Ref<T> {
 
     private Ref() { }
 
-    public static Ref wrap() {
-        return new Ref();
+    public static <T> Ref<T> wrap() {
+        return new Ref<>();
     }
-//    public static Ref<Float> zero() {
-//        return wrap();
-//    }
 
-    public static Ref wrap(Object val) {
-        Ref r = new Ref();
+    public static <T> Ref<T> wrap(T val) {
+        Ref<T> r = new Ref<>();
         r.value=val;
         return r;
     }

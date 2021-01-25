@@ -2,6 +2,8 @@ package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
+import outskirts.init.Materials;
+import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.util.CollectionUtils;
@@ -114,11 +116,10 @@ public abstract class Octree {
 
         public final Vector3f featurepoint = new Vector3f();
 
-        // needs really aabb.?   does Internal needs min and aabb.?
         public final Vector3f min = new Vector3f();
         public final float size;  // actually size.
 
-        private int materialIdx;
+        public Material material = Materials.STONE;
 
         public Leaf(Vector3f minVal, float size) {
             this.min.set(minVal);
@@ -164,9 +165,6 @@ public abstract class Octree {
                     assert f >= 0 && f <= size;
                 }
             }
-        }
-        public AABB aabb(AABB dest) {
-            return dest.set(min.x, min.y, min.z, min.x+size, min.y+size, min.z+size);
         }
     }
 

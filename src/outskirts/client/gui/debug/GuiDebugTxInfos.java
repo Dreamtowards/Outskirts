@@ -1,6 +1,5 @@
 package outskirts.client.gui.debug;
 
-import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.render.isoalgorithm.mc.MarchingCubes;

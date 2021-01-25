@@ -1,6 +1,5 @@
 package outskirts.item;
 
-import outskirts.block.Block;
 import outskirts.client.gui.Gui;
 import outskirts.item.stack.ItemStack;
 import outskirts.util.Colors;
@@ -30,9 +29,9 @@ public abstract class Item implements Registrable {
     }
 
 
-    public static Item ofBlock(Block block) {
-        return REGISTRY.get(block.getRegistryID());
-    }
+//    public static Item ofBlock(Block block) {
+//        return REGISTRY.get(block.getRegistryID());
+//    }
 
 
     @Override

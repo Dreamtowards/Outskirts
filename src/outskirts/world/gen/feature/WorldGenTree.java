@@ -1,8 +1,5 @@
 package outskirts.world.gen.feature;
 
-import outskirts.block.BlockGrass;
-import outskirts.block.BlockLeaf;
-import outskirts.block.BlockStone;
 import outskirts.init.Blocks;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;

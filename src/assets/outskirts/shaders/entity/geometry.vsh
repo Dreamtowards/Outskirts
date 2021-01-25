@@ -3,17 +3,15 @@ layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec2 in_texCoord;
 layout (location = 2) in vec3 in_normal;
 layout (location = 3) in vec3 in_tangent;
-layout (location = 4) in vec3 in_acctri_brcd;   // baraycentric coord of tri 3vert.
-layout (location = 5) in vec3 in_acctri_mtid;   // material Id of tri 3vert.
+layout (location = 4) in float in_mtlId;
 
 out VS_OUT {
     vec3 FragPos;
     vec3 vNorm;
     vec2 vTexCoord;
+    float vMtlId;
 } vs_out;
 
-out vec3 AccTri_BrCd;
-flat out vec3 AccTri_MtId;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -30,6 +28,6 @@ void main() {
 
     vs_out.vTexCoord = in_texCoord;
 
-    AccTri_BrCd = in_acctri_brcd;
-    AccTri_MtId = in_acctri_mtid;
+    vs_out.vMtlId = in_mtlId;
+
 }
