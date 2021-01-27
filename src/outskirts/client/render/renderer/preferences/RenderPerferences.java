@@ -10,8 +10,8 @@ public final class RenderPerferences {
     private Texture normalMap = Texture.ZERO;
 
     private Texture specularMap = Texture.UNIT; // Specular Map
-    private float specularStrength = 0f;
-    private float shininess = 1;
+    private float specularStrength = .5f;
+    private float shininess = 8;
 
     private Texture displacementMap = Texture.ZERO;  // Parallax Impl. actually is a DepthMap. displacement'll not Convex up, but Concave down.
     private float displacementScale = 0.1f;

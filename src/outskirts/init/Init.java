@@ -8,7 +8,6 @@ import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.init.ex.Models;
 import outskirts.item.Item;
-import outskirts.item.ItemBlock;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;

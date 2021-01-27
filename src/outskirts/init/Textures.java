@@ -16,6 +16,9 @@ public final class Textures {
 
     public static final Texture GRASS = loadTexture("materials/mc/dirt.png");
 
+    public static Texture BRICK = loadTexture("materials/brickwall.png");
+    public static Texture BRICK_NORM = loadTexture("materials/brickwall_normal.png");
+
     private static Texture loadTexture(String s) {
         return Loader.loadTexture(new ResourceLocation(s).getInputStream());
     }

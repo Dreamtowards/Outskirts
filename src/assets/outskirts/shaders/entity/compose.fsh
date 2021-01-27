@@ -22,8 +22,8 @@ struct Light {
 uniform Light lights[64];
 uniform int lightCount;
 
-uniform float mtlShininess = 32;
-uniform float mtlSpecularStrength;
+uniform float mtlShininess = 64;
+uniform float mtlSpecularStrength = 0;
 
 uniform mat4 shadowspaceMatrix;
 uniform sampler2D shadowdepthMap;

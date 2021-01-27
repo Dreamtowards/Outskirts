@@ -1,8 +1,10 @@
 #version 330 core
 layout (location = 0) in vec3 in_position;
+layout (location = 1) in vec2 in_texcoord;
 layout (location = 2) in vec3 in_normal;
 
 out vec3 pNorm;
+out vec2 TexCoord;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -14,4 +16,5 @@ void main() {
 
     pNorm = normalize(vec3(projectionMatrix * viewMatrix * modelMatrix * vec4(in_normal, 0.0)));
 
+    TexCoord = in_texcoord;
 }

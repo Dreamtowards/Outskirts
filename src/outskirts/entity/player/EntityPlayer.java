@@ -20,7 +20,7 @@ public abstract class EntityPlayer extends Entity {
 
     private String name; // should only MP? should alls Entity..?
 
-    private Inventory inventory = new Inventory(32);
+    private Inventory inventory = new Inventory(8);
 
     private int hotbarSlot;
 

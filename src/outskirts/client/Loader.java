@@ -65,7 +65,7 @@ public final class Loader {
      */
     private static Model loadModelT(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
         float[] tangents = new float[positions.length];
-        Maths.computeTangentCoordinates(indices, positions, textureCoords, tangents);
+        Maths.computeTangents(indices, positions, textureCoords, tangents);
         return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
     }
     public static Model loadModelT(VertexBuffer vbuf, Function<float[], float[]> posproc) {

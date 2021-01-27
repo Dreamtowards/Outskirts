@@ -56,7 +56,9 @@ public class RayPicker {
             break;
         }
         if (currentEntity != null) {  // found.
-            currentPoint.set(rayOrigin).addScaled(collT, rayDirection);
+            currentPoint = new Vector3f(rayOrigin).addScaled(collT, rayDirection);
+        } else {
+            currentPoint = null;
         }
 
 //        prevousBlockPos=currentBlockPos;

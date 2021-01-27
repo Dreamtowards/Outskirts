@@ -23,7 +23,7 @@ public class GuiHotbar extends Gui {
     private void onDlaw(OnDrawEvent e) {
         int SZ = 40;
 
-        setHeight(4*45);
+        setHeight(45);
         setWidth(8*45);
         drawRect(Colors.BLACK05, this);
 

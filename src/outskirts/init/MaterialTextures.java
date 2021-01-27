@@ -19,7 +19,7 @@ public final class MaterialTextures {
     public static void init() {
 
 
-        register("materials/mc/stone.png");
+        register("materials/mc/stone.png");//mc/stone.png");
         register("materials/mc/grass.png");
         register("materials/mc/dirt.png");
 

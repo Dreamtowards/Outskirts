@@ -713,43 +713,43 @@ public final class Maths {
         return normalMatrix;
     }
 
+    /**
+     * Compute Mesh Tangents. solve from positions and textureCoords from triangles.
+     * the Tangent is aligned x axis of textureCoords. Bitangent is aligned y.
+     *
+     * for a Given triangle, positions P1 P2 P3, textureCoords UV1, UV2, UV3.
+     *   two edges of the triangle:（pos) E1=P2-P1, E2=P3-P1, (uv) dUV1=UV2-UV1, dUV2=UV3-UV1.
+     * then:
+     *   E1=(U2-U1)T + (V2-V1)B
+     *   E2=(U3-U1)T + (V3-V1)B
+     *
+     * as matrix form:
+     *  |E1x E1y E1z|   |dU1 dV1| |Tx Ty Tz|
+     *  |E2x E2y E2z| = |dU2 dV2|*|Bx By Bz|
+     * then:
+     *  |Tx Ty Tz|      |dU1 dV1| |E1x E1y E1z|
+     *  |Bx By Bz| = inv|dU2 dV2|*|E2x E2y E2z|
+     */
     // requires triangle faces. positions:vec3, textureCoords:vec2.
-    public static void computeTangentCoordinates(int[] indices, float[] positions, float[] textureCoords, float[] out_tangents) {
+    public static void computeTangents(int[] indices, float[] positions, float[] textureCoords, float[] out_tangents) {
         Vector3f P1 = new Vector3f(), P2 = new Vector3f(), P3 = new Vector3f();
-        Vector2f T1 = new Vector2f(), T2 = new Vector2f(), T3 = new Vector2f();
+        Vector2f UV1 = new Vector2f(), UV2 = new Vector2f(), UV3 = new Vector2f();
         for (int i = 0;i < indices.length;i+=3) {
             // init related verts.
             int ele1 = indices[i], ele2 = indices[i+1], ele3 = indices[i+2];
-            Vector3f.set(P1, positions, ele1*3);
-            Vector3f.set(P2, positions, ele2*3);
-            Vector3f.set(P3, positions, ele3*3);
-            Vector2f.set(T1, textureCoords, ele1*2);
-            Vector2f.set(T2, textureCoords, ele2*2);
-            Vector2f.set(T3, textureCoords, ele3*2);
+            Vector3f.set(P1, positions, ele1*3);Vector3f.set(P2, positions, ele2*3);Vector3f.set(P3, positions, ele3*3);
+            Vector2f.set(UV1, textureCoords, ele1*2);Vector2f.set(UV2, textureCoords, ele2*2);Vector2f.set(UV3, textureCoords, ele3*2);
 
             Vector3f E1 = Vector3f.sub(P2, P1, null);
             Vector3f E2 = Vector3f.sub(P3, P1, null);
-            Vector2f D1 = Vector2f.sub(T2, T1, null);
-            Vector2f D2 = Vector2f.sub(T3, T1, null);
+            Vector2f D1 = Vector2f.sub(UV2, UV1, null);
+            Vector2f D2 = Vector2f.sub(UV3, UV1, null);
 
-//            Matrix2f ML = new Matrix2f(
-//                    D1.x, D1.y,
-//                    D2.x, D2.y
-//            );
-//
-//            try {
-//                ML.invert();
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//                Log.LOGGER.info("failed inv. i:{}. ML:{}", i, ML);
-//            }
+//            Matrix2f ML = new Matrix2f( D1.x, D1.y,
+//                                        D2.x, D2.y ).invert();
 
-//            Vector3f T = new Vector3f(
-//                    ML.m00*E1.x+ML.m01*E2.x, ML.m00*E1.y+ML.m01*E2.y, ML.m00*E1.z+ML.m01*E2.z
-//            ).normalize();
-//            Vector3f B = new Vector3f(
-//                    ML.m10*E1.x+ML.m11*E2.x, ML.m10*E1.y+ML.m11*E2.y, ML.m10*E1.z+ML.m11*E2.z
-//            ).normalize();
+//            Vector3f T = new Vector3f( ML.m00*E1.x+ML.m01*E2.x, ML.m00*E1.y+ML.m01*E2.y, ML.m00*E1.z+ML.m01*E2.z ).normalize();
+//            Vector3f B = new Vector3f( ML.m10*E1.x+ML.m11*E2.x, ML.m10*E1.y+ML.m11*E2.y, ML.m10*E1.z+ML.m11*E2.z ).normalize();
 
             float f = 1.0f / (D1.x*D2.y - D2.x*D1.y);
 
@@ -758,11 +758,11 @@ public final class Maths {
                     f*(D2.y*E1.y-D1.y*E2.y),
                     f*(D2.y*E1.z-D1.y*E2.z)
             );//.normalize();
-            Vector3f B = new Vector3f(
-                    f*(-D2.x*E1.x+D1.x*E2.x),
-                    f*(-D2.x*E1.y+D1.x*E2.y),
-                    f*(-D2.x*E1.z+D1.x*E2.z)
-            );//.normalize();
+//            Vector3f B = new Vector3f(
+//                    f*(-D2.x*E1.x+D1.x*E2.x),
+//                    f*(-D2.x*E1.y+D1.x*E2.y),
+//                    f*(-D2.x*E1.z+D1.x*E2.z)
+//            );//.normalize();
             out_tangents[ele1*3]   = T.x;
             out_tangents[ele1*3+1] = T.y;
             out_tangents[ele1*3+2] = T.z;

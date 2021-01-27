@@ -50,6 +50,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 
+import static java.lang.Float.NaN;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -136,55 +137,21 @@ public class Outskirts {
 
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
-        getRootGUI().addGui(new Gui1DNoiseVisual().exec(g -> {
+        GuiScreenMainMenu.INSTANCE.addGui(new Gui1DNoiseVisual().exec(g -> {
             g.setX(30);
             g.setY(30);
             g.setWidth(800);
             g.setHeight(80);
         }));
 
-        GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
-            g.addLayoutorAlignParentRR(.5f, .9f);
-        }));
+//        GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
+//            g.addLayoutorAlignParentLTRB(30, NaN, NaN, 40);
+//        }));
 
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
-//        Outskirts.getRootGUI().addGui(new GuiMC2D().exec(g -> {
-//            g.addLayoutorAlignParentLTRB(100,100,100,100);
-//        }));
 
-//        GuiScreenPause.INSTANCE.addChildren(new GuiSlider().exec((GuiSlider g) -> {
-//
-//            g.setUserMinMaxValue(1, 1000);
-//            g.addOnValueChangedListener(e -> {
-//
-//                float f = g.getCurrentUserValue();
-//                Maths.createOrthographicProjectionMatrix(17,17, ClientSettings.FAR_PLANE, Outskirts.renderEngine.getProjectionMatrix());
-//                player.getPosition().set(Maths.floor(player.getPosition().x, 16) + 8, 100, Maths.floor(player.getPosition().z, 16) + 8);
-////                Maths.lookAt(new Vector3f(0,-1,0), new Vector3f(0,0.99f,0.01f).normalize(), camera.getRotation());
-//                camera.getCameraUpdater().getEulerAngles().set(-Maths.PI/2f, 0, 0);
-//                LOGGER.info(f);
-//            });
-//        }));
-
-//        Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
-//            if (e.getKeyState() && e.getKey() == GLFW_KEY_P) {
-//                float r = 10;
-//                for (float x=-r; x<r; x++) {
-//                    for (float y=-r; y<r; y++) {
-//                        for (float z=-r; z<r; z++) {
-//                            Vector3f dv = new Vector3f(x,y,z);
-//                            Vector3f v = new Vector3f(player.position()).add(dv);
-//                            Block b = world.getBlock(v);;
-//                            if (b==null)continue;
-//                            b.v = DualContouringUniformGridDensitySmpl.F_CUBE.sample(dv);
-//                            world.setBlock(v,b);
-//                        }
-//                    }
-//                }
-//            }
-//        });
         debugTestRenderer = new DebugTestRenderer();
 
         debugVisualGeoRenderer = new DebugVisualGeoRenderer();
@@ -260,11 +227,9 @@ public class Outskirts {
                 Vector3f bp = rayPicker.getCurrentPoint();
                 Vector3f base = Vector3f.floor(vec3(bp), 16f);
                 Octree nd = world.getOctree(bp);
-                if (nd != null)
-                    drawOctreeOp(nd, base, 16, vec3(bp).sub(base).scale(1/16f));
             }
-
             glEnable(GL_DEPTH_TEST);
+
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -276,26 +241,6 @@ public class Outskirts {
         numFrames++;
     }
 
-    private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
-        if (node.isInternal()) {
-            renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.GRAY);
-            int idx = Octree.cellidx(rp);
-            Octree sub = ((Octree.Internal)node).child(idx);
-            Octree.cellrpclip(idx, rp);
-            drawOctreeOp(sub, vec3(min).addScaled(sz/2f, Octree.VERT[idx]), sz/2f, rp);
-        } else {
-            renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.RED);
-            Octree.Leaf leaf = (Octree.Leaf)node;
-            for (int i=0;i<12;i++) {
-                HermiteData h = leaf.edges[i];
-                if (h != null) {
-                    Vector3f base = vec3(h.point).add(Vector3f.floor(vec3(min),16f));
-                    renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.8f,h.norm), Colors.DARK_RED);
-                }
-            }
-            Gui.drawWorldpoint(min, (x, y) -> Gui.drawString("S"+leaf.size, x, y, Colors.GRAY, 8));
-        }
-    }
 
 
     public static void setWorld(WorldClient world) {
@@ -307,11 +252,15 @@ public class Outskirts {
         lightSun.position().set(40, 50, 40);
         lightSun.color().set(1, 1, 1).scale(1.2f);
         world.lights.add(lightSun);
+        SystemUtil.debugAddKeyHook(GLFW_KEY_E, () -> {
+            lightSun.position().set(getPlayer().position());
+        });
 
         world.addEntity(entityStaticMesh=new EntityStaticMesh());
 
-        getPlayer().setModel(Models.GEOS_CAPSULE);
-        getPlayer().getRenderPerferences().setDiffuseMap(Textures.CONTAINER);
+        getPlayer().setModel(Models.GEO_SPHERE);
+        getPlayer().getRenderPerferences().setDiffuseMap(Textures.BRICK);
+        getPlayer().getRenderPerferences().setNormalMap(Textures.BRICK_NORM);
         getPlayer().tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
         RigidBody prb = getPlayer().getRigidBody();
 //        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));

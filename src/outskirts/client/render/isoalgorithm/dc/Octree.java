@@ -305,7 +305,7 @@ public abstract class Octree {
      * @param rp rel-unit-pos in the InternalNode. xyz:[0-1).
      */
     public static int cellidx(Vector3f rp) {
-        assert rp.x>=0&&rp.x<1 && rp.y>=0&&rp.y<1 && rp.z>=0&&rp.z<1 : "Position Outbound. "+rp;
+        assert rp.x>=0&&rp.x<=1 && rp.y>=0&&rp.y<=1 && rp.z>=0&&rp.z<=1 : "Position Outbound. "+rp;
         int x = Math.round(rp.x);
         int y = Math.round(rp.y);
         int z = Math.round(rp.z);

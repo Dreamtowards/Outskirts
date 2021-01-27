@@ -53,8 +53,9 @@ public class EntityRenderer extends Renderer {
 //        shader.setInt("shadowdepthmapSampler", 6);
 
         shaderGeometry.useProgram();
-        shaderGeometry.setInt("mtlDiffuseMap", 0);
-        shaderGeometry.setInt("mtlSpecularMap", 1);
+        shaderGeometry.setInt("diffuseMap", 0);
+        shaderGeometry.setInt("specularMap", 1);
+        shaderGeometry.setInt("normalMap", 2);
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -166,6 +167,8 @@ public class EntityRenderer extends Renderer {
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getDiffuseMap().textureID());
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getSpecularMap().textureID());
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, renderPerferences.getNormalMap().textureID());
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }
