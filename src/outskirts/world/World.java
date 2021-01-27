@@ -79,6 +79,7 @@ public abstract class World implements Tickable {
     }
 
 
+    // reduc: Instead by raycast.
     // use for gen on ground top
 //    public final int getHighestBlock(int x, int z) {
 //        Block b;

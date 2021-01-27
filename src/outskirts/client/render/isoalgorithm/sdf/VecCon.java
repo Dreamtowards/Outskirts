@@ -17,6 +17,12 @@ public class VecCon {
         return new Vector3f(x, y, z);
     }
 
+    public static Vector4f vec4(Vector4f v) {
+        return vec4(v.x, v.y, v.z, v.w);
+    }
+    public static Vector4f vec4(float f) {
+        return vec4(f, f, f, f);
+    }
     public static Vector4f vec4(float x, float y, float z, float w) {
         return new Vector4f(x, y, z, w);
     }

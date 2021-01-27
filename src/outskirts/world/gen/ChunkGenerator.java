@@ -1,7 +1,7 @@
 package outskirts.world.gen;
 
-import outskirts.client.render.isoalgorithm.dc.samp.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.init.Materials;
 import outskirts.util.function.TrifFunc;
 import outskirts.world.World;
 import outskirts.world.chunk.Chunk;
@@ -25,7 +25,9 @@ public class ChunkGenerator {
             return noise.fbm((chunkpos.x+x)/20,(chunkpos.z+z)/20, 5)*9f+(5-y);
 //            return -DistFunctions.sphere(vec3(x,y,z), 16f);
         };
-        Octree node = DCOctreeSampler.fromSDF(vec3(0), 16, FUNC, 5);
+        Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 5, Materials.STONE);
+
+        Octree.collapse(node);
 
         chunk.octree(0, node);
 

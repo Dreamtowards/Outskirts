@@ -2,9 +2,9 @@ package ext.dualc;
 
 import org.junit.Test;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.samp.DCOctreeSampler;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.init.Materials;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
@@ -22,7 +22,7 @@ public class TestDualc {
     @Test
     public void samplMesh() throws FileNotFoundException {
 
-        Octree node = DCOctreeSampler.fromMESH(OBJLoader.loadOBJ(new FileInputStream("terr2.obj")), 6);
+        Octree node = Octree.fromMESH(OBJLoader.loadOBJ(new FileInputStream("terr2.obj")), 6);
 
 
         buildAndWrite(node);
@@ -42,9 +42,9 @@ public class TestDualc {
             return (8+hei*18f) - y;
         };
 
-        Octree node = DCOctreeSampler.fromSDF(vec3(0), 30, FUNC, 5);
+        Octree node = Octree.fromSDF(vec3(0), 30, FUNC, 5, Materials.STONE);
 
-        ((Octree.Internal) node).child(0, DCOctreeSampler.fromSDF(vec3(0), 15, FUNC, 3));
+        ((Octree.Internal) node).child(0, Octree.fromSDF(vec3(0), 15, FUNC, 3, Materials.STONE));
 
         buildAndWrite(node);
 

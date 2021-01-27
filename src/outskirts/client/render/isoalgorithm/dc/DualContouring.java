@@ -137,6 +137,9 @@ public final class DualContouring {
         for (int i = 0;i < 4;i++) {
             Octree.Leaf leaf = (Octree.Leaf)eadjacent[i];
 
+            if (leaf.vfull())
+                return;
+
             // "Diagonal EDGE in a Cell". for access centric-'shared'-edge on one axis.
             int[] centricedge = EDGE[axis*4 +(3-i)];
             int v0 = centricedge[0] ;

@@ -169,14 +169,14 @@ public class Outskirts {
             Vector3f bs = vec3(cp.x, 0, cp.z);
             Octree nd = world.getOctree(bs);
 
-            Octree.forEach(nd, n -> {
+            Octree.forEach(nd, (n,m,s) -> {
                 if (n.isLeaf()) {
                     Octree.Leaf lf = (Octree.Leaf)n;
-                    if (vec3(lf.min).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
+                    if (vec3(lf.min).add(bs).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
                         lf.material = isMouseDown(2) ? Materials.DIRT : Materials.GRASS;
                     }
                 }
-            });
+            }, bs, 16);
 
             world.crd.markRebuild(bs);
         });

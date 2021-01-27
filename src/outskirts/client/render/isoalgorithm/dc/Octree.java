@@ -1,15 +1,18 @@
 package outskirts.client.render.isoalgorithm.dc;
 
+import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.init.Materials;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
+import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.Val;
+import outskirts.util.function.TriConsumer;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
@@ -19,6 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.function.Consumer;
+
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 public abstract class Octree {
 
@@ -97,7 +102,6 @@ public abstract class Octree {
         }
     }
 
-
     /**
      * Stores Hermite Data.  Rd. Material.
      *
@@ -143,7 +147,14 @@ public abstract class Octree {
 
         @Override
         public boolean collapsed() {
-            return vsign == SG_FULL || vsign == SG_EMPTY;
+            return vempty();
+        }
+
+        public boolean vfull() {
+            return vsign==SG_FULL;
+        }
+        public boolean vempty() {
+            return vsign==SG_EMPTY;
         }
 
         public void clearedges() {
@@ -188,6 +199,7 @@ public abstract class Octree {
     }
 
 
+    ////////////////// I.O. //////////////////
 
 
     public static Octree readOctree(InputStream is, Vector3f min, float size) throws IOException {
@@ -270,6 +282,10 @@ public abstract class Octree {
     }
 
 
+    ////////////////// COMMON UTILITY //////////////////
+
+
+
     /**
      * Edge Lerp of Actually Cell.
      */
@@ -293,9 +309,27 @@ public abstract class Octree {
     public static Octree collapse(Octree node) {
         if (node==null) return null;
         if (node.isInternal()) {
-            Octree.Internal internal = (Octree.Internal)node;
+            Octree.Internal intern = (Octree.Internal)node;
             for (int i = 0;i < 8;i++) {
-                internal.child(i, collapse(internal.child(i)));
+                intern.child(i, collapse(intern.child(i)));
+            }
+
+            // MERGE Leaves. when children all leaves, same material, all full-signs.
+            if (intern.child(0) instanceof Leaf) {
+                Leaf first = (Leaf)intern.child(0);
+                boolean merg = true;
+                for (int i = 0;i < 8;i++) {
+                    Octree c = intern.child(i);
+                    if (! (c instanceof Leaf && ((Leaf)c).vfull() && ((Leaf)c).material==first.material) ) {
+                        merg = false; break;
+                    }
+                }
+                if (merg) {
+                    Leaf lf = new Leaf(first.min, first.size*2);
+                    lf.material = first.material;
+                    lf.vsign = Leaf.SG_FULL;
+                    return lf;
+                }
             }
         }
         return node.collapsed() ? null : node;
@@ -331,16 +365,23 @@ public abstract class Octree {
         }
     }
 
-    public static void forEach(Octree node, Consumer<Octree> call) {
+    public static void forEach(Octree node, TriConsumer<Octree, Vector3f, Float> call, Vector3f min, float size) {
         if (node==null) return;
-        call.accept(node);
+        call.accept(node, min, size);
         if (node.isInternal()) {
             Octree.Internal intern = (Octree.Internal)node;
+            float subsz = size/2f;
+            Vector3f submin = new Vector3f();
             for (int i = 0;i < 8;i++) {
-                forEach(intern.child(i), call);
+                submin.set(min).addScaled(subsz, VERT[i]);
+                forEach(intern.child(i), call, submin, subsz);
             }
         }
     }
+
+
+
+    ////////////////// SAMPLING //////////////////
 
 
 
@@ -404,7 +445,46 @@ public abstract class Octree {
 
 
 
+    private static Octree building(Vector3f min, float size, Consumer<Octree.Leaf> samp, int currdep, int depthcap) {
+        if (currdep == depthcap) {  // do sample.
+            Octree.Leaf lf = new Octree.Leaf(min, size);
+            samp.accept(lf);
+            return lf;
+        } else if (currdep < depthcap) {  // recurise until reach the depthcap.
+            Octree.Internal intern = new Octree.Internal();
+            float subsize = size/2f;
+            Vector3f submin = new Vector3f();
+            for (int i = 0;i < 8;i++) {
+                submin.set(min).addScaled(subsize, Octree.VERT[i]);
+                intern.child(i, building(submin, subsize, samp, currdep+1, depthcap));
+            }
+            return intern;
+        } else throw new IllegalStateException();
+    }
 
+
+    public static Octree fromSDF(Vector3f min, float size, TrifFunc f, int depthcap, Material mtl) {
+        return building(min, size, lf -> {
+            Octree.sampleSDF(lf, f);
+            if (!lf.vempty()) {
+                lf.material = mtl;
+            }
+            lf.computefp();
+        }, 0, depthcap);
+    }
+
+    public static Octree fromMESH(Vector3f min, float size, Raycastable mesh, int depthcap) {
+        return building(min, size, lf -> {
+            Octree.sampleMESH(lf, mesh);
+            lf.computefp();
+        }, 0, depthcap);
+    }
+    public static Octree fromMESH(VertexBuffer vbuf, int depthcap) {
+        AABB aabb = AABB.bounding(vbuf.positions, null).grow(0.00001f);
+        float sz = Maths.max(aabb.max.x-aabb.min.x, aabb.max.y-aabb.min.y, aabb.max.z-aabb.min.z);
+        BvhTriangleMeshShape mesh = new BvhTriangleMeshShape(CollectionUtils.range(vbuf.positions.size()/3), vbuf.posarr());
+        return fromMESH(aabb.min, sz, mesh, depthcap);
+    }
 
 
 

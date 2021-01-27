@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_FILL;
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiDebugV extends Gui {
@@ -77,13 +78,22 @@ public class GuiDebugV extends Gui {
                         new GuiCheckBox("FE/BordV").exec(g->{
                             g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.DARK_GRAY, g));
                         }),
-                        new GuiCheckBox("FRO/OctreesHD").exec((GuiCheckBox g)->{
+                        new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
                             g.addOnDrawListener(e -> {
                                 Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
                                 if (g.isChecked() && p != null) {
                                     Octree nd = Outskirts.getWorld().getOctree(p);
                                     Vector3f base = Vector3f.floor(vec3(p), 16f);
                                     drawOctreeOp(nd, base, 16, vec3(p).sub(base).scale(1/16f));
+                                }
+                            });
+                        }),
+                        new GuiCheckBox("FRO/OctreesAHD").exec((GuiCheckBox g)->{
+                            g.addOnDrawListener(e -> {
+                                Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()).setY(0), 16f);
+                                Octree nd = Outskirts.getWorld().getOctree(base);
+                                if (g.isChecked() && nd != null) {
+                                    drawOctreeAHD(nd, base, 16);
                                 }
                             });
                         }),
@@ -155,24 +165,43 @@ public class GuiDebugV extends Gui {
         );
     }
 
+    private static Vector4f COL_INTERN = vec4(Colors.GRAY);
+    private static Vector4f COL_LEAF_DIFF = vec4(Colors.RED);
+    private static Vector4f COL_LEAF_FULL = vec4(Colors.DARK_RED).scale(0.75f);
+
+    private static void drawOctreeAHD(Octree node, Vector3f min, float size) {
+        Octree.forEach(node, (nd, mn, sz) -> {
+            if (nd.isInternal()) {
+                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), COL_INTERN);
+            } else {
+                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), ((Octree.Leaf)nd).vfull() ? COL_LEAF_FULL : COL_LEAF_DIFF);
+                drawOctreeLeafEdgesHDT((Octree.Leaf)nd, mn);
+            }
+        }, min, size);
+    }
+
     private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
         if (node.isInternal()) {
-            Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.GRAY);
+            Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), COL_INTERN);
             int idx = Octree.cellidx(rp);
             Octree sub = ((Octree.Internal)node).child(idx);
             Octree.cellrpclip(idx, rp);
             drawOctreeOp(sub, vec3(min).addScaled(sz/2f, Octree.VERT[idx]), sz/2f, rp);
         } else {
-            Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), Colors.RED);
             Octree.Leaf leaf = (Octree.Leaf)node;
-            for (int i=0;i<12;i++) {
-                HermiteData h = leaf.edges[i];
-                if (h != null) {
-                    Vector3f base = vec3(h.point).add(Vector3f.floor(vec3(min),16f));
-                    Outskirts.renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.8f,h.norm), Colors.DARK_RED);
-                }
-            }
+            Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), COL_LEAF_DIFF);
+            drawOctreeLeafEdgesHDT(leaf, min);
             Gui.drawWorldpoint(min, (x, y) -> Gui.drawString("S"+leaf.size, x, y, Colors.GRAY, 8));
+        }
+    }
+
+    private static void drawOctreeLeafEdgesHDT(Octree.Leaf leaf, Vector3f min) {
+        for (int i=0;i<12;i++) {
+            HermiteData h = leaf.edges[i];
+            if (h != null) {
+                Vector3f base = vec3(h.point).add(Vector3f.floor(vec3(min),16f));
+                Outskirts.renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.2f,h.norm), Colors.GREEN);
+            }
         }
     }
 
