@@ -14,9 +14,11 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.csg.CSGOp;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.isoalgorithm.sdf.DensFunctions;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.debug.test.DebugTestRenderer;
@@ -39,6 +41,7 @@ import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -169,14 +172,34 @@ public class Outskirts {
             Vector3f bs = vec3(cp.x, 0, cp.z);
             Octree nd = world.getOctree(bs);
 
-            Octree.forEach(nd, (n,m,s) -> {
-                if (n.isLeaf()) {
-                    Octree.Leaf lf = (Octree.Leaf)n;
-                    if (vec3(lf.min).add(bs).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
-                        lf.material = isMouseDown(2) ? Materials.DIRT : Materials.GRASS;
-                    }
-                }
-            }, bs, 16);
+            TrifFunc FUNC = (x, y, z) -> {
+                return DensFunctions.sphere(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), 2.5f);
+            };
+            TrifFunc FUNCQ = (x, y, z) -> {
+                return DensFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
+            };
+            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
+            Octree oped = CSGOp.opSet(nd, node);
+            world.getLoadedChunk(bs).octree(0, oped);
+
+//            Octree.forEach(nd, (n,m,s) -> {
+//                if (n.isLeaf()) {
+//                    Octree.Leaf lf = (Octree.Leaf)n;
+//                    if (vec3(lf.min).add(bs).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
+//                        lf.material = isMouseDown(2) ? Materials.DIRT : Materials.GRASS;
+//                    }
+//
+//                } else {
+//                    Vector3f p = rayPicker.getCurrentPoint();
+//                    if (p!=null && s<2 && new AABB(vec3(m), vec3(m).add(s)).contains(p)) {
+//                        for (int i = 0; i < 8; i++) {
+////                            lf.sign(i, false);
+//                            ((Octree.Internal)n).child(i, null);
+//                        }
+//                        LOGGER.info("FIND");
+//                    }
+//                }
+//            }, bs, 16);
 
             world.crd.markRebuild(bs);
         });

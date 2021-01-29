@@ -137,8 +137,8 @@ public final class DualContouring {
         for (int i = 0;i < 4;i++) {
             Octree.Leaf leaf = (Octree.Leaf)eadjacent[i];
 
-            if (leaf.vfull())
-                return;
+            if (leaf.vfull() || leaf.vempty()) return;
+            assert leaf.material != null;
 
             // "Diagonal EDGE in a Cell". for access centric-'shared'-edge on one axis.
             int[] centricedge = EDGE[axis*4 +(3-i)];
@@ -148,16 +148,17 @@ public final class DualContouring {
             if (leaf.size < minsz) {  // there might have diff size, diff sign-change cells/edges. just listen to smallest one.
                 minsz = leaf.size;
 
-                flip = leaf.solid(v1); // ?? is this sign right.?
-
-                minsz_signchanged = leaf.solid(v0) != leaf.solid(v1);
+                flip = leaf.sign(v1);
+                minsz_signchanged = leaf.sign(v0) != leaf.sign(v1);
             }
+//            assert eadjacent[0] != leaf;
         }
 
         if (minsz_signchanged) {  // put the QUAD. 2tri 6vts.
             for (int i = 0;i < 6;i++) {
                 int idx = ADJACENT_QUADTRIV[flip ? 5-i : i];
                 Octree.Leaf lf = (Octree.Leaf)eadjacent[idx];
+                lf.computefp();
                 vbuf.addpos(lf.featurepoint);
                 vbuf.verttags.add((float)Material.REGISTRY.indexOf(lf.material.getRegistryID()));
             }

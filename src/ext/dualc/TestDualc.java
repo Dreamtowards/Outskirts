@@ -2,6 +2,7 @@ package ext.dualc;
 
 import org.junit.Test;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.csg.CSGOp;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.init.Materials;
@@ -68,8 +69,22 @@ public class TestDualc {
     @Test
     public void testVertIndex() {
 
+//       for (int i = 0;i < 256;i++) {
+//            Octree.Leaf lf = new Octree.Leaf(vec3(0), 0);
+//            lf.vsign = (byte) i;
+//            System.out.print(lf.validedges()+", ");
+//        }
+
+        Octree.Leaf o1 = new Octree.Leaf(vec3(0), 0);o1.vsign =51;
+        Octree.Leaf o2 = new Octree.Leaf(vec3(0), 0);o2.vsign = (byte) 250;
+
+//        LOGGER.info(o2);
+//        for (int i = 0;i < 8;i++)
+//            LOGGER.info(o2.sign(i));
+//        System.exit(0);
+
         LOGGER.info(
-                -18%3
+                CSGOp.opSet(o1, o2)  // 02367  1100 1101
         );
 
     }

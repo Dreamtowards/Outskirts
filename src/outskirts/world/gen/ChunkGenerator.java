@@ -27,7 +27,7 @@ public class ChunkGenerator {
         };
         Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 5, Materials.STONE);
 
-        Octree.collapse(node);
+//        Octree.collapse(node);
 
         chunk.octree(0, node);
 

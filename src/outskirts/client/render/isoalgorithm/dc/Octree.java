@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
@@ -112,58 +114,87 @@ public abstract class Octree {
         private static final byte SG_EMPTY = (byte)0x00;
 
         /** Cell Vertices Signums.  NotNumVal. Jus. 8 bits.  0: Negative(-1)(Empty), 1: Positive(+1)(Solid).  indices.{76543210} */
-        private byte vsign;
+        public byte vsign;
 
         // is there has data-repeat.? some edge are shared.
         /** Hermite data for Edges.  only sign-changed edge are nonnull. else just null element. */
         public final HermiteData[] edges = new HermiteData[12];
 
         public final Vector3f featurepoint = new Vector3f();
+        private int lascomp_fpdshash;
 
         public final Vector3f min = new Vector3f();
         public final float size;  // actually size.
 
-        public Material material = Materials.STONE;
+        public Material material;
 
         public Leaf(Vector3f minVal, float size) {
             this.min.set(minVal);
             this.size = size;
         }
 
+        public Leaf(Leaf src) {
+            vsign = src.vsign;
+            for (int i = 0;i < 12;i++) {
+                HermiteData sh = src.edges[i];
+                if (sh != null)
+                    edges[i] = new HermiteData(sh);
+            }
+//            featurepoint.set(src.featurepoint);
+            min.set(src.min);
+            size = src.size;
+            material = src.material;
+        }
+
         @Override
         public byte type() { return TYPE_LEAF; }
 
-        public boolean solid(int vi) { assert vi >= 0 && vi < 8;
+        /**
+         * @return is "solid".
+         */
+        public boolean sign(int vi) { assert vi >= 0 && vi < 8;
             return ((vsign >>> vi) & 1) == 1;
         }
         public void sign(int vi, boolean solid) { assert vi >= 0 && vi < 8;
             vsign |= (solid ? 1 : 0) << vi;
         }
 
-        // when..? not just after change, but just when update-needed. when read-fp.
-        public void computefp() {
-            Octree.computefeaturepoint(this);
+        void computefp() {
+            if (vempty() || vfull()) throw new IllegalStateException("Useless invoke.");
+            int hash = Arrays.hashCode(edges);
+            if (lascomp_fpdshash != hash) {
+                lascomp_fpdshash = hash;
+
+                Octree.computefeaturepoint(this);
+            }
         }
 
         @Override
-        public boolean collapsed() {
-            return vempty();
-        }
+        public boolean collapsed() { return vempty(); }
 
-        public boolean vfull() {
-            return vsign==SG_FULL;
-        }
-        public boolean vempty() {
-            return vsign==SG_EMPTY;
-        }
+        public boolean vfull() { return vsign==SG_FULL; }
+        public boolean vempty() { return vsign==SG_EMPTY; }
 
-        public void clearedges() {
-            Arrays.fill(edges, null);
-        }
+        public void clearedges() { Arrays.fill(edges, null); }
+
+        // size: 256. Cell Vertex-Signs -> Cell Sign-Changed Edges Number.  Jus. FastLookupTable.
+        private static final int[] _VSG_EDGESN = {0, 3, 3, 4, 3, 4, 6, 5, 3, 6, 4, 5, 4, 5, 5, 4, 3, 4, 6, 5, 6, 5, 9, 6, 6, 7, 7, 6, 7, 6, 8, 5, 3, 6, 4, 5, 6, 7, 7, 6, 6, 9, 5, 6, 7, 8, 6, 5, 4, 5, 5, 4, 7, 6, 8, 5, 7, 8, 6, 5, 8, 7, 7, 4, 3, 6, 6, 7, 4, 5, 7, 6, 6, 9, 7, 8, 5, 6, 6, 5, 4, 5, 7, 6, 5, 4, 8, 5, 7, 8, 8, 7, 6, 5, 7, 4, 6, 9, 7, 8, 7, 8, 8, 7, 9, 12, 8, 9, 8, 9, 7, 6, 5, 6, 6, 5, 6, 5, 7, 4, 8, 9, 7, 6, 7, 6, 6, 3, 3, 6, 6, 7, 6, 7, 9, 8, 4, 7, 5, 6, 5, 6, 6, 5, 6, 7, 9, 8, 9, 8, 12, 9, 7, 8, 8, 7, 8, 7, 9, 6, 4, 7, 5, 6, 7, 8, 8, 7, 5, 8, 4, 5, 6, 7, 5, 4, 5, 6, 6, 5, 8, 7, 9, 6, 6, 7, 5, 4, 7, 6, 6, 3, 4, 7, 7, 8, 5, 6, 8, 7, 5, 8, 6, 7, 4, 5, 5, 4, 5, 6, 8, 7, 6, 5, 9, 6, 6, 7, 7, 6, 5, 4, 6, 3, 5, 8, 6, 7, 6, 7, 7, 6, 6, 9, 5, 6, 5, 6, 4, 3, 4, 5, 5, 4, 5, 4, 6, 3, 5, 6, 4, 3, 4, 3, 3, 0};
         public int validedges() {
-            return CollectionUtils.nonnulli(edges);
+//            int s = 0;
+//            for (int i = 0;i < 12;i++) { int[] edge = Octree.EDGE[i];
+//                if (sign(edge[0]) != sign(edge[1])) s++;
+//            } return s;
+            return _VSG_EDGESN[vsign & 0xFF];
         }
 
+        public void cutEdgesByVSigns() {
+            for (int i = 0;i < 12;i++) {
+                int[] edge = EDGE[i];
+                if (sign(edge[0]) == sign(edge[1])) {
+                    edges[i] = null;
+                }
+            }
+        }
 
         public void validate() {
             assert !collapsed() || validedges() == 0;
@@ -176,26 +207,46 @@ public abstract class Octree {
                     assert f >= 0 && f <= size;
                 }
             }
+            for (int i = 0;i < 12;i++) {
+                int[] eg = EDGE[i];
+                if (sign(eg[0]) != sign(eg[1]))
+                    assert edges[i] != null : "Not HermiteData on the sign-changed edge.";
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Leaf{\n" +
+                    "\tvsign=" + Integer.toBinaryString(vsign & 0xff) + " (SCES:"+validedges()+") \n"+
+                    "\tedges=" + Arrays.toString(edges) +"\n"+
+                    "\tmin="+min+", sz=" + size +". featurepoint=" + featurepoint +". material=" + material  +"\n"+
+                    '}';
         }
     }
 
 
     private static void computefeaturepoint(Octree.Leaf cell) {
-        int sz = cell.validedges();
-        Vector3f[] ps = new Vector3f[sz];
-        Vector3f[] ns = new Vector3f[sz];
-        int j = 0;
-        for (HermiteData h : cell.edges) {
-            if (h != null) {
-                ps[j] = h.point;
-                ns[j] = h.norm;  j++;
+        List<Vector3f> ps = new ArrayList<>();
+        List<Vector3f> ns = new ArrayList<>();
+        for (int i = 0;i < 12;i++) {
+            int[] edge = Octree.EDGE[i];
+            if (cell.sign(edge[0]) != cell.sign(edge[1])) {
+                HermiteData h = cell.edges[i];
+                assert h != null : "No HDAT on sc edge.";
+//                if (h != null) {
+                    ps.add( h.point );
+                    ns.add( h.norm  );
+//                }
+            } else {
+//                assert cell.edges[i] == null;
             }
         }
-        if (ps.length != 0) {
-//            cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
-            cell.featurepoint.set(QEFSolvBFAVG.doAvg(Arrays.asList(ps), Arrays.asList(ns)));
+        if (ps.size() != 0) {
+//                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
+            cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
         }
-        assert Vector3f.isFinite(cell.featurepoint) : "Illegal fp("+cell.featurepoint+") ps:"+Arrays.toString(ps)+", ns:"+Arrays.toString(ns);
+        assert Vector3f.isFinite(cell.featurepoint) && cell.featurepoint.lengthSquared()!=0
+                : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.validedges();
     }
 
 
@@ -234,7 +285,7 @@ public abstract class Octree {
 
                     leaf.edges[idx] = h;
                 }
-                leaf.computefp();
+//                leaf.computefp();
 
                 // METADATA byte[short]
                 return leaf; }
@@ -378,6 +429,16 @@ public abstract class Octree {
             }
         }
     }
+    public static void forEach(Octree node, Consumer<Octree> call) {
+        Octree.forEach(node, (n,m,s) -> call.accept(n), vec3(0), 0);
+    }
+
+    public static void updateAllFPs(Octree node) {
+        Octree.forEach(node, n -> {
+            if (n.isLeaf())
+                ((Leaf)n).computefp();
+        });
+    }
 
 
 
@@ -469,14 +530,14 @@ public abstract class Octree {
             if (!lf.vempty()) {
                 lf.material = mtl;
             }
-            lf.computefp();
+//            lf.computefp();
         }, 0, depthcap);
     }
 
     public static Octree fromMESH(Vector3f min, float size, Raycastable mesh, int depthcap) {
         return building(min, size, lf -> {
             Octree.sampleMESH(lf, mesh);
-            lf.computefp();
+//            lf.computefp();
         }, 0, depthcap);
     }
     public static Octree fromMESH(VertexBuffer vbuf, int depthcap) {

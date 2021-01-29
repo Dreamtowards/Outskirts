@@ -76,7 +76,7 @@ public class GuiDebugV extends Gui {
                             g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
                         }),
                         new GuiCheckBox("FE/BordV").exec(g->{
-                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.DARK_GRAY, g));
+                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.WHITE, g));
                         }),
                         new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
                             g.addOnDrawListener(e -> {
