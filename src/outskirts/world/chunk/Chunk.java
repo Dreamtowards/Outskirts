@@ -17,7 +17,7 @@ import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 public class Chunk implements Savable {
 
-    private Octree[] octrees = new Octree[16];
+    private Octree.Internal[] octrees = new Octree.Internal[16];
 
     public final int x;
     public final int z;
@@ -34,28 +34,21 @@ public class Chunk implements Savable {
     }
 
 
-    public Octree.Leaf findOctree(float x, float y, float z) {
-        Octree rtnode = octree(y);
-        Vector3f rp = vec3(x, y%16, z).scale(1/16f);
-        return Octree.findOctree(rtnode, rp);
-    }
-
-
 
     private int octidx(float ypos) {
         if (ypos >= 256 || ypos < 0) return -1;
         return (int)(ypos/16f);
     }
-    public Octree octree(float ypos) {
+    public Octree.Internal octree(float ypos) {
         int i = octidx(ypos);
         if (i==-1) return null;
         return octrees[i];
     }
-    public Octree octree(float ypos, Octree node) {
+    public Octree.Internal octree(float ypos, Octree node) {
         int i = octidx(ypos);
         assert node.isInternal();
         assert i != -1;
-        return octrees[i] = node;
+        return octrees[i] = (Octree.Internal)node;
     }
 
 

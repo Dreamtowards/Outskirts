@@ -267,6 +267,12 @@ public class Vector3f extends Vector {
                         Maths.floor(dest.z, u));
     }
 
+    public static Vector3f mod(Vector3f dest, float u) {
+        return dest.set(Maths.mod(dest.x, u),
+                        Maths.mod(dest.y, u),
+                        Maths.mod(dest.z, u));
+    }
+
     public static boolean isFinite(Vector3f v) {
         return Float.isFinite(v.x) && Float.isFinite(v.y) && Float.isFinite(v.z);
     }
@@ -277,11 +283,12 @@ public class Vector3f extends Vector {
         if (i==2) return z;
         throw new IndexOutOfBoundsException();
     }
-    public float setv(int i, float v) {  // dosent confuse with set(vec). v means scalar value.
-        if (i==0) return x=v;
-        if (i==1) return y=v;
-        if (i==2) return z=v;
-        throw new IndexOutOfBoundsException();
+    public Vector3f setv(int i, float v) {  // dosent confuse with set(vec). v means scalar value.
+        if (i==0) x=v;
+        else if (i==1) y=v;
+        else if (i==2) z=v;
+        else throw new IndexOutOfBoundsException();
+        return this;
     }
 
     public Vector3f addv(int i, float v) {

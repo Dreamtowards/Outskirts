@@ -12,6 +12,7 @@ import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
 import outskirts.util.GameTimer;
+import outskirts.util.Ref;
 import outskirts.util.Tickable;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.Chunk;
@@ -22,6 +23,7 @@ import outskirts.world.storage.ChunkLoader;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 import static outskirts.util.Maths.floor;
 import static outskirts.util.Maths.mod;
 import static outskirts.util.logging.Log.LOGGER;
@@ -90,10 +92,17 @@ public abstract class World implements Tickable {
 //        return -1;
 //    }
 
-    public Octree getOctree(Vector3f p) {
+    public Octree.Internal getOctree(Vector3f p) {
         Chunk chunk = getLoadedChunk(p);
         if (chunk == null) return null;
         return chunk.octree(p.y);
+    }
+
+    public Octree.Leaf findLeaf(Vector3f p, Ref<Octree.Internal> lp) {
+        Octree.Internal node = getOctree(p);
+        if (node==null) return null;
+        Vector3f rp = Vector3f.mod(vec3(p), 16f).scale(1/16f);
+        return Octree.findLeaf(node, rp, lp);
     }
 
     /**

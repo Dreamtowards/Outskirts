@@ -4,8 +4,6 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.compoents.GuiHotbar;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.debug.GuiVert3D;
@@ -13,12 +11,8 @@ import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
-import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.csg.CSGOp;
-import outskirts.client.render.isoalgorithm.dc.DualContouring;
-import outskirts.client.render.isoalgorithm.dc.HermiteData;
+import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.sdf.DensFunctions;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.debug.test.DebugTestRenderer;
@@ -30,18 +24,14 @@ import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
-import outskirts.init.Materials;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
-import outskirts.material.Material;
 import outskirts.mod.Mods;
-import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -53,7 +43,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 
-import static java.lang.Float.NaN;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -168,38 +157,27 @@ public class Outskirts {
     private static EntityStaticMesh entityStaticMesh;
     {
         SystemUtil.debugAddKeyHook(GLFW_KEY_I, () -> {
-            ChunkPos cp = ChunkPos.of(player.position());
+            Vector3f p = rayPicker.getCurrentPoint();
+            ChunkPos cp = ChunkPos.of(p);
             Vector3f bs = vec3(cp.x, 0, cp.z);
-            Octree nd = world.getOctree(bs);
 
-            TrifFunc FUNC = (x, y, z) -> {
-                return DensFunctions.sphere(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), 2.5f);
-            };
-            TrifFunc FUNCQ = (x, y, z) -> {
-                return DensFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
-            };
-            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
-            Octree oped = CSGOp.opSet(nd, node);
-            world.getLoadedChunk(bs).octree(0, oped);
+            Ref<Octree.Internal> lp = Ref.wrap();
+            Octree.Leaf lf = world.findLeaf(p, lp);
 
-//            Octree.forEach(nd, (n,m,s) -> {
-//                if (n.isLeaf()) {
-//                    Octree.Leaf lf = (Octree.Leaf)n;
-//                    if (vec3(lf.min).add(bs).setY(0).sub(vec3(player.position()).setY(0)).length() < 4) {
-//                        lf.material = isMouseDown(2) ? Materials.DIRT : Materials.GRASS;
-//                    }
-//
-//                } else {
-//                    Vector3f p = rayPicker.getCurrentPoint();
-//                    if (p!=null && s<2 && new AABB(vec3(m), vec3(m).add(s)).contains(p)) {
-//                        for (int i = 0; i < 8; i++) {
-////                            lf.sign(i, false);
-//                            ((Octree.Internal)n).child(i, null);
-//                        }
-//                        LOGGER.info("FIND");
-//                    }
-//                }
-//            }, bs, 16);
+            Octree.Internal expan = CSG.expand(lf);
+            lp.value.child(lp.value.childidx(lf), expan);
+
+//            Octree nd = world.getOctree(bs);
+
+//            TrifFunc FUNC = (x, y, z) -> {
+//                return DensFunctions.sphere(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), 2.5f);
+//            };
+//            TrifFunc FUNCQ = (x, y, z) -> {
+//                return DensFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
+//            };
+//            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
+//            Octree oped = CSGOp.opSet(nd, node);
+//            world.getLoadedChunk(bs).octree(0, oped);
 
             world.crd.markRebuild(bs);
         });

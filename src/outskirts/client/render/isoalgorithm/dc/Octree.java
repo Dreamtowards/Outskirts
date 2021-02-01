@@ -2,16 +2,11 @@ package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
-import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
-import outskirts.init.Materials;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
-import outskirts.util.CollectionUtils;
-import outskirts.util.IOUtils;
-import outskirts.util.Maths;
-import outskirts.util.Val;
+import outskirts.util.*;
 import outskirts.util.function.TriConsumer;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
@@ -78,11 +73,6 @@ public abstract class Octree {
     public final boolean isInternal() { return type() == TYPE_INTERNAL; }
     public final boolean isLeaf() { return type() == TYPE_LEAF; }
 
-    /**
-     * Is 'Empty'. from view of tree-structure.  is the node can be clear/collaspe.
-     */
-    public abstract boolean collapsed();
-
 
     public static class Internal extends Octree {
 
@@ -94,13 +84,16 @@ public abstract class Octree {
         public void child(int i, Octree node) {
             children[i] = node;
         }
+        public int childidx(Octree target) {
+            return CollectionUtils.indexOf(children, target);
+        }
 
         @Override
         public byte type() { return TYPE_INTERNAL; }
 
         @Override
-        public boolean collapsed() {
-            return CollectionUtils.nonnulli(children) == 0;
+        public String toString() {
+            return "Internal"+Arrays.toString(children);
         }
     }
 
@@ -140,7 +133,6 @@ public abstract class Octree {
                 if (sh != null)
                     edges[i] = new HermiteData(sh);
             }
-//            featurepoint.set(src.featurepoint);
             min.set(src.min);
             size = src.size;
             material = src.material;
@@ -169,22 +161,21 @@ public abstract class Octree {
             }
         }
 
-        @Override
-        public boolean collapsed() { return vempty(); }
-
         public boolean vfull() { return vsign==SG_FULL; }
         public boolean vempty() { return vsign==SG_EMPTY; }
 
         public void clearedges() { Arrays.fill(edges, null); }
 
         // size: 256. Cell Vertex-Signs -> Cell Sign-Changed Edges Number.  Jus. FastLookupTable.
-        private static final int[] _VSG_EDGESN = {0, 3, 3, 4, 3, 4, 6, 5, 3, 6, 4, 5, 4, 5, 5, 4, 3, 4, 6, 5, 6, 5, 9, 6, 6, 7, 7, 6, 7, 6, 8, 5, 3, 6, 4, 5, 6, 7, 7, 6, 6, 9, 5, 6, 7, 8, 6, 5, 4, 5, 5, 4, 7, 6, 8, 5, 7, 8, 6, 5, 8, 7, 7, 4, 3, 6, 6, 7, 4, 5, 7, 6, 6, 9, 7, 8, 5, 6, 6, 5, 4, 5, 7, 6, 5, 4, 8, 5, 7, 8, 8, 7, 6, 5, 7, 4, 6, 9, 7, 8, 7, 8, 8, 7, 9, 12, 8, 9, 8, 9, 7, 6, 5, 6, 6, 5, 6, 5, 7, 4, 8, 9, 7, 6, 7, 6, 6, 3, 3, 6, 6, 7, 6, 7, 9, 8, 4, 7, 5, 6, 5, 6, 6, 5, 6, 7, 9, 8, 9, 8, 12, 9, 7, 8, 8, 7, 8, 7, 9, 6, 4, 7, 5, 6, 7, 8, 8, 7, 5, 8, 4, 5, 6, 7, 5, 4, 5, 6, 6, 5, 8, 7, 9, 6, 6, 7, 5, 4, 7, 6, 6, 3, 4, 7, 7, 8, 5, 6, 8, 7, 5, 8, 6, 7, 4, 5, 5, 4, 5, 6, 8, 7, 6, 5, 9, 6, 6, 7, 7, 6, 5, 4, 6, 3, 5, 8, 6, 7, 6, 7, 7, 6, 6, 9, 5, 6, 5, 6, 4, 3, 4, 5, 5, 4, 5, 4, 6, 3, 5, 6, 4, 3, 4, 3, 3, 0};
-        public int validedges() {
-//            int s = 0;
-//            for (int i = 0;i < 12;i++) { int[] edge = Octree.EDGE[i];
-//                if (sign(edge[0]) != sign(edge[1])) s++;
-//            } return s;
-            return _VSG_EDGESN[vsign & 0xFF];
+        // for (int i = 0;i < 12;i++) if (lf.signchanged(i)) n++;
+        private static final int[] _VSIGN_SIGNCHANGE_EDGES_NUMTB = {0, 3, 3, 4, 3, 4, 6, 5, 3, 6, 4, 5, 4, 5, 5, 4, 3, 4, 6, 5, 6, 5, 9, 6, 6, 7, 7, 6, 7, 6, 8, 5, 3, 6, 4, 5, 6, 7, 7, 6, 6, 9, 5, 6, 7, 8, 6, 5, 4, 5, 5, 4, 7, 6, 8, 5, 7, 8, 6, 5, 8, 7, 7, 4, 3, 6, 6, 7, 4, 5, 7, 6, 6, 9, 7, 8, 5, 6, 6, 5, 4, 5, 7, 6, 5, 4, 8, 5, 7, 8, 8, 7, 6, 5, 7, 4, 6, 9, 7, 8, 7, 8, 8, 7, 9, 12, 8, 9, 8, 9, 7, 6, 5, 6, 6, 5, 6, 5, 7, 4, 8, 9, 7, 6, 7, 6, 6, 3, 3, 6, 6, 7, 6, 7, 9, 8, 4, 7, 5, 6, 5, 6, 6, 5, 6, 7, 9, 8, 9, 8, 12, 9, 7, 8, 8, 7, 8, 7, 9, 6, 4, 7, 5, 6, 7, 8, 8, 7, 5, 8, 4, 5, 6, 7, 5, 4, 5, 6, 6, 5, 8, 7, 9, 6, 6, 7, 5, 4, 7, 6, 6, 3, 4, 7, 7, 8, 5, 6, 8, 7, 5, 8, 6, 7, 4, 5, 5, 4, 5, 6, 8, 7, 6, 5, 9, 6, 6, 7, 7, 6, 5, 4, 6, 3, 5, 8, 6, 7, 6, 7, 7, 6, 6, 9, 5, 6, 5, 6, 4, 3, 4, 5, 5, 4, 5, 4, 6, 3, 5, 6, 4, 3, 4, 3, 3, 0};
+        public int sc_edges() {
+            return _VSIGN_SIGNCHANGE_EDGES_NUMTB[vsign & 0xff];
+        }
+
+        public boolean signchange(int edgei) {
+            int[] eg = EDGE[edgei];
+            return sign(eg[0]) != sign(eg[1]);
         }
 
         public void cutEdgesByVSigns() {
@@ -197,7 +188,7 @@ public abstract class Octree {
         }
 
         public void validate() {
-            assert !collapsed() || validedges() == 0;
+            assert !vempty() || sc_edges() == 0;
             for (int i = 0;i < 12;i++) {
                 HermiteData h = edges[i];
                 if (h != null) {
@@ -217,7 +208,7 @@ public abstract class Octree {
         @Override
         public String toString() {
             return "Leaf{\n" +
-                    "\tvsign=" + Integer.toBinaryString(vsign & 0xff) + " (SCES:"+validedges()+") \n"+
+                    "\tvsign=" + Integer.toBinaryString(vsign & 0xff) + " (SCES:"+ sc_edges()+") \n"+
                     "\tedges=" + Arrays.toString(edges) +"\n"+
                     "\tmin="+min+", sz=" + size +". featurepoint=" + featurepoint +". material=" + material  +"\n"+
                     '}';
@@ -229,16 +220,12 @@ public abstract class Octree {
         List<Vector3f> ps = new ArrayList<>();
         List<Vector3f> ns = new ArrayList<>();
         for (int i = 0;i < 12;i++) {
-            int[] edge = Octree.EDGE[i];
-            if (cell.sign(edge[0]) != cell.sign(edge[1])) {
+            if (cell.signchange(i)) {
                 HermiteData h = cell.edges[i];
-                assert h != null : "No HDAT on sc edge.";
-//                if (h != null) {
-                    ps.add( h.point );
-                    ns.add( h.norm  );
-//                }
-            } else {
-//                assert cell.edges[i] == null;
+                assert h != null : "No HermiteData on sc edge.";
+
+                ps.add( h.point );
+                ns.add( h.norm  );
             }
         }
         if (ps.size() != 0) {
@@ -246,7 +233,7 @@ public abstract class Octree {
             cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
         }
         assert Vector3f.isFinite(cell.featurepoint) && cell.featurepoint.lengthSquared()!=0
-                : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.validedges();
+                : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.sc_edges();
     }
 
 
@@ -383,7 +370,10 @@ public abstract class Octree {
                 }
             }
         }
-        return node.collapsed() ? null : node;
+        return _isNodeEmpty(node) ? null : node;
+    }
+    private static boolean _isNodeEmpty(Octree node) {
+        return node.isLeaf() ? ((Leaf)node).vempty() : CollectionUtils.nonnulli(((Internal)node).children) == 0;
     }
 
     /**
@@ -404,16 +394,16 @@ public abstract class Octree {
     /**
      * @param rp Modifiable
      */
-    public static Octree.Leaf findOctree(Octree node, Vector3f rp) {
-        if (node.isInternal()) {
-            int idx = cellidx(rp);
-            Octree sub = ((Octree.Internal)node).child(idx);
-            if (sub == null) return null;
-            cellrpclip(idx, rp);
-            return findOctree(sub, rp);
-        } else {
-            return (Octree.Leaf)node;
+    public static Octree.Leaf findLeaf(Octree.Internal node, Vector3f rp, Ref<Octree.Internal> lp) {
+        int idx = cellidx(rp);
+        Octree sub = node.child(idx);
+        if (sub == null) return null;
+        if (sub.isLeaf()) {
+            if (lp!=null) lp.value = node;
+            return (Octree.Leaf)sub;
         }
+        cellrpclip(idx, rp);
+        return findLeaf((Internal)sub, rp, lp);
     }
 
     public static void forEach(Octree node, TriConsumer<Octree, Vector3f, Float> call, Vector3f min, float size) {
@@ -431,13 +421,6 @@ public abstract class Octree {
     }
     public static void forEach(Octree node, Consumer<Octree> call) {
         Octree.forEach(node, (n,m,s) -> call.accept(n), vec3(0), 0);
-    }
-
-    public static void updateAllFPs(Octree node) {
-        Octree.forEach(node, n -> {
-            if (n.isLeaf())
-                ((Leaf)n).computefp();
-        });
     }
 
 

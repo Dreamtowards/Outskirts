@@ -136,7 +136,7 @@ public class GuiVert3D extends Gui {
     public GuiVert3D() {
 
         addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_I) {
+            if (isVisible() && e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_I) {
                 vertices.clear();
                 try {
                     JSONArray array = new JSONArray(IOUtils.toString(new FileInputStream("vert.json")));

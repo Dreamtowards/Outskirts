@@ -7,6 +7,7 @@ import outskirts.util.vector.Vector3f;
 import java.util.Arrays;
 import java.util.List;
 
+// http://www.oocities.org/tzukkers/isosurf/isosurfaces.html also a classic good impl
 public class QEFSolvDCJAM3 {
 
     public static List<Vector3f> TEST_Pi = Arrays.asList(

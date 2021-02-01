@@ -17,6 +17,11 @@ public final class HermiteData {
 
     public HermiteData() {}
 
+    public HermiteData(Vector3f pv, Vector3f nv) {
+        point.set(pv);
+        norm.set(nv);
+    }
+
     public HermiteData(HermiteData src) {
         point.set(src.point);
         norm.set(src.norm);

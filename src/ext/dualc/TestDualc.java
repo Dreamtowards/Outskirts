@@ -2,8 +2,9 @@ package ext.dualc;
 
 import org.junit.Test;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.csg.CSGOp;
+import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
+import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.init.Materials;
 import outskirts.util.function.TrifFunc;
@@ -69,22 +70,41 @@ public class TestDualc {
     @Test
     public void testVertIndex() {
 
+
+
 //       for (int i = 0;i < 256;i++) {
 //            Octree.Leaf lf = new Octree.Leaf(vec3(0), 0);
 //            lf.vsign = (byte) i;
 //            System.out.print(lf.validedges()+", ");
 //        }
 
-        Octree.Leaf o1 = new Octree.Leaf(vec3(0), 0);o1.vsign =51;
-        Octree.Leaf o2 = new Octree.Leaf(vec3(0), 0);o2.vsign = (byte) 250;
+//        Octree.Leaf o1 = new Octree.Leaf(vec3(0), 0);o1.vsign =51;
+//        Octree.Leaf o2 = new Octree.Leaf(vec3(0), 0);o2.vsign = (byte) 250;
 
 //        LOGGER.info(o2);
 //        for (int i = 0;i < 8;i++)
 //            LOGGER.info(o2.sign(i));
 //        System.exit(0);
 
+//        LOGGER.info(
+//                CSGOp.opSet(o1, o2)  // 02367  1100 1101
+//        );
+
+        Octree.Leaf lf = new Octree.Leaf(vec3(0), 16);
+        lf.sign(0, true);
+        lf.sign(1, true);
+        lf.sign(4, true);
+        lf.sign(5, true);
+
+        Vector3f stdhn = vec3(0, 1, 0);
+        lf.edges[4] = new HermiteData(vec3(0,  4, 0), stdhn);
+        lf.edges[5] = new HermiteData(vec3(0,  4, 16), stdhn);
+        lf.edges[6] = new HermiteData(vec3(16, 4, 0), stdhn);
+        lf.edges[7] = new HermiteData(vec3(16, 4, 16), stdhn);
+
+        // 0,1,4,5  p(y:4,16/8), n(up)
         LOGGER.info(
-                CSGOp.opSet(o1, o2)  // 02367  1100 1101
+                CSG.expand(lf)
         );
 
     }
