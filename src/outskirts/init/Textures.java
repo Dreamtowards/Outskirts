@@ -19,6 +19,8 @@ public final class Textures {
     public static Texture BRICK = loadTexture("materials/brickwall.png");
     public static Texture BRICK_NORM = loadTexture("materials/brickwall_normal.png");
 
+    public static Texture MAT_LERP_DET = loadTexture("materials/gray_mlerpd.png");
+
     private static Texture loadTexture(String s) {
         return Loader.loadTexture(new ResourceLocation(s).getInputStream());
     }

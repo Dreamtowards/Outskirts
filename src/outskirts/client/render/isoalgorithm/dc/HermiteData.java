@@ -1,8 +1,11 @@
 package outskirts.client.render.isoalgorithm.dc;
 
+import outskirts.util.StringUtils;
 import outskirts.util.vector.Vector3f;
 
 import java.util.Objects;
+
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 /**
  * HermiteData of a 'sign-changed' Edge.
@@ -43,5 +46,10 @@ public final class HermiteData {
     @Override
     public String toString() {
         return "HermiteData{p="+point+",n="+norm+"}";
+    }
+
+    public static HermiteData fromString(String s) {
+        float[] v = StringUtils.readNumbers(s, new float[6]);
+        return new HermiteData(vec3(v), vec3(v, 3));
     }
 }

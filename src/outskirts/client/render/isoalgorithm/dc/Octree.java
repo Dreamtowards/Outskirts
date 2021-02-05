@@ -1,5 +1,7 @@
 package outskirts.client.render.isoalgorithm.dc;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.material.Material;
@@ -18,6 +20,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
@@ -85,7 +88,10 @@ public abstract class Octree {
             children[i] = node;
         }
         public int childidx(Octree target) {
-            return CollectionUtils.indexOf(children, target);
+            for (int i = 0;i < 8;i++) {
+                if (children[i] == target) return i;
+            }
+            return -1;
         }
 
         @Override
@@ -148,7 +154,11 @@ public abstract class Octree {
             return ((vsign >>> vi) & 1) == 1;
         }
         public void sign(int vi, boolean solid) { assert vi >= 0 && vi < 8;
-            vsign |= (solid ? 1 : 0) << vi;
+            if (solid) {
+                vsign |= 1 << vi;
+            } else {
+                vsign &= ~(1 << vi);
+            }
         }
 
         void computefp() {
@@ -176,6 +186,17 @@ public abstract class Octree {
         public boolean signchange(int edgei) {
             int[] eg = EDGE[edgei];
             return sign(eg[0]) != sign(eg[1]);
+        }
+
+        /**
+         * min+ t*EDGE_AXIS*size == intersection-point.  t: [0.0, 1.0]. dir-from-min-to-max
+         */
+        public float edgept(int i) {
+            int axis = Octree.edgeaxis(i);
+            float f = edges[i].point.get(axis);
+            float minf = min.get(axis);
+            float t = Maths.inverseLerp(f, minf, minf+size); assert t >= 0F && t <= 1F;
+            return t;
         }
 
         public void cutEdgesByVSigns() {
@@ -212,6 +233,27 @@ public abstract class Octree {
                     "\tedges=" + Arrays.toString(edges) +"\n"+
                     "\tmin="+min+", sz=" + size +". featurepoint=" + featurepoint +". material=" + material  +"\n"+
                     '}';
+        }
+        public static String dbgtojson(Leaf lf) {  // debug.
+            return new JSONObject(
+                    Map.of(
+                    "sign", lf.vsign & 0xff,
+                    "edge", Arrays.stream(lf.edges).map(h -> h==null?null:h.toString()).toArray(),
+                    "min", lf.min.toString(),
+                    "size", lf.size)
+            ).toString(4);
+        }
+        public static Leaf dbgfromjson(String str) {
+            JSONObject j = new JSONObject(str);
+            Leaf lf = new Leaf(Vector3f.fromString(j.getString("min")), j.getFloat("size"));
+            lf.vsign = (byte)j.getInt("sign");
+            JSONArray ja = j.getJSONArray("edge");
+            for (int i = 0;i < 12;i++) {
+                if (!ja.isNull(i)) {
+                    lf.edges[i] = HermiteData.fromString(ja.getString(i));
+                }
+            }
+            return lf;
         }
     }
 
@@ -305,9 +347,11 @@ public abstract class Octree {
                 if (h != null) {
                     IOUtils.writeByte(os, (byte)i);
 
-                    int axis = edgeaxis(i);
-                    float minf = leaf.min.get(axis);
-                    float t = Maths.inverseLerp(h.point.get(axis), minf, minf+leaf.size);  assert t >= 0F && t <= 1F;
+//                    int axis = edgeaxis(i);
+//                    float minf = leaf.min.get(axis);
+//                    float t = Maths.inverseLerp(h.point.get(axis), minf, minf+leaf.size);  assert t >= 0F && t <= 1F;
+//                    IOUtils.writeFloat(os, t);
+                    float t = leaf.edgept(i);
                     IOUtils.writeFloat(os, t);
 
                     IOUtils.writeFloat(os, h.norm.x);
@@ -430,7 +474,7 @@ public abstract class Octree {
 
 
     /**
-     * Sample from SignedDensityFunction.
+     * Sample from Signed Distance Function.  (field value: inner<0, outer>0.)
      * required: cell.min, cell.size.
      * samples:  cell.edges, cell.sign
      */
@@ -439,20 +483,20 @@ public abstract class Octree {
         Vector3f tmpp = new Vector3f();
         for (int i = 0;i < 8;i++) {
             v[i] = f.sample( tmpp.set(cell.min).addScaled(cell.size, VERT[i]) );
-            cell.sign(i, v[i] > 0);
+            cell.sign(i, v[i] < 0);
         }
 
         cell.clearedges();
         for (int i = 0;i < 12;i++) {
             int[] edge = EDGE[i];
             float val0 = v[edge[0]],val1 = v[edge[1]];
-            if (val0>0 != val1>0) {
+            if (val0<0 != val1<0) {
                 HermiteData h = new HermiteData();
 
                 float t = Maths.inverseLerp(0, val0, val1);
                 edgelerp(cell, i, t, h.point);
 
-                Maths.grad(f, h.point, h.norm).negate();  // neg(): for positive-solid field gradient, the actuall normal is its neg.
+                Maths.gradient(f, h.point, h.norm);
                 cell.edges[i] = h;
             }
         }
@@ -560,23 +604,35 @@ public abstract class Octree {
         }
     }
     private static boolean DBG_AABB_LEAF = true;
+    private static boolean DBG_AABB_LEAF_VT = true;
     private static boolean DBG_AABB_INTERN = true;
     private static boolean DBG_AABB_HERMIT = true;
-    private static void dbgaabbobjmode(boolean leaf, boolean intern, boolean hermit) {
-        DBG_AABB_LEAF=leaf; DBG_AABB_INTERN=intern; DBG_AABB_HERMIT=hermit;
+    private static void dbgaabbobjmode(boolean leaf, boolean intern, boolean hermit, boolean lfvt) {
+        DBG_AABB_LEAF=leaf; DBG_AABB_INTERN=intern; DBG_AABB_HERMIT=hermit; DBG_AABB_LEAF_VT=lfvt;
     }
-    public static void dbgaabb3vs(Octree node, Vector3f min, float size, String outprefix) {
-        dbgaabbobjmode(true, false, false);
-        Octree.dbgaabbobj(node, outprefix+"_l.obj", min, size);
-        dbgaabbobjmode(false, true, false);
-        Octree.dbgaabbobj(node, outprefix+"_i.obj", min, size);
-        dbgaabbobjmode(false, false, true);
-        Octree.dbgaabbobj(node, outprefix+"_h.obj", min, size);
+    public static void dbgaabbC(Octree node, Vector3f min, float size, String outfileprefix) {
+        dbgaabbobjmode(true, false, false, false);
+        Octree.dbgaabbobj(node, outfileprefix+"_l.obj", min, size);
+        dbgaabbobjmode(false, true, false, false);
+        Octree.dbgaabbobj(node, outfileprefix+"_i.obj", min, size);
+        dbgaabbobjmode(false, false, true, false);
+        Octree.dbgaabbobj(node, outfileprefix+"_h.obj", min, size);
+        dbgaabbobjmode(false, false, false, true);
+        Octree.dbgaabbobj(node, outfileprefix+"_lv.obj", min, size);
     }
     private static void dbgaabbobj(StringBuilder sb, Octree node, Vector3f min, float size, Val vi) {
         if (node == null) return;
         if ((DBG_AABB_LEAF && node.isLeaf()) || (DBG_AABB_INTERN && node.isInternal()))
             dbgAppendAABB(sb, min, size, vi);
+        if (DBG_AABB_LEAF_VT && node.isLeaf()) {
+            Leaf lf = (Leaf)node;
+            for (int i = 0;i<8;i++) {
+                if (lf.sign(i)) {
+                    Vector3f v = vec3(lf.min).addScaled(lf.size, VERT[i]);
+                    dbgAppendLine(sb, v, v, vi);
+                }
+            }
+        }
         if (DBG_AABB_HERMIT && node.isLeaf()) {
             Leaf lf = (Leaf)node;
             for (int i = 0;i < 12;i++) {

@@ -14,6 +14,8 @@ uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 
+uniform sampler2D mlerpdetMap;
+
 uniform vec4 mtlfrags[256];
 
 const float P_NEAR = 0.1f;
@@ -91,7 +93,18 @@ void main() {
         gAlbedoSpecular.rgb = triplanarSample(v1frag, p_uv, p_weight) * TriWeight.x +
                               triplanarSample(v2frag, p_uv, p_weight) * TriWeight.y +
                               triplanarSample(v3frag, p_uv, p_weight) * TriWeight.z;
-//        gAlbedoSpecular.rgb = FragNorm;
+
+
+//        float gray = texture(mlerpdetMap, p_uv[1]).r / 3;  // chunky shaped border.
+//        if (gray < TriWeight.x) {
+//            gAlbedoSpecular.rgb = triplanarSample(v1frag, p_uv, p_weight);
+//        } else if (gray < TriWeight.y) {
+//            gAlbedoSpecular.rgb = triplanarSample(v2frag, p_uv, p_weight);
+//        } else if (gray < TriWeight.z) {
+//            gAlbedoSpecular.rgb = triplanarSample(v3frag, p_uv, p_weight);
+//        } else {
+//            discard;
+//        }
 
     }
 }

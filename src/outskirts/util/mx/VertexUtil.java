@@ -65,6 +65,7 @@ public class VertexUtil {
         }
     }
     public static void hardnorm(VertexBuffer vbuf, int begini) {
+        assert vbuf.positions.size() == vbuf.normals.size();
         VertexUtil.hardnorm(vbuf, begini, vbuf.normals.size());
     }
     public static void hardnorm(VertexBuffer vbuf) {

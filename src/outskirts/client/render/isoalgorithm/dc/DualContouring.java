@@ -158,6 +158,18 @@ public final class DualContouring {
             for (int i = 0;i < 6;i++) {
                 int idx = ADJACENT_QUADTRIV[flip ? 5-i : i];
                 Octree.Leaf lf = (Octree.Leaf)eadjacent[idx];
+//                if (i % 3 == 0) {
+//                    boolean flg = false;
+//                    for (int j = 0;j < 3;j++) {
+//                        if (lf == eadjacent[ADJACENT_QUADTRIV[flip ? 5-(i+j) : (i+j)]]) {
+//                            flg=true;
+//                        }
+//                    }
+//                    if (flg) {
+//                        i+=2;
+//                        continue;
+//                    }
+//                }
                 lf.computefp();
                 vbuf.addpos(lf.featurepoint);
                 vbuf.verttags.add((float)Material.REGISTRY.indexOf(lf.material.getRegistryID()));

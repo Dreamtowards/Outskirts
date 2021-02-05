@@ -121,7 +121,7 @@ public final class DualContouringUniformGridDensitySmpl {
         List<Vector3f> vertnorms = new ArrayList<>(scedgeverts.size());
         for (Vector3f vert : scedgeverts) {
             try {
-                vertnorms.add(Maths.grad(f, vert, null));
+                vertnorms.add(Maths.gradient(f, vert, null));
             } catch (ArithmeticException ex) {
                 System.out.println("zero len f'(v)");
                 vertnorms.add(new Vector3f(0, 1,0 ));

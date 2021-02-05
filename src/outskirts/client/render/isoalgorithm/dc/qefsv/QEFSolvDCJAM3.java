@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // http://www.oocities.org/tzukkers/isosurf/isosurfaces.html also a classic good impl
+// http://web.archive.org/web/20150519011320/http://www.tatwood.net/articles/7/dual_contour use of QR decomposation.
 public class QEFSolvDCJAM3 {
 
     public static List<Vector3f> TEST_Pi = Arrays.asList(

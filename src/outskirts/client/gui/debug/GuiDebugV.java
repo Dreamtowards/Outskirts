@@ -174,6 +174,8 @@ public class GuiDebugV extends Gui {
             if (nd.isInternal()) {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), COL_INTERN);
             } else {
+                if (vec3(mn).sub(Outskirts.getPlayer().position()).length() > 5)
+                    return;
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), ((Octree.Leaf)nd).vfull() ? COL_LEAF_FULL : COL_LEAF_DIFF);
                 drawOctreeLeafEdgesHDT((Octree.Leaf)nd, mn);
             }
@@ -181,6 +183,7 @@ public class GuiDebugV extends Gui {
     }
 
     private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
+        if (node==null)return;
         if (node.isInternal()) {
             Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), COL_INTERN);
             int idx = Octree.cellidx(rp);

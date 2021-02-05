@@ -2,13 +2,60 @@ package outskirts.client.render.isoalgorithm.csg;
 
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.Val;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
+import java.util.Arrays;
+
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.util.logging.Log.LOGGER;
 
 public class CSG {
+
+    public static void difference(Octree ben, TrifFunc opr) {
+        if (ben==null) return;
+        if (ben.isInternal()) {
+            Octree.Internal intern = (Octree.Internal)ben;
+            for (int i = 0;i < 8;i++) {
+                difference(intern.child(i), opr);
+            }
+        } else {
+            Octree.Leaf leaf = (Octree.Leaf)ben;
+
+            float[] v = new float[8];
+            Vector3f tmp = vec3(0);
+            for (int i = 0;i < 8;i++) {
+                float f = opr.sample( tmp.set(leaf.min).addScaled(leaf.size, Octree.VERT[i]) );
+                v[i] = f;
+                if (f < 0)
+                    leaf.sign(i, false);
+            }
+
+            for (int i = 0;i < 12;i++) {
+                int[] eg = Octree.EDGE[i];
+                float f0 = v[eg[0]];
+                float f1 = v[eg[1]];
+                // if the edge original intersection point has inside the OPR, update point and norm by the OPR.
+                if (f0<0 || f1<0) {  // edge vert inside. need forther test
+                    if (f0<0 != f1<0) {  // sign-change.
+                        float opr_t = Maths.inverseLerp(0, f0, f1);  assert opr_t >= 0f && opr_t < 1f;
+                        if (leaf.edges[i] != null) {  // already had hermitedata intersection-point. if the point outside the OPR, just jump over, do not need substract.
+                            float ben_t = leaf.edgept(i);
+                            if (f0 < 0 ? (ben_t > opr_t) : (ben_t < opr_t))  // the original intersection-point outside of the OPR.
+                                continue;
+                        }
+                        HermiteData h = new HermiteData();
+                        Octree.edgelerp(leaf, i, opr_t, h.point);
+                        Maths.gradient(opr, h.point, h.norm).negate();
+                        leaf.edges[i] = h;
+                    }
+                }
+            }
+        }
+    }
 
     /**
      *
@@ -56,69 +103,76 @@ public class CSG {
         throw new IllegalStateException();
     }
 
+
+    private static void autoVerts(int[] vs) {
+
+        while (CollectionUtils.contains(vs,-1)) {
+            for (int i = 0;i < 12;i++) {
+                int[] eg = Octree.EDGE[i];
+                int s0 = vs[eg[0]];
+                int s1 = vs[eg[1]];
+                if (s0 != -1 && s1==-1) {  // s0 valid, s1 invalid, set s1 as s0.
+                    vs[eg[1]] = s0;
+                } else if (s1 != -1 && s0==-1) {  // s1 valid, s0 invalod, set s0 as s1.
+                    vs[eg[0]] = s1;
+                }
+            }
+        }
+    }
+
     /**
      * "Expand" a Leaf into 8 leaf children of a InternalNode.
      */
     public static Octree.Internal expand(Octree.Leaf leaf) {
         Octree.Internal expan = new Octree.Internal();
 
-        float hfsz = leaf.size/2f;
+        float subsz = leaf.size/2f;
         Val t = Val.zero();
 
         for (int i = 0;i < 8;i++) {
-            Octree.Leaf sub = new Octree.Leaf(vec3(leaf.min).addScaled(hfsz, Octree.VERT[i]), hfsz);
+            int[] vs = CollectionUtils.fill(new int[8], -1);
+            Octree.Leaf sub = new Octree.Leaf(vec3(leaf.min).addScaled(subsz, Octree.VERT[i]), subsz);
             sub.material = leaf.material;
             for (int j = 0;j < 12;j++) {  // edge of subleaf.
                 Vector3f rpos = Octree.edgelerp(sub, j, 0, null);
                 Vector3f rdir = Vector3f.AXES[j/4];
+                float minDistan = Float.MAX_VALUE;
                 for (int k = 0;k < 12;k++) {  // edge of mainLeaf.
                     if (leaf.signchange(k)) {
                         HermiteData h = leaf.edges[k];
-                        if (Maths.intersectRayPlane(rpos, rdir, h.point, h.norm, t)) {
-                            if (t.val >= 0 && t.val < hfsz) {
+                        if (Maths.intersectRayPlane(rpos, rdir, h.point, h.norm, t) && t.val >= 0 && t.val < subsz) {
+                            Vector3f p = vec3(rpos).addScaled(t.val, rdir);
+                            float distan = vec3(p).sub(h.point).length();
+                            if (distan < minDistan) {
+                                minDistan = distan;
                                 HermiteData se = new HermiteData();
                                 se.point.set(rpos).addScaled(t.val, rdir);
                                 se.norm.set(h.norm);
                                 sub.edges[j] = se;
                                 boolean v0s = Vector3f.dot(se.norm, rdir) > 0;
                                 int[] eg = Octree.EDGE[j];
-                                sub.sign(eg[0], v0s);
-                                sub.sign(eg[1], !v0s);
+                                vs[eg[0]] = v0s ? 1 : 0;
+                                vs[eg[1]] = v0s ? 0 : 1;
                             }
                         }
                     }
                 }
+            }
+            if (vs[i] != -1) {
+                if ( leaf.sign(i) ? vs[i]==1 : vs[i]==0 ) {}
+                else LOGGER.warn("Corner VSign error.");
+            } else {
+                vs[i] = leaf.sign(i) ? 1 : 0;
+            }
+            autoVerts(vs);
+            for (int j=0;j<8;j++) {
+                sub.sign(j, vs[j]==1);
             }
             if (!sub.vempty())
                 expan.child(i, sub);
         }
 
         return expan;
-
-//        HermiteData[] centedge = new HermiteData[6];  // 2 edge * 3 axes.
-//        for (int i = 0;i < 12;i++) {
-//            for (int j = 0;j < 3;j++) {  // axes
-//                if (leaf.signchange(i)) {
-//                    HermiteData h = leaf.edges[i];
-//                    float hfsz = leaf.size/2f;
-//                    Val t = Val.zero();
-//                    Vector3f rpos = vec3(leaf.min).add(vec3(hfsz).setv(j, 0));
-//                    Vector3f rdir = Vector3f.AXES[j];
-//                    if (Maths.intersectRayPlane(rpos, rdir, h.point, h.norm, t)) {
-//                        if (t.val >= 0 && t.val < leaf.size) {
-//                            int mnmx = t.val < hfsz ? 0 : 1;
-//                            int idx = j*2+mnmx;
-//                            HermiteData ce = centedge[idx];
-//                            if (ce == null)
-//                                ce = centedge[idx] = new HermiteData();
-//                            ce.norm.set(h.norm);
-//                            ce.point.set(vec3(rpos).addScaled(t.val-mnmx*hfsz, rdir));
-//                            // AVG.?
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
 }

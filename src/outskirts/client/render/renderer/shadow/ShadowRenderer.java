@@ -80,6 +80,10 @@ public class ShadowRenderer extends Renderer {
 
     }
 
+    public Vector3f getShadowDirection() {
+        return shadowDirection;
+    }
+
     public final Texture getDepthMapTexture() {
         return depthMapFBO.depthTexture();
     }

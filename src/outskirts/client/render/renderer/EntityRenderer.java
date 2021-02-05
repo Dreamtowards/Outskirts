@@ -1,6 +1,7 @@
 package outskirts.client.render.renderer;
 
 import outskirts.client.Outskirts;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.client.render.TextureAtlas;
@@ -10,6 +11,7 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
 import outskirts.init.MaterialTextures;
+import outskirts.init.Textures;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
@@ -56,6 +58,8 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.setInt("diffuseMap", 0);
         shaderGeometry.setInt("specularMap", 1);
         shaderGeometry.setInt("normalMap", 2);
+
+        shaderGeometry.setInt("mlerpdetMap", 3);
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -169,6 +173,8 @@ public class EntityRenderer extends Renderer {
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getSpecularMap().textureID());
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getNormalMap().textureID());
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, Textures.MAT_LERP_DET.textureID());
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }

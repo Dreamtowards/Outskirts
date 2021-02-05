@@ -94,6 +94,15 @@ public final class CollectionUtils {
     public static int indexOf(Object[] array, Object find) {
         return indexOf(array, find, 0, array.length);
     }
+    public static int indexOf(int[] arr, int find) {
+        for (int i = 0;i < arr.length;i++) {
+            if (arr[i] == find) return i;
+        }
+        return -1;
+    }
+    public static boolean contains(int[] arr, int find) {
+        return indexOf(arr, find) != -1;
+    }
 
     public static int indexOf(Object[] array, Object[] search, int fromIndex) {
         for (int i = fromIndex;i <= array.length-search.length;i++) {
@@ -149,6 +158,11 @@ public final class CollectionUtils {
     }
     public static <T> T[] fill(T[] array, Supplier<T> supplier) {
         return CollectionUtils.filli(array, i -> supplier.get());
+    }
+
+    public static int[] fill(int[] arr, int v) {
+        Arrays.fill(arr, v);
+        return arr;
     }
 
     public static <T> T[] subarray(T[] array, int beginIndex, int endIndex) {

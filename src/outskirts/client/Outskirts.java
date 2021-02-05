@@ -13,6 +13,7 @@ import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.isoalgorithm.sdf.DistFunctions;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.debug.test.DebugTestRenderer;
@@ -24,14 +25,17 @@ import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
+import outskirts.init.Materials;
 import outskirts.init.ex.Models;
 import outskirts.init.Textures;
+import outskirts.material.Material;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -158,26 +162,31 @@ public class Outskirts {
     {
         SystemUtil.debugAddKeyHook(GLFW_KEY_I, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
-            ChunkPos cp = ChunkPos.of(p);
-            Vector3f bs = vec3(cp.x, 0, cp.z);
+            if (p==null)return;
+            Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
             Ref<Octree.Internal> lp = Ref.wrap();
             Octree.Leaf lf = world.findLeaf(p, lp);
-
-            Octree.Internal expan = CSG.expand(lf);
-            lp.value.child(lp.value.childidx(lf), expan);
+            lf.material = isMouseDown(2) ? Materials.GRASS : Materials.DIRT;
+//            LOGGER.info(Octree.Leaf.dbgtojson(lf));
+//
+//            Octree.Internal expan = CSG.expand(lf);
+//            lp.value.child(lp.value.childidx(lf), expan);
 
 //            Octree nd = world.getOctree(bs);
 
 //            TrifFunc FUNC = (x, y, z) -> {
-//                return DensFunctions.sphere(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), 2.5f);
+//                return DistFunctions.sphere(vec3(x,y,z).sub(vec3(p).sub(bs)), 2.5f);
 //            };
 //            TrifFunc FUNCQ = (x, y, z) -> {
-//                return DensFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
+//                return DistFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
 //            };
+//            CSG.difference(nd, FUNC);
+//            nd=Octree.fromSDF(bs, 16, FUNC, 5, Materials.DIRT);
+//            Octree.collapse(nd);
 //            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
 //            Octree oped = CSGOp.opSet(nd, node);
-//            world.getLoadedChunk(bs).octree(0, oped);
+//            world.getLoadedChunk(bs).octree(0, nd);
 
             world.crd.markRebuild(bs);
         });
@@ -255,6 +264,7 @@ public class Outskirts {
         world.lights.add(lightSun);
         SystemUtil.debugAddKeyHook(GLFW_KEY_E, () -> {
             lightSun.position().set(getPlayer().position());
+            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getCameraUpdater().getDirection());
         });
 
         world.addEntity(entityStaticMesh=new EntityStaticMesh());

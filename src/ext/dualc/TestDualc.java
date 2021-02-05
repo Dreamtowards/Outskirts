@@ -10,6 +10,7 @@ import outskirts.init.Materials;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.gen.NoiseGenerator;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.io.FileInputStream;
@@ -51,7 +52,7 @@ public class TestDualc {
         buildAndWrite(node);
 
         LOGGER.info("Write aabbs.");
-        Octree.dbgaabb3vs(node, vec3(0), 30, "aabb");
+        Octree.dbgaabbC(node, vec3(0), 30, "aabb");
     }
 
     private void buildAndWrite(Octree node) {
@@ -70,42 +71,73 @@ public class TestDualc {
     @Test
     public void testVertIndex() {
 
+        Octree.Leaf lf = new Octree.Leaf(vec3(0), 1);
+//        lf.sign(0, true);
+//        lf.sign(1, true);
+//        lf.sign(4, true);
+//        lf.sign(5, true);
+//
+//        Vector3f stdhn = vec3(0, 1, 0);
+//        lf.edges[4] = new HermiteData(vec3(0,  4, 0), stdhn);
+//        lf.edges[5] = new HermiteData(vec3(0,  4, 16), stdhn);
+//        lf.edges[6] = new HermiteData(vec3(16, 4, 0), stdhn);
+//        lf.edges[7] = new HermiteData(vec3(16, 4, 16), stdhn);
+        //[10:26:17][Outskirts.java:170][main/INFO]: {
+        //    "sign": 19,
+        //    "edge": [
+        //        null,
+        //        "HermiteData{p=[11.153389, 4.5, 15.5],n=[0.23886028, 0.8570922, 0.45644143]}",
+        //        null,
+        //        null,
+        //        "HermiteData{p=[11.0, 4.8827744, 15.0],n=[0.15478061, 0.8152269, 0.5580752]}",
+        //        "HermiteData{p=[11.0, 4.555294, 15.5],n=[0.20978887, 0.8759129, 0.43447128]}",
+        //        "HermiteData{p=[11.5, 4.767741, 15.0],n=[0.2738576, 0.7745159, 0.570199]}",
+        //        null,
+        //        null,
+        //        null,
+        //        "HermiteData{p=[11.5, 4.5, 15.340908],n=[0.31965375, 0.7311851, 0.6026524]}",
+        //        null
+        //    ],
+        //    "min": "[11.0, 4.5, 15.0]",
+        //    "size": 0.5
+        //}
 
 
-//       for (int i = 0;i < 256;i++) {
-//            Octree.Leaf lf = new Octree.Leaf(vec3(0), 0);
-//            lf.vsign = (byte) i;
-//            System.out.print(lf.validedges()+", ");
-//        }
+        NoiseGeneratorPerlin n = new NoiseGeneratorPerlin(123);
+        TrifFunc FUNC = (x,y,z) -> {
+            return n.fbm((x),(z), 5)/2+(y-.5f);
+        };
+        Octree.sampleSDF(lf, FUNC);
+        lf = Octree.Leaf.dbgfromjson("{\n" +
+                "    \"sign\": 19,\n" +
+                "    \"edge\": [\n" +
+                "        null,\n" +
+                "        \"HermiteData{p=[11.153389, 4.5, 15.5],n=[0.23886028, 0.8570922, 0.45644143]}\",\n" +
+                "        null,\n" +
+                "        null,\n" +
+                "        \"HermiteData{p=[11.0, 4.8827744, 15.0],n=[0.15478061, 0.8152269, 0.5580752]}\",\n" +
+                "        \"HermiteData{p=[11.0, 4.555294, 15.5],n=[0.20978887, 0.8759129, 0.43447128]}\",\n" +
+                "        \"HermiteData{p=[11.5, 4.767741, 15.0],n=[0.2738576, 0.7745159, 0.570199]}\",\n" +
+                "        null,\n" +
+                "        null,\n" +
+                "        null,\n" +
+                "        \"HermiteData{p=[11.5, 4.5, 15.340908],n=[0.31965375, 0.7311851, 0.6026524]}\",\n" +
+                "        null\n" +
+                "    ],\n" +
+                "    \"min\": \"[11.0, 4.5, 15.0]\",\n" +
+                "    \"size\": 0.5\n" +
+                "}\n" +
+                "[10:26:37][ClientSettings.java:213][main/INFO]: Saved ClientSettings options. (options.dat)\n" +
+                "\n" +
+                "Process finished with exit code 0\n");
 
-//        Octree.Leaf o1 = new Octree.Leaf(vec3(0), 0);o1.vsign =51;
-//        Octree.Leaf o2 = new Octree.Leaf(vec3(0), 0);o2.vsign = (byte) 250;
+        Octree.dbgaabbC(lf, vec3(lf.min), lf.size, "test_expan/ori");
 
-//        LOGGER.info(o2);
-//        for (int i = 0;i < 8;i++)
-//            LOGGER.info(o2.sign(i));
-//        System.exit(0);
 
-//        LOGGER.info(
-//                CSGOp.opSet(o1, o2)  // 02367  1100 1101
-//        );
+        Octree.Internal expan = CSG.expand(lf);
 
-        Octree.Leaf lf = new Octree.Leaf(vec3(0), 16);
-        lf.sign(0, true);
-        lf.sign(1, true);
-        lf.sign(4, true);
-        lf.sign(5, true);
+        Octree.dbgaabbC(expan, vec3(lf.min), lf.size, "test_expan/expan");
 
-        Vector3f stdhn = vec3(0, 1, 0);
-        lf.edges[4] = new HermiteData(vec3(0,  4, 0), stdhn);
-        lf.edges[5] = new HermiteData(vec3(0,  4, 16), stdhn);
-        lf.edges[6] = new HermiteData(vec3(16, 4, 0), stdhn);
-        lf.edges[7] = new HermiteData(vec3(16, 4, 16), stdhn);
-
-        // 0,1,4,5  p(y:4,16/8), n(up)
-        LOGGER.info(
-                CSG.expand(lf)
-        );
 
     }
 
@@ -122,4 +154,34 @@ public class TestDualc {
 
     }
 
+    @Test
+    public void signTest() {
+
+        Octree.Leaf lf = new Octree.Leaf(vec3(0), 1);
+
+        for (int i = 0;i < 8;i++) {
+            lf.sign(i, true);
+        }
+        assert lf.vfull();
+
+        LOGGER.info(Integer.toBinaryString(lf.vsign&0xff));
+        for (int i = 0;i < 8;i++) {
+            lf.sign(i, false);
+            LOGGER.info(i+" "+Integer.toBinaryString(lf.vsign&0xff));
+        }
+        assert lf.vempty();
+    }
+
+    @Test
+    public void testExpand() {
+
+        Octree.Leaf lf = new Octree.Leaf(vec3(0), 4);
+
+        lf.sign(0, true);
+        lf.sign(1, true);
+        lf.sign(4, true);
+        lf.sign(5, true);
+
+
+    }
 }

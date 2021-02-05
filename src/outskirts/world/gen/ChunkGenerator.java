@@ -22,7 +22,7 @@ public class ChunkGenerator {
 //            if (b > 0)
 //                return b;
 
-            return noise.fbm((chunkpos.x+x)/20,(chunkpos.z+z)/20, 5)*9f+(5-y);
+            return noise.fbm((chunkpos.x+x)/20,(chunkpos.z+z)/20, 5)*9f+(y-5);
 //            return -DistFunctions.sphere(vec3(x,y,z), 16f);
         };
         Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 5, Materials.STONE);

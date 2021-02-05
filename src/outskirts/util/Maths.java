@@ -244,7 +244,7 @@ public final class Maths {
      *      (f(x,y,z+d) - f(x,y,z-d)) / 2d
      *   )
      */
-    public static Vector3f grad(TrifFunc f, Vector3f p, Vector3f dest, float d) {
+    public static Vector3f gradient(TrifFunc f, Vector3f p, Vector3f dest, float d) {
         if (dest == null) dest = new Vector3f();
         float denom = 1f / (2f*d);
         return dest.set(
@@ -253,8 +253,8 @@ public final class Maths {
                 (f.sample(p.x, p.y, p.z+d) - f.sample(p.x, p.y, p.z-d)) * denom
         ).normalize();
     }
-    public static Vector3f grad(TrifFunc f, Vector3f p, Vector3f dest) {
-        return grad(f, p, dest, .001f);
+    public static Vector3f gradient(TrifFunc f, Vector3f p, Vector3f dest) {
+        return gradient(f, p, dest, .001f);
     }
 
     // deprecated. use sequence rotations to get the dir
