@@ -36,7 +36,7 @@ public abstract class EntityPlayer extends Entity {
     public void walk(float amount, Vector3f dir) {
         //todo: reduce.
         if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
-            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.01f, dir);
+            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.001f, dir);
             return;
         }
         getRigidBody().getLinearVelocity().add(dir.scale(amount));  // *getRigidBody().getMass()*GameTimer.TPS

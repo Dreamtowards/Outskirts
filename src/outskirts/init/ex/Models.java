@@ -10,14 +10,14 @@ import outskirts.util.SideOnly;
 @SideOnly(Side.CLIENT)
 public final class Models {
 
-    public static final Model STALL = loadOBJ("outskirts:materials/stall/stall.obj");
+//    public static final Model STALL = loadOBJ("outskirts:materials/stall/stall.obj");
 
     public static final Model EMPTY = Loader.loadModelT(new VertexBuffer());
-    public static final Model GEO_CUBE = loadOBJ("materials/geo/cube.obj"); // ModelRenderer.MODEL_CUBE; //
-    public static final Model GEO_SPHERE = loadOBJ("materials/geo/sphere.obj");
-    public static final Model GEO_CYLINDER = loadOBJ("materials/geo/cylinder.obj");
-    public static final Model GEO_CONE = loadOBJ("materials/geo/cone.obj");
-    public static final Model GEOS_CAPSULE = loadOBJ("materials/_capsule.obj");// loadOBJ("materials/aya091/091_W_Aya_10K.obj");
+    public static final Model GEO_CUBE = loadOBJ("elements/entity/geo/cube.obj"); // ModelRenderer.MODEL_CUBE; //
+    public static final Model GEO_SPHERE = loadOBJ("elements/entity/geo/sphere.obj");
+//    public static final Model GEO_CYLINDER = loadOBJ("materials/geo/cylinder.obj");
+//    public static final Model GEO_CONE = loadOBJ("materials/geo/cone.obj");
+//    public static final Model GEOS_CAPSULE = loadOBJ("materials/_capsule.obj");// loadOBJ("materials/aya091/091_W_Aya_10K.obj");
 
 
 

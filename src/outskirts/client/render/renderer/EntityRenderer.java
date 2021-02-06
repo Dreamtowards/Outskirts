@@ -58,8 +58,8 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.setInt("diffuseMap", 0);
         shaderGeometry.setInt("specularMap", 1);
         shaderGeometry.setInt("normalMap", 2);
+        shaderGeometry.setInt("displacementMap", 3);
 
-        shaderGeometry.setInt("mlerpdetMap", 3);
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -80,76 +80,13 @@ public class EntityRenderer extends Renderer {
 
     private Matrix4f MAT_MODELMAT_TRANS = new Matrix4f();
 
-//    public void render(List<Entity> entities, List<Light> lights) {
-//
-//        shader.useProgram();
-//
-//        shader.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());
-//        shader.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
-//
-//        shader.setVector3f("cameraPosition", Outskirts.getCamera().getPosition());
-//
-//        {   // setup lights
-//            int lightCount = Math.min(lights.size(), RENDER_LIGHTS);
-//            shader.setInt("lightCount", lightCount);
-//
-//            for (int i = 0;i < lightCount;i++) {
-//                Light light = lights.get(i);
-//                shader.setVector3f(uniform_lights$color[i], light.getColor());
-//                shader.setVector3f(uniform_lights$position[i], light.getPosition());
-//                shader.setVector3f(uniform_lights$attenuation[i], light.getAttenuation());
-//                shader.setVector3f(uniform_lights$direction[i], light.getDirection());
-//
-//                shader.setFloat(uniform_lights$coneAngleInner[i], (float)Math.cos(light.getConeAngleInner()));
-//                shader.setFloat(uniform_lights$coneAngleOuter[i], (float)Math.cos(light.getConeAngleOuter()));
-//            }
-//        }
-//        glActiveTexture(GL_TEXTURE5);
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, Outskirts.renderEngine.getSkyboxRenderer().textureCubemap.textureID());
-//
-//        glActiveTexture(GL_TEXTURE6);
-//        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture().textureID());
-//        shader.setMatrix4f("shadowspaceMatrix", Outskirts.renderEngine.getShadowRenderer().getShadowspaceMatrix());
-//
-//        for (Entity entity : entities) {
-//            if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
-//                continue;
-//            Model model = entity.getModel();
-//
-//            glBindVertexArray(model.vaoID());
-//
-//            Material material = entity.getMaterial();
-//
-//            shader.setFloat("material.specularStrength", material.getSpecularStrength());
-//            shader.setFloat("material.shininess", material.getShininess());
-//
-//            shader.setFloat("material.displacementScale", material.getDisplacementScale());
-//
-//            shader.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getPosition(), entity.tmp_boxSphere_scale, entity.getRotation(), MAT_MODELMAT_TRANS));
-//
-//            glActiveTexture(GL_TEXTURE0);
-//            glBindTexture(GL_TEXTURE_2D, material.getDiffuseMap().textureID());
-//            glActiveTexture(GL_TEXTURE1);
-//            glBindTexture(GL_TEXTURE_2D, material.getSpecularMap().textureID());
-//            glActiveTexture(GL_TEXTURE2);
-//            glBindTexture(GL_TEXTURE_2D, material.getEmissionMap().textureID());
-//            glActiveTexture(GL_TEXTURE3);
-//            glBindTexture(GL_TEXTURE_2D, material.getNormalMap().textureID());
-//            glActiveTexture(GL_TEXTURE4);
-//            glBindTexture(GL_TEXTURE_2D, material.getDisplacementMap().textureID());
-//
-//            glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
-//        }
-//
-//        glBindVertexArray(0);
-//    }
 
     public void renderGBuffer(List<Entity> entities) {
 
         shaderGeometry.useProgram();
 
         int i = 0;
-        for (TextureAtlas.Fragment frag : MaterialTextures.TEXTURE_ATLAS.fragments()) {
+        for (TextureAtlas.Fragment frag : MaterialTextures.DIFFUSE_ATLAS.fragments()) {
             shaderGeometry.setVector4f("mtlfrags["+i+"]", vec4(frag.OFFSET.x, frag.OFFSET.y, frag.SCALE.x, frag.SCALE.y));
             i++;
         }
@@ -174,7 +111,7 @@ public class EntityRenderer extends Renderer {
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getNormalMap().textureID());
             glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, Textures.MAT_LERP_DET.textureID());
+            glBindTexture(GL_TEXTURE_2D, renderPerferences.getDisplacementMap().textureID());
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }

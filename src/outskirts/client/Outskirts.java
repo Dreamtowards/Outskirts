@@ -165,15 +165,20 @@ public class Outskirts {
             if (p==null)return;
             Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
-            Ref<Octree.Internal> lp = Ref.wrap();
-            Octree.Leaf lf = world.findLeaf(p, lp);
-            lf.material = isMouseDown(2) ? Materials.GRASS : Materials.DIRT;
+//            Ref<Octree.Internal> lp = Ref.wrap();
+//            Octree.Leaf lf = world.findLeaf(p, lp);
 //            LOGGER.info(Octree.Leaf.dbgtojson(lf));
 //
 //            Octree.Internal expan = CSG.expand(lf);
 //            lp.value.child(lp.value.childidx(lf), expan);
 
-//            Octree nd = world.getOctree(bs);
+            Octree nd = world.getOctree(bs);
+            Octree.forEach(nd, n -> {
+                if (n.isLeaf()) {
+                    if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
+                        ((Octree.Leaf)n).material = isMouseDown(2) ? Materials.GRASS : Materials.DIRT;
+                }
+            });
 
 //            TrifFunc FUNC = (x, y, z) -> {
 //                return DistFunctions.sphere(vec3(x,y,z).sub(vec3(p).sub(bs)), 2.5f);
@@ -269,9 +274,9 @@ public class Outskirts {
 
         world.addEntity(entityStaticMesh=new EntityStaticMesh());
 
-        getPlayer().setModel(Models.GEO_SPHERE);
-        getPlayer().getRenderPerferences().setDiffuseMap(Textures.BRICK);
-        getPlayer().getRenderPerferences().setNormalMap(Textures.BRICK_NORM);
+        getPlayer().setModel(Models.EMPTY);
+//        getPlayer().getRenderPerferences().setDiffuseMap(Textures.BRICK);
+//        getPlayer().getRenderPerferences().setNormalMap(Textures.BRICK_NORM);
         getPlayer().tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
         RigidBody prb = getPlayer().getRigidBody();
 //        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));
@@ -283,6 +288,7 @@ public class Outskirts {
         prb.transform().origin.set(0,52,0);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
+        prb.setLinearDamping(0.2f);
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);

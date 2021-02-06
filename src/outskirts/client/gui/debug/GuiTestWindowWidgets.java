@@ -4,6 +4,7 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
 import outskirts.init.Textures;
+import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class GuiTestWindowWidgets extends Gui {
             new GuiTextBox("GuiTextBox"),
             new GuiScrollPanel().exec((GuiScrollPanel g) -> {
                 g.setContent(new Gui(0, 0, 500, 500) {{
-                    addOnDrawListener(e -> drawTexture(Textures.FLOOR, this));
+                    addOnDrawListener(e -> drawRect(Colors.BLACK, this));
                 }});
                 g.setClipChildren(true);
                 g.setWidth(200);

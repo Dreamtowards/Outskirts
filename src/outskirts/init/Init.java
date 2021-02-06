@@ -15,38 +15,45 @@ import outskirts.network.login.packet.SPacketLoginSuccess;
 import outskirts.network.play.packet.SPacketChatMessage;
 import outskirts.util.Side;
 
+import java.io.IOException;
+
 public final class Init {
 
 
     //use event to register/release..?
     public static void registerAll(Side side) {
+        try {
 
-        Materials.init();
+            Materials.init();
 
-        MaterialTextures.init();
+            MaterialTextures.init();
 
-        Items.init();
+            Items.init();
 
 //        for (Block b : Block.REGISTRY.values()) {
 //            Item.REGISTRY.register(new ItemBlock(b));
 //        }
 
-        if (side.isClient()) {
+            if (side.isClient()) {
 
-            Sounds.init();
+                Sounds.init();
 
-            Textures.init();
+                Textures.init();
 
-            Models.init();
+                Models.init();
 
-        } else {
+            } else {
 
-            registerCommands();
+                registerCommands();
+            }
+
+            registerPackets();
+
+            registerEntities(side);
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
-
-        registerPackets();
-
-        registerEntities(side);
     }
 
 

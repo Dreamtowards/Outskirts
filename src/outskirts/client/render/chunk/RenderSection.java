@@ -21,7 +21,9 @@ public final class RenderSection {
 
     public RenderSection(Vector3f p) {
         assert p.x%16==0 && p.y%16==0 && p.z%16==0;
-        proxyentity.getRenderPerferences().setDiffuseMap(MaterialTextures.TEXTURE_ATLAS.getAtlasTexture());
+        proxyentity.getRenderPerferences().setDiffuseMap(MaterialTextures.DIFFUSE_ATLAS.getAtlasTexture())
+                                          .setNormalMap(MaterialTextures.NORMAL_ATLAS.getAtlasTexture())
+                                          .setDisplacementMap(MaterialTextures.DISPLACEMENT_ATLAS.getAtlasTexture());
         proxyentity.position().set(p);
     }
 

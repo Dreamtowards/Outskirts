@@ -71,7 +71,7 @@ mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
     for (int i = 0;i < lightCount;i++) {
         Light light = lights[i];
 
-        vec3 ambient = light.color * 0.3 * occlusionf;
+        vec3 ambient = light.color * 0.3;// * occlusionf;
 
         // Diffuse
         vec3 fragToLight = normalize(light.position - FragPos);

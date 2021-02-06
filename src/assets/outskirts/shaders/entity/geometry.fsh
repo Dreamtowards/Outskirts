@@ -13,8 +13,7 @@ in mat3 TBN;
 uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D normalMap;
-
-uniform sampler2D mlerpdetMap;
+uniform sampler2D displacementMap;
 
 uniform vec4 mtlfrags[256];
 
@@ -26,10 +25,10 @@ float lineardepth(float);
 float mod(float, float);
 vec2 modv2u(vec2);
 
-vec3 triplanarSample(vec4 txfrag, vec2[3] uvPlanar, vec3 pweight) {
-    return texture(diffuseMap, txfrag.xy+uvPlanar[0]*txfrag.zw).rgb * pweight.x +
-           texture(diffuseMap, txfrag.xy+uvPlanar[1]*txfrag.zw).rgb * pweight.y +
-           texture(diffuseMap, txfrag.xy+uvPlanar[2]*txfrag.zw).rgb * pweight.z;
+vec3 triplanarSample(vec4 txfrag, vec2[3] p_uv, vec3 pweight) {
+    return texture(diffuseMap, txfrag.xy +p_uv[0]*txfrag.zw).rgb * pweight.x +
+           texture(diffuseMap, txfrag.xy +p_uv[1]*txfrag.zw).rgb * pweight.y +
+           texture(diffuseMap, txfrag.xy +p_uv[2]*txfrag.zw).rgb * pweight.z;
 }
 
 vec3 UnpackTNorm(vec2 uv) {
@@ -49,6 +48,10 @@ void main() {
     p_uv[1] = modv2u(vec2(FragPos.x, -FragPos.z));
     p_uv[2] = modv2u(FragPos.xy);
 
+    vec4 v1frag = mtlfrags[int(TriMtlId.x)];
+    vec4 v2frag = mtlfrags[int(TriMtlId.y)];
+    vec4 v3frag = mtlfrags[int(TriMtlId.z)];
+
     vec3 p_weight = abs(FragNorm);  p_weight /= p_weight.x + p_weight.y + p_weight.z;
 
     if (texture(normalMap, vec2(0)).a != 0) {  // Valid Normal Map.
@@ -57,9 +60,9 @@ void main() {
         } else {
             // Triplanar Normal Mapping. use of Whiteout Blend. based on UDN-blend.
 
-            vec3 tnormX = UnpackTNorm(p_uv[0]);
-            vec3 tnormY = UnpackTNorm(p_uv[1]);
-            vec3 tnormZ = UnpackTNorm(p_uv[2]);
+            vec3 tnormX = UnpackTNorm(v1frag.xy +p_uv[0]*v1frag.zw);
+            vec3 tnormY = UnpackTNorm(v2frag.xy +p_uv[1]*v2frag.zw);
+            vec3 tnormZ = UnpackTNorm(v3frag.xy +p_uv[2]*v3frag.zw);
 
             tnormX = vec3(tnormX.xy + vNorm.zy, abs(tnormX.z) * vNorm.x);
             tnormY = vec3(tnormY.xy + vNorm.xz, abs(tnormY.z) * vNorm.y);
@@ -86,14 +89,12 @@ void main() {
         gAlbedoSpecular.rgb = texture(diffuseMap, vTexCoord).rgb;
     } else {
 
-        vec4 v1frag = mtlfrags[int(TriMtlId.x)];
-        vec4 v2frag = mtlfrags[int(TriMtlId.y)];
-        vec4 v3frag = mtlfrags[int(TriMtlId.z)];
-
         gAlbedoSpecular.rgb = triplanarSample(v1frag, p_uv, p_weight) * TriWeight.x +
                               triplanarSample(v2frag, p_uv, p_weight) * TriWeight.y +
                               triplanarSample(v3frag, p_uv, p_weight) * TriWeight.z;
+//        gAlbedoSpecular.rgb = FragNorm;
 
+//        gAlbedoSpecular.rgb = texture(diffuseMap, p_uv[1]).rgb;
 
 //        float gray = texture(mlerpdetMap, p_uv[1]).r / 3;  // chunky shaped border.
 //        if (gray < TriWeight.x) {

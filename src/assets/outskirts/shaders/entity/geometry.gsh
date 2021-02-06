@@ -42,8 +42,6 @@ void main() {
             N.x, N.y, N.z
         );
     } else {  // Triplanar method.Triplanar Normal Mapping.  No invalid directly TexCoord.
-
-
         TBN = mat3(0);  // Disable TBN.
     }
 
