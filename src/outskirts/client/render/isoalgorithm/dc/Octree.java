@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
+import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.Raycastable;
@@ -236,7 +237,7 @@ public abstract class Octree {
         }
         public static String dbgtojson(Leaf lf) {  // debug.
             return new JSONObject(
-                    Map.of(
+                    CollectionUtils.asMap(
                     "sign", lf.vsign & 0xff,
                     "edge", Arrays.stream(lf.edges).map(h -> h==null?null:h.toString()).toArray(),
                     "min", lf.min.toString(),
@@ -271,8 +272,8 @@ public abstract class Octree {
             }
         }
         if (ps.size() != 0) {
-//                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(Arrays.asList(ps), Arrays.asList(ns)));
-            cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
+                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(ps, ns));
+//            cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
         }
         assert Vector3f.isFinite(cell.featurepoint) && cell.featurepoint.lengthSquared()!=0
                 : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.sc_edges();
@@ -579,7 +580,7 @@ public abstract class Octree {
     //  DEBUG.
 
     public static void dbgprint(Octree node, int dep, String pf) {
-        System.out.printf("L%s|%s%s", dep, " ".repeat(dep*2), pf);
+        System.out.printf("L%s|%s%s", dep, StringUtils.repeat(" ", dep*2), pf);
         if (node == null) {
             System.out.println("[NULL]");
         } else if (node.isInternal()) {

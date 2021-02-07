@@ -2,20 +2,10 @@ package outskirts.client.render.isoalgorithm.dc;
 
 import outskirts.client.render.VertexBuffer;
 import outskirts.material.Material;
-import outskirts.physics.collision.shapes.Raycastable;
-import outskirts.util.Maths;
-import outskirts.util.function.TrifFunc;
-import outskirts.util.vector.Vector3f;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.util.Arrays;
 import java.util.Objects;
 
 import static outskirts.client.render.isoalgorithm.dc.Octree.EDGE;
-import static outskirts.client.render.isoalgorithm.dc.Octree.VERT;
 
 /**
  *  Adaptive Resolution of Varying Octree.

@@ -526,7 +526,7 @@ public class Gui {
      * @param interpolator the interpolation value generator
      */
     public final void attachTransform(float from, float to, float duration, BiConsumer<Gui, Float> applicator, Function<Float, Float> interpolator, int easeMode, float pass) {
-        addOnDrawListener(new Consumer<>() {
+        addOnDrawListener(new Consumer<OnDrawEvent>() {
             private float passed = pass;
             @Override
             public void accept(OnDrawEvent e) {

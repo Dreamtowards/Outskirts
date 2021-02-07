@@ -93,12 +93,10 @@ public class CSG {
             return out;
         }
         if (o1.isLeaf() && o2.isInternal()) {
-            Octree.Internal intern = expand((Octree.Leaf)o1);
-            return union(intern, o2);
+            return union(expand((Octree.Leaf)o1), o2);
         }
         if (o1.isInternal() && o2.isLeaf()) {
-            Octree.Internal intern = expand((Octree.Leaf)o2);
-            return union(o1, intern);
+            return union(o1, expand((Octree.Leaf)o2));
         }
         throw new IllegalStateException();
     }
@@ -168,6 +166,7 @@ public class CSG {
             for (int j=0;j<8;j++) {
                 sub.sign(j, vs[j]==1);
             }
+            sub.validate();
             if (!sub.vempty())
                 expan.child(i, sub);
         }

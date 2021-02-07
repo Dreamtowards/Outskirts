@@ -36,7 +36,7 @@ public class GuiScrollPanel extends Gui implements Gui.Contentable {
             hScrollbar.setRelativeXY(0, getHeight() - hScrollbar.getHeight());
 
             vScrollbar.setWidth(SCROLLBAR_THICKNESS);
-            vScrollbar.setHeight(getHeight()-SCROLLBAR_THICKNESS);
+            vScrollbar.setHeight(getHeight());
             vScrollbar.setRelativeXY(getWidth() - vScrollbar.getWidth(), 0);
 
             Gui gContent = getContent();

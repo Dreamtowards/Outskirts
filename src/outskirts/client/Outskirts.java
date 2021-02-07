@@ -169,6 +169,20 @@ public class Outskirts {
                 matId = c-48;
             }
         });
+        SystemUtil.debugAddMouseKeyHook(1, () -> {
+             Vector3f p = rayPicker.getCurrentPoint();
+             if (p == null) return;
+             Vector3f bs = Vector3f.floor(vec3(p), 16f);
+
+             Octree nd = world.getOctree(bs);
+             Octree.forEach(nd, n -> {
+                 if (n.isLeaf()) {
+                     if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
+                         ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
+                 }
+             });
+            world.crd.markRebuild(bs);
+        });
         SystemUtil.debugAddMouseKeyHook(2, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
@@ -182,20 +196,20 @@ public class Outskirts {
 //            lp.value.child(lp.value.childidx(lf), expan);
 
             Octree nd = world.getOctree(bs);
-            Octree.forEach(nd, n -> {
-                if (n.isLeaf()) {
-                    if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
-                        ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
-                }
-            });
+//            Octree.forEach(nd, n -> {
+//                if (n.isLeaf()) {
+//                    if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
+//                        ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
+//                }
+//            });
 
 //            TrifFunc FUNC = (x, y, z) -> {
 //                return DistFunctions.sphere(vec3(x,y,z).sub(vec3(p).sub(bs)), 2.5f);
 //            };
-//            TrifFunc FUNCQ = (x, y, z) -> {
-//                return DistFunctions.box(vec3(x,y,z).sub(vec3(rayPicker.getCurrentPoint()).sub(bs)), vec3(2,3,2));
-//            };
-//            CSG.difference(nd, FUNC);
+            TrifFunc FUNCQ = (x, y, z) -> {
+                return DistFunctions.box(vec3(x,y,z).sub(vec3(p).sub(bs)), vec3(2,3,2));
+            };
+            CSG.difference(nd, FUNCQ);
 //            nd=Octree.fromSDF(bs, 16, FUNC, 5, Materials.DIRT);
 //            Octree.collapse(nd);
 //            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
@@ -248,6 +262,7 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
+            if (isCtrlKeyDown()) GuiScreenPause.INSTANCE = new GuiScreenPause();
 
             profiler.pop("gui");
         }

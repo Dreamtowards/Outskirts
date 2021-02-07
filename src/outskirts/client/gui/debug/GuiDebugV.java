@@ -101,7 +101,7 @@ public class GuiDebugV extends Gui {
 
                         new GuiExpander("COMM").setContent(new GuiColumn().addChildren(
                                 new GuiComboBox().exec((GuiComboBox g) -> {
-                                    g.getOptions().addAll(List.of(
+                                    g.getOptions().addAll(Arrays.asList(
                                             new GuiText("SURVIVAL"),
                                             new GuiText("CREATIVE"),
                                             new GuiText("SPECTATOR")
