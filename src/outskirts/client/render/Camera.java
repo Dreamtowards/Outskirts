@@ -35,7 +35,7 @@ public class Camera {
 
     public static class CamUpdater {
 
-        private float cameraDistance = -10;
+        private float cameraDistance = -0;
         private Vector3f eulerAngles = new Vector3f(); // Camera EulerAngles, x:Pitch, y:Yaw z:Roll. needs persistent sum and adjust then needs eulerAngles.
 
         private Vector3f direction = new Vector3f(Vector3f.UNIT_X); // pointing front of the camera

@@ -35,10 +35,10 @@ public abstract class EntityPlayer extends Entity {
     }
     public void walk(float amount, Vector3f dir) {
         //todo: reduce.
-        if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
-            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.001f, dir);
-            return;
-        }
+//        if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
+//            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.001f, dir);
+//            return;
+//        }
         getRigidBody().getLinearVelocity().add(dir.scale(amount));  // *getRigidBody().getMass()*GameTimer.TPS
     }
 
@@ -76,7 +76,7 @@ public abstract class EntityPlayer extends Entity {
             rigidbody().setLinearDamping(0.95f);
         } else if (gamemode == GameMode.CREATIVE) {
             rigidbody().getGravity().set(0, 0, 0);
-            rigidbody().setLinearDamping(0.02f);
+            rigidbody().setLinearDamping(0.0001f);
         }
     }
 

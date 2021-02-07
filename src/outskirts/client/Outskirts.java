@@ -148,6 +148,7 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
 
+
         debugTestRenderer = new DebugTestRenderer();
 
         debugVisualGeoRenderer = new DebugVisualGeoRenderer();
@@ -158,9 +159,17 @@ public class Outskirts {
     DebugTestRenderer debugTestRenderer;
     DebugVisualGeoRenderer debugVisualGeoRenderer;
 
+    public static int matId = 0;
+
     private static EntityStaticMesh entityStaticMesh;
     {
-        SystemUtil.debugAddKeyHook(GLFW_KEY_I, () -> {
+        Events.EVENT_BUS.register(CharInputEvent.class, e -> {
+            char c = e.getChar();
+            if (c >= '0' && c <= '9') {
+                matId = c-48;
+            }
+        });
+        SystemUtil.debugAddMouseKeyHook(2, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
             Vector3f bs = Vector3f.floor(vec3(p), 16f);
@@ -176,7 +185,7 @@ public class Outskirts {
             Octree.forEach(nd, n -> {
                 if (n.isLeaf()) {
                     if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
-                        ((Octree.Leaf)n).material = isMouseDown(2) ? Materials.GRASS : Materials.DIRT;
+                        ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
                 }
             });
 
@@ -238,11 +247,6 @@ public class Outskirts {
             glDisable(GL_DEPTH_TEST);
             rootGUI.onLayout();
             rootGUI.onDraw();
-            if (world!=null&&rayPicker.getCurrentEntity() != null) {
-                Vector3f bp = rayPicker.getCurrentPoint();
-                Vector3f base = Vector3f.floor(vec3(bp), 16f);
-                Octree nd = world.getOctree(bp);
-            }
             glEnable(GL_DEPTH_TEST);
 
             profiler.pop("gui");
@@ -288,7 +292,6 @@ public class Outskirts {
         prb.transform().origin.set(0,52,0);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
-        prb.setLinearDamping(0.2f);
         prb.setMass(10);
         prb.setFriction(0.2f);
         prb.setRestitution(0f);
@@ -303,7 +306,7 @@ public class Outskirts {
         if (getWorld() != null) {
             if (isIngame()) {
                 // MOVEMENT
-                float lv =0.5f;
+                float lv =0.4f;
                 if (Outskirts.isKeyDown(GLFW_KEY_F))
                     lv *= 6;
                 if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
@@ -312,7 +315,7 @@ public class Outskirts {
                 if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
                 if (KEY_JUMP.isKeyDown()  &&
                         (player.getGamemode() == GameMode.CREATIVE ||
-                        (player.getGamemode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(2.4f, new Vector3f(0, 1, 0));
+                        (player.getGamemode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(lv, new Vector3f(0, 1, 0));
                 if (KEY_SNEAK.isKeyDown() && player.getGamemode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
 
 //                // ITEM USE

@@ -3,6 +3,7 @@ package outskirts.util;
 import outskirts.client.Outskirts;
 import outskirts.event.Events;
 import outskirts.event.client.input.KeyboardEvent;
+import outskirts.event.client.input.MouseButtonEvent;
 import outskirts.util.logging.Log;
 import sun.misc.Unsafe;
 
@@ -174,6 +175,13 @@ public final class SystemUtil {
     public static void debugAddKeyHook(int key, Runnable r) {
         Events.EVENT_BUS.register(KeyboardEvent.class, e -> {
             if (e.getKeyState() && e.getKey() == key) {
+                r.run();
+            }
+        });
+    }
+    public static void debugAddMouseKeyHook(int key, Runnable r) {
+        Events.EVENT_BUS.register(MouseButtonEvent.class, e -> {
+            if (e.getButtonState() && e.getMouseButton() == key) {
                 r.run();
             }
         });
