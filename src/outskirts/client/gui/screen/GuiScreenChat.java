@@ -24,6 +24,7 @@ public class GuiScreenChat extends Gui {
 
         addChildren(
           new GuiTextBox().exec((GuiTextBox g) -> {
+              g.setMaxLines(1);
               g.addLayoutorAlignParentLTRB(2, NaN, 80, 2);
               g.setHeight(20);
               g.getText().setRelativeXY(4, 2);
@@ -35,7 +36,7 @@ public class GuiScreenChat extends Gui {
               g.addKeyboardListener(e -> {
                   if (e.getKeyState() && e.getKey()== GLFW.GLFW_KEY_ENTER) {
                       String s = g.getText().getText();
-                      if (s.trim().isEmpty()) return;
+                      if (s.isEmpty()) return;
                       printMessage(s);
                       g.getText().setText("");
                   }

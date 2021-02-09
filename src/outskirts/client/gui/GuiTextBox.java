@@ -24,6 +24,8 @@ public class GuiTextBox extends Gui {
 
     private long lastFocusedTime;
 
+    private int maxLines = Integer.MAX_VALUE;
+
     private GuiText text = addGui(new GuiText());
 
     private Gui cursor = addGui(new Gui()); {
@@ -163,15 +165,35 @@ public class GuiTextBox extends Gui {
     }
 
     public void insertText(String text) {
-        if (isSelectedText()) {
-            getText().setText(texts().substring(0, getMinSelection()) + text + texts().substring(getMaxSelection()));
-            setCursorPosition(getMinSelection() + text.length());
-
+        if (isSelectedText()) {  // if selected text, clear first.
+            getText().setText(texts().substring(0, getMinSelection()) + texts().substring(getMaxSelection()));
+            setCursorPosition(getMinSelection());
             setSelectionEmpty();
-        } else {
-            getText().setText(texts().substring(0, getCursorPosition()) + text + texts().substring(getCursorPosition()));
-            setCursorPosition(getCursorPosition() + text.length());
         }
+        if (maxLines != Integer.MAX_VALUE) {  // detect maxlines.
+            if (maxLines==1) { // just simply a little faster simplified usually case.
+                text = text.replaceAll("\n","");
+            } else {
+                int n = 0;
+                String strcurr = texts();
+                for (int i = 0; i < strcurr.length(); i++) {
+                    if (strcurr.charAt(i) == '\n') n++;
+                }
+                assert n < maxLines;
+                for (int i = 0; i < text.length(); i++) {
+                    if (text.charAt(i) == '\n') {
+                        n++;
+                        if (n >= maxLines) {
+                            text = text.substring(0, i) + text.substring(i).replaceAll("\n", "");
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        getText().setText(texts().substring(0, getCursorPosition()) + text + texts().substring(getCursorPosition()));
+        setCursorPosition(getCursorPosition() + text.length());
     }
 
     @Override
@@ -224,4 +246,11 @@ public class GuiTextBox extends Gui {
         return texts().substring(getMinSelection(), getMaxSelection());
     }
 
+    public int getMaxLines() {
+        return maxLines;
+    }
+    public void setMaxLines(int maxLines) {
+        assert maxLines >= 1;
+        this.maxLines = maxLines;
+    }
 }
