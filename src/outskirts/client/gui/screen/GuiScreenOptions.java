@@ -2,6 +2,7 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.client.gui.GuiScrollPanel;
 import outskirts.client.gui.GuiSlider;
@@ -11,7 +12,7 @@ import outskirts.util.Maths;
 
 import static java.lang.Float.NaN;
 
-public class GuiScreenOptions extends GuiScreen {
+public class GuiScreenOptions extends Gui {
 
     public static final GuiScreenOptions INSTANCE = new GuiScreenOptions();
 

@@ -44,6 +44,14 @@ public class EventBus {
         return Collections.unmodifiableList(handlers);
     }
 
+    private void doPriorityHandlersSort(boolean batched) {
+        if (batched) throw new UnsupportedOperationException();
+        else {
+            //handlers.sort(Comparator.reverseOrder()); // Arrays.sort - MargeSort alloc mem
+            CollectionUtils.insertionSort(handlers, COMP_HANDLER_PRIORITY_DESC); // O(n) time O(0) space maintaing ordered-list, and keeping sort-stablility
+        }
+    }
+
     /**
      * the Mainly method of EventBus.
      * register a EventHandler as unit by a Lambda-Function(interface Consumer)
@@ -55,9 +63,8 @@ public class EventBus {
         handlers.add(handler);
 
         //f last 2 handler had different priority
-        if (handlers.size() >= 2 && handlers.get(handlers.size() - 2).priority != handlers.get(handlers.size() - 1).priority) {
-            //handlers.sort(Comparator.reverseOrder()); // Arrays.sort - MargeSort alloc mem
-            CollectionUtils.insertionSort(handlers, COMP_HANDLER_PRIORITY_DESC); // O(n) time O(0) space maintaing ordered-list, and keeping sort-stablility
+        if (handlers.size() >= 2 && handlers.get(handlers.size()-2).priority != handlers.get(handlers.size()-1).priority) {
+            doPriorityHandlersSort(false);
         }
         return handler;
     }
@@ -204,7 +211,7 @@ public class EventBus {
         public Handler priority(int priority) {
             if (this.priority != priority) {
                 this.priority = priority;
-                CollectionUtils.insertionSort(ptrbus.handlers, COMP_HANDLER_PRIORITY_DESC); // light weight sort.
+                ptrbus.doPriorityHandlersSort(false);
             }
             return this;
         }

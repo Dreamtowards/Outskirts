@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
+import outskirts.client.gui.GuiText;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
 import outskirts.event.Events;
@@ -13,6 +14,7 @@ import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
 import static java.lang.Float.NaN;
+import static java.lang.Float.POSITIVE_INFINITY;
 
 public class GuiScreenPause extends Gui {
 
@@ -22,11 +24,22 @@ public class GuiScreenPause extends Gui {
         setWidth(INFINITY);
         setHeight(INFINITY);
 
+        initEscClose(this);
+
         addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && Outskirts.getRootGUI().getGui(Outskirts.getRootGUI().size()-1) == this) {
-                Outskirts.getRootGUI().removeGui(this);
+//            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && Outskirts.getRootGUI().getGui(Outskirts.getRootGUI().size()-1) == this) {
+//                Outskirts.getRootGUI().removeGui(this);
+//            }
+            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_R) {
+                removeAllGuis();
+                build();
             }
         });
+
+        build();
+    }
+
+    private void build() {
 
         addChildren(
           new GuiColumn().exec(g -> {
@@ -66,7 +79,22 @@ public class GuiScreenPause extends Gui {
                 g.addLayoutorAlignParentRR(NaN, NaN, 1f, NaN);
                 g.addOnDrawListener(e -> drawRect(Colors.BLACK80, g));
                 g.setHeight(52);
-            })
+            }).addChildren(
+                    new GuiRow().exec(g -> {
+                        g.addLayoutorAlignParentRR(.5f, .5f);
+                    }).addChildren(
+                            new GuiText("Homebase"),
+                            new GuiText("Map"),
+                            new GuiText("Contacts"),
+                            new GuiText("Backpack"),
+                            new GuiText("Skills"),
+                            new GuiText("Tasks"),
+                            new GuiText("Achievements"),  //Journal
+                            new GuiText("Statites"),
+                            new GuiText("Mails"),
+                            new GuiText("Person")
+                    )
+            )
           )
         );
     }

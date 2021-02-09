@@ -2,12 +2,6 @@ package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
-import outskirts.client.gui.screen.GuiScreen;
-import outskirts.event.EventHandler;
-import outskirts.event.client.input.MouseMoveEvent;
-import outskirts.util.Colors;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +29,9 @@ public final class GuiRoot extends Gui {
         removeGui(size()-1);
     }
 
+    public final Gui getLastGui() {
+        return getGui(size()-1);
+    }
 
     @Override
     public float getX() {

@@ -2,6 +2,7 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.network.ChannelHandler;
 import outskirts.network.Packet;
 import outskirts.network.login.PacketHandlerLoginClient;
@@ -15,7 +16,7 @@ import static outskirts.util.logging.Log.LOGGER;
 /**
  * Connecting to server
  */
-public class GuiScreenConnecting extends GuiScreen {
+public class GuiScreenConnecting extends Gui {
 
     private String statusMessage = "Initializing...";
 

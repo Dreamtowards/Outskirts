@@ -42,6 +42,8 @@ public class Gui {
     protected static final float NaN = Float.NaN;
     protected static final float INFINITY = Float.POSITIVE_INFINITY;
 
+    protected static final String EVTAG_DEFDECO = "DEF_DECO"; //
+
     private Vector2f childrenBound = new Vector2f();
 
     private boolean focused = false; // focusable
@@ -334,7 +336,7 @@ public class Gui {
 
     public static void initEscClose(Gui g) {
         g.addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == GLFW_KEY_ESCAPE) {
+            if (e.getKeyState() && e.getKey() == GLFW_KEY_ESCAPE && getRootGUI().getLastGui() == g) {
                 g.getParent().removeGui(g);
             }
         });
@@ -357,6 +359,12 @@ public class Gui {
     }
     public static boolean isPointOver(float x, float y, Gui gui) {
         return x >= gui.getX() && x <= gui.getX() + gui.getWidth() && y >= gui.getY() && y <= gui.getY() + gui.getHeight();
+    }
+    public static boolean isIntersects(Gui g1, Gui g2) {
+        float amnX=g1.getX(), amnY=g1.getY(), amxX=amnX+g1.getWidth(), amxY=amnY+g1.getHeight();
+        float bmnX=g2.getX(), bmnY=g2.getY(), bmxX=bmnX+g2.getWidth(), bmxY=bmnY+g2.getHeight();
+        return bmxX >= amnX && bmnX < amxX &&
+               bmxY >= amnY && bmnY < amxY;
     }
 
     /**
@@ -423,8 +431,11 @@ public class Gui {
 
         performEvent(new OnDrawEvent()); // OnDraw
 
-        for (Gui child : getChildren())
+        for (Gui child : getChildren()) {
+            if (isClip && !Gui.isIntersects(this, child)) continue;
+
             child.onDraw();
+        }
 
         if (isClip)
             GuiRenderer.popScissor();
@@ -483,8 +494,9 @@ public class Gui {
         return eventBus.register(eventClass, eventListener);
     }
 
-
-
+    public boolean removeListeners(Object funcOrTag) {
+        return eventBus.unregister(funcOrTag);
+    }
 
     // may split out ..? for sth needs interpolation like FOV transformation
     // APPLY / TRANS

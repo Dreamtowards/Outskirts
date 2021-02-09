@@ -3,11 +3,15 @@ package outskirts.client.gui.ex;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.screen.GuiScreenChat;
 import outskirts.client.gui.screen.GuiScreenPause;
 import outskirts.event.client.input.KeyboardEvent;
 import outskirts.item.stack.ItemStack;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
+
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SLASH;
 
 public class GuiIngame extends Gui {
 
@@ -35,14 +39,16 @@ public class GuiIngame extends Gui {
 
     }
 
-    private void onKeyboard(KeyboardEvent event) {
-        if (event.getKeyState()) {
-            if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
-                if (Outskirts.isIngame()) {
+    private void onKeyboard(KeyboardEvent e) {
+        if (e.getKeyState() && Outskirts.isIngame()) {
+            switch (e.getKey()) {
+                case GLFW_KEY_ESCAPE:
                     Outskirts.getRootGUI().addGui(GuiScreenPause.INSTANCE);
-                }
+                    break;
+                case GLFW_KEY_SLASH:
+                    Outskirts.getRootGUI().addGui(GuiScreenChat.INSTANCE);
+                    break;
             }
-
         }
     }
 

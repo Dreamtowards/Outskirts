@@ -121,8 +121,9 @@ public class GuiTextBox extends Gui {
         addOnDrawListener(e -> {
             drawCornerStretchTexture(isFocused() ? TEX_TEXTBOX_BACKGROUND_HOVER : TEX_TEXTBOX_BACKGROUND, this, 6); // 8
 
-            if (getCursorPosition() > texts().length())
-                setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
+        }).unregisterTag(EVTAG_DEFDECO);
+
+        addOnDrawListener(e -> {
 
             assert getCursorPosition() <= texts().length() : "cpos:"+getCursorPosition()+", texlen:"+texts().length();
             // set cursor display position
@@ -142,6 +143,9 @@ public class GuiTextBox extends Gui {
         getText().addOnTextChangedListener(e -> {
             setSelectionBegin(Maths.clamp(getSelectionBegin(), 0, texts().length()));
             setSelectionEnd(Maths.clamp(getSelectionEnd(),     0, texts().length()));
+
+            if (getCursorPosition() > texts().length())
+                setCursorPosition(getCursorPosition()); // clamp/checks cursor position in texts. some times cursorposition had been customed, but then text been setted to empty...
         });
     }
 

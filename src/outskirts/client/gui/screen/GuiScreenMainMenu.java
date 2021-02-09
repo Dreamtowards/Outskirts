@@ -9,7 +9,7 @@ import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.util.Colors;
 import outskirts.world.WorldClient;
 
-public class GuiScreenMainMenu extends GuiScreen {
+public class GuiScreenMainMenu extends Gui {
 
     public static GuiScreenMainMenu INSTANCE = new GuiScreenMainMenu();
 

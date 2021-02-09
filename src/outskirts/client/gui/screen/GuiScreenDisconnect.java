@@ -1,12 +1,13 @@
 package outskirts.client.gui.screen;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 
 //todo GuiScreenMessage/Alert/Confirm..?
-public class GuiScreenDisconnect extends GuiScreen {
+public class GuiScreenDisconnect extends Gui {
 
     private GuiButton btnDone = addGui(new GuiButton("Done")); {
         btnDone.addOnClickListener(e -> {
