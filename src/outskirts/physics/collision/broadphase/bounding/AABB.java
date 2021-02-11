@@ -6,6 +6,9 @@ import outskirts.util.vector.Vector3f;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
 //2 vec is more flexibly and look-better than 6 float
 public class AABB {
@@ -266,5 +269,17 @@ public class AABB {
 
     public static float centdistanf(AABB aabb1, AABB aabb2) {
         return new Vector3f().add(aabb1.min).add(aabb1.max).sub(aabb2.min).sub(aabb2.max).lengthSquared();
+    }
+
+
+    public static void forGrid(AABB aabb, float sz, Consumer<Vector3f> visitor) {
+        Vector3f tmp = new Vector3f();
+        for (float x=Maths.floor(aabb.min.x, 16);x < aabb.max.x;x+=sz) {
+            for (float y=Maths.floor(aabb.min.y, 16);y < aabb.max.y;y+=sz) {
+                for (float z=Maths.floor(aabb.min.z, 16);z < aabb.max.z;z+=sz) {
+                    visitor.accept(tmp.set(x,y,z));
+                }
+            }
+        }
     }
 }

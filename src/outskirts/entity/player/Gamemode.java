@@ -1,6 +1,6 @@
 package outskirts.entity.player;
 
-public enum GameMode {
+public enum Gamemode {
 
     SURVIVAL,
     CREATIVE,

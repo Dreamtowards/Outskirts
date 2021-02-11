@@ -10,7 +10,7 @@ import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
-import outskirts.entity.player.GameMode;
+import outskirts.entity.player.Gamemode;
 import outskirts.event.EventPriority;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -21,7 +21,6 @@ import outskirts.util.vector.Vector4f;
 import outskirts.world.World;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -107,9 +106,9 @@ public class GuiDebugV extends Gui {
                                             new GuiText("SPECTATOR")
                                     ));
                                     g.addOnSelectedListener(e -> {
-                                        Outskirts.getPlayer().gamemode = GameMode.values()[g.getSelectedIndex()];
+                                        Outskirts.getPlayer().setGamemode(Gamemode.values()[g.getSelectedIndex()]);
                                     });
-                                    g.setSelectedIndex(Outskirts.getPlayer().gamemode.ordinal());
+                                    g.setSelectedIndex(Outskirts.getPlayer().getGamemode().ordinal());
                                 })
                         )),
                         new GuiText("PHYS"),

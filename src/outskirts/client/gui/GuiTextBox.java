@@ -4,11 +4,15 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.FontRenderer;
+import outskirts.event.EventBus;
 import outskirts.event.client.input.CharInputEvent;
+import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2f;
+
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -118,7 +122,6 @@ public class GuiTextBox extends Gui {
                 insertText(Character.toString(e.getChar()));
             }
         });
-        Vector2f TMP_CACHE = new Vector2f();
 
         addOnDrawListener(e -> {
             drawCornerStretchTexture(isFocused() ? TEX_TEXTBOX_BACKGROUND_HOVER : TEX_TEXTBOX_BACKGROUND, this, 6); // 8
@@ -129,12 +132,13 @@ public class GuiTextBox extends Gui {
 
             assert getCursorPosition() <= texts().length() : "cpos:"+getCursorPosition()+", texlen:"+texts().length();
             // set cursor display position
-            Vector2f cursorPos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), getCursorPosition(), TMP_CACHE);
-            cursor.setX(getText().getX() + cursorPos.x);
-            cursor.setY(getText().getY() + cursorPos.y);
+            Vector2f cursorPos = calculateTextPosition(getCursorPosition());
+            cursor.setX(cursorPos.x);
+            cursor.setY(cursorPos.y);
             cursor.setHeight(getText().getTextHeight());
 
             // draw selection
+            Vector2f TMP_CACHE = new Vector2f();
             for (int i = getMinSelection();i < getMaxSelection();i++) {
                 Vector2f pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
                 float charWidth = Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight();
@@ -151,6 +155,12 @@ public class GuiTextBox extends Gui {
         });
     }
 
+    public Vector2f calculateTextPosition(int idx) {
+        return Outskirts.renderEngine.getFontRenderer()
+                .calculateTextPosition(texts(), getText().getTextHeight(), idx, new Vector2f())
+                .add(getText().getX(), getText().getY());
+    }
+
     private int calculateCurrentCursorPosition() {
         return Outskirts.renderEngine.getFontRenderer().calculateTextIndex(texts(), getText().getTextHeight(),
                 Outskirts.getMouseX() - getText().getX(),
@@ -160,7 +170,7 @@ public class GuiTextBox extends Gui {
     public GuiText getText() {
         return text;
     }
-    private String texts() {
+    public final String texts() {
         return getText().getText();
     }
 
@@ -211,6 +221,7 @@ public class GuiTextBox extends Gui {
         this.cursorPosition = Maths.clamp(cursorPosition, 0, texts().length());
         if (oldCpos != this.cursorPosition) {
             setFocused(true);
+            performEvent(new OnCursorPositionChangedEvent());
         }
     }
 
@@ -253,4 +264,14 @@ public class GuiTextBox extends Gui {
         assert maxLines >= 1;
         this.maxLines = maxLines;
     }
+
+    public Gui getCursor() {
+        return cursor;
+    }
+
+    public final EventBus.Handler addOnCursorPositionChangedListener(Consumer<OnCursorPositionChangedEvent> lsr) {
+        return attachListener(OnCursorPositionChangedEvent.class, lsr);
+    }
+
+    public static class OnCursorPositionChangedEvent extends GuiEvent { }
 }

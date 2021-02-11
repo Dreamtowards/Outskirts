@@ -82,7 +82,7 @@ public class ChunkMeshGen {
 
 
 
-        vbuf.inituvnorm();
+        vbuf.inituvnorm(false);
 
         VertexUtil.smoothnorm(vbuf);
 

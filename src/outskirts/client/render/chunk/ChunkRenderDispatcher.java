@@ -38,7 +38,6 @@ public class ChunkRenderDispatcher {
 
     @EventHandler
     private void chunkLoaded(ChunkLoadedEvent e) {
-        LOGGER.info("Chunk Loaded");
         ChunkPos cpos = ChunkPos.of(e.getChunk());
         for (int i = 0;i < 16;i++) {
             RenderSection rs = new RenderSection(vec3(cpos.x, i*16, cpos.z));

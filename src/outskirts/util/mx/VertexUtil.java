@@ -72,46 +72,6 @@ public class VertexUtil {
         VertexUtil.hardnorm(vbuf, 0);
     }
 
-//    // Avg the same positions's normals.
-//    public static void smoothnorm(VertexBuffer vbuf) {// assert vbuf.indices == null;
-//        List<Vector3f> excludedpos = new ArrayList<>();
-//        List<Integer> posvts = new ArrayList<>();
-//
-//        Vector3f vpos = new Vector3f(), vfindtmp = new Vector3f(), avgNorm = new Vector3f();
-//        for (int vIdx = 0;vIdx < vbuf.positions.size();vIdx+=3) { // for Vertices
-//            Vector3f.set(vpos, vbuf.positions::get, vIdx);
-//            if (excludedpos.contains(vpos)) continue;
-//
-//            posvts.clear();
-////            foundvtx.add(vIdx);
-//
-//            // do Search.
-//            for (int i = 0;i < vbuf.positions.size();i+=3) {
-//                Vector3f.set(vfindtmp, vbuf.positions::get, i);
-//                if (vfindtmp.equals(vpos))
-//                    posvts.add(i);
-//            }
-//            // do AVG.
-//            avgNorm.set(0,0,0);
-//            for (int i : posvts) {
-//                Vector3f.set(vfindtmp, vbuf.normals::get, i);
-//                avgNorm.add(vfindtmp);
-//            }
-//            avgNorm.scale(1f / posvts.size());
-//            avgNorm.normalize();
-//
-//            // set Them
-//            for (int i : posvts) {
-//                vbuf.normals.set(i,   avgNorm.x);
-//                vbuf.normals.set(i+1, avgNorm.y);
-//                vbuf.normals.set(i+2, avgNorm.z);
-//            }
-//
-//            excludedpos.add(new Vector3f(vpos));
-//        }
-//
-//    }
-
     // angle weighted shared-pos norms avg. but have avg AngelControl.
     public static void smoothnorm(VertexBuffer vbuf) {
         Map<Vector3f, List<Vector3f>> vnorms = new HashMap<>();
@@ -128,7 +88,7 @@ public class VertexUtil {
                 Vector3f.trinorm(v1, v2, v3, norm);
             } catch (ArithmeticException ex) {
                 norm.set(Vector3f.UNIT_Y);
-                Log.LOGGER.info("fail calc tri norm.");
+//                Log.LOGGER.info("fail calc tri norm.");
             }
 
             float a1 = Vector3f.angle(Vector3f.sub(v2, v1, angv1), Vector3f.sub(v3, v1, angv2));

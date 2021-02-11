@@ -22,6 +22,7 @@ import outskirts.world.storage.ChunkLoader;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 import static outskirts.util.Maths.floor;
@@ -96,6 +97,13 @@ public abstract class World implements Tickable {
         Chunk chunk = getLoadedChunk(p);
         if (chunk == null) return null;
         return chunk.octree(p.y);
+    }
+    public void forOctrees(AABB aabb, BiConsumer<Octree, Vector3f> visitor) {
+        AABB.forGrid(aabb, 16, v -> {
+            Octree nd = getOctree(v);
+            if (nd != null)
+                visitor.accept(nd, v);
+        });
     }
 
     public Octree.Leaf findLeaf(Vector3f p, Ref<Octree.Internal> lp) {

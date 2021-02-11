@@ -1,5 +1,6 @@
 package outskirts.client.render.isoalgorithm.sdf;
 
+import outskirts.util.StringUtils;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -21,6 +22,15 @@ public class VecCon {
     }
     public static Vector3f vec3(float[] v) {
         return vec3(v, 0);
+    }
+    public static Vector3f vec3(String s) {
+        return vec3(StringUtils.readNumbers(s, new float[3]));
+    }
+    public static Vector3f vec3(String[] s, int begin) {
+        return vec3(Float.parseFloat(s[begin]), Float.parseFloat(s[begin+1]), Float.parseFloat(s[begin+2]));
+    }
+    public static Vector3f vec3(String[] s) {
+        return vec3(s, 0);
     }
 
 

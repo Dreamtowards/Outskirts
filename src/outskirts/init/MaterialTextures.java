@@ -21,7 +21,7 @@ public final class MaterialTextures {
     public static TextureAtlas NORMAL_ATLAS  = new TextureAtlas();
     public static TextureAtlas DISPLACEMENT_ATLAS = new TextureAtlas();
 
-    public static void init() throws IOException {
+    public static void init() {
 
         for (Material mtl : Material.REGISTRY.values()) {
             String regid = new Identifier(mtl.getRegistryID()).getPath();

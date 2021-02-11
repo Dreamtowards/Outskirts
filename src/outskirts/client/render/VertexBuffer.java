@@ -84,12 +84,16 @@ public final class VertexBuffer {
         } else throw new UnsupportedOperationException();
     }
 
-    public void inituvnorm() {
+    public void inituvnorm(boolean initNorm) {
         for (int i = 0;i < positions.size()/3;i++) {
             adduv(0, 0);
             addnorm(0, 0, 0);
         }
-        VertexUtil.hardnorm(this);
+        if (initNorm)
+            VertexUtil.hardnorm(this);
+    }
+    public void inituvnorm() {
+        inituvnorm(true);
     }
     public void tmpsaveobjfile(String filename) {
         try {

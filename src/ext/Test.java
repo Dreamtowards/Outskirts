@@ -4,6 +4,7 @@ import ext.srt.QuickSort;
 import ext.srt.Sort;
 import outskirts.event.EventHandler;
 import outskirts.event.gui.GuiEvent;
+import outskirts.util.StringUtils;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 
@@ -432,13 +433,7 @@ public class Test {
 //        vbuf.inituvnorm();
 //        vbuf.tmpsaveobjfile("ms.obj");
 
-        List<String> s = new ArrayList<>();
-
-        s.add("AA");
-        s.add("AA");
-        s.add("BB");
-        s.remove("AA");
-        System.out.println(s);
+        LOGGER.info(Arrays.asList(StringUtils.explode("", " ")).size());
     }
 
 

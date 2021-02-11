@@ -120,7 +120,7 @@ public class Gui {
         return gui;
     }
     public final <T extends Gui> T addGui(T gui) {
-        return addGui(gui, getChildCount());
+        return addGui(gui, size());
     }
 
     public final Gui addChildren(Gui... guis) {
@@ -135,19 +135,14 @@ public class Gui {
     }
 
     public final void setGui(int index, Gui gui) {
-        if (index < getChildCount()) {
+        if (index < size()) {
             removeGui(index);
         }
         addGui(gui, index);
     }
 
-    // size() .? childCount()
-    public int getChildCount() {
-        return children.size();
-    }
-
     public int size() {
-        return getChildCount();
+        return children.size();
     }
 
     /**
@@ -166,7 +161,7 @@ public class Gui {
         return true;
     }
     public final void removeAllGuis() {
-        for (int i = getChildCount()-1;i >= 0;i--) {
+        for (int i = size()-1;i >= 0;i--) {
             removeGui(i);
         }
     }

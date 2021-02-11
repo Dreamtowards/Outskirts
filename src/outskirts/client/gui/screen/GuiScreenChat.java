@@ -1,13 +1,20 @@
 package outskirts.client.gui.screen;
 
 import org.lwjgl.glfw.GLFW;
+import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiScrollPanel;
 import outskirts.client.gui.GuiText;
 import outskirts.client.gui.GuiTextBox;
 import outskirts.client.gui.stat.GuiColumn;
+import outskirts.command.Command;
 import outskirts.event.EventPriority;
 import outskirts.util.Colors;
+import outskirts.util.vector.Vector2f;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -17,6 +24,9 @@ public class GuiScreenChat extends Gui {
 
     private GuiColumn msgLs;
 
+    private GuiTextBox tbInputBox;
+    private GuiColumn completeLs;
+
     private GuiScreenChat() {
         setWidth(INFINITY);
         setHeight(INFINITY);
@@ -24,6 +34,7 @@ public class GuiScreenChat extends Gui {
 
         addChildren(
           new GuiTextBox().exec((GuiTextBox g) -> {
+              tbInputBox=g;
               g.setMaxLines(1);
               g.addLayoutorAlignParentLTRB(2, NaN, 80, 2);
               g.setHeight(20);
@@ -38,13 +49,27 @@ public class GuiScreenChat extends Gui {
               g.addOnAttachListener(e -> {
                   g.setFocused(true);
               });
+              g.addOnFocusChangedListener(e -> {
+                  completeLs.setVisible(g.isFocused());
+              });
 
               g.addKeyboardListener(e -> {
-                  if (e.getKeyState() && e.getKey()== GLFW.GLFW_KEY_ENTER) {
-                      String s = g.getText().getText();
-                      if (s.isEmpty()) return;
-                      printMessage(s);
-                      g.getText().setText("");
+                  if (g.isFocused() && e.getKeyState()) {
+                      if (e.getKey()== GLFW.GLFW_KEY_ENTER) {
+                          String s = g.texts();
+                          if (s.isEmpty()) return;
+                          g.getText().setText("");
+                          dispatchLine(s);
+                      } else if (e.getKey()== GLFW.GLFW_KEY_TAB) {
+                          updateTabComplete();
+                      }
+                  }
+              });
+              g.addOnCursorPositionChangedListener(e -> {
+                  if (tbInputBox.texts().startsWith("/")) {
+                      updateTabComplete();
+                  } else {
+                      completeLs.removeAllGuis();
                   }
               });
           }),
@@ -59,9 +84,55 @@ public class GuiScreenChat extends Gui {
                       gContent.setRelativeY(g.getHeight() - gContent.getHeight());
                   }
               });
-          }).setContent(msgLs=new GuiColumn())
+          }).setContent(msgLs=new GuiColumn()),
+          completeLs=new GuiColumn().exec(g -> {
+              g.addOnDrawListener(e -> {
+                  drawRect(Colors.BLACK80, g);
+              });
+              g.addOnLayoutListener(e -> {
+                  String line = tbInputBox.texts();
+                  int curpos;
+                  if (line.startsWith("/")) {
+                      curpos = line.lastIndexOf(' ', tbInputBox.getCursorPosition());
+                      if (curpos == -1)
+                          curpos = 1;
+                      else
+                          curpos = curpos+1;
+                  } else {
+                      curpos = tbInputBox.getCursorPosition();
+                  }
+                  Vector2f p = tbInputBox.calculateTextPosition(curpos);
+                  g.setX(p.x);
+                  g.setY(tbInputBox.getY()-g.getHeight());
+              });
+          })
         );
 
+    }
+
+    private void updateTabComplete() {
+        int cursorpos = tbInputBox.getCursorPosition();
+        String cmdline = tbInputBox.getText().getText().substring(0, cursorpos);
+        if (cmdline.startsWith("/")) {
+            updateGuiCompletes(Command.dispatchTabComplete(cmdline, cursorpos));
+        } else {
+            updateGuiCompletes(Collections.singletonList(Outskirts.getPlayer().getName()));
+        }
+    }
+    private void updateGuiCompletes(List<String> completes) {
+        completeLs.removeAllGuis();
+        for (String complete : completes) {
+            completeLs.addGui(new GuiText(complete));
+        }
+        completeLs.onLayout();
+    }
+
+    private void dispatchLine(String line) {
+        if (line.startsWith("/")) {
+            Command.dispatchCommand(Outskirts.getPlayer(), line);
+        } else {
+            printMessage("<"+ Outskirts.getPlayer().getName() +"> "+line);
+        }
     }
 
     public void printMessage(String s) {

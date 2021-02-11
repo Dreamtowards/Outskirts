@@ -1,20 +1,19 @@
 package outskirts.entity.player;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.screen.GuiScreenChat;
+import outskirts.command.CommandSender;
 import outskirts.entity.Entity;
 import outskirts.item.inventory.Inventory;
 import outskirts.item.stack.ItemStack;
 import outskirts.network.ChannelHandler;
 import outskirts.physics.collision.dispatch.CollisionManifold;
-import outskirts.util.GameTimer;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
-public abstract class EntityPlayer extends Entity {
+public abstract class EntityPlayer extends Entity implements CommandSender {
 
 //    private static float walkspeed = 0.4f;
-
-    public GameMode gamemode = GameMode.SURVIVAL;
 
     public ChannelHandler connection;
 
@@ -23,6 +22,11 @@ public abstract class EntityPlayer extends Entity {
     private Inventory inventory = new Inventory(8);
 
     private int hotbarSlot;
+
+    private Gamemode gamemode = Gamemode.SURVIVAL;
+
+    private boolean flymode = false;
+
 
     public EntityPlayer() {
         setRegistryID("player");
@@ -65,16 +69,16 @@ public abstract class EntityPlayer extends Entity {
         return getBackpackInventory().get(getHotbarSlot());
     }
 
-    public GameMode getGamemode() {
+    public Gamemode getGamemode() {
         return gamemode;
     }
-    public void setGamemode(GameMode gamemode) {
+    public void setGamemode(Gamemode gamemode) {
         this.gamemode = gamemode;
 
-        if (gamemode == GameMode.SURVIVAL) {
+        if (gamemode == Gamemode.SURVIVAL) {
             rigidbody().getGravity().set(0, -10, 0);
             rigidbody().setLinearDamping(0.95f);
-        } else if (gamemode == GameMode.CREATIVE) {
+        } else if (gamemode == Gamemode.CREATIVE) {
             rigidbody().getGravity().set(0, 0, 0);
             rigidbody().setLinearDamping(0.0001f);
         }
@@ -92,5 +96,18 @@ public abstract class EntityPlayer extends Entity {
             }
         }
         return false;
+    }
+
+
+    public boolean isFlymode() {
+        return flymode;
+    }
+    public void setFlymode(boolean flymode) {
+        this.flymode = flymode;
+    }
+
+    @Override
+    public void sendMessage(String msg) {
+        GuiScreenChat.INSTANCE.printMessage(msg);
     }
 }

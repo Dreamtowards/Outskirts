@@ -20,7 +20,7 @@ import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
-import outskirts.entity.player.GameMode;
+import outskirts.entity.player.Gamemode;
 import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
@@ -28,6 +28,7 @@ import outskirts.init.Init;
 import outskirts.init.ex.Models;
 import outskirts.material.Material;
 import outskirts.mod.Mods;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
@@ -178,37 +179,34 @@ public class Outskirts {
         SystemUtil.debugAddMouseKeyHook(2, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
-            Vector3f bs = Vector3f.floor(vec3(p), 16f);
+//            Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
+            AABB aabb = new AABB(vec3(p).sub(5), vec3(p).add(5));
 //            Ref<Octree.Internal> lp = Ref.wrap();
-//            Octree.Leaf lf = world.findLeaf(p, lp);
-//            LOGGER.info(Octree.Leaf.dbgtojson(lf));
-//
+//            Octree.Leaf lf = world.findLeaf(p, lp); //LOGGER.info(Octree.Leaf.dbgtojson(lf));
 //            Octree.Internal expan = CSG.expand(lf);
 //            lp.value.child(lp.value.childidx(lf), expan);
 
-            Octree nd = world.getOctree(bs);
-//            Octree.forEach(nd, n -> {
-//                if (n.isLeaf()) {
-//                    if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
-//                        ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
-//                }
-//            });
+            world.forOctrees(aabb, (nd, v) -> {
 
+                TrifFunc FUNCQ = (x, y, z) -> {
+                    return DistFunctions.box(vec3(x,y,z).add(v).sub(p), vec3(2,3,2));
+                };
+                CSG.difference(nd, FUNCQ);
+            });
+//            LOGGER.info(nds.size());
 //            TrifFunc FUNC = (x, y, z) -> {
 //                return DistFunctions.sphere(vec3(x,y,z).sub(vec3(p).sub(bs)), 2.5f);
 //            };
-            TrifFunc FUNCQ = (x, y, z) -> {
-                return DistFunctions.box(vec3(x,y,z).sub(vec3(p).sub(bs)), vec3(2,3,2));
-            };
-            CSG.difference(nd, FUNCQ);
 //            nd=Octree.fromSDF(bs, 16, FUNC, 5, Materials.DIRT);
 //            Octree.collapse(nd);
 //            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
 //            Octree oped = CSGOp.opSet(nd, node);
 //            world.getLoadedChunk(bs).octree(0, nd);
 
-            world.crd.markRebuild(bs);
+            AABB.forGrid(aabb, 16, v -> {
+                world.crd.markRebuild(v);
+            });
         });
     }
 
@@ -303,7 +301,7 @@ public class Outskirts {
         prb.setRestitution(0f);
          prb.setInertiaTensorLocal(0,0,0);
 
-         getPlayer().setGamemode(GameMode.CREATIVE);
+         getPlayer().setGamemode(Gamemode.SURVIVAL);
 
     }
 
@@ -320,9 +318,9 @@ public class Outskirts {
                 if (KEY_WALK_LEFT.isKeyDown()) player.walk(lv, Maths.PI/2);
                 if (KEY_WALK_RIGHT.isKeyDown()) player.walk(lv, -Maths.PI/2);
                 if (KEY_JUMP.isKeyDown()  &&
-                        (player.getGamemode() == GameMode.CREATIVE ||
-                        (player.getGamemode() == GameMode.SURVIVAL && player.isOnGround()))) player.walk(lv, new Vector3f(0, 1, 0));
-                if (KEY_SNEAK.isKeyDown() && player.getGamemode() == GameMode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
+                        (player.getGamemode() == Gamemode.CREATIVE ||
+                        (player.getGamemode() == Gamemode.SURVIVAL && player.isOnGround()))) player.walk(lv, new Vector3f(0, 1, 0));
+                if (KEY_SNEAK.isKeyDown() && player.getGamemode() == Gamemode.CREATIVE) player.walk(lv, new Vector3f(0, -1, 0));
 
 //                // ITEM USE
 //                float CONTINUE_USE_INTERVAL = 0.16f;

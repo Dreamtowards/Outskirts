@@ -1,13 +1,13 @@
 package outskirts.init;
 
 import outskirts.command.Command;
+import outskirts.command.client.CommandSay;
 import outskirts.command.server.*;
 import outskirts.entity.Entity;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.init.ex.Models;
-import outskirts.item.Item;
 import outskirts.network.Packet;
 import outskirts.network.login.packet.CPacketLogin;
 import outskirts.network.login.packet.SPacketDisconnect;
@@ -22,38 +22,29 @@ public final class Init {
 
     //use event to register/release..?
     public static void registerAll(Side side) {
-        try {
 
-            Materials.init();
+        Materials.init();  MaterialTextures.init();
 
-            MaterialTextures.init();
-
-            Items.init();
+        Items.init();
 
 //        for (Block b : Block.REGISTRY.values()) {
 //            Item.REGISTRY.register(new ItemBlock(b));
 //        }
+        Commands.init();
 
-            if (side.isClient()) {
+        if (side.isClient()) {
 
-                Sounds.init();
+            Sounds.init();
 
-                Textures.init();
+            Textures.init();
 
-                Models.init();
-
-            } else {
-
-                registerCommands();
-            }
-
-            registerPackets();
-
-            registerEntities(side);
-
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            Models.init();
         }
+
+        registerPackets();
+
+        registerEntities(side);
+
     }
 
 
@@ -72,17 +63,6 @@ public final class Init {
         Packet.buildRegistry();
     }
 
-
-
-    private static void registerCommands() {
-
-        Command.REGISTRY.register(new CommandShutdown());
-        Command.REGISTRY.register(new CommandKick());
-        Command.REGISTRY.register(new CommandSummon());
-        Command.REGISTRY.register(new CommandPlayerlist());
-        Command.REGISTRY.register(new CommandSay());
-
-    }
 
     private static void registerEntities(Side side) {
 

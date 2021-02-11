@@ -1,17 +1,12 @@
 package outskirts.command;
 
-import outskirts.util.CollectionUtils;
-import outskirts.util.ResourceLocation;
-import outskirts.util.StringUtils;
-import outskirts.util.Validate;
+import outskirts.util.*;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
 import outskirts.util.vector.Vector3f;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class Command implements Registrable {
 
@@ -22,11 +17,14 @@ public abstract class Command implements Registrable {
 
     public abstract void onCommand(CommandSender sender, String[] args);
 
-    public List<String> tabComplete(String[] args) {
-        return Collections.emptyList();
+    /**
+     * @return nullable. null, means unsupported.
+     */
+    public List<String> tabComplete(int argi) {
+        return null;
     }
 
-    public List<String> getUsages() {
+    public final List<String> getUsages() {
         return usages;
     }
 
@@ -35,17 +33,20 @@ public abstract class Command implements Registrable {
         return registryID;
     }
 
+
+
+
     /**
      * @param commandline "cmdid args[0] args[1]..."
      */
     public static void dispatchCommand(CommandSender sender, String commandline) {
-        String[] bounds = StringUtils.explode(commandline, " "); // bounds
-        String cmdid = new ResourceLocation(bounds[0]).toString(); // there are probably not very good.. for other domains
+        String[] bounds = StringUtils.explode(commandline.substring(1), " "); // bounds
+        String cmdid = new Identifier(bounds[0]).toString(); // there are probably not very good.. for other domains
 
         Command command = REGISTRY.get(cmdid);
 
         if (command == null) {
-            sender.sendMessage("Command \""+cmdid+"\" not found.");
+            sender.sendMessage("Command \"%s\" not found.", cmdid);
             return;
         }
 
@@ -53,46 +54,36 @@ public abstract class Command implements Registrable {
         {
             command.onCommand(sender, CollectionUtils.subarray(bounds, 1));
         }
-        catch (WrongUsageException ex)
-        {
-            sender.sendMessage("Wrong command usage. Usages: \n" + CollectionUtils.toString(command.getUsages(), "\n"));
-        }
-        catch (CommandException ex)
-        {
+        catch (WrongUsageException ex) {
+            sender.sendMessage("Wrong command usage. Usages: \n%s", CollectionUtils.toString(command.getUsages(), "\n"));
+        } catch (CommandException ex) {
             sender.sendMessage(ex.getMessage());
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             sender.sendMessage("An exception occurred on the command execution. (" + t);
         }
     }
 
-    public static List<String> dispatchTabComplete(String commandline) {
-        String[] bounds = StringUtils.explode(commandline, " ");
-        String cmdid = new ResourceLocation(bounds[0]).toString();
+    public static List<String> dispatchTabComplete(String commandline, int cursorpos) {
+        String[] bound = StringUtils.explode(commandline.substring(1, cursorpos), " ");
+        String command = new Identifier(bound[0]).toString();
+        int argi = bound.length-2;
+        String start = bound[bound.length-1];
 
-        if (bounds.length == 1) { // complete cmdid
-            List<String> result = new ArrayList<>();
-            for (String k : REGISTRY.keys()) {
-                if (k.startsWith(cmdid))
-                    result.add(k);
-            }
-            return result;
-        } else if (bounds.length > 1) { // complete args
-            Command command = REGISTRY.get(cmdid);
-
-            if (command != null) {
-                return command.tabComplete(CollectionUtils.subarray(bounds, 1));
-            }
+        if (argi == -1) {
+            return filterStartSwith(REGISTRY.keys(), command);
+        } else {
+            Command cmd = Command.REGISTRY.get(new Identifier(command).toString());
+            if (cmd == null)
+                return Collections.emptyList();
+            return filterStartSwith(CollectionUtils.orDefault(cmd.tabComplete(argi), Collections.emptyList()), start);
         }
-
-        return Collections.emptyList();
+    }
+    private static List<String> filterStartSwith(List<String> ls, String start) {
+        List<String> l = new ArrayList<>();
+        for (String s : ls) {
+            if (s.startsWith(start)) l.add(s);
+        }
+        return l;
     }
 
-    protected static Vector3f parseVector3f(String s) {
-        String[] b = StringUtils.explode(s, ",");
-        if (b.length != 3)
-            throw new CommandException("Wrong vector3f format.");
-        return new Vector3f(Float.parseFloat(b[0]), Float.parseFloat(b[1]), Float.parseFloat(b[2]));
-    }
 }

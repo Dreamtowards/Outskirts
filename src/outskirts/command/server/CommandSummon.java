@@ -10,6 +10,8 @@ import outskirts.entity.player.EntityPlayerMP;
 import outskirts.util.ResourceLocation;
 import outskirts.util.vector.Vector3f;
 
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+
 public class CommandSummon extends Command {
 
     public CommandSummon() {
@@ -32,7 +34,7 @@ public class CommandSummon extends Command {
         Entity entity = Entity.createEntity(registryID);
 
         if (args.length >= 2)
-            entity.position().set(parseVector3f(args[1]));
+            entity.position().set(vec3(args[1]));
 
         ((EntityPlayerMP)entity).getWorld().addEntity(entity);
 

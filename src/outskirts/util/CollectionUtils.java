@@ -268,6 +268,11 @@ public final class CollectionUtils {
         return arr.length - nulli(arr);
     }
 
+    // may not very fit. the position.
+    public static <T> T orDefault(T nullable, T def) {
+        return nullable==null ? def : nullable;
+    }
+
     /**
      * @param list both "src" AND "dest"
      */

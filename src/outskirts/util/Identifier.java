@@ -19,7 +19,7 @@ public final class Identifier {
     }
 
     private static String[] resolve(String id) {
-        return id.contains(":") ? id.split(":") : new String[] {"outskirts", id};
+        return id.contains(":") ? StringUtils.explode(id, ":") : new String[] {"outskirts", id};
     }
 
     public final InputStream getInputStream() {

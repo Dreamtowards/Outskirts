@@ -36,7 +36,9 @@ public final class Registry<T extends Registrable> {
     }
 
     public T get(String registryID) {
-        return entries.get(indexOf(registryID));
+        int i = indexOf(registryID);
+        if (i==-1) return null;
+        return entries.get(i);
     }
 
     public boolean containsKey(String registryID) {

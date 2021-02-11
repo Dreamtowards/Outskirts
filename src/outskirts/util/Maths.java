@@ -203,13 +203,14 @@ public final class Maths {
     /**
      * floor by unitsize.
      * usage e.g get ChunkPos by a world position.
+     * @param u unitsize.
      * @return value - (value MOD unitSize)
      */
-    public static float floor(float value, float unitsize) {
-        return floor(value / unitsize) * unitsize;
+    public static float floor(float value, float u) {
+        return floor(value / u) * u;
     }
-    public static int floor(float value, int unitsize) {
-        return floor(value / unitsize) * unitsize;
+    public static int floor(float value, int u) {
+        return floor(value / u) * u;
     }
 
     // e.g get ViewDistanceInChunks by usually viewDistance
