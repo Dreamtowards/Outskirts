@@ -54,6 +54,7 @@ public final class GuiText extends Gui {
 
     public void setTextHeight(int textHeight) {
         this.textHeight = textHeight;
+        updateTextBound(this);
     }
     public int getTextHeight() {
         return textHeight;

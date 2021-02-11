@@ -144,10 +144,10 @@ public class GuiPopupMenu extends Gui {
 //                }, false);
 //            };
             Consumer lsrOpenMenu = e -> {
-                Gui.forChildren(getParent(), g -> {
+                getParent().getChildren().forEach(g -> {
                     if (g instanceof GuiItem && ((GuiItem)g).submenu != null)
                         ((GuiItem)g).submenu.hide();
-                }, false);
+                });
                 if (submenu != null) {
                     submenu.show(getX()+getWidth(), getY());
                 }

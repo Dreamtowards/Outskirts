@@ -32,6 +32,12 @@ public class GuiScreenChat extends Gui {
               g.addOnDrawListener(e -> {
                   drawRect(g.isFocused() ? Colors.BLACK80 : Colors.BLACK40, g);
               }).priority(EventPriority.HIGH);
+              g.addOnDetachListener(e -> {
+                  g.getText().setText("");
+              });
+              g.addOnAttachListener(e -> {
+                  g.setFocused(true);
+              });
 
               g.addKeyboardListener(e -> {
                   if (e.getKeyState() && e.getKey()== GLFW.GLFW_KEY_ENTER) {

@@ -26,8 +26,6 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderEngine {
 
-    public float RENDERE_QUALITY = 1;
-
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
 

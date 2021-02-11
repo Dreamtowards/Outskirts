@@ -4,9 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.compoents.GuiMap;
-import outskirts.client.gui.compoents.GuiScreenMapView;
 import outskirts.client.gui.debug.GuiDebugV;
-import outskirts.client.gui.debug.GuiIDebugOp;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.util.*;
@@ -126,30 +124,6 @@ public final class ClientSettings {
 
 
     // KEY DEBUGS
-
-    private static void toggleRootGuiDisplay(Gui g) {
-        Gui paren = Outskirts.getRootGUI();
-        if (paren.getChildren().contains(g)) {
-            paren.removeGui(g);
-        } else {
-            paren.addGui(g);
-        }
-    }
-
-    private static final KeyBinding KEY_MAP = new KeyBinding("key.utility.map", GLFW_KEY_M, KeyBinding.TYPE_KEYBOARD, "categories.utility").setOnInputListener(keyState -> {
-        if (keyState)
-            toggleRootGuiDisplay(GuiScreenMapView.INSTANCE);
-    });
-
-    private static final KeyBinding KEY_VERT3D = new KeyBinding("key.debug.vert3d", GLFW_KEY_V, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
-        if (keyState)
-            Gui.toggleVisible(GuiVert3D.INSTANCE);
-    });
-
-    private static final KeyBinding KEY_DEBUGV = new KeyBinding("key.debugv", GLFW_KEY_F3, KeyBinding.TYPE_KEYBOARD, "categories.debug").setOnInputListener(keyState -> {
-        if (keyState)
-            Gui.toggleVisible(GuiDebugV.INSTANCE);
-    });
 
 //    public static boolean uSetBlockAtFocus(Block b, int dfSign) {
 //        RayPicker rp = Outskirts.getRayPicker();

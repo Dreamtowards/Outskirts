@@ -3,15 +3,17 @@ package outskirts.client.gui.ex;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.debug.GuiDebugV;
+import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.screen.GuiScreenChat;
 import outskirts.client.gui.screen.GuiScreenPause;
+import outskirts.event.EventHandler;
 import outskirts.event.client.input.KeyboardEvent;
 import outskirts.item.stack.ItemStack;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SLASH;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class GuiIngame extends Gui {
 
@@ -19,11 +21,12 @@ public class GuiIngame extends Gui {
 
     private GuiIngame() {
 
-        addOnDrawListener(this::onRender);
+        addOnDrawListener(this::onDlaw);
         addKeyboardListener(this::onKeyboard);
     }
 
-    private void onRender(OnDrawEvent event) {
+    @EventHandler
+    private void onDlaw(OnDrawEvent e) {
 
 
         // Pointer. this actually not belong Debug.
@@ -39,6 +42,7 @@ public class GuiIngame extends Gui {
 
     }
 
+    @EventHandler
     private void onKeyboard(KeyboardEvent e) {
         if (e.getKeyState() && Outskirts.isIngame()) {
             switch (e.getKey()) {
@@ -47,6 +51,12 @@ public class GuiIngame extends Gui {
                     break;
                 case GLFW_KEY_SLASH:
                     Outskirts.getRootGUI().addGui(GuiScreenChat.INSTANCE);
+                    break;
+                case GLFW_KEY_V:
+                    Gui.toggleVisible(GuiVert3D.INSTANCE);
+                    break;
+                case GLFW_KEY_F3:
+                    Gui.toggleVisible(GuiDebugV.INSTANCE);
                     break;
             }
         }

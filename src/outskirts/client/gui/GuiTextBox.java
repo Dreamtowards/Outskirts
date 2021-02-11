@@ -164,7 +164,7 @@ public class GuiTextBox extends Gui {
         return getText().getText();
     }
 
-    public void insertText(String text) {
+    public final void insertText(String text) {
         if (isSelectedText()) {  // if selected text, clear first.
             getText().setText(texts().substring(0, getMinSelection()) + texts().substring(getMaxSelection()));
             setCursorPosition(getMinSelection());

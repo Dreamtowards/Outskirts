@@ -47,6 +47,10 @@ public class GuiExpander extends Gui implements Gui.Contentable {
 
     }
 
+    public Gui getHeader() {
+        return header;
+    }
+
     @Override
     public Gui setContent(Gui g) {
         if (contentw.size() > 0) {
@@ -68,5 +72,11 @@ public class GuiExpander extends Gui implements Gui.Contentable {
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
         contentw.setVisible(isExpanded());
+        if (!expanded) {
+            Gui.forChildren(this, g -> {
+                if (g != this && g instanceof GuiExpander)
+                    ((GuiExpander)g).setExpanded(false);
+            });
+        }
     }
 }

@@ -4,12 +4,13 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import outskirts.client.audio.AudioEngine;
-import outskirts.client.gui.GuiTextBox;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
+import outskirts.client.gui.debug.GuiDebugSnapshot;
 import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
+import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.isoalgorithm.csg.CSG;
@@ -17,8 +18,6 @@ import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.DistFunctions;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
-import outskirts.client.render.renderer.debug.test.DebugTestRenderer;
-import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.GameMode;
@@ -26,9 +25,7 @@ import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
-import outskirts.init.Materials;
 import outskirts.init.ex.Models;
-import outskirts.init.Textures;
 import outskirts.material.Material;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.shapes.GhostShape;
@@ -40,7 +37,6 @@ import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
-import outskirts.world.chunk.ChunkPos;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -148,17 +144,9 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
-
-
-        debugTestRenderer = new DebugTestRenderer();
-
-        debugVisualGeoRenderer = new DebugVisualGeoRenderer();
     }
     //todo: GameRule LS   Separator/ NonCollision
     //tod0: DebugV OP. options
-
-    DebugTestRenderer debugTestRenderer;
-    DebugVisualGeoRenderer debugVisualGeoRenderer;
 
     public static int matId = 0;
 
@@ -169,6 +157,9 @@ public class Outskirts {
             if (c >= '0' && c <= '9') {
                 matId = c-48;
             }
+        });
+        SystemUtil.debugAddKeyHook(GLFW_KEY_F4, () -> {
+            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
              Vector3f p = rayPicker.getCurrentPoint();
@@ -263,7 +254,6 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
-            if (isCtrlKeyDown()) GuiScreenPause.INSTANCE = new GuiScreenPause();
 
             profiler.pop("gui");
         }

@@ -2,7 +2,9 @@ package outskirts.client.gui.compoents;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.GuiCheckBox;
 import outskirts.client.gui.GuiDrag;
+import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.render.Texture;
 import outskirts.event.EventHandler;
 import outskirts.event.world.chunk.ChunkMeshBuiltEvent;
@@ -50,6 +52,15 @@ public class GuiMap extends GuiDrag {
         addGlobalEventListener(ChunkMeshBuiltEvent.class, e -> {
             texUpdateQueue.add(ChunkPos.of(e.getChunk()));
         });
+
+        addChildren(
+                new GuiColumn().exec(g -> {
+                    g.addLayoutorAlignParentLTRB(NaN, 16, 32, NaN);
+                }).addChildren(
+                        new GuiCheckBox("Height Clip .UDR"),
+                        new GuiCheckBox("Active Chunks INFO.")
+                )
+        );
     }
 
     private void loadChunkImage(Chunk chunk) {

@@ -86,13 +86,13 @@ public final class GuiRoot extends Gui {
             Gui.forParents(hoveredGui, g -> {
                 g.setHover(true);
                 hoveredGuis.add(g);
-            }, true);
+            });
         }
 
         Gui.forChildren(Outskirts.getRootGUI(), g -> {
             if (!hoveredGuis.contains(g))
                 g.setHover(false);
-        }, true, true);
+        });
     }
 
     private static void performOnClickeds() {
@@ -103,7 +103,7 @@ public final class GuiRoot extends Gui {
                 if (g.isEnable() && g.isPressed()) {
                     g.performEvent(new OnClickEvent());
                 }
-            }, true);
+            });
         }
     }
 }

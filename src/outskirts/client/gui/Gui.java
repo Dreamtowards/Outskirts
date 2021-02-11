@@ -373,32 +373,21 @@ public class Gui {
      * and {for size: get} is original method.
      * cause always use and have multi params, so not use static.
      */
-    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive, boolean includeSelf, Predicate<Gui> eachpredicate) {
-        if (includeSelf && eachpredicate.test(gfrom))
-            visitor.accept(gfrom);
+    public static void forChildren(Gui gfrom, Consumer<Gui> visitor) {
+        visitor.accept(gfrom);
+
         // if iterating children use index, probably skip/repeat iteration-item when the list been edit(add/remove)
         for (Gui child : gfrom.getChildren()) {
-            if (!eachpredicate.test(child)) continue;
-
-            visitor.accept(child);
-
-            if (recursive && child.getChildCount() > 0) {
-                Gui.forChildren(child, visitor, true, false, eachpredicate);
-            }
+            forChildren(child, visitor);
         }
     }
-    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive, boolean includeSelf) {
-        Gui.forChildren(gfrom, visitor, recursive, includeSelf, g -> true);
-    }
-    public static void forChildren(Gui gfrom, Consumer<Gui> visitor, boolean recursive) {
-        Gui.forChildren(gfrom, visitor, recursive, false);
-    }
 
-    public static void forParents(Gui gfrom, Consumer<Gui> visitor, boolean includeSelf) {
-        if (includeSelf) visitor.accept(gfrom);
-        Gui g = gfrom;
-        while ((g=g.getParent()) != Gui.EMPTY) {
-            visitor.accept(g);
+    public static void forParents(Gui gfrom, Consumer<Gui> visitor) {
+        visitor.accept(gfrom);
+
+        Gui g = gfrom.getParent();
+        if (g != Gui.EMPTY) {
+            forParents(g, visitor);
         }
     }
     private static int calcDepth(Gui g) {
@@ -485,8 +474,10 @@ public class Gui {
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui{
         Gui.forChildren(this, g -> {
-            g.performEvent(event);
-        }, true, true, Gui::isVisible); // Only Post to isVisible() Guis.
+            if (g.isVisible()) {
+                g.performEvent(event);
+            }
+        }); // Only Post to isVisible() Guis.
         return Cancellable.isCancelled(event);
     }
 
