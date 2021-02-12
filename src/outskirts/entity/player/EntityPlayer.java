@@ -4,10 +4,15 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.screen.GuiScreenChat;
 import outskirts.command.CommandSender;
 import outskirts.entity.Entity;
+import outskirts.init.ex.Models;
 import outskirts.item.inventory.Inventory;
 import outskirts.item.stack.ItemStack;
 import outskirts.network.ChannelHandler;
 import outskirts.physics.collision.dispatch.CollisionManifold;
+import outskirts.physics.collision.shapes.GhostShape;
+import outskirts.physics.collision.shapes.convex.CapsuleShape;
+import outskirts.physics.collision.shapes.convex.SphereShape;
+import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
@@ -31,6 +36,11 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
     public EntityPlayer() {
         setRegistryID("player");
 
+        RigidBody rb = getRigidBody();
+        rb.setInertiaTensorLocal(0,0,0);
+        rb.setMass(60);
+        rb.setFriction(0.2f);
+        rb.setRestitution(0f);
     }
 
     public final void walk(float amount, float angrad) {
@@ -74,13 +84,13 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
     }
     public void setGamemode(Gamemode gamemode) {
         this.gamemode = gamemode;
-
-        if (gamemode == Gamemode.SURVIVAL) {
-            rigidbody().getGravity().set(0, -10, 0);
-            rigidbody().setLinearDamping(0.95f);
-        } else if (gamemode == Gamemode.CREATIVE) {
-            rigidbody().getGravity().set(0, 0, 0);
-            rigidbody().setLinearDamping(0.0001f);
+        if (gamemode == Gamemode.SPECTATOR) {
+            getRigidBody().setCollisionShape(new GhostShape());
+            setModel(Models.EMPTY);
+        } else {
+            getRigidBody().setCollisionShape(new SphereShape(1));
+//            tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
+            setModel(Models.GEO_SPHERE);
         }
     }
 
@@ -89,7 +99,7 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
             if (mf.containsBody(rigidbody())) {
                 for (int i = 0; i < mf.getNumContactPoints(); i++) {
                     CollisionManifold.ContactPoint cp = mf.getContactPoint(i);
-                    if (cp.pointOnB.y < position().y && Math.abs(cp.pointOnB.x - position().x) < 0.1f && Math.abs(cp.pointOnB.z - position().z) < 0.1f) {
+                    if (cp.pointOnB.y < position().y && Math.abs(cp.pointOnB.x - position().x) < 0.3f && Math.abs(cp.pointOnB.z - position().z) < 0.3f) {
                         return true;
                     }
                 }
@@ -104,6 +114,13 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
     }
     public void setFlymode(boolean flymode) {
         this.flymode = flymode;
+        if (flymode) {
+            rigidbody().getGravity().set(0, 0, 0);
+            rigidbody().setLinearDamping(0.0001f);
+        } else {
+            rigidbody().getGravity().set(0, -10, 0);
+            rigidbody().setLinearDamping(0.95f);
+        }
     }
 
     @Override

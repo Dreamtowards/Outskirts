@@ -17,7 +17,7 @@ public final class Models {
     public static final Model GEO_SPHERE = loadOBJ("elements/entity/geo/sphere.obj");
 //    public static final Model GEO_CYLINDER = loadOBJ("materials/geo/cylinder.obj");
 //    public static final Model GEO_CONE = loadOBJ("materials/geo/cone.obj");
-//    public static final Model GEOS_CAPSULE = loadOBJ("materials/_capsule.obj");// loadOBJ("materials/aya091/091_W_Aya_10K.obj");
+    public static final Model GEOS_CAPSULE = loadOBJ("elements/entity/geo/_capsule.obj");// loadOBJ("materials/aya091/091_W_Aya_10K.obj");
 
 
 

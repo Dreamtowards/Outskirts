@@ -26,10 +26,10 @@ public final class Init {
         Materials.init();  MaterialTextures.init();
 
         Items.init();
-
 //        for (Block b : Block.REGISTRY.values()) {
 //            Item.REGISTRY.register(new ItemBlock(b));
 //        }
+
         Commands.init();
 
         if (side.isClient()) {
@@ -43,7 +43,7 @@ public final class Init {
 
         registerPackets();
 
-        registerEntities(side);
+        Entities.init();
 
     }
 
@@ -63,11 +63,4 @@ public final class Init {
         Packet.buildRegistry();
     }
 
-
-    private static void registerEntities(Side side) {
-
-        Entity.REGISTRY.register(side.isClient() ? new EntityPlayerSP() : new EntityPlayerMP());
-
-        Entity.REGISTRY.register(new EntityStaticMesh());
-    }
 }
