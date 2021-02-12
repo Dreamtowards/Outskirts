@@ -269,8 +269,11 @@ public final class CollectionUtils {
     }
 
     // may not very fit. the position.
+    public static <T> T orDefault(T nullable, T def, Predicate<T> pred) {
+        return pred.test(nullable) ? def : nullable;
+    }
     public static <T> T orDefault(T nullable, T def) {
-        return nullable==null ? def : nullable;
+        return orDefault(nullable, def, Objects::isNull);
     }
 
     /**

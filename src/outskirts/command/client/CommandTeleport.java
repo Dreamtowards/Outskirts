@@ -20,5 +20,7 @@ public class CommandTeleport extends Command {
         Vector3f pos = vec3(args, 0);
 
         targetplayer.position().set(pos);
+
+        targetplayer.sendMessage("Ok. teleported.");
     }
 }

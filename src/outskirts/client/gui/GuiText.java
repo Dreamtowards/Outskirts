@@ -1,13 +1,11 @@
 package outskirts.client.gui;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.event.Cancellable;
 import outskirts.event.EventBus;
 import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.vector.Vector2f;
-import outskirts.util.vector.Vector2i;
 import outskirts.util.vector.Vector4f;
 
 import java.util.function.Consumer;
@@ -39,12 +37,12 @@ public final class GuiText extends Gui {
     public final void setText(String text) {
         if (this.text.equals(text))
             return;
-        if (performEvent(new TextChangeEvent(text)))
+        if (performEvent(new OnTextChangeEvent(text)))
             return; // cancelled.
 
         this.text = text;
 
-        performEvent(new TextChangedEvent());
+        performEvent(new OnTextChangedEvent());
 
         updateTextBound(this);
     }
@@ -70,37 +68,37 @@ public final class GuiText extends Gui {
         g.setHeight(bound.y);
     }
 
-    public final EventBus.Handler addOnTextChangeListener(Consumer<TextChangeEvent> listener) {
-        return attachListener(TextChangeEvent.class, listener);
+    public final EventBus.Handler addOnTextChangeListener(Consumer<OnTextChangeEvent> listener) {
+        return attachListener(OnTextChangeEvent.class, listener);
     }
 
-    public final EventBus.Handler addOnTextChangedListener(Consumer<TextChangedEvent> listener) {
-        return attachListener(TextChangedEvent.class, listener);
+    public final EventBus.Handler addOnTextChangedListener(Consumer<OnTextChangedEvent> listener) {
+        return attachListener(OnTextChangedEvent.class, listener);
     }
 
     // "Changed" listener -> e.g. in UpdateTextInfo/OffsetCenterBound
     // "Change"  listsner -> e.g. in check text content, isEmail, isNumber, and cancel.
-    public static class TextChangeEvent extends GuiEvent implements Cancellable {
+    public static class OnTextChangeEvent extends GuiEvent implements Cancellable {
         private String newText;
-        public TextChangeEvent(String newText) {
+        public OnTextChangeEvent(String newText) {
             this.newText = newText;
         }
         public String getNewText() {
             return newText;
         }
     }
-    public static class TextChangedEvent extends GuiEvent {}
+    public static class OnTextChangedEvent extends GuiEvent {}
 
 
-    public void addValueSyncer(Supplier<String> getter, Consumer<String> setter) {
-        addOnTextChangedListener(e -> {
-            setter.accept(getText());
-        });
-        addOnDrawListener(e -> {
-            String s = getter.get();
-            if (!s.equals(getText())) {
-                setText(s);
-            }
-        });
-    }
+//    public void addValueSyncer(Supplier<String> getter, Consumer<String> setter) {
+//        addOnTextChangedListener(e -> {
+//            setter.accept(getText());
+//        });
+//        addOnDrawListener(e -> {
+//            String s = getter.get();
+//            if (!s.equals(getText())) {
+//                setText(s);
+//            }
+//        });
+//    }
 }

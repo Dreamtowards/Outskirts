@@ -26,6 +26,8 @@ public class CommandGamemode extends Command {
 
 
         player.setGamemode(gmm);
+
+        player.sendMessage("Ok. Gamemode: "+gmm);
     }
 
     @Override

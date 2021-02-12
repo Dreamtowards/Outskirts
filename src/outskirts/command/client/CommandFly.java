@@ -23,12 +23,13 @@ public class CommandFly extends Command {
         boolean fly = !player.isFlymode();
 
         if (args.length >= 1) {
-            String s = args[0];
-            assert s.equals(MODE_ON) || s.equals(MODE_OFF);
+            String s = args[0]; assert s.equals(MODE_ON) || s.equals(MODE_OFF);
             fly = s.equals(MODE_ON);
         }
 
         player.setFlymode(fly);
+
+        player.sendMessage("Ok. flymode: " + fly);
     }
 
     @Override
