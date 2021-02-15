@@ -16,7 +16,9 @@ public class FontBitmapGenerator {
 
     public static void main(String[] args) throws Exception {
 
-        Font font = new Font(Font.DIALOG, Font.PLAIN, 0);
+        File fl = new File("src/assets/outskirts/font");
+
+        Font font = new Font("Menlo", Font.BOLD, 0);
 
         byte[] glyphs = new byte[65536];
 
@@ -27,10 +29,10 @@ public class FontBitmapGenerator {
 
             BufferedImage bufferedImage = generatePage(font, (char)(page * 256), 256, glyphs);
 
-            ImageIO.write(bufferedImage, "PNG", new File("Fonts/unicode_page_" + page + ".png"));
+            ImageIO.write(bufferedImage, "PNG", new File(fl, "unicode_page_" + page + ".png"));
         }
 
-        IOUtils.write(new ByteArrayInputStream(glyphs), new FileOutputStream("Fonts/glyph_widths.bin"));
+        IOUtils.write(new ByteArrayInputStream(glyphs), new FileOutputStream(new File(fl, "glyph_widths.bin")));
 
     }
 

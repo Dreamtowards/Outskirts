@@ -53,6 +53,15 @@ public class Vector4f extends Vector {
         return this;
     }
 
+    public Vector4f scale(float sx, float sy, float sz, float sw) {
+        this.x *= sx;
+        this.y *= sy;
+        this.z *= sz;
+        this.w *= sw;
+        return this;
+    }
+
+
     @Override
     public Vector4f negate() {
         this.x = -this.x;

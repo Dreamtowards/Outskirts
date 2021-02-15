@@ -5,6 +5,7 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Texture;
 import outskirts.client.render.Framebuffer;
+import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
@@ -57,7 +58,7 @@ public class ShadowRenderer extends Renderer {
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        Matrix4f orthoproj = Maths.createOrthographicProjectionMatrix(SHADOW_SIZE, SHADOW_SIZE, ClientSettings.FAR_PLANE, null);
+        Matrix4f orthoproj = Maths.createOrthographicProjectionMatrix(SHADOW_SIZE, SHADOW_SIZE, RenderEngine.FAR_PLANE, null);
         Matrix4f viewmat = Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Maths.lookAt(shadowDirection, Vector3f.UNIT_Y, null), null);
         Matrix4f.mul(orthoproj, viewmat, shadowspaceMatrix);
 

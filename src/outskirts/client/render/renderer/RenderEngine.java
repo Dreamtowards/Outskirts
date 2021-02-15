@@ -30,6 +30,9 @@ public final class RenderEngine {
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
 
+    public static float NEAR_PLANE = 0.1f;
+    public static float FAR_PLANE = 1000f;
+
     private EntityRenderer entityRenderer = new EntityRenderer();
     private GuiRenderer guiRenderer = new GuiRenderer();
     private FontRenderer fontRenderer = new FontRenderer();
@@ -81,6 +84,7 @@ public final class RenderEngine {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL NONE.", Sys.getVersion());
 
+
 //        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
     }
 
@@ -106,7 +110,7 @@ public final class RenderEngine {
         // todo: split out. refreshViewMatrix(), refreshProjectionMatrix(), or just refreshViewProjectionMatrix().
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
-        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
+        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), NEAR_PLANE, FAR_PLANE, getProjectionMatrix());
 //        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
 
         Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), Outskirts.renderEngine.getViewMatrix());

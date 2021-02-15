@@ -229,11 +229,9 @@ public class Outskirts {
         processInput();
         profiler.pop("processInput");
 
-        camera.getCameraUpdater().update();
         if (world != null) {
-            rayPicker.getRayOrigin().set(getCamera().getPosition());
-            rayPicker.getRayDirection().set(getCamera().getCameraUpdater().getDirection());
-            rayPicker.update();
+            camera.getCameraUpdater().update();
+            rayPicker.update(camera.getPosition(), camera.getCameraUpdater().getDirection());
         }
 
         // Render Phase
@@ -252,7 +250,6 @@ public class Outskirts {
             rootGUI.onLayout();
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
-
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -339,8 +336,12 @@ public class Outskirts {
         while (Keyboard.next()) {
 
             EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKey(), Keyboard.getEventKeyState()));
-            EVENT_BUS.post(new CharInputEvent(Keyboard.getEventCharacter()));
             KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
+
+            char ch = Keyboard.getEventCharacter();
+            if (Keyboard.getEventKeyState() && ch >= ' ') {
+                EVENT_BUS.post(new CharInputEvent(ch));
+            }
         }
     }
 
@@ -477,9 +478,9 @@ public class Outskirts {
                 .withForwardCompatible(true).withProfileCore(true);
 
         Display.setResizable(true);
+        Display.setTitle("DISPLAY");
         Display.setDisplayMode(new DisplayMode(ProgramArguments.WIDTH, ProgramArguments.HEIGHT));
         Display.create(new PixelFormat(), attribs);
-        Display.setTitle("DISPLAY");
 
         LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
                 System.getProperty("os.name"), System.getProperty("os.version"),

@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
 
 public class FontRenderer extends Renderer {
 
@@ -21,12 +22,12 @@ public class FontRenderer extends Renderer {
     public static float OP_LINE_GAP = 2;
 
 //    public static String _UNSPT_OP_FONT = null;
-    public static Vector2f OP_DIRECTION = new Vector2f(Vector2f.UNIT_Y);
+    private static Vector2f OP_DIRECTION = new Vector2f(Vector2f.UNIT_Y);
 
     /**
      * 0.0 - 1.0: from align_left to align_right. 0.5f is align_center
      */
-    public static float OP_TEXT_ALIGNMENT = 0;
+    private static float OP_TEXT_ALIGNMENT = 0;
 
     /**
      * only contact with glyph_widths.bin for calculation. the Max-value in glyph_widths.bin.
@@ -40,9 +41,9 @@ public class FontRenderer extends Renderer {
     public FontRenderer() {
         // read glyph_widths
         try {
-            new ResourceLocation("font/glyph_widths.bin").getInputStream().read(glyphWidths);
+            IOUtils.readFully(new Identifier("font/glyph_widths.bin").getInputStream(), glyphWidths);
         } catch (Exception ex) {
-            throw new RuntimeException("failed to read glyph_widths.bin");
+            throw new RuntimeException("Failed to read glyph_widths.bin");
         }
     }
 
@@ -51,7 +52,7 @@ public class FontRenderer extends Renderer {
         return null;
     }
 
-    public Texture checkUnicodePageTexture(int unicodePage) {
+    private Texture checkUnicodePageTexture(int unicodePage) {
         if (unicodePageTextures[unicodePage] == null) {
             unicodePageTextures[unicodePage] = Loader.loadTexture(new ResourceLocation(String.format("font/unicode_page_%s.png", unicodePage)).getInputStream());
         }
@@ -60,8 +61,9 @@ public class FontRenderer extends Renderer {
 
     public void renderString(String text, float x, float y, float textHeight, Vector4f color, boolean renderShadow) {
         if (renderShadow) {
-            float off = textHeight / 10; // 8
-            renderString(text, x+off, y+off, textHeight, Colors.BLACK40, false);
+            float off = textHeight / 16; // 8
+            float perc = .4f;
+            renderString(text, x+off, y+off, textHeight, vec4(color).scale(perc,perc,perc, 1f), false);
         }
 
         glActiveTexture(GL_TEXTURE0);

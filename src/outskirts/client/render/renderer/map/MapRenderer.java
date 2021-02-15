@@ -5,6 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.Framebuffer;
+import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.util.Identifier;
@@ -47,7 +48,7 @@ public class MapRenderer extends Renderer {
         shader.useProgram();
 
         shader.setMatrix4f("viewMatrix", Maths.createViewMatrix(new Vector3f(8, 0, 8), MAT_LOOKDOWN, null));
-        shader.setMatrix4f("projectionMatrix", Maths.createOrthographicProjectionMatrix(16, 16, ClientSettings.FAR_PLANE, null));
+        shader.setMatrix4f("projectionMatrix", Maths.createOrthographicProjectionMatrix(16, 16, RenderEngine.FAR_PLANE, null));
 
         shader.setFloat("clipHeight", clipHeight);
 

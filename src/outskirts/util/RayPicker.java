@@ -21,6 +21,14 @@ public class RayPicker {
     private Vector3f rayOrigin = new Vector3f();
     private Vector3f rayDirection = new Vector3f(Vector3f.UNIT_X);
 
+
+
+    public void update(Vector3f rpos, Vector3f rdir) {
+        rayOrigin.set(rpos);
+        rayDirection.set(rdir);
+        update();
+    }
+
     public void update() {
         Val t = Val.of(Float.MAX_VALUE);
         float collT = Float.MAX_VALUE;  // t of only really exact raycast.

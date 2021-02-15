@@ -34,25 +34,25 @@ public class TestDualc {
     @Test
     public void samplSDF() {
 
-        NoiseGeneratorPerlin noise = new NoiseGeneratorPerlin(234099);
-        float s = 1/12f;
-        TrifFunc FUNC = (x,y,z) -> {
-            float hei = noise.fbm(x/18, z/18f, 5);
-            float f = noise.fbm(x*s, y*s, z*s, 2);// -DistFunctions.boundingbox(vec3(x,y,z), vec3(3,4,3), .2f);
-            if (f < -0f) {
-                return f;
-            }
-            return (8+hei*18f) - y;
-        };
-
-        Octree node = Octree.fromSDF(vec3(0), 30, FUNC, 5, Materials.STONE);
-
-        ((Octree.Internal) node).child(0, Octree.fromSDF(vec3(0), 15, FUNC, 3, Materials.STONE));
-
-        buildAndWrite(node);
-
-        LOGGER.info("Write aabbs.");
-        Octree.dbgaabbC(node, vec3(0), 30, "aabb");
+//        NoiseGeneratorPerlin noise = new NoiseGeneratorPerlin(234099);
+//        float s = 1/12f;
+//        TrifFunc FUNC = (x,y,z) -> {
+//            float hei = noise.fbm(x/18, z/18f, 5);
+//            float f = noise.fbm(x*s, y*s, z*s, 2);// -DistFunctions.boundingbox(vec3(x,y,z), vec3(3,4,3), .2f);
+//            if (f < -0f) {
+//                return f;
+//            }
+//            return (8+hei*18f) - y;
+//        };
+//
+//        Octree node = Octree.fromSDF(vec3(0), 30, FUNC, 5, Materials.STONE);
+//
+//        ((Octree.Internal) node).child(0, Octree.fromSDF(vec3(0), 15, FUNC, 3, Materials.STONE));
+//
+//        buildAndWrite(node);
+//
+//        LOGGER.info("Write aabbs.");
+//        Octree.dbgaabbC(node, vec3(0), 30, "aabb");
     }
 
     private void buildAndWrite(Octree node) {

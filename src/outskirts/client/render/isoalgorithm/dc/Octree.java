@@ -552,11 +552,11 @@ public abstract class Octree {
     }
 
 
-    public static Octree fromSDF(Vector3f min, float size, TrifFunc f, int depthcap, Material mtl) {
+    public static Octree fromSDF(Vector3f min, float size, TrifFunc f, int depthcap, Consumer<Leaf> fl) {
         return building(min, size, lf -> {
             Octree.sampleSDF(lf, f);
             if (!lf.vempty()) {
-                lf.material = mtl;
+                fl.accept(lf);
             }
 //            lf.computefp();
         }, 0, depthcap);

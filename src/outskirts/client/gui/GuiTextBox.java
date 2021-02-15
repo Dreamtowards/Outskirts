@@ -142,7 +142,7 @@ public class GuiTextBox extends Gui {
             for (int i = getMinSelection();i < getMaxSelection();i++) {
                 Vector2f pos = Outskirts.renderEngine.getFontRenderer().calculateTextPosition(texts(), getText().getTextHeight(), i, TMP_CACHE);
                 float charWidth = Outskirts.renderEngine.getFontRenderer().charWidth(texts().charAt(i)) * getText().getTextHeight();
-                drawRect(Colors.WHITE20, getText().getX() + pos.x, getText().getY() + pos.y, charWidth + FontRenderer.OP_CHAR_GAP, getText().getTextHeight()+FontRenderer.OP_LINE_GAP);
+                drawRect(Colors.WHITE20, getText().getX() + pos.x, getText().getY() + pos.y, charWidth+FontRenderer.OP_CHAR_GAP, getText().getTextHeight()+FontRenderer.OP_LINE_GAP);
             }
         });
 

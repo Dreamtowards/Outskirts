@@ -30,11 +30,9 @@ public final class ClientSettings {
     public static class ProgramArguments {
 
         public static int WIDTH = 700;
-
         public static int HEIGHT = 500;
 
         public static String UUID;
-
         public static String TOKEN;
 
         public static List<String> EXTENSIONS = new ArrayList<>();
@@ -85,53 +83,21 @@ public final class ClientSettings {
         }
     }
 
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    private @interface Save
-    {
-        String value();
-    }
 
-
-
-    @Save("fps_cap")
     public static int FPS_CAPACITY = 60; // cap <= 0 means not lim
 
     public static boolean ENABLE_FA = false; //Texture Filter Anisotropic
 
-    public static float NEAR_PLANE = 0.1f;
-
-    public static float FAR_PLANE = 1000f;
 
 
-
-    //public static float GUI_SCALE = 1f;
-//    public static final Vector2f CONTENT_SCALE = new Vector2f(); // contentscale = fb_size / window_size
-
-    // GUI_COORD_SCALE   guiCoords to windowCoords scale.
     public static float GUI_SCALE = 1f;
 
 
 
-
-    public static int PICKER_DEPTH = 4;
-
     public static float MOUSE_SENSITIVITY = .4f;
 
 
-    // KEY DEBUGS
 
-//    public static boolean uSetBlockAtFocus(Block b, int dfSign) {
-//        RayPicker rp = Outskirts.getRayPicker();
-//        if (rp.getCurrentEntity() == null)
-//            return false;
-//        Vector3f p = new Vector3f(rp.getCurrentPoint()).addScaled(dfSign > 0 ? 0.0001f : -0.5f, rp.getRayDirection());
-//        int bX= Maths.floor(p.x), bY=Maths.floor(p.y), bZ=Maths.floor(p.z);
-//
-//        Outskirts.getWorld().provideChunk(Maths.floor(bX,16), Maths.floor(bZ,16)).markedRebuildModel=true;
-//        Outskirts.getWorld().setBlock(bX,bY,bZ, b);
-//        return true;
-//    }
 
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", 1, KeyBinding.TYPE_MOUSE, "categories.gameplay");
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", 0, KeyBinding.TYPE_MOUSE, "categories.gameplay");
@@ -154,9 +120,10 @@ public final class ClientSettings {
     public static final KeyBinding KEY_HOTBAR9 = new KeyBinding("key.hotbar9", KEY_9, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 8));
 
     private static void changeHotbarSlotWhenKeyDown(boolean keyState, int slot) {
-        if (keyState)
-            Outskirts.getPlayer().setHotbarSlot(slot);
+        if (keyState) Outskirts.getPlayer().setHotbarSlot(slot);
     }
+
+
 
     private static final File OPTION_FILE = new File("options.dat");
 
@@ -164,7 +131,7 @@ public final class ClientSettings {
         try {
             JSONObject json = new JSONObject(IOUtils.toString(new FileInputStream(OPTION_FILE)));
 
-            loadJSON(ClientSettings.class, json);
+            FPS_CAPACITY = json.getInt("fps_cap");
 
             LOGGER.info("Loaded ClientSettings options. ({})", OPTION_FILE);
         } catch (Exception ex) {
@@ -176,63 +143,12 @@ public final class ClientSettings {
         try {
             JSONObject json = new JSONObject();
 
-            saveJSON(ClientSettings.class, json);
+            json.put("fps_cap", FPS_CAPACITY);
 
-            IOUtils.write(new ByteArrayInputStream(json.toString(4).getBytes()), new FileOutputStream(OPTION_FILE));
-
+            IOUtils.write(json.toString(4), OPTION_FILE);
             LOGGER.info("Saved ClientSettings options. ({})", OPTION_FILE);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to save ClientSettings options.", ex);
-        }
-    }
-
-
-    private static void loadJSON(Class clazz, JSONObject json) throws IllegalAccessException {
-        for (Field field : clazz.getDeclaredFields()) {
-            Save annotation = field.getAnnotation(Save.class);
-            if (annotation == null || !json.has(annotation.value()))
-                continue;
-
-            Object option = json.get(annotation.value());
-            Class<?> fieldtype = field.getType();
-            Object value = null;
-
-            if (fieldtype == Integer.TYPE) {
-                value = Integer.parseInt(option.toString());
-            } else if (fieldtype == Long.TYPE) {
-                value = Long.parseLong(option.toString());
-            } else if (fieldtype == Float.TYPE) {
-                value = Float.parseFloat(option.toString());
-            } else if (fieldtype == Boolean.TYPE) {
-                value = Boolean.parseBoolean(option.toString());
-            } else if (fieldtype == String.class) {
-                value = option.toString();
-            } else if (fieldtype == JSONObject.class || fieldtype == JSONArray.class) {
-                value = option;
-            } else {
-                throw new UnsupportedOperationException("Unsupported field type (" + fieldtype + ")");
-            }
-
-            field.set(clazz, value);
-        }
-    }
-
-    private static void saveJSON(Class clazz, JSONObject json) throws IllegalAccessException {
-        for (Field field : clazz.getDeclaredFields()) {
-            Save annotation = field.getAnnotation(Save.class);
-            if (annotation == null) continue;
-
-            String key = annotation.value();
-            Object value = field.get(clazz);
-            Object option = null;
-
-            if (value instanceof JSONObject || value instanceof JSONArray) {
-                option = value;
-            } else {
-                option = value.toString();
-            }
-
-            json.put(key, option);
         }
     }
 }
