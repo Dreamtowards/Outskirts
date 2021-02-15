@@ -1,8 +1,14 @@
 package outskirts.client;
 
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ContextAttribs;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.PixelFormat;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiDebugSnapshot;
@@ -45,22 +51,20 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.*;
 import static outskirts.client.ClientSettings.*;
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.event.Events.EVENT_BUS;
 import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
     // framebuffer coords.
-    private float dScroll, mouseDX, mouseDY, mouseX, mouseY;
+    private float dWheel, mouseDX, mouseDY, mouseX, mouseY;
+    private float ffdWheel, mouseFFDX, mouseFFDY;  // Full-Frame Delta value.
     private float width, height; // Framebuffer Coords. not GuiCoords.
-    private long window; // glfwWindow
-    private float OS_CONTENT_SCALE; // window_size * OS_CONTENT_SCALE = fb_size.
 
     private static Outskirts INSTANCE;
 
@@ -121,7 +125,7 @@ public class Outskirts {
 
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
-        this.initWindowFurther();
+//        this.initWindowFurther();
 
         renderEngine.setVSync(true);
 
@@ -150,13 +154,13 @@ public class Outskirts {
     public static int matId = 0;
 
     {
-        Events.EVENT_BUS.register(CharInputEvent.class, e -> {
+        EVENT_BUS.register(CharInputEvent.class, e -> {
             char c = e.getChar();
             if (c >= '0' && c <= '9') {
                 matId = c-48;
             }
         });
-        SystemUtil.debugAddKeyHook(GLFW_KEY_F4, () -> {
+        SystemUtil.debugAddKeyHook(KEY_F4, () -> {
             Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
@@ -222,9 +226,9 @@ public class Outskirts {
         }
         profiler.pop("runTick");
 
-        profiler.push("glfwPollEvents");
-        glfwPollEvents();
-        profiler.pop("glfwPollEvents");
+        profiler.push("processInput");
+        processInput();
+        profiler.pop("processInput");
 
         camera.getCameraUpdater().update();
         if (world != null) {
@@ -250,9 +254,6 @@ public class Outskirts {
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
 
-            if (isKeyDown(GLFW_KEY_5))
-                renderEngine.gBufferFBO.resize(toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
-
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -275,15 +276,12 @@ public class Outskirts {
         lightSun.position().set(40, 50, 40);
         lightSun.color().set(1, 1, 1).scale(1.2f);
         world.lights.add(lightSun);
-        SystemUtil.debugAddKeyHook(GLFW_KEY_E, () -> {
+        SystemUtil.debugAddKeyHook(KEY_E, () -> {
             lightSun.position().set(getPlayer().position());
             renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getCameraUpdater().getDirection());
         });
 
 
-
-//        getPlayer().getRenderPerferences().setDiffuseMap(Textures.BRICK);
-//        getPlayer().getRenderPerferences().setNormalMap(Textures.BRICK_NORM);
         RigidBody prb = getPlayer().getRigidBody();
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,20,0);
@@ -301,7 +299,7 @@ public class Outskirts {
             if (isIngame()) {
                 // MOVEMENT
                 float lv =0.4f;
-                if (Outskirts.isKeyDown(GLFW_KEY_F))
+                if (Outskirts.isKeyDown(KEY_F))
                     lv *= 6;
                 if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
                 if (KEY_WALK_BACKWARD.isKeyDown()) player.walk(lv, Maths.PI);
@@ -327,19 +325,40 @@ public class Outskirts {
 //                    b.v = Maths.clamp(b.v, -1.0f, 1.0f);
 //                    world.setBlock(blockpos, b);
 //                }
-
-//                if (isKeyDown(GLFW_KEY_I))
-//                    Outskirts.getWorld().setBlock(rayPicker.getCurrentBlockPos(), new BlockStone());
-
-
-
-//                ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
 
 
             profiler.push("world");
             world.onTick();
             profiler.pop("world");
+        }
+    }
+
+    private void processInput() {
+        dWheel = 0; mouseDX = 0; mouseDY = 0;
+
+        while (Mouse.next()) {
+            if (Mouse.getEventButton() == -1) {
+                dWheel = Mouse.getEventDWheel() / 80f;
+                mouseDX =  Mouse.getEventDX();
+                mouseDY = -Mouse.getEventDY();
+                mouseX = Mouse.getEventX();
+                mouseY = Display.getHeight()-Mouse.getEventY();
+
+                EVENT_BUS.post(new MouseMoveEvent(mouseDX, mouseDY));
+                EVENT_BUS.post(new MouseWheelEvent(dWheel));  // needs reduce.?
+            } else {
+
+                EVENT_BUS.post(new MouseButtonEvent(Mouse.getEventButton(), Mouse.getEventButtonState()));
+                KeyBinding.postInput(Mouse.getEventButton(), Mouse.getEventButtonState(), KeyBinding.TYPE_MOUSE);
+            }
+        }
+
+        while (Keyboard.next()) {
+
+            EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKey(), Keyboard.getEventKeyState()));
+            EVENT_BUS.post(new CharInputEvent(Keyboard.getEventCharacter()));
+            KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
         }
     }
 
@@ -351,11 +370,12 @@ public class Outskirts {
         Loader.destroy();
         audioEngine.destroy();
 
-        GL.setCapabilities(null);
-        glfwFreeCallbacks(window);
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+        Display.destroy();
+//        GL.setCapabilities(null);
+//        glfwFreeCallbacks(window);
+//        glfwDestroyWindow(window);
+//        glfwTerminate();
+//        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
     // for: Camera mouse-view, walk-keyboard. ingame pause. key-use/attack.
@@ -410,117 +430,125 @@ public class Outskirts {
 
 
     // the DX/DY is high level in actually operation, in MacOSX DX'll automaclly be attachs by holding Shift key. but in windows not.
-    public static float getDScroll() {
-        return INSTANCE.dScroll / INSTANCE.OS_CONTENT_SCALE;
+    public static float getDWheel() {
+        return INSTANCE.dWheel;
     }
 
     public static float getMouseDX() {
-        return INSTANCE.mouseDX / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.mouseDX / GUI_SCALE;
     }
     public static float getMouseDY() {
-        return INSTANCE.mouseDY / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.mouseDY / GUI_SCALE;
     }
 
     public static float getMouseX() {
-        return INSTANCE.mouseX / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.mouseX / GUI_SCALE;
     }
     public static float getMouseY() {
-        return INSTANCE.mouseY / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.mouseY / GUI_SCALE;
     }
 
     public static float getWidth() {
-        return INSTANCE.width / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.width / GUI_SCALE;
     }
     public static float getHeight() {
-        return INSTANCE.height / GUI_SCALE / INSTANCE.OS_CONTENT_SCALE;
+        return INSTANCE.height / GUI_SCALE;
     }
 
     public static boolean isCtrlKeyDown() {
-        if (IS_OSX)
-            return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS;
-        else
-            return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+//        if (IS_OSX) return isKeyDown(GLFW_KEY_LEFT_SUPER) || isKeyDown(GLFW_KEY_RIGHT_SUPER);
+//        else return isKeyDown(GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW_KEY_RIGHT_CONTROL);
+        if (IS_OSX) return isKeyDown(KEY_LMETA) || isKeyDown(KEY_RMETA);
+        else return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL);
     }
     public static boolean isShiftKeyDown() {
-        return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+//        return isKeyDown(GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW_KEY_RIGHT_SHIFT);
+        return isKeyDown(KEY_LSHIFT) || isKeyDown(KEY_RSHIFT);
     }
     public static boolean isAltKeyDown() {
-        return glfwGetKey(INSTANCE.window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || glfwGetKey(INSTANCE.window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
+//        return isKeyDown(GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW_KEY_RIGHT_ALT);
+        return isKeyDown(KEY_LMENU) || isKeyDown(KEY_RMENU);
     }
 
     public static boolean isMouseDown(int button) {
-        return glfwGetMouseButton(INSTANCE.window, button) == GLFW_PRESS;
+//        return glfwGetMouseButton(INSTANCE.window, button) == GLFW_PRESS;
+        return Mouse.isButtonDown(button);
     }
     public static boolean isKeyDown(int key) {
-        return glfwGetKey(INSTANCE.window, key) == GLFW_PRESS;
+//        return glfwGetKey(INSTANCE.window, key) == GLFW_PRESS;
+        return Keyboard.isKeyDown(key);
     }
 
     public static void setMouseGrabbed(boolean grabbed) {
-        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, grabbed?GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
+//        glfwSetInputMode(INSTANCE.window, GLFW_CURSOR, grabbed?GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
+        Mouse.setGrabbed(grabbed);
     }
 
     // there is not requires AWT. useful in OSX
     public static String getClipboard() {
-        return glfwGetClipboardString(INSTANCE.window);
+        return SystemUtil.getClipboard();
     }
     public static void setClipboard(String s) {
-        glfwSetClipboardString(INSTANCE.window, s);
+        SystemUtil.setClipboard(s);
     }
 
     // framebuffer_size = window_size * os_content_scale = (guiCoords * GUI_SCALE)==window_size * os_content_scale
     public static int toFramebufferCoords(float guiCoords) {
-        return (int)((guiCoords * GUI_SCALE) * INSTANCE.OS_CONTENT_SCALE);
+        return (int)(guiCoords * GUI_SCALE);
     }
 
-    // params: GUI coords.
     private static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
         int wid=toFramebufferCoords(gwidth), hei=toFramebufferCoords(gheight), x=toFramebufferCoords(gx), y=toFramebufferCoords(getHeight()-gy-gheight);
-        ByteBuffer pixels = memAlloc(wid * hei * 4);
-        try {
-            glReadBuffer(GL_BACK);
-            glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            return Loader.loadImage(pixels, wid, hei);
-        } finally {
-            memFree(pixels);
-        }
+        ByteBuffer pixels = BufferUtils.createByteBuffer(wid*hei*4);  // memAlloc(wid * hei * 4);
+        glReadBuffer(GL_BACK);
+        glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        return Loader.loadImage(pixels, wid, hei);
     }
 
-    private void createDisplay() throws IOException {
+    private void createDisplay() throws IOException, LWJGLException {
 
-        glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
-
-        if (!glfwInit())
-            throw new IllegalStateException("Unable to initialize GLFW.");
-
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // MAC OSX requires
-
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-
-        window = glfwCreateWindow(1, 1, "ENGNNE", NULL, NULL);
-        if (window == NULL)
-            throw new RuntimeException("Failed to create window.");
-
+//        glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
+//
+//        if (!glfwInit())
+//            throw new IllegalStateException("Unable to initialize GLFW.");
+//
+//        glfwDefaultWindowHints();
+//        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+//        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+//
+//        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+//        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // MAC OSX requires
+//
+//        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+//
+//        window = glfwCreateWindow(1, 1, "ENGNNE", NULL, NULL);
+//        if (window == NULL)
+//            throw new RuntimeException("Failed to create window.");
+//
 //        glfwSetWindowIcon(window, new GLFWImage.Buffer(
 //                Loader.loadTextureData(Loader.loadPNG(new Identifier("textures/gui/icons/icon_32x32.png").getInputStream()), false)
 //        ));
+//
+//        glfwMakeContextCurrent(window);
+//
+//        GL.createCapabilities();
+//
+//        glfwSetFramebufferSizeCallback(window, this::onWindowResized);
+//        glfwSetCursorPosCallback(window, this::onMouseMove);
+//        glfwSetScrollCallback(window, this::onScroll);
+//        glfwSetMouseButtonCallback(window, this::onMouseButton);
+//        glfwSetKeyCallback(window, this::onKeyboard);
+//        glfwSetCharCallback(window, this::onCharInput);
 
-        glfwMakeContextCurrent(window);
+        ContextAttribs attribs = new ContextAttribs(3, 2)
+                .withForwardCompatible(true).withProfileCore(true);
 
-        GL.createCapabilities();
-
-        glfwSetFramebufferSizeCallback(window, this::onWindowResized);
-        glfwSetCursorPosCallback(window, this::onMouseMove);
-        glfwSetScrollCallback(window, this::onScroll);
-        glfwSetMouseButtonCallback(window, this::onMouseButton);
-        glfwSetKeyCallback(window, this::onKeyboard);
-        glfwSetCharCallback(window, this::onCharInput);
+        Display.setResizable(true);
+        Display.setDisplayMode(new DisplayMode(ProgramArguments.WIDTH, ProgramArguments.HEIGHT));
+        Display.create(new PixelFormat(), attribs);
+        Display.setTitle("DISPLAY");
 
         LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
                 System.getProperty("os.name"), System.getProperty("os.version"),
@@ -530,89 +558,83 @@ public class Outskirts {
 
     private void updateDisplay() {
 
-        if (glfwWindowShouldClose(window)) {
+        if (Display.isCloseRequested()) {  //glfwWindowShouldClose(window)
             Outskirts.shutdown();
         }
 
-        // needs been update in sometimes more. not just when startup init. e.g. when the window switched to another display monitor.
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer scaleX = stack.callocFloat(1), scaleY = stack.callocFloat(1);
-            glfwGetWindowContentScale(INSTANCE.window, scaleX, scaleY);
-            Validate.isTrue(scaleX.get(0) == scaleY.get(0), "Unsupported scale type: x != y");
-            OS_CONTENT_SCALE = scaleX.get(0);
-//            LOGGER.info("OSC: "+OS_CONTENT_SCALE);
+        if (Display.wasResized() || numFrames==0) {
+            width = Display.getWidth();
+            height = Display.getHeight();
+
+            EVENT_BUS.post(new WindowResizedEvent());
+            glViewport(0, 0, (int)width, (int)height);
         }
 
-        // clear curr delta in frame tail
-        dScroll = 0;
-        mouseDX = 0;
-        mouseDY = 0;
+//        glfwSwapBuffers(window);
 
-        glfwSwapBuffers(window);
-
-        // SystemUtils.nanosleep();
-        // Display.sync(GameSettings.FPS_CAPACITY);
+        Display.update();
+        Display.sync(ClientSettings.FPS_CAPACITY);
     }
 
-    private void initWindowFurther() {
-        this.updateDisplay(); // update CONTENT_SCALE for correctly init-Viewport (set tha before init-onResize()
+//    private void initWindowFurther() {
+//        this.updateDisplay(); // update CONTENT_SCALE for correctly init-Viewport (set tha before init-onResize()
+//
+//        // set window to screen center and perform init-onResize()
+//        GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
+//        int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
+//        glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
+//        glfwSetWindowSize(window, wWidth, wHeight); // invokes onResize(). for init on macOS
+//        glfwShowWindow(window);
+//    }
 
-        // set window to screen center and perform init-onResize()
-        GLFWVidMode wVidmode = Objects.requireNonNull(glfwGetVideoMode(glfwGetPrimaryMonitor()));
-        int wWidth = ClientSettings.ProgramArguments.WIDTH, wHeight = ClientSettings.ProgramArguments.HEIGHT;
-        glfwSetWindowPos(window, wVidmode.width() / 2 - wWidth / 2, wVidmode.height() / 2 - wHeight / 2); // make window center
-        glfwSetWindowSize(window, wWidth, wHeight); // invokes onResize(). for init on macOS
-        glfwShowWindow(window);
-    }
+//    private float glfwRawToFbCoord(float raw) {
+//        return IS_OSX ? raw*OS_CONTENT_SCALE : raw;
+//    }
 
-    private float glfwRawToFbCoord(float raw) {
-        return IS_OSX ? raw*OS_CONTENT_SCALE : raw;
-    }
+//    /**
+//     * Window Creation, Window Resized, Window toggleFullscreen
+//     */
+//    private void onWindowResized(long w, int nWidth, int nHeight) {
+//        this.width = nWidth;
+//        this.height = nHeight;
+//
+//        Events.EVENT_BUS.post(new WindowResizedEvent());
+//
+//        glViewport(0, 0, toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
+//    }
 
-    /**
-     * Window Creation, Window Resized, Window toggleFullscreen
-     */
-    private void onWindowResized(long w, int nWidth, int nHeight) {
-        this.width = nWidth;
-        this.height = nHeight;
-
-        Events.EVENT_BUS.post(new WindowResizedEvent());
-
-        glViewport(0, 0, toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
-    }
-
-    private void onMouseMove(long w, double nX, double nY) {
-        float oldmx = mouseX, oldmy = mouseY;
-        {
-            mouseX = glfwRawToFbCoord((float)nX);
-            mouseY = glfwRawToFbCoord((float)nY);
-        }
-        mouseDX = mouseX - oldmx;
-        mouseDY = mouseY - oldmy;
-        Events.EVENT_BUS.post(new MouseMoveEvent());
-    }
-
-    private void onScroll(long w, double dX, double dY) {
-        dScroll = glfwRawToFbCoord((float)(dX + dY));
-        Events.EVENT_BUS.post(new MouseScrollEvent());
-
-    }
-
-    private void onMouseButton(long w, int button, int action, int mods) {
-        Events.EVENT_BUS.post(new MouseButtonEvent(button, action));
-
-        KeyBinding.postInput(button, action==GLFW_PRESS, KeyBinding.TYPE_MOUSE);
-    }
-
-    private void onKeyboard(long w, int key, int scancode, int action, int mods) {
-        if (action == GLFW_REPEAT)
-            return;
-        Events.EVENT_BUS.post(new KeyboardEvent(key, action));
-
-        KeyBinding.postInput(key, action==GLFW_PRESS, KeyBinding.TYPE_KEYBOARD);
-    }
-
-    private void onCharInput(long w, int ch) {
-        Events.EVENT_BUS.post(new CharInputEvent(ch));
-    }
+//    private void onMouseMove(long w, double nX, double nY) {
+//        float oldmx = mouseX, oldmy = mouseY;
+//        {
+//            mouseX = glfwRawToFbCoord((float)nX);
+//            mouseY = glfwRawToFbCoord((float)nY);
+//        }
+//        mouseDX = mouseX - oldmx;
+//        mouseDY = mouseY - oldmy;
+//        Events.EVENT_BUS.post(new MouseMoveEvent());
+//    }
+//
+//    private void onScroll(long w, double dX, double dY) {
+//        dScroll = glfwRawToFbCoord((float)(dX + dY));
+//        Events.EVENT_BUS.post(new MouseScrollEvent());
+//
+//    }
+//
+//    private void onMouseButton(long w, int button, int action, int mods) {
+//        Events.EVENT_BUS.post(new MouseButtonEvent(button, action));
+//
+//        KeyBinding.postInput(button, action==GLFW_PRESS, KeyBinding.TYPE_MOUSE);
+//    }
+//
+//    private void onKeyboard(long w, int key, int scancode, int action, int mods) {
+//        if (action == GLFW_REPEAT)
+//            return;
+//        Events.EVENT_BUS.post(new KeyboardEvent(key, action));
+//
+//        KeyBinding.postInput(key, action==GLFW_PRESS, KeyBinding.TYPE_KEYBOARD);
+//    }
+//
+//    private void onCharInput(long w, int ch) {
+//        Events.EVENT_BUS.post(new CharInputEvent(ch));
+//    }
 }

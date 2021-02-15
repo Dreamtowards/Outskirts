@@ -153,28 +153,23 @@ public class Matrix3f extends Matrix {
         return (int) (hash ^ hash >> 32);
     }
 
-    public static void store(Matrix3f matrix, FloatBuffer buffer) {
-        buffer.put(matrix.m00);
-        buffer.put(matrix.m01);
-        buffer.put(matrix.m02);
-        buffer.put(matrix.m10);
-        buffer.put(matrix.m11);
-        buffer.put(matrix.m12);
-        buffer.put(matrix.m20);
-        buffer.put(matrix.m21);
-        buffer.put(matrix.m22);
+    public static float[] store(Matrix3f matrix, float[] buf) {
+        buf[0]=matrix.m00; buf[1]=matrix.m01; buf[2]=matrix.m02;
+        buf[3]=matrix.m10; buf[4]=matrix.m11; buf[5]=matrix.m12;
+        buf[6]=matrix.m20; buf[7]=matrix.m21; buf[8]=matrix.m22;
+        return buf;
     }
 
-    public static void load(Matrix3f matrix, FloatBuffer buffer) {
-        matrix.m00 = buffer.get();
-        matrix.m01 = buffer.get();
-        matrix.m02 = buffer.get();
-        matrix.m10 = buffer.get();
-        matrix.m11 = buffer.get();
-        matrix.m12 = buffer.get();
-        matrix.m20 = buffer.get();
-        matrix.m21 = buffer.get();
-        matrix.m22 = buffer.get();
+    public static void load(Matrix3f dest, float[] buf) {
+        dest.m00 = buf[0];
+        dest.m01 = buf[1];
+        dest.m02 = buf[2];
+        dest.m10 = buf[3];
+        dest.m11 = buf[4];
+        dest.m12 = buf[5];
+        dest.m20 = buf[6];
+        dest.m21 = buf[7];
+        dest.m22 = buf[8];
     }
 
     public Matrix3f add(Matrix3f right) {

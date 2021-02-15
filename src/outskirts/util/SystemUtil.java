@@ -21,7 +21,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.input.Keyboard.KEY_K;
 import static outskirts.util.logging.Log.LOGGER;
 
 /*
@@ -168,7 +168,7 @@ public final class SystemUtil {
     public static void debugCanContinue() {
         while (true) {
             sleep(100);
-            if (Outskirts.isKeyDown(GLFW_KEY_K))
+            if (Outskirts.isKeyDown(KEY_K))
                 break;
         }
     }

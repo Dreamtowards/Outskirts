@@ -1,6 +1,5 @@
 package outskirts.client.gui;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.event.Cancellable;
 import outskirts.event.EventBus;
@@ -24,7 +23,7 @@ public class GuiDrag extends Gui {
 
     private boolean isDragging = false;
 
-    private Predicate<Integer> draggingPredicate = b -> b == GLFW.GLFW_MOUSE_BUTTON_LEFT;
+    private Predicate<Integer> draggingPredicate = b -> b==0;
 
     public GuiDrag() {
         addMouseButtonListener(e -> {

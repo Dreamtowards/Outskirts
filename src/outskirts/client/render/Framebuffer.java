@@ -7,6 +7,8 @@ import outskirts.util.CollectionUtils;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.glDrawBuffers;
 import static org.lwjgl.opengl.GL30.*;
 
 // in package glw .?
@@ -138,13 +140,8 @@ public final class Framebuffer {
     }
 
     public Framebuffer initMRT() {
-        int sz = 0;
-        for (int i = 0;i < textures_color.length;i++) {
-            if (textures_color[i] == null) {
-                sz=i; break;
-            }
-        }
-        glDrawBuffers(CollectionUtils.range(GL_COLOR_ATTACHMENT0, sz));
+        int sz = CollectionUtils.indexOf(textures_color, null);
+        glDrawBuffers(Loader.loadBuffer(CollectionUtils.range(GL_COLOR_ATTACHMENT0, sz)));
         return this;
     }
 

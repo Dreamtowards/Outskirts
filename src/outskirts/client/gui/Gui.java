@@ -1,5 +1,6 @@
 package outskirts.client.gui;
 
+import org.lwjgl.input.Keyboard;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.render.Texture;
@@ -22,9 +23,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 /**
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
@@ -73,7 +71,7 @@ public class Gui {
     {
         // checkTrigger_Focus()
         addMouseButtonListener(e -> {
-            if (e.getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && e.getButtonState()) {
+            if (e.getMouseButton() == 0 && e.getButtonState()) {
                 setFocused(isHover());
             }
         });
@@ -331,7 +329,7 @@ public class Gui {
 
     public static void initEscClose(Gui g) {
         g.addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == GLFW_KEY_ESCAPE && getRootGUI().getLastGui() == g) {
+            if (e.getKeyState() && e.getKey() == Keyboard.KEY_ESCAPE && getRootGUI().getLastGui() == g) {
                 g.getParent().removeGui(g);
             }
         });
@@ -561,8 +559,8 @@ public class Gui {
     public final void addKeyboardListener(Consumer<KeyboardEvent> lsr) {
         addGlobalEventListener(KeyboardEvent.class, lsr);
     }
-    public final void addMouseScrollListener(Consumer<MouseScrollEvent> lsr) {
-        addGlobalEventListener(MouseScrollEvent.class, lsr);
+    public final void addMouseWheelListener(Consumer<MouseWheelEvent> lsr) {
+        addGlobalEventListener(MouseWheelEvent.class, lsr);
     }
 
 

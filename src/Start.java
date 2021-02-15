@@ -19,7 +19,7 @@ public final class Start {
 
         // DEFAULT: -ea  (java9+:) --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
-        System.setProperty("org.lwjgl.librarypath", "libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase());
+        System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase()).getAbsolutePath());
 
         if (CollectionUtils.contains(args, "--tmploadlibs")) { //tmp arg
             for (File file : FileUtils.listFiles(new File("libraries"))) {

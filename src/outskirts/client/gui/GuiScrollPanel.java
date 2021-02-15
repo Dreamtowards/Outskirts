@@ -54,14 +54,14 @@ public class GuiScrollPanel extends Gui implements Gui.Contentable {
             clampScrollOffset();
         });
 
-        addMouseScrollListener(e -> {
+        addMouseWheelListener(e -> {
             if (isHover()) {
                 Gui gContent = getContent();
 
                 if (Outskirts.isShiftKeyDown()) {
-                    gContent.setRelativeX(gContent.getRelativeX() + Outskirts.getDScroll() * MOUSE_SENSTIVITY);
+                    gContent.setRelativeX(gContent.getRelativeX() + Outskirts.getDWheel() * MOUSE_SENSTIVITY);
                 } else {
-                    gContent.setRelativeY(gContent.getRelativeY() + Outskirts.getDScroll() * MOUSE_SENSTIVITY);
+                    gContent.setRelativeY(gContent.getRelativeY() + Outskirts.getDWheel() * MOUSE_SENSTIVITY);
                 }
 
                 clampScrollOffset();

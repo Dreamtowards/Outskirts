@@ -2,7 +2,6 @@ package outskirts.client;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
-import org.lwjgl.opengl.GL;
 import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
@@ -18,6 +17,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,9 @@ import java.util.function.Function;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.glTexImage3D;
-import static org.lwjgl.opengl.GL12.glTexSubImage3D;
+import static org.lwjgl.opengl.GL12.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
@@ -269,33 +271,33 @@ public final class Loader {
 //        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
 
         if (ClientSettings.ENABLE_FA) {
-            if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+//            if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 f use TextureFilterAnisotropic
 
                 float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
                 glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
                 LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
-            } else {
-                LOGGER.info("Unable to init Texture_Filter_Anisotropic. Device unsupported.");
-            }
+//            } else {
+//                LOGGER.info("Unable to init Texture_Filter_Anisotropic. Device unsupported.");
+//            }
         }
     }
 
     /**
      * load to Direct-Memory. (not recommended
      */
-//    public static FloatBuffer loadBuffer(float[] data) {
-//        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
-//        buffer.put(data);
-//        buffer.flip();
-//        return buffer;
-//    }
-//    public static IntBuffer loadBuffer(int[] data) {
-//        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
-//        buffer.put(data);
-//        buffer.flip();
-//        return buffer;
-//    }
+    public static FloatBuffer loadBuffer(float[] data) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return buffer;
+    }
+    public static IntBuffer loadBuffer(int[] data) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
+        buffer.put(data);
+        buffer.flip();
+        return buffer;
+    }
     public static ByteBuffer loadBuffer(byte[] data) {
         ByteBuffer buffer = BufferUtils.createByteBuffer(data.length);
         buffer.put(data);

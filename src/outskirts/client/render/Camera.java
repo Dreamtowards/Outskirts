@@ -1,8 +1,11 @@
 package outskirts.client.render;
 
+import org.lwjgl.input.Mouse;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.entity.player.EntityPlayer;
+import outskirts.event.EventHandler;
+import outskirts.event.client.input.MouseMoveEvent;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
@@ -51,15 +54,13 @@ public class Camera {
         public void update() {
             // KEY_VIEW
             if (Outskirts.isIngame()) {
-//                if (Outskirts.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
-//                    eulerAngles.z += -Math.toRadians(Outskirts.getMouseDX() * GameSettings.MOUSE_SENSITIVITY);
-//                } else {
-                    eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
-                    eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
-                    eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
-//                }
+                // actually this mouse-move looks wrong: not sampled full-frame all move records, just sampled frame-tail event move.
+                // but this gets better experience effect.
+                eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
+                eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
+                eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
 
-                cameraDistance += Math.signum(Outskirts.getDScroll());
+                cameraDistance += Math.signum(Outskirts.getDWheel());
                 cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
             }
 
@@ -72,9 +73,8 @@ public class Camera {
 
             if (ownerEntity != null) {
                 // direction of cam
-                direction.set(0, 0, 1);
+                direction.set(0, 0, -1);
                 Matrix3f.transform(camera.rotation, direction);
-                direction.negate();
 
                 // Camera Position
                 camera.position.set(0, 0, 0).addScaled(cameraDistance, direction);

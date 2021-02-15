@@ -1,6 +1,7 @@
 package outskirts.client.render.shader;
 
 import org.lwjgl.BufferUtils;
+import outskirts.client.Loader;
 import outskirts.util.IOUtils;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.*;
@@ -120,21 +121,15 @@ public final class ShaderProgram {
     }
 
     public void setMatrix2f(String uniformName, Matrix2f matrix) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(4);
-        Matrix2f.store(matrix, buffer);
-        buffer.flip();
-        glUniformMatrix2fv(getUniformLocation(uniformName), true, buffer);
+        glUniformMatrix2(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix2f.store(matrix, new float[4])));
     }
 
     public void setMatrix3f(String uniformName, Matrix3f matrix) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(9);
-        Matrix3f.store(matrix, buffer);
-        buffer.flip();
-        glUniformMatrix3fv(getUniformLocation(uniformName), true, buffer);
+        glUniformMatrix3(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix3f.store(matrix, new float[9])));
     }
 
     public void setMatrix4f(String uniformName, Matrix4f matrix) {
-        glUniformMatrix4fv(getUniformLocation(uniformName), true, Matrix4f.store(matrix, new float[16]));
+        glUniformMatrix4(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix4f.store(matrix, new float[16])));
     }
 
     public void setVector2f(String uniformName, Vector2f vector) {

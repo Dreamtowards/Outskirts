@@ -1,5 +1,6 @@
 package outskirts.client.render;
 
+import org.lwjgl.BufferUtils;
 import outskirts.client.Loader;
 import outskirts.util.Colors;
 import outskirts.util.vector.Vector4f;
@@ -8,8 +9,6 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.memAlloc;
-import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class Texture {
 
@@ -55,14 +54,10 @@ public final class Texture {
     }
 
     public static BufferedImage glfGetTexImage(Texture tex) {
-        ByteBuffer pixels = memAlloc(tex.getWidth() * tex.getHeight() * 4);
-        try {
-            glBindTexture(GL_TEXTURE_2D, tex.textureID());
-            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            return Loader.loadImage(pixels, tex.getWidth(), tex.getHeight());
-        } finally {
-            memFree(pixels);
-        }
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tex.getWidth() * tex.getHeight() * 4);
+        glBindTexture(GL_TEXTURE_2D, tex.textureID());
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        return Loader.loadImage(pixels, tex.getWidth(), tex.getHeight());
     }
 
 }

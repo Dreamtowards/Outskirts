@@ -14,7 +14,7 @@ import outskirts.util.vector.Vector2f;
 
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.input.Keyboard.*;
 
 public class GuiTextBox extends Gui {
 
@@ -75,9 +75,9 @@ public class GuiTextBox extends Gui {
         addKeyboardListener(e -> {
             if (isFocused() && e.getKeyState()) {
                 int keyCode = e.getKey();
-                if (keyCode == GLFW_KEY_ENTER) {
+                if (keyCode == KEY_RETURN) {
                     insertText("\n");
-                } else if (keyCode == GLFW_KEY_BACKSPACE) {
+                } else if (keyCode == KEY_BACK) {
                     if (getCursorPosition() > 0) {
                         if (!isSelectedText()) {
                             setSelectionBegin(getCursorPosition() - 1);
@@ -85,29 +85,29 @@ public class GuiTextBox extends Gui {
                         }
                         insertText("");
                     }
-                } else if (keyCode == GLFW_KEY_LEFT) {
+                } else if (keyCode == KEY_LEFT) {
                     if (isSelectedText())
                         setCursorPosition(getMinSelection());
                     else
                         setCursorPosition(getCursorPosition() - 1);
                     setSelectionEmpty();
-                } else if (keyCode == GLFW_KEY_RIGHT) {
+                } else if (keyCode == KEY_RIGHT) {
                     if (isSelectedText())
                         setCursorPosition(getMaxSelection());
                     else
                         setCursorPosition(getCursorPosition() + 1);
                     setSelectionEmpty();
                 } else if (Outskirts.isCtrlKeyDown()) {
-                    if (keyCode == GLFW_KEY_A) {
+                    if (keyCode == KEY_A) {
                         setSelectionBegin(0);
                         setSelectionEnd(texts().length());
-                    } else if (keyCode == GLFW_KEY_C) {
+                    } else if (keyCode == KEY_C) {
                         if (isSelectedText()) {
                             Outskirts.setClipboard(getSelectedText());
                         }
-                    } else if (keyCode == GLFW_KEY_V) {
+                    } else if (keyCode == KEY_V) {
                         insertText(Outskirts.getClipboard());
-                    } else if (keyCode == GLFW_KEY_X) {
+                    } else if (keyCode == KEY_X) {
                         if (isSelectedText()) {
                             Outskirts.setClipboard(getSelectedText());
                             insertText("");

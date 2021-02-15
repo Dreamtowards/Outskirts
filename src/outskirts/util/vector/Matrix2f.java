@@ -115,18 +115,17 @@ public class Matrix2f extends Matrix {
         return (int) (hash ^ hash >> 32);
     }
 
-    public static void store(Matrix2f matrix, FloatBuffer buffer) {
-        buffer.put(matrix.m00);
-        buffer.put(matrix.m01);
-        buffer.put(matrix.m10);
-        buffer.put(matrix.m11);
+    public static float[] store(Matrix2f matrix, float[] buf) {
+        buf[0]=matrix.m00; buf[1]=matrix.m01;
+        buf[2]=matrix.m10; buf[3]=matrix.m11;
+        return buf;
     }
 
-    public static void load(Matrix2f matrix, FloatBuffer buffer) {
-        matrix.m00 = buffer.get();
-        matrix.m01 = buffer.get();
-        matrix.m10 = buffer.get();
-        matrix.m11 = buffer.get();
+    public static void load(Matrix2f dest, float[] buf) {
+        buf[0] = dest.m00;
+        buf[1] = dest.m01;
+        buf[2] = dest.m10;
+        buf[3] = dest.m11;
     }
 
     public Matrix2f add(Matrix2f right) {

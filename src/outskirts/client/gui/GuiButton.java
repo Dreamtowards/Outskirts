@@ -1,6 +1,5 @@
 package outskirts.client.gui;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.audio.AudioSource;
@@ -31,7 +30,7 @@ public class GuiButton extends Gui {
 
         addOnDrawListener(e -> {
 
-            getText().getTextColor().set(isHover() && !Outskirts.isMouseDown(GLFW.GLFW_MOUSE_BUTTON_LEFT) ? Colors.YELLOW : Colors.WHITE);
+            getText().getTextColor().set(isHover() || isPressed() ? Colors.YELLOW : Colors.WHITE);
 
             drawButtonBackground(this);
         });

@@ -11,12 +11,15 @@ public class Profiler {
 
     private boolean enable = true;
 
-    public void push(String sectionName) {
+    /**
+     * @param s sectionName
+     */
+    public void push(String s) {
         if (!enable)
             return;
-        Section section = currentSection.getSub(sectionName);
+        Section section = currentSection.getSub(s);
         if (section == null) {
-            section = new Section(sectionName);
+            section = new Section(s);
             currentSection.addSub(section);
         }
 

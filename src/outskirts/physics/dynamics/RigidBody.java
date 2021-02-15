@@ -1,6 +1,5 @@
 package outskirts.physics.dynamics;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.physics.collision.dispatch.CollisionObject;
 import outskirts.physics.collision.shapes.CollisionShape;
@@ -77,15 +76,6 @@ public class RigidBody extends CollisionObject {
         linearVelocity.scale(linearVelocity.lengthSquared()<E?0: (float)Math.pow(linearDamping, delta));
 
         angularVelocity.scale(angularVelocity.lengthSquared()<E?0: (float)Math.pow(angularDamping, delta));
-        if (Outskirts.isKeyDown(GLFW.GLFW_KEY_0)) {
-            angularVelocity.scale(0);
-        }
-        if (Outskirts.isKeyDown(GLFW.GLFW_KEY_8)) {
-            transform().basis.setIdentity();
-        }
-        if (Outskirts.isKeyDown(GLFW.GLFW_KEY_9)) {
-            linearVelocity.scale(0);
-        }
     }
 
     // calls when rotated, integrated ..?

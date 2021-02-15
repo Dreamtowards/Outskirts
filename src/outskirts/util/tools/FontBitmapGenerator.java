@@ -16,16 +16,16 @@ public class FontBitmapGenerator {
 
     public static void main(String[] args) throws Exception {
 
-        Font font = new Font("Arial", Font.PLAIN, 0);
+        Font font = new Font(Font.DIALOG, Font.PLAIN, 0);
 
         byte[] glyphs = new byte[65536];
 
         FileUtils.mkdirs(new File("Fonts"));
 
-        for (int page = 0;page < 256;page++) {
+        for (int page = 0;page < 2;page++) {
             Log.info("page " + page);
 
-            BufferedImage bufferedImage = generatePage(font, (char)(page * 256), 512, glyphs);
+            BufferedImage bufferedImage = generatePage(font, (char)(page * 256), 256, glyphs);
 
             ImageIO.write(bufferedImage, "PNG", new File("Fonts/unicode_page_" + page + ".png"));
         }

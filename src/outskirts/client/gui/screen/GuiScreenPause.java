@@ -1,6 +1,5 @@
 package outskirts.client.gui.screen;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiButton;
@@ -29,16 +28,6 @@ public class GuiScreenPause extends Gui {
         setHeight(INFINITY);
 
         initEscClose(this);
-
-        addKeyboardListener(e -> {
-//            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && Outskirts.getRootGUI().getGui(Outskirts.getRootGUI().size()-1) == this) {
-//                Outskirts.getRootGUI().removeGui(this);
-//            }
-            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_R) {
-                removeAllGuis();
-                build();
-            }
-        });
 
         build();
     }

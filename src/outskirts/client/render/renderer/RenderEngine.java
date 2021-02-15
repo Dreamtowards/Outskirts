@@ -1,6 +1,7 @@
 package outskirts.client.render.renderer;
 
-import org.lwjgl.Version;
+import org.lwjgl.Sys;
+import org.lwjgl.opengl.Display;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Framebuffer;
@@ -19,8 +20,6 @@ import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
 
-import static org.lwjgl.glfw.GLFW.glfwGetVersionString;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
@@ -80,7 +79,7 @@ public final class RenderEngine {
 
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
-        LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
+        LOGGER.info("LWJGL {}, GLFWL NONE.", Sys.getVersion());
 
 //        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
     }
@@ -186,7 +185,7 @@ public final class RenderEngine {
 
     public void setVSync(boolean enable) {
         vsync = enable;
-        glfwSwapInterval(vsync ? 1 : 0);
+        Display.setVSyncEnabled(enable);
     }
     public boolean isVSync() {
         return vsync;

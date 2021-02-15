@@ -1,5 +1,8 @@
 package outskirts.client.render;
 
+import outskirts.client.Loader;
+import outskirts.util.IOUtils;
+
 import static org.lwjgl.opengl.ARBVertexArrayObject.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -55,7 +58,7 @@ public final class Model {
         this.indices = indices;
         this.eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Loader.loadBuffer(indices), GL_STATIC_DRAW);
     }
 
     public void createAttribute(int attributeNumber, int vertexSize, float[] data) {
@@ -98,7 +101,7 @@ public final class Model {
 
             this.data = data;
 
-            glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, Loader.loadBuffer(data), GL_STATIC_DRAW);
         }
 
         public void setBufferSubData(float[] subdata) {
@@ -106,7 +109,7 @@ public final class Model {
 
             System.arraycopy(subdata, 0, this.data, 0, subdata.length);
 
-            glBufferSubData(GL_ARRAY_BUFFER, 0, data);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, Loader.loadBuffer(data));
         }
 
 

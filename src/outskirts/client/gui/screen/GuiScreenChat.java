@@ -1,6 +1,5 @@
 package outskirts.client.gui.screen;
 
-import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiScrollPanel;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.lwjgl.input.Keyboard.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiScreenChat extends Gui {
@@ -97,7 +97,7 @@ public class GuiScreenChat extends Gui {
               g.addKeyboardListener(e -> {
                   if (g.isFocused() && e.getKeyState()) {
                       switch (e.getKey()) {
-                          case GLFW.GLFW_KEY_ENTER:
+                          case KEY_RETURN:
                               String s = g.texts();
                               if (s.isEmpty()) return;
                               histories.add(0, "");  // required before 'clear texts'.
@@ -105,7 +105,7 @@ public class GuiScreenChat extends Gui {
                               g.texts("");
                               dispatchLine(s);
                               break;
-                          case GLFW.GLFW_KEY_TAB:
+                          case KEY_TAB:
                               if (completeLs.size() == 0) {
                                   updateTabComplete();
                                   tbInputBox.getText().performEvent(new GuiText.OnTextChangedEvent());
@@ -121,10 +121,10 @@ public class GuiScreenChat extends Gui {
                                   tbInputBox.setCursorPosition(start+comp.length());
                               }
                               break;
-                          case GLFW.GLFW_KEY_UP:
+                          case KEY_UP:
                               switchHistory(1);
                               break;
-                          case GLFW.GLFW_KEY_DOWN:
+                          case KEY_DOWN:
                               switchHistory(-1);
                               break;
                       }
