@@ -18,25 +18,14 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public final class AudioEngine {
 
-//    private long alcContext;
-//    private long currentDevice;
+
 
     public AudioEngine() throws LWJGLException {
 
-//        currentDevice = alcOpenDevice((ByteBuffer)null);
-//        assert currentDevice != NULL : "Failed to open the default device.";
-//
-//        ALCCapabilities deviceCaps = ALC.createCapabilities(currentDevice);
-//
-//        alcContext = alcCreateContext(currentDevice, (IntBuffer)null);
-//        alcSetThreadContext(alcContext);
-//        AL.createCapabilities(deviceCaps);
 
         AL.create();
 
         LOGGER.info("AudioEngine initialized. AL_I: {} / {}, devispec {}", alGetString(AL_VENDOR), alGetString(AL_VERSION), alcGetString(AL.getDevice(), ALC_DEVICE_SPECIFIER));
-
-
 
         alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
     }
@@ -45,10 +34,6 @@ public final class AudioEngine {
     public void destroy() {
         for (int s : AudioSource.srcs)
             alDeleteSources(s);
-
-//        alcMakeContextCurrent(NULL);
-//        alcDestroyContext(alcContext);
-//        alcCloseDevice(currentDevice);
 
         AL.destroy();
     }
@@ -67,7 +52,6 @@ public final class AudioEngine {
     public void setListenerOrientation(float atX, float atY, float atZ, float upX, float upY, float upZ) {
         IOUtils.fillBuffer(TMP_ORI_BUF_TRANS, atX, atY, atZ, upX, upY, upZ);
 
-//        alListenerfv(AL_ORIENTATION, TMP_ORI_BUF_TRANS);
         alListener(AL_ORIENTATION, TMP_ORI_BUF_TRANS);
     }
 }
