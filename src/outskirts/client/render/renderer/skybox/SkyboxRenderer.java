@@ -20,7 +20,7 @@ public class SkyboxRenderer extends Renderer {
             new Identifier("shaders/skybox/skybox.vsh").getInputStream(),
             new Identifier("shaders/skybox/skybox.fsh").getInputStream()
     );
-    public Texture textureCubemap = Loader.loadTextureCubeMap(null, new BufferedImage[]{
+    public final Texture textureCubemap = Loader.loadTextureCubeMap(null, new BufferedImage[]{
             Loader.loadPNG(new Identifier("textures/skybox/wide/right.jpg").getInputStream()),
             Loader.loadPNG(new Identifier("textures/skybox/wide/left.jpg").getInputStream()),
             Loader.loadPNG(new Identifier("textures/skybox/wide/top.jpg").getInputStream()),

@@ -101,8 +101,6 @@ public final class ClientSettings {
 
     public static boolean ENABLE_FA = false; //Texture Filter Anisotropic
 
-    public static float FOV = 70;
-
     public static float NEAR_PLANE = 0.1f;
 
     public static float FAR_PLANE = 1000f;
@@ -120,7 +118,7 @@ public final class ClientSettings {
 
     public static int PICKER_DEPTH = 4;
 
-    public static float MOUSE_SENSITIVITY = 0.4f;
+    public static float MOUSE_SENSITIVITY = .25f;
 
 
     // KEY DEBUGS

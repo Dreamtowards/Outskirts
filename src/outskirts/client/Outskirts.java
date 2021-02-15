@@ -123,6 +123,8 @@ public class Outskirts {
         audioEngine = new AudioEngine();
         this.initWindowFurther();
 
+        renderEngine.setVSync(true);
+
         Init.registerAll(Side.CLIENT);
 
         player = new EntityPlayerSP();
@@ -138,10 +140,6 @@ public class Outskirts {
             g.setHeight(80);
         }));
 
-//        GuiIngame.INSTANCE.addGui(new GuiHotbar().exec(g -> {
-//            g.addLayoutorAlignParentLTRB(30, NaN, NaN, 40);
-//        }));
-
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
@@ -151,7 +149,6 @@ public class Outskirts {
 
     public static int matId = 0;
 
-    private static EntityStaticMesh entityStaticMesh;
     {
         Events.EVENT_BUS.register(CharInputEvent.class, e -> {
             char c = e.getChar();
@@ -253,6 +250,9 @@ public class Outskirts {
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
 
+            if (isKeyDown(GLFW_KEY_5))
+                renderEngine.gBufferFBO.resize(toFramebufferCoords(getWidth()), toFramebufferCoords(getHeight()));
+
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -280,24 +280,18 @@ public class Outskirts {
             renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getCameraUpdater().getDirection());
         });
 
-        world.addEntity(entityStaticMesh=new EntityStaticMesh());
 
 
 //        getPlayer().getRenderPerferences().setDiffuseMap(Textures.BRICK);
 //        getPlayer().getRenderPerferences().setNormalMap(Textures.BRICK_NORM);
-//        getPlayer().tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
         RigidBody prb = getPlayer().getRigidBody();
-//        prb.setCollisionShape(new BoxShape(.2f,1f,.2f));
-//        prb.setCollisionShape(new SphereShape(.5f));
-//        prb.setCollisionShape(new CapsuleShape(.4f, .6f));  // .4f,0.5f,.4f
-//        prb.setCollisionShape(new ConvexHullShape(QuickHull.quickHull(BP.attribute(0).data)));
-//        prb.setCollisionShape(new GhostShape());
         prb.transform().set(Transform.IDENTITY);
         prb.transform().origin.set(0,20,0);
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
 
-         getPlayer().setGamemode(Gamemode.SURVIVAL);
+        getPlayer().setGamemode(Gamemode.CREATIVE);
+        getPlayer().setFlymode(true);
 
     }
 
@@ -339,7 +333,7 @@ public class Outskirts {
 
 
 
-                ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
+//                ClientSettings.FOV=Outskirts.isKeyDown(GLFW_KEY_C)?30:80;
             }
 
 
@@ -518,7 +512,6 @@ public class Outskirts {
 //        ));
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
 
         GL.createCapabilities();
 

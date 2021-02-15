@@ -2,19 +2,24 @@ package outskirts.client.gui.screen;
 
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiScrollPanel;
-import outskirts.client.gui.GuiSlider;
+import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.gui.stat.GuiRow;
+import outskirts.client.render.renderer.RenderEngine;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.world.World;
+
+import java.util.Arrays;
 
 import static java.lang.Float.NaN;
+import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiScreenOptions extends Gui {
 
     public static final GuiScreenOptions INSTANCE = new GuiScreenOptions();
+
+    private GuiScrollPanel gOptionsDisplay;
 
     public GuiScreenOptions() {
         setWidth(INFINITY);
@@ -27,12 +32,16 @@ public class GuiScreenOptions extends Gui {
         addChildren(
                 new GuiScrollPanel().exec((GuiScrollPanel g) -> {
                     g.addLayoutorAlignParentLTRB(72, 20, NaN, 0);
-                    drawRect(Colors.BLACK40, g);
+                    g.addOnDrawListener(e -> {
+                        drawRect(Colors.BLACK80, g);
+                    });
                 }).setContent(
                     new GuiColumn().exec(g -> {
 
                     }).addChildren(
-                            new GuiButton("Video/ Graphi"),
+                            new GuiButton("Video/ Graphi").exec(g -> {
+                                g.addOnClickListener(e -> gOptionsDisplay.setContent(new GuiGraphicOptions()));
+                            }),
                             new GuiButton("Music/ Soundx"),
                             new GuiButton("Controls"),
                             new GuiButton("Language"),
@@ -44,7 +53,79 @@ public class GuiScreenOptions extends Gui {
                             c.setHeight(80);
                         });
                     })
-                )
+                ),
+                gOptionsDisplay=new GuiScrollPanel().exec((GuiScrollPanel g) -> {
+                    g.addLayoutorAlignParentLTRB(255, 20, 42, 20);
+                    g.addOnDrawListener(e -> {
+                        drawRect(Colors.BLACK80, g);
+                    });
+                })
+        );
+    }
+
+    private static class GuiGraphicOptions extends Gui {
+
+        public GuiGraphicOptions() {
+
+            addChildren(
+                    new GuiColumn().addChildren(
+                            new GuiText("GRAPHI/ VIDEO").exec((GuiText g) -> {
+                                g.setTextHeight(48);
+                            }),
+                            row("FOV", new GuiSlider().exec((GuiSlider g) -> {
+                                g.setUserMinMaxValue(10, 140);
+                                g.getUserOptionalValues().addAll(Arrays.asList(30f, 70f, 90f));
+                                g.addOnValueChangedListener(e -> {
+                                    Outskirts.renderEngine.setFov(g.getCurrentUserValue());
+                                });
+                                g.addOnDrawListener(e -> {
+                                    if (Outskirts.renderEngine.getFov() != g.getCurrentUserValue()) {
+                                        g.setCurrentUserValue(Outskirts.renderEngine.getFov());
+                                    }
+                                });
+                            })),
+                            row("RenderDistance", new GuiSlider().exec((GuiSlider g) -> {
+                                g.setUserMinMaxValue(0, 10);
+                                g.getUserOptionalValues().addAll(Arrays.asList(0f, 1f, 2f, 3f, 6f, 8f));
+                                g.addOnValueChangedListener(e -> {
+                                    World.sz = (int)g.getCurrentUserValue();
+                                });
+                                g.addOnDrawListener(e -> {
+                                    if (World.sz != (int)g.getCurrentUserValue()) {
+                                        g.setCurrentUserValue(World.sz);
+                                    }
+                                });
+                            })),
+                            row("VSync", new GuiSwitch().exec((GuiSwitch g) -> {
+                                g.addOnPressedListener(e -> {
+                                    Outskirts.renderEngine.setVSync(g.isChecked());
+                                    LOGGER.info(g.isChecked());
+                                });
+                                g.addOnDrawListener(e -> {
+                                    if (Outskirts.renderEngine.isVSync() != g.isChecked()) {
+                                        g.setChecked(Outskirts.renderEngine.isVSync());
+                                        LOGGER.info(Outskirts.renderEngine.isVSync());
+                                    }
+                                });
+                            }))
+                    )
+            );
+
+        }
+    }
+
+    private static Gui row(String title, Gui op) {
+        return new GuiRow().exec(g -> {
+            g.setHeight(46);
+        }).addChildren(
+                new GuiText(title).exec(g -> {
+                    g.setWidth(300);
+                    g.addLayoutorAlignParentRR(NaN, .5f);
+                    g.setRelativeX(5);
+                }),
+                op.exec(g -> {
+                    g.addLayoutorAlignParentRR(NaN, .5f);
+                })
         );
     }
 

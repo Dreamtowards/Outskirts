@@ -14,11 +14,13 @@ import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.client.render.shader.ShaderProgram;
+import outskirts.event.Events;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
 
 import static org.lwjgl.glfw.GLFW.glfwGetVersionString;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
@@ -34,7 +36,7 @@ public final class RenderEngine {
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
-    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
+//    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();
@@ -74,6 +76,8 @@ public final class RenderEngine {
 //            .popFramebuffer();
 
 
+
+
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
         LOGGER.info("LWJGL {}, GLFWL {}", Version.getVersion(), glfwGetVersionString());
@@ -103,7 +107,7 @@ public final class RenderEngine {
         // todo: split out. refreshViewMatrix(), refreshProjectionMatrix(), or just refreshViewProjectionMatrix().
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
-        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(ClientSettings.FOV), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
+        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), ClientSettings.NEAR_PLANE, ClientSettings.FAR_PLANE, getProjectionMatrix());
 //        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
 
         Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), Outskirts.renderEngine.getViewMatrix());
@@ -112,7 +116,7 @@ public final class RenderEngine {
 
     public void render(World world) {
 
-        shadowRenderer.renderDepthMap(world.getEntities());
+//        shadowRenderer.renderDepthMap(world.getEntities());
 
 
 //        worldFramebuffer.bindPushFramebuffer();
@@ -123,7 +127,6 @@ public final class RenderEngine {
 ////            p.getPosition().set(getPlayer().getPosition());
 ////            p.setTexture(Outskirts.renderEngine.getWorldFramebuffer().colorTextures(0));
 ////            Outskirts.renderEngine.getParticleRenderer().render(Collections.singletonList(p));
-////        skyboxRenderer.render();
 ////        glEnable(GL_CULL_FACE);
 //        worldFramebuffer.popFramebuffer();
 
@@ -136,10 +139,10 @@ public final class RenderEngine {
             glEnable(GL_BLEND);
         gBufferFBO.popFramebuffer();
 
-        ssaoFBO.bindPushFramebuffer();
-            prepare();
-            ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
-        ssaoFBO.popFramebuffer();
+//        ssaoFBO.bindPushFramebuffer();
+//            prepare();
+//            ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
+//        ssaoFBO.popFramebuffer();
 
 //        ssaoBlurFBO.bindPushFramebuffer();
 //            prepare();
@@ -174,6 +177,32 @@ public final class RenderEngine {
         }
     }
 
+
+
+
+
+    private float fov = 70;
+    private boolean vsync;
+
+    public void setVSync(boolean enable) {
+        vsync = enable;
+        glfwSwapInterval(vsync ? 1 : 0);
+    }
+    public boolean isVSync() {
+        return vsync;
+    }
+
+    public float getFov() {
+        return fov;
+    }
+    public void setFov(float fov) {
+        this.fov = fov;
+    }
+
+
+
+
+
     public Matrix4f getViewMatrix() {
         return viewMatrix;
     }
@@ -197,9 +226,9 @@ public final class RenderEngine {
     public ShadowRenderer getShadowRenderer() {
         return shadowRenderer;
     }
-    public SkyboxRenderer getSkyboxRenderer() {
-        return skyboxRenderer;
-    }
+//    public SkyboxRenderer getSkyboxRenderer() {
+//        return skyboxRenderer;
+//    }
     public ParticleRenderer getParticleRenderer() {
         return particleRenderer;
     }
