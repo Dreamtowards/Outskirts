@@ -1,6 +1,7 @@
-package outskirts.entity;
+package outskirts.entity.item;
 
 import outskirts.client.render.Model;
+import outskirts.entity.Entity;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;

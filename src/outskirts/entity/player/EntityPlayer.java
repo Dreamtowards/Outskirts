@@ -4,6 +4,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.screen.GuiScreenChat;
 import outskirts.command.CommandSender;
 import outskirts.entity.Entity;
+import outskirts.entity.EntityCreature;
 import outskirts.init.ex.Models;
 import outskirts.item.inventory.Inventory;
 import outskirts.item.stack.ItemStack;
@@ -16,25 +17,23 @@ import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
-public abstract class EntityPlayer extends Entity implements CommandSender {
+import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
 
-//    private static float walkspeed = 0.4f;
+public abstract class EntityPlayer extends EntityCreature implements CommandSender {
 
     public ChannelHandler connection;
 
-    private String name; // should only MP? should alls Entity..?
-
     private Inventory inventory = new Inventory(8);
-
     private int hotbarSlot;
 
     private Gamemode gamemode = Gamemode.SURVIVAL;
-
     private boolean flymode = false;
 
 
     public EntityPlayer() {
         setRegistryID("player");
+        setMaxHealth(20);
+        setHealth(20);
 
         RigidBody rb = getRigidBody();
         rb.setInertiaTensorLocal(0,0,0);
@@ -44,25 +43,10 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
     }
 
     public final void walk(float amount, float angrad) {
-        walk(amount, Matrix3f.transform(Matrix3f.rotate(angrad+Outskirts.getCamera().getCameraUpdater().getEulerAngles().y, Vector3f.UNIT_Y, null),
-                 new Vector3f(0, 0, -1f)).normalize());
+        walk(amount, Matrix3f.transform(Matrix3f.rotate(angrad+Outskirts.getCamera().getEulerAngles().y, Vector3f.UNIT_Y, null), vec3(0, 0, -1f)).normalize());
     }
     public void walk(float amount, Vector3f dir) {
-        //todo: reduce.
-//        if (Outskirts.getCamera().getCameraUpdater().getOwnerEntity() == null) {
-//            Outskirts.getCamera().getPosition().addScaled(amount*GameTimer.TPS*0.001f, dir);
-//            return;
-//        }
-        getRigidBody().getLinearVelocity().add(dir.scale(amount));  // *getRigidBody().getMass()*GameTimer.TPS
-    }
-
-    // todo: Nameable.?  may not cuz all Entity can have name or null.
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
+        getRigidBody().getLinearVelocity().add(dir.scale(amount));
     }
 
     public Inventory getBackpackInventory() {
@@ -89,7 +73,6 @@ public abstract class EntityPlayer extends Entity implements CommandSender {
             setModel(Models.EMPTY);
         } else {
             getRigidBody().setCollisionShape(new SphereShape(1));
-//            tmp_boxSphere_scale.set(.4f,0.5f,.4f).scale(1);
             setModel(Models.GEO_SPHERE);
         }
     }

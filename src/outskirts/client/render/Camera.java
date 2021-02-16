@@ -25,83 +25,67 @@ public class Camera {
     public Vector3f getPosition() {
         return position;
     }
-
     public Matrix3f getRotation() {
         return rotation;
     }
 
-    private CamUpdater camUpdater = new CamUpdater(this);
-    public final CamUpdater getCameraUpdater() {
-        return camUpdater;
+
+
+    private float cameraDistance = -0;
+
+    /** Camera EulerAngles. x:Pitch, y:Yaw z:Roll. */
+    private Vector3f eulerAngles = new Vector3f();
+
+    private Vector3f direction = new Vector3f(Vector3f.UNIT_X); // pointing camera-front.
+
+    private EntityPlayer ownerEntity;
+
+    public void update() {
+        // KEY_VIEW
+        if (Outskirts.isIngame()) {
+            // actually this mouse-move looks wrong: not sampled full-frame all move records, just sampled frame-tail event move.
+            // but this gets better experience effect.
+            eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
+
+            cameraDistance += Math.signum(Outskirts.getDWheel());
+            cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
+        }
+
+        // Camera Rotation Matrix
+        Matrix3f tmp = new Matrix3f();
+        rotation.setIdentity();
+        Matrix3f.mul(rotation, Matrix3f.rotate(eulerAngles.y, Vector3f.UNIT_Y, tmp), rotation);
+        Matrix3f.mul(rotation, Matrix3f.rotate(eulerAngles.x, Vector3f.UNIT_X, tmp), rotation);
+        Matrix3f.mul(rotation, Matrix3f.rotate(eulerAngles.z, Vector3f.UNIT_Z, tmp), rotation);
+
+        direction.set(0, 0, -1);
+        Matrix3f.transform(rotation, direction);
+
+        if (ownerEntity != null) {
+            // Camera Position
+            position.set(ownerEntity.position()).add(0, 0.8f, 0).addScaled(cameraDistance, direction);
+        }
+    }
+
+    public Vector3f getEulerAngles() {
+        return eulerAngles;
+    }
+    public Vector3f getDirection() {
+        return direction;
+    }
+
+    public float getCameraDistance() {
+        return cameraDistance;
+    }
+
+    public EntityPlayer getOwnerEntity() {
+        return ownerEntity;
+    }
+    public void setOwnerEntity(EntityPlayer ownerEntity) {
+        this.ownerEntity = ownerEntity;
     }
 
 
-    public static class CamUpdater {
-
-        private float cameraDistance = -0;
-        private Vector3f eulerAngles = new Vector3f(); // Camera EulerAngles, x:Pitch, y:Yaw z:Roll. needs persistent sum and adjust then needs eulerAngles.
-
-        private Vector3f direction = new Vector3f(Vector3f.UNIT_X); // pointing front of the camera
-
-        private EntityPlayer ownerEntity;
-
-        private Camera camera;
-
-        private CamUpdater(Camera camera) {
-            this.camera = camera;
-        }
-
-        public void update() {
-            // KEY_VIEW
-            if (Outskirts.isIngame()) {
-                // actually this mouse-move looks wrong: not sampled full-frame all move records, just sampled frame-tail event move.
-                // but this gets better experience effect.
-                eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
-                eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
-                eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
-
-                cameraDistance += Math.signum(Outskirts.getDWheel());
-                cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
-            }
-
-            // Camera Rotation Matrix
-            Matrix3f tmp = new Matrix3f();
-            camera.rotation.setIdentity();
-            Matrix3f.mul(camera.rotation, Matrix3f.rotate(eulerAngles.y, Vector3f.UNIT_Y, tmp), camera.rotation);
-            Matrix3f.mul(camera.rotation, Matrix3f.rotate(eulerAngles.x, Vector3f.UNIT_X, tmp), camera.rotation);
-            Matrix3f.mul(camera.rotation, Matrix3f.rotate(eulerAngles.z, Vector3f.UNIT_Z, tmp), camera.rotation);
-
-            if (ownerEntity != null) {
-                // direction of cam
-                direction.set(0, 0, -1);
-                Matrix3f.transform(camera.rotation, direction);
-
-                // Camera Position
-                camera.position.set(0, 0, 0).addScaled(cameraDistance, direction);
-                camera.position.add(ownerEntity.position()).add(0, 0.8f, 0); // applies owner.pos offset
-            }
-
-        }
-
-        public Vector3f getEulerAngles() {
-            return eulerAngles;
-        }
-
-        public Vector3f getDirection() {
-            return direction;
-        }
-
-        // vari name...
-        public float getCameraDistance() {
-            return cameraDistance;
-        }
-
-        public void setOwnerEntity(EntityPlayer ownerEntity) {
-            this.ownerEntity = ownerEntity;
-        }
-
-        public EntityPlayer getOwnerEntity() {
-            return ownerEntity;
-        }
-    }
 }

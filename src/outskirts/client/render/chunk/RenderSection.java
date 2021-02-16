@@ -2,14 +2,9 @@ package outskirts.client.render.chunk;
 
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
-import outskirts.entity.Entity;
-import outskirts.entity.EntityStaticMesh;
+import outskirts.entity.item.EntityStaticMesh;
 import outskirts.init.MaterialTextures;
-import outskirts.init.Textures;
-import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Vector3f;
-
-import java.util.Arrays;
 
 
 public final class RenderSection {

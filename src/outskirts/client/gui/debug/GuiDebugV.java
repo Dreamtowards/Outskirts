@@ -9,7 +9,7 @@ import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.Entity;
-import outskirts.entity.EntityStaticMesh;
+import outskirts.entity.item.EntityStaticMesh;
 import outskirts.entity.player.Gamemode;
 import outskirts.event.EventPriority;
 import outskirts.init.ex.Models;

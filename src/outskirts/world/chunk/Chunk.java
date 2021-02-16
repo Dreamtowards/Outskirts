@@ -3,14 +3,13 @@ package outskirts.world.chunk;
 import outskirts.client.Outskirts;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.entity.Entity;
-import outskirts.entity.EntityDropItem;
-import outskirts.entity.EntityStaticMesh;
+import outskirts.entity.item.EntityDropItem;
+import outskirts.entity.item.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DArray;
 import outskirts.storage.dst.DObject;
-import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
 import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;

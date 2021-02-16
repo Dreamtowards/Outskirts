@@ -24,19 +24,14 @@ import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.DistFunctions;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
-import outskirts.entity.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
-import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
-import outskirts.init.ex.Models;
 import outskirts.material.Material;
 import outskirts.mod.Mods;
 import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.physics.collision.shapes.GhostShape;
-import outskirts.physics.collision.shapes.convex.*;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
@@ -48,8 +43,6 @@ import outskirts.world.WorldClient;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.*;
 
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -126,13 +119,11 @@ public class Outskirts {
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
 
-        renderEngine.setVSync(true);
-
         Init.registerAll(Side.CLIENT);
 
         player = new EntityPlayerSP();
-        camera.getCameraUpdater().setOwnerEntity(player);
         player.setName("Player215");
+        camera.setOwnerEntity(player);
 
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
 
@@ -230,8 +221,8 @@ public class Outskirts {
         profiler.pop("processInput");
 
         if (world != null) {
-            camera.getCameraUpdater().update();
-            rayPicker.update(camera.getPosition(), camera.getCameraUpdater().getDirection());
+            camera.update();
+            rayPicker.update(camera.getPosition(), camera.getDirection());
         }
 
         // Render Phase
@@ -274,7 +265,7 @@ public class Outskirts {
         world.lights.add(lightSun);
         SystemUtil.debugAddKeyHook(KEY_E, () -> {
             lightSun.position().set(getPlayer().position());
-            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getCameraUpdater().getDirection());
+            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
         });
 
 

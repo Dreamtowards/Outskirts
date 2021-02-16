@@ -85,7 +85,7 @@ public final class RenderEngine {
         LOGGER.info("LWJGL {}, GLFWL NONE.", Sys.getVersion());
 
 
-//        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> updateRenderQuality());
+        setVSync(true);
     }
 
     public void prepare() {
@@ -111,9 +111,9 @@ public final class RenderEngine {
         // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
         // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
         Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), NEAR_PLANE, FAR_PLANE, getProjectionMatrix());
-//        Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
+        // Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
 
-        Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), Outskirts.renderEngine.getViewMatrix());
+        Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), getViewMatrix());
 
     }
 
@@ -163,14 +163,6 @@ public final class RenderEngine {
 //        postRenderer.render(ssaoFBO.colorTextures(0));
 
     }
-
-//    public void updateRenderQuality() {
-//        Outskirts.renderEngine.getWorldFramebuffer().bindPushFramebuffer();
-//        Outskirts.renderEngine.getWorldFramebuffer().resize(
-//                (int)(Outskirts.toFramebufferCoords(Outskirts.getWidth())*RENDERE_QUALITY),
-//                (int)(Outskirts.toFramebufferCoords(Outskirts.getHeight())*RENDERE_QUALITY));
-//        Outskirts.renderEngine.getWorldFramebuffer().popFramebuffer();
-//    }
 
     public static void checkGlError(String msg) {
         int i = glGetError();

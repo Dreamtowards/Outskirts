@@ -95,7 +95,7 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
 
         for (Entity entity : entities) {
-            if (entity == Outskirts.getCamera().getCameraUpdater().getOwnerEntity() && Outskirts.getCamera().getCameraUpdater().getCameraDistance() == 0)
+            if (entity == Outskirts.getCamera().getOwnerEntity() && Outskirts.getCamera().getCameraDistance() == 0)
                 continue;
             Model model = entity.getModel();
             RenderPerferences renderPerferences = entity.getRenderPerferences();

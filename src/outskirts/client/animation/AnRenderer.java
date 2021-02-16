@@ -17,8 +17,8 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 public class AnRenderer extends Renderer {
 
     private ShaderProgram shader = new ShaderProgram(
-            new Identifier("shaders/animation.vsh").getInputStream(),
-            new Identifier("shaders/animation.fsh").getInputStream()
+            new Identifier("shaders/animation/animation.vsh").getInputStream(),
+            new Identifier("shaders/animation/animation.fsh").getInputStream()
     );
 
     private static String[] uniform_jointTransform = createUniformNameArray("jointTransforms[%s]", 50);

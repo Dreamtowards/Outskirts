@@ -1,7 +1,8 @@
-package outskirts.entity;
+package outskirts.entity.item;
 
 import outskirts.client.Outskirts;
 import outskirts.client.render.VertexBuffer;
+import outskirts.entity.Entity;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.init.ex.Models;
 import outskirts.item.stack.ItemStack;

@@ -1,7 +1,7 @@
 package outskirts.init;
 
 import outskirts.entity.Entity;
-import outskirts.entity.EntityStaticMesh;
+import outskirts.entity.item.EntityStaticMesh;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.entity.player.EntityPlayerSP;
