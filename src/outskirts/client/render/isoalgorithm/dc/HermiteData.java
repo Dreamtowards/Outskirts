@@ -3,9 +3,7 @@ package outskirts.client.render.isoalgorithm.dc;
 import outskirts.util.StringUtils;
 import outskirts.util.vector.Vector3f;
 
-import java.util.Objects;
-
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 /**
  * HermiteData of a 'sign-changed' Edge.

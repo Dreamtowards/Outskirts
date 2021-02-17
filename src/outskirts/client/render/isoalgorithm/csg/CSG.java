@@ -8,9 +8,7 @@ import outskirts.util.Val;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
-import java.util.Arrays;
-
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class CSG {

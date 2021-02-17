@@ -1,14 +1,17 @@
 package outskirts.world.gen;
 
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.isoalgorithm.sdf.SDF;
 import outskirts.init.Materials;
-import outskirts.material.Material;
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.function.TrifFunc;
+import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class ChunkGenerator {
 
@@ -19,23 +22,18 @@ public class ChunkGenerator {
         GenerationInfo gspec = new GenerationInfo();
 
         TrifFunc FUNC = (x,y,z) -> {
-//            float b = -DistFunctions.box(vec3(x-8,y-8,z-8), vec3(7.9f,5,7.9f));
-//            if (b > 0)
-//                return b;
-
+            float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
+            if (b < 0) return b;
             return y-(noise.fbm((chunkpos.x+x)/29,(chunkpos.z+z)/29, 4)*9f+5);
-//            return -DistFunctions.sphere(vec3(x,y,z), 16f);
         };
-        Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 5, lf -> {
-            if (FUNC.sample(lf.min) < -1)
-                lf.material = Materials.STONE;
-            else
-                lf.material = Materials.GRASS;
-        });
 
-//        Octree.collapse(node);
-
-        chunk.octree(0, node);
+        for (int i = 0;i < 2;i++) {
+            Octree node = Octree.fromSDF(vec3(0,i*16,0), 16, FUNC, 4, lf -> {
+                if (FUNC.sample(lf.min) < -1) lf.material = Materials.STONE;
+                else lf.material = Materials.GRASS;
+            });
+            chunk.octree(i*16, node);
+        }
 
         return chunk;
     }

@@ -8,15 +8,10 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Ref;
 import outskirts.util.mx.VertexUtil;
 import outskirts.world.World;
-import outskirts.world.chunk.Chunk;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
-import static outskirts.util.logging.Log.LOGGER;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class ChunkMeshGen {
 

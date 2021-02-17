@@ -6,6 +6,7 @@ import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * An Util-Integrated HashMap.
@@ -43,7 +44,7 @@ public class DObject implements Map<String, Object> {
         return DArray.toMatrix3f((List<Float>)get(key), dest);
     }
 
-    public DArray getDArray(String key) {
+    public <T> DArray<T> getDArray(String key) {
         return (DArray)get(key);
     }
     public DObject getDObject(String key) {
@@ -60,6 +61,7 @@ public class DObject implements Map<String, Object> {
     public String getString(String k) {
         return (String)get(k);
     }
+
 
 
     @Override

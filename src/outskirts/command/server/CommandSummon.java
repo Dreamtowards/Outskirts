@@ -5,12 +5,10 @@ import outskirts.command.CommandException;
 import outskirts.command.CommandSender;
 import outskirts.command.WrongUsageException;
 import outskirts.entity.Entity;
-import outskirts.entity.player.EntityPlayer;
 import outskirts.entity.player.EntityPlayerMP;
 import outskirts.util.ResourceLocation;
-import outskirts.util.vector.Vector3f;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class CommandSummon extends Command {
 

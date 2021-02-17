@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Framebuffer;
+import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.client.render.renderer.gui.FontRenderer;
 import outskirts.client.render.renderer.gui.GuiRenderer;
@@ -44,6 +45,8 @@ public final class RenderEngine {
     private SSAORenderer ssaoRenderer = new SSAORenderer();
     private MapRenderer mapRenderer = new MapRenderer();
     private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
+
+    public ChunkRenderDispatcher chunkRenderDispatcher = new ChunkRenderDispatcher();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()

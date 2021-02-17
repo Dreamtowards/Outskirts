@@ -23,12 +23,12 @@ public final class RenderSection {
     }
 
     void doLoadUp() {
-        Outskirts.getWorld().addEntity(proxyentity);
+        Outskirts.getScheduler().addScheduledTask(() -> Outskirts.getWorld().addEntity(proxyentity));
     }
 
     void doUnloadDown() {
         if (Outskirts.getWorld() == null) return;
-        Outskirts.getWorld().removeEntity(proxyentity);
+        Outskirts.getScheduler().addScheduledTask(() -> Outskirts.getWorld().removeEntity(proxyentity));
     }
 
     public Vector3f position() {

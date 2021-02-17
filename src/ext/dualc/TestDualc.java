@@ -4,20 +4,17 @@ import org.junit.Test;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
-import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.init.Materials;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.gen.NoiseGenerator;
 import outskirts.world.gen.NoiseGeneratorPerlin;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class TestDualc {

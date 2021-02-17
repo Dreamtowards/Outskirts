@@ -5,7 +5,7 @@ import outskirts.command.CommandSender;
 import outskirts.entity.player.EntityPlayer;
 import outskirts.util.vector.Vector3f;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class CommandTeleport extends Command {
 

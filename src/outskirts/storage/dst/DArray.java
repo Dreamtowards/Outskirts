@@ -5,6 +5,7 @@ import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class DArray<E> implements List<E> {
 

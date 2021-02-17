@@ -3,7 +3,6 @@ package outskirts.entity.player;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.screen.GuiScreenChat;
 import outskirts.command.CommandSender;
-import outskirts.entity.Entity;
 import outskirts.entity.EntityCreature;
 import outskirts.init.ex.Models;
 import outskirts.item.inventory.Inventory;
@@ -11,13 +10,12 @@ import outskirts.item.stack.ItemStack;
 import outskirts.network.ChannelHandler;
 import outskirts.physics.collision.dispatch.CollisionManifold;
 import outskirts.physics.collision.shapes.GhostShape;
-import outskirts.physics.collision.shapes.convex.CapsuleShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public abstract class EntityPlayer extends EntityCreature implements CommandSender {
 

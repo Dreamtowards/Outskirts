@@ -1,11 +1,12 @@
 package outskirts.client.render.isoalgorithm.sdf;
 
+import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.StringUtils;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-public class VecCon {
+public final class Vectors {
 
 
     public static Vector3f vec3(float x, float y, float z) {
@@ -48,5 +49,17 @@ public class VecCon {
     public static Vector2f vec2(float x, float y) {
         return new Vector2f(x, y);
     }
+
+
+    public static AABB aabb(Vector3f mn, Vector3f mx) {
+        return new AABB(mn, mx);
+    }
+    public static AABB aabb(Vector3f mn, float sz) {
+        return aabb(mn, vec3(mn).add(sz));
+    }
+    public static AABB aabb(AABB src) {
+        return aabb(src.min, src.max);
+    }
+
 
 }

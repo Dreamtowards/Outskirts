@@ -21,7 +21,7 @@ import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.sdf.DistFunctions;
+import outskirts.client.render.isoalgorithm.sdf.SDF;
 import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
@@ -47,7 +47,7 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.event.Events.EVENT_BUS;
 import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
@@ -158,46 +158,24 @@ public class Outskirts {
              if (p == null) return;
              Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
-             Octree nd = world.getOctree(bs);
-             Octree.forEach(nd, n -> {
-                 if (n.isLeaf()) {
-                     if (vec3(p).sub(bs).sub(((Octree.Leaf)n).min).length() < 1)
-                         ((Octree.Leaf)n).material = Material.REGISTRY.values().get(matId);
-                 }
-             });
-            world.crd.markRebuild(bs);
+             world.findLeaf(p,null).material = Material.REGISTRY.values().get(matId);
+
+            renderEngine.chunkRenderDispatcher.markRebuild(p);
         });
         SystemUtil.debugAddMouseKeyHook(2, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
-//            Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
             AABB aabb = new AABB(vec3(p).sub(5), vec3(p).add(5));
-//            Ref<Octree.Internal> lp = Ref.wrap();
-//            Octree.Leaf lf = world.findLeaf(p, lp); //LOGGER.info(Octree.Leaf.dbgtojson(lf));
-//            Octree.Internal expan = CSG.expand(lf);
-//            lp.value.child(lp.value.childidx(lf), expan);
 
             world.forOctrees(aabb, (nd, v) -> {
-
                 TrifFunc FUNCQ = (x, y, z) -> {
-                    return DistFunctions.box(vec3(x,y,z).add(v).sub(p), vec3(2,3,2));
+                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2,3,2));
                 };
                 CSG.difference(nd, FUNCQ);
             });
-//            LOGGER.info(nds.size());
-//            TrifFunc FUNC = (x, y, z) -> {
-//                return DistFunctions.sphere(vec3(x,y,z).sub(vec3(p).sub(bs)), 2.5f);
-//            };
-//            nd=Octree.fromSDF(bs, 16, FUNC, 5, Materials.DIRT);
-//            Octree.collapse(nd);
-//            Octree node = Octree.fromSDF(vec3(0), 16,isMouseDown(2) ? FUNCQ: FUNC, 5, Materials.DIRT);
-//            Octree oped = CSGOp.opSet(nd, node);
-//            world.getLoadedChunk(bs).octree(0, nd);
 
-            AABB.forGrid(aabb, 16, v -> {
-                world.crd.markRebuild(v);
-            });
+            world.markOctreesModify(aabb);
         });
     }
 

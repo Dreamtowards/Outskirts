@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
 
 public class FontRenderer extends Renderer {
 

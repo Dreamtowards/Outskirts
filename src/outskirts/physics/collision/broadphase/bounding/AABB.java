@@ -4,11 +4,10 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 //2 vec is more flexibly and look-better than 6 float
 public class AABB {

@@ -1,16 +1,15 @@
 package outskirts.world;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.lighting.Light;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkUnloadedEvent;
-import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
+import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.GameTimer;
 import outskirts.util.Ref;
 import outskirts.util.Tickable;
@@ -24,7 +23,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.Maths.floor;
 import static outskirts.util.Maths.mod;
 import static outskirts.util.logging.Log.LOGGER;
@@ -33,17 +33,15 @@ public abstract class World implements Tickable {
 
     private final List<Entity> entities = new ArrayList<>();
 
-    public List<Light> lights = new ArrayList<>(); // better get from entities.
+    private Map<Long, Chunk> loadedChunks = new HashMap<>();
+
+    public List<Light> lights = new ArrayList<>(); // better to get from entities.
 
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
 
-    private Map<Long, Chunk> loadedChunks = new HashMap<>();
-
     private ChunkGenerator chunkGenerator = new ChunkGenerator();
-
     private ChunkLoader chunkLoader = new ChunkLoader();
 
-    public ChunkRenderDispatcher crd = new ChunkRenderDispatcher();
 
     public void addEntity(Entity entity) {
         assert !entities.contains(entity);
@@ -69,7 +67,11 @@ public abstract class World implements Tickable {
         }
     }
 
-    public List<Entity> getEntities(AABB contains) {
+    /**
+     * fc: if contains entity.pos.
+     * fi: if intersects entity.volume.
+     */
+    public List<Entity> getEntitiesfc(AABB contains) {
         // todo: Accumulate algorithms. use of B.P.
         List<Entity> entities = new ArrayList<>();
         synchronized (this.entities) {
@@ -82,23 +84,12 @@ public abstract class World implements Tickable {
     }
 
 
-    // reduc: Instead by raycast.
-    // use for gen on ground top
-//    public final int getHighestBlock(int x, int z) {
-//        Block b;
-//        for (int y = 255;y >= 0;y--) {
-//            if ((b=getBlock(x, y, z)) != null && b.v > 0)
-//                return y;
-//        }
-//        return -1;
-//    }
-
     public Octree.Internal getOctree(Vector3f p) {
         Chunk chunk = getLoadedChunk(p);
         if (chunk == null) return null;
         return chunk.octree(p.y);
     }
-    public void forOctrees(AABB aabb, BiConsumer<Octree, Vector3f> visitor) {
+    public final void forOctrees(AABB aabb, BiConsumer<Octree, Vector3f> visitor) {
         AABB.forGrid(aabb, 16, v -> {
             Octree nd = getOctree(v);
             if (nd != null)
@@ -111,6 +102,12 @@ public abstract class World implements Tickable {
         if (node==null) return null;
         Vector3f rp = Vector3f.mod(vec3(p), 16f).scale(1/16f);
         return Octree.findLeaf(node, rp, lp);
+    }
+
+    public void markOctreesModify(AABB range) {
+        forOctrees(aabb(range).grow(0.1f), (nd, pos) -> {
+            Outskirts.renderEngine.chunkRenderDispatcher.markRebuild(pos);
+        });
     }
 
     /**
@@ -174,6 +171,11 @@ public abstract class World implements Tickable {
     public void unloadChunk(Chunk chunk) {
         loadedChunks.remove(ChunkPos.asLong(chunk.x, chunk.z));
 
+        // Unload Sections.
+        for (int k : new ArrayList<>(chunk.getOctrees().keySet())) {
+            chunk.octree(k, null);
+        }
+
         Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk)));
 
         chunkLoader.saveChunk(chunk);
@@ -212,7 +214,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=1;
+    public static int sz=2;
     {
         Thread t = new Thread(() -> {
             while (true) {

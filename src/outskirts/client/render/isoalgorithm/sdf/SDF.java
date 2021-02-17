@@ -5,8 +5,8 @@ import outskirts.util.vector.Vector3f;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec2;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec2;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.Maths.clamp;
 import static outskirts.util.vector.Vector3f.abs;
 import static outskirts.util.vector.Vector3f.dot;
@@ -24,7 +24,7 @@ import static outskirts.util.vector.Vector3f.dot;
  * https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
  * http://mercury.sexy/hg_sdf/
  */
-public final class DistFunctions {
+public final class SDF {
 
 
 
@@ -42,7 +42,7 @@ public final class DistFunctions {
      */
     public static float box(Vector3f p, Vector3f b) {
         Vector3f q = abs(vec3(p)).sub(b);
-        return min(max(max(q.x, q.y), q.z), 0.0f) + maxv(q, 0.0f).length();
+        return min(max(max(q.x, q.y), q.z), 0.0f) + maxvf(q, 0.0f).length();
     }
 
     /**
@@ -59,9 +59,9 @@ public final class DistFunctions {
         Vector3f t = abs(vec3(p)       ).sub(b);
         Vector3f q = abs(vec3(t).add(e)).sub(e);
         return min(min(
-                maxv(vec3(t.x,q.y,q.z),0.0f).length() +min(max(t.x,max(q.y,q.z)),0.0f),
-                maxv(vec3(q.x,t.y,q.z),0.0f).length() +min(max(q.x,max(t.y,q.z)),0.0f)),
-                maxv(vec3(q.x,q.y,t.z),0.0f).length() +min(max(q.x,max(q.y,t.z)),0.0f));
+                maxvf(vec3(t.x,q.y,q.z),0.0f).length() +min(max(t.x,max(q.y,q.z)),0.0f),
+                maxvf(vec3(q.x,t.y,q.z),0.0f).length() +min(max(q.x,max(t.y,q.z)),0.0f)),
+                maxvf(vec3(q.x,q.y,t.z),0.0f).length() +min(max(q.x,max(q.y,t.z)),0.0f));
     }
 
 
@@ -90,7 +90,7 @@ public final class DistFunctions {
 
     //  UTILITIES
 
-    public static Vector3f maxv(Vector3f dest, float f) {
+    public static Vector3f maxvf(Vector3f dest, float f) {
         return dest.set(Math.max(dest.x, f),
                         Math.max(dest.y, f),
                         Math.max(dest.z, f));

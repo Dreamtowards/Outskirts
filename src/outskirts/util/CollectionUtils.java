@@ -276,6 +276,19 @@ public final class CollectionUtils {
         return orDefault(nullable, def, Objects::isNull);
     }
 
+    public static <T> int removeIf(Collection<T> c, Predicate<T> filter, Consumer<T> onremove) {
+        Val v = Val.zero();
+        c.removeIf(e -> {
+            if (filter.test(e)) {
+                onremove.accept(e);
+                v.val++;
+                return true;
+            }
+            return false;
+        });
+        return (int)v.val;
+    }
+
     /**
      * @param list both "src" AND "dest"
      */

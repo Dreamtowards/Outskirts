@@ -18,7 +18,13 @@ public class CopyOnIterateArrayList<E> extends ArrayList<E> implements RandomAcc
     @Override
     public Iterator<E> iterator() {
 
-        tmpItrArray = toArray(tmpItrArray); // fill elements. (if size not enough, will alloc new array
+        // shink.
+        if (tmpItrArray.length > 16 && tmpItrArray.length > size()*2) {
+            tmpItrArray = (E[])new Object[size()];
+        }
+
+        // fill elements. (if size not enough, will alloc new array
+        tmpItrArray = toArray(tmpItrArray);
 
         return new Itr(size(), tmpItrArray);
     }
@@ -29,7 +35,7 @@ public class CopyOnIterateArrayList<E> extends ArrayList<E> implements RandomAcc
         private int size;
         private E[] itrArray;
 
-        //the tmpItrArray.length may actually bigger than list.size(), so needs size info
+        //the tmpItrArray.length may actually bigger than list.size(), so needs actually size info
         private Itr(int size, E[] itrArray) {
             this.size = size;
             this.itrArray = itrArray;

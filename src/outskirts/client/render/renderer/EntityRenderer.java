@@ -1,7 +1,6 @@
 package outskirts.client.render.renderer;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.client.render.TextureAtlas;
@@ -11,21 +10,18 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
 import outskirts.init.MaterialTextures;
-import outskirts.init.Textures;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
 import outskirts.util.vector.Matrix4f;
-import outskirts.util.vector.Vector4f;
 
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
-import static outskirts.util.logging.Log.LOGGER;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
 
 /**
  * EntityRenderer. a high-level renderer, for Entity

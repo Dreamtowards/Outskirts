@@ -5,6 +5,7 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.render.chunk.RenderSection;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.renderer.post.PostRenderer;
@@ -25,8 +26,8 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_FILL;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec4;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiDebugV extends Gui {
@@ -93,6 +94,13 @@ public class GuiDebugV extends Gui {
                                 Octree nd = Outskirts.getWorld().getOctree(base);
                                 if (g.isChecked() && nd != null) {
                                     drawOctreeAHD(nd, base, 16);
+                                }
+                            });
+                        }),
+                        new GuiCheckBox("MarkedRenderSections.").exec((GuiCheckBox g)->{
+                            g.addOnDrawListener(e -> {
+                                if (g.isChecked()) {
+                                    renderMarkedRenderSections();
                                 }
                             });
                         }),
@@ -215,6 +223,14 @@ public class GuiDebugV extends Gui {
             Outskirts.renderEngine.getDebugVisualGeoRenderer().normColor.set(ncol);
             Outskirts.renderEngine.getDebugVisualGeoRenderer().borderColor.set(bcol);
             Outskirts.renderEngine.getDebugVisualGeoRenderer().render(entity);
+        }
+    }
+
+    private static void renderMarkedRenderSections() {
+        for (RenderSection rs : Outskirts.renderEngine.chunkRenderDispatcher.getRenderSections()) {
+            if (rs.dirty) {
+                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(rs.position()), vec3(rs.position()).add(16)), Colors.RED);
+            }
         }
     }
 

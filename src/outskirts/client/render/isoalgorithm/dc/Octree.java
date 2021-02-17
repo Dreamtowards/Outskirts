@@ -3,7 +3,6 @@ package outskirts.client.render.isoalgorithm.dc;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -21,10 +20,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-import static outskirts.client.render.isoalgorithm.sdf.VecCon.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public abstract class Octree {
 
