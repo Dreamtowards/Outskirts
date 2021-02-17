@@ -29,10 +29,9 @@ public final class ShaderProgram {
     private int fragmentShader;
     private int geometryShader = -1;
 
-    private Map<String, Integer> uniformLocationMap = new HashMap<>(); // cache of UniformLocation(s). for lesser VM access
+    private Map<String, Integer> uniformLocationMap = new HashMap<>();  // cache of glGetUniformLocation(p,n). fast-lookup.
 
     public ShaderProgram(InputStream vsh, InputStream fsh, InputStream gsh) {
-
         vertexShader = loadShader(GL_VERTEX_SHADER, vsh);
         fragmentShader = loadShader(GL_FRAGMENT_SHADER, fsh);
         if (gsh != null)
@@ -63,10 +62,9 @@ public final class ShaderProgram {
     private static int loadShader(int shaderType, InputStream srcis) {
         try {
             int shaderID = glCreateShader(shaderType);
+            String shadersrc = IOUtils.toString(srcis);
 
-            String shaderSrc = IOUtils.toString(srcis);
-
-            glShaderSource(shaderID, shaderSrc);
+            glShaderSource(shaderID, shadersrc);
             glCompileShader(shaderID);
 
             if (glGetShaderi(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
@@ -75,7 +73,6 @@ public final class ShaderProgram {
                 LOGGER.warn(glGetShaderInfoLog(shaderID, 1024));
                 throw new IllegalStateException("GL Shader Compile Error (" + shadername + ")");
             }
-
             return shaderID;
         } catch (IOException ex) {
             throw new RuntimeException("Failed to loadShader().", ex);
@@ -84,14 +81,11 @@ public final class ShaderProgram {
 
     private static String getShaderTypeName(int shaderType) {
         switch (shaderType) {
-            case GL_VERTEX_SHADER:
-                return "GL_VERTEX_SHADER";
-            case GL_FRAGMENT_SHADER:
-                return "GL_FRAGMENT_SHADER";
-            case GL_GEOMETRY_SHADER:
-                return "GL_GEOMETRY_SHADER";
+            case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
+            case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+            case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
+            default: throw new IllegalArgumentException();
         }
-        return "_UNKNOWN_TYPE";
     }
 
     public void useProgram() {

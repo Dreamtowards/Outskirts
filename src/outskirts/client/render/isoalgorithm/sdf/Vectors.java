@@ -2,12 +2,17 @@ package outskirts.client.render.isoalgorithm.sdf;
 
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.StringUtils;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 public final class Vectors {
 
+
+    public static Vector2f vec2(float x, float y) {
+        return new Vector2f(x, y);
+    }
 
     public static Vector3f vec3(float x, float y, float z) {
         return new Vector3f(x, y, z);
@@ -33,6 +38,9 @@ public final class Vectors {
     public static Vector3f vec3(String[] s) {
         return vec3(s, 0);
     }
+    public static Vector3f vec3(Vector4f v) {
+        return vec3(v.x, v.y, v.z);
+    }
 
 
     public static Vector4f vec4(float x, float y, float z, float w) {
@@ -44,10 +52,13 @@ public final class Vectors {
     public static Vector4f vec4(Vector4f v) {
         return vec4(v.x, v.y, v.z, v.w);
     }
+    public static Vector4f vec4(Vector3f v, float w) {
+        return vec4(v.x, v.y, v.z, w);
+    }
 
 
-    public static Vector2f vec2(float x, float y) {
-        return new Vector2f(x, y);
+    public static Matrix4f mat4(Matrix4f m) {
+        return new Matrix4f(m);
     }
 
 

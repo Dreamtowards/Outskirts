@@ -172,6 +172,15 @@ public class Vector4f extends Vector {
 
 
 
+    public Vector4f setv(int i, float v) {  // dosent confuse with set(vec). v means scalar value.
+        if (i==0) x=v;
+        else if (i==1) y=v;
+        else if (i==2) z=v;
+        else if (i==3) w=v;
+        else throw new IndexOutOfBoundsException();
+        return this;
+    }
+
 
 
     public static Vector4f lerp(float t, Vector4f start, Vector4f end, Vector4f dest) {

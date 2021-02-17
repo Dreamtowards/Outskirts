@@ -94,7 +94,7 @@ public final class ClientSettings {
 
 
 
-    public static float MOUSE_SENSITIVITY = .4f;
+    public static float MOUSE_SENSITIVITY = .25f;
 
 
 

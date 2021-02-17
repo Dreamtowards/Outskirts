@@ -214,7 +214,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=2;
+    public static int sz=1;
     {
         Thread t = new Thread(() -> {
             while (true) {
@@ -244,6 +244,6 @@ public abstract class World implements Tickable {
             LOGGER.info("ChunkLoad Thread Done.");
         });
         t.setDaemon(true);
-        t.start();
+//        t.start();
     }
 }

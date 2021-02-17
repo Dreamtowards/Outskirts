@@ -63,7 +63,7 @@ public class GuiScreenOptions extends Gui {
         );
     }
 
-    private static class GuiGraphicOptions extends Gui {
+    static class GuiGraphicOptions extends Gui {
 
         public GuiGraphicOptions() {
 
@@ -75,6 +75,7 @@ public class GuiScreenOptions extends Gui {
                             row("FOV", new GuiSlider().exec((GuiSlider g) -> {
                                 g.setUserMinMaxValue(10, 140);
                                 g.getUserOptionalValues().addAll(Arrays.asList(30f, 70f, 90f));
+                                g.initOnlyIntegerValues();
                                 g.addOnValueChangedListener(e -> {
                                     Outskirts.renderEngine.setFov(g.getCurrentUserValue());
                                 });
@@ -87,6 +88,7 @@ public class GuiScreenOptions extends Gui {
                             row("RenderDistance", new GuiSlider().exec((GuiSlider g) -> {
                                 g.setUserMinMaxValue(0, 10);
                                 g.getUserOptionalValues().addAll(Arrays.asList(0f, 1f, 2f, 3f, 6f, 8f));
+                                g.initOnlyIntegerValues();
                                 g.addOnValueChangedListener(e -> {
                                     World.sz = (int)g.getCurrentUserValue();
                                 });
@@ -99,12 +101,24 @@ public class GuiScreenOptions extends Gui {
                             row("VSync", new GuiSwitch().exec((GuiSwitch g) -> {
                                 g.addOnPressedListener(e -> {
                                     Outskirts.renderEngine.setVSync(g.isChecked());
-                                    LOGGER.info(g.isChecked());
                                 });
                                 g.addOnDrawListener(e -> {
                                     if (Outskirts.renderEngine.isVSync() != g.isChecked()) {
                                         g.setChecked(Outskirts.renderEngine.isVSync());
                                         LOGGER.info(Outskirts.renderEngine.isVSync());
+                                    }
+                                });
+                            })),
+                            row("FPS Capacity", new GuiSlider().exec((GuiSlider g) -> {
+                                g.setUserMinMaxValue(1, 200);
+                                g.getUserOptionalValues().addAll(Arrays.asList(30f, 60f, 120f, 144f));
+                                g.initOnlyIntegerValues();
+                                g.addOnValueChangedListener(e -> {
+                                    ClientSettings.FPS_CAPACITY = (int)g.getCurrentUserValue();
+                                });
+                                g.addOnDrawListener(e -> {
+                                    if (ClientSettings.FPS_CAPACITY != (int)g.getCurrentUserValue()) {
+                                        g.setCurrentUserValue(ClientSettings.FPS_CAPACITY);
                                     }
                                 });
                             }))

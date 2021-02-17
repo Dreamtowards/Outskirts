@@ -7,6 +7,8 @@ import outskirts.util.vector.*;
 
 import java.util.*;
 
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
+
 public final class Maths {
 
     //float ver PI
@@ -14,25 +16,15 @@ public final class Maths {
 
     public static final float FLT_EPSILON = 1.19209290e-07f;
 
-    // param force min/max ..? then return Math.max(Math.min(value, max), min)
-    public static float clamp(float value, float a, float b) {
-        float min = Math.min(a, b);
-        float max = Math.max(a, b);
-        if (value > max)
-            return max;
-        if (value < min)
-            return min;
-        return value;
+
+    public static float clamp(float val, float mn, float mx) {
+        // val = max(mn, val) clip-min
+        // val = min(mx, val) clip-max.
+        return Math.min(Math.max(mn, val), mx);
     }
 
-    public static int clamp(int value, int a, int b) {
-        int min = Math.min(a, b);
-        int max = Math.max(a, b);
-        if (value > max)
-            return max;
-        if (value < min)
-            return min;
-        return value;
+    public static int clamp(int val, int mn, int mx) {
+        return Math.min(Math.max(mn, val), mx);
     }
 
     public static int maxi(float... v) {
@@ -588,27 +580,22 @@ public final class Maths {
     /**
      * note that there are some expensive operations like mat4::inverse mat4::new whether time or space
      */
-    public static Vector3f calculateWorldRay(float vx, float vy, float vwidth, float vheight, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-
+    public static Vector3f calculateWorldRay(float x, float y, float width, float height, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
         //to Viewport Coordinates: xy = (p.x, height-p.y)
 
         //to NDC Coordinates
-        Vector2f ndcCoords = calculateNormalDeviceCoords(vx, vy, vwidth, vheight, null);
+        Vector2f ndcCoords = calculateNormalDeviceCoords(x, y, width, height, null);
 
         //to Clip (Projection) Coordinates Ray
-        Vector4f clipCoords = new Vector4f(ndcCoords.x, ndcCoords.y, -1f, 1f);
+        Vector4f clipCoords = vec4(ndcCoords.x, ndcCoords.y, -1f, 1f);
 
         //to Eye (View) Coordinates Ray
-        Matrix4f inverseProjectionMatrix = new Matrix4f(projectionMatrix).invert();
-        Vector4f eyeCoords = Matrix4f.transform(inverseProjectionMatrix, clipCoords);
-        eyeCoords = new Vector4f(eyeCoords.x, eyeCoords.y, -1f, 0f);
+        Vector4f eyeCoords = Matrix4f.transform(mat4(projectionMatrix).invert(), clipCoords);
+        eyeCoords = vec4(eyeCoords.x, eyeCoords.y, -1f, 0f);
 
         //to World Coordinates Ray
-        Matrix4f inverseViewMatrix = new Matrix4f(viewMatrix).invert();
-        Vector4f worldRay = Matrix4f.transform(inverseViewMatrix, eyeCoords);
-        Vector3f normalizedWorldRay = new Vector3f(worldRay.x, worldRay.y, worldRay.z).normalize();
-
-        return normalizedWorldRay;
+        Vector4f worldray = Matrix4f.transform(mat4(viewMatrix).invert(), eyeCoords);
+        return vec3(worldray.x, worldray.y, worldray.z).normalize();  // normalizedWorldRay
     }
 
     private static Matrix4f lookAtViewMatrix(Vector3f eye, Vector3f center, Vector3f up, Matrix4f dest) {
@@ -636,6 +623,10 @@ public final class Maths {
     }
 
     // RH_ZO -> LH_ZO
+
+    /**
+     * @param fov radius
+     */
     public static Matrix4f createPerspectiveProjectionMatrix(float fov, float width, float height, float near, float far, Matrix4f dest) {
         if (dest == null)
             dest = new Matrix4f();

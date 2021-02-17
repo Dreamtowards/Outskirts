@@ -156,6 +156,12 @@ public class GuiSlider extends Gui {
         return attachListener(OnValueChangeEvent.class, lsr);
     }
 
+    public final void initOnlyIntegerValues() {
+        addOnValueChangeListener(e -> {
+            e.setNewUserValue(Maths.floor(e.getNewUserValue()));
+        });
+    }
+
     public static class OnValueChangedEvent extends GuiEvent { }
 
     public static class OnValueChangeEvent extends GuiEvent {

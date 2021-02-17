@@ -19,6 +19,7 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
+import outskirts.client.render.Frustum;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.SDF;
@@ -37,7 +38,9 @@ import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
+import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
 import java.awt.image.BufferedImage;
@@ -47,7 +50,7 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.event.Events.EVENT_BUS;
 import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
@@ -150,13 +153,37 @@ public class Outskirts {
                 matId = c-48;
             }
         });
-        SystemUtil.debugAddKeyHook(KEY_F4, () -> {
-            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
+        SystemUtil.debugAddKeyHook(KEY_T, () -> {
+//            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
+
+            Frustum frustum = new Frustum();
+
+//            Matrix4f proj = Maths.createPerspectiveProjectionMatrix(Maths.toRadians(170), 1000, 600, .2f, 200, null);
+            Matrix4f mat = Matrix4f.mul(renderEngine.getProjectionMatrix(), renderEngine.getViewMatrix(), null);
+//            mat = new Matrix4f(renderEngine.getProjectionMatrix());
+            frustum.set(mat);
+
+//            mat.invert();
+
+            AABB aabb = aabb(vec3(10), vec3(14));
+            Vector3f point = vec3(10);
+
+            GuiVert3D.INSTANCE.vertices.clear();
+            GuiVert3D.addAABB("AABB", aabb, Colors.GREEN);
+            GuiVert3D.addVert("POINT", point, Colors.GREEN);
+            for (int i = 0;i < 6;i++) {
+                Vector4f plane = frustum.plane(i);
+                LOGGER.info(i+" "+plane);
+                Vector3f n = vec3(plane);
+                GuiVert3D.addNorm("P"+i, vec3(n).scale(-plane.w), n, Colors.RED);
+            }
+            LOGGER.info("CONTAINS_P: "+frustum.contains(point));
+            LOGGER.info("INTERSECTS_AABB: "+frustum.intersects(aabb));
+            System.out.println();
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
              Vector3f p = rayPicker.getCurrentPoint();
              if (p == null) return;
-             Vector3f bs = Vector3f.floor(vec3(p), 16f);
 
              world.findLeaf(p,null).material = Material.REGISTRY.values().get(matId);
 
@@ -166,7 +193,7 @@ public class Outskirts {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
 
-            AABB aabb = new AABB(vec3(p).sub(5), vec3(p).add(5));
+            AABB aabb = new AABB(vec3(p).sub(3), vec3(p).add(3));
 
             world.forOctrees(aabb, (nd, v) -> {
                 TrifFunc FUNCQ = (x, y, z) -> {
@@ -253,7 +280,7 @@ public class Outskirts {
         prb.getAngularVelocity().scale(0);
         prb.getLinearVelocity().scale(0);
 
-        getPlayer().setGamemode(Gamemode.CREATIVE);
+        getPlayer().setGamemode(Gamemode.SPECTATOR);
         getPlayer().setFlymode(true);
 
     }
@@ -284,6 +311,9 @@ public class Outskirts {
 
     private void processInput() {
         dWheel = 0; mouseDX = 0; mouseDY = 0;
+        ffdWheel = Mouse.getDWheel();
+        mouseFFDX = Mouse.getDX();
+        mouseFFDY = -Mouse.getDY();
 
         while (Mouse.next()) {
             if (Mouse.getEventButton() == -1) {
@@ -326,7 +356,8 @@ public class Outskirts {
     }
 
     public static boolean isIngame() {
-        return Outskirts.getWorld() != null && Outskirts.getRootGUI().size() == 1 && Outskirts.getRootGUI().getGui(0) instanceof GuiIngame;
+        return Outskirts.getWorld() != null && Outskirts.getRootGUI().size() == 1 && Outskirts.getRootGUI().getGui(0) instanceof GuiIngame
+                && !isAltKeyDown();
     }
 
     public static boolean isRunning() {
@@ -377,12 +408,22 @@ public class Outskirts {
     public static float getDWheel() {
         return INSTANCE.dWheel;
     }
+    public static float getFFDWheel() {
+        return INSTANCE.ffdWheel;
+    }
 
     public static float getMouseDX() {
         return INSTANCE.mouseDX / GUI_SCALE;
     }
     public static float getMouseDY() {
         return INSTANCE.mouseDY / GUI_SCALE;
+    }
+
+    public static float getMouseFFDX() {
+        return INSTANCE.mouseFFDX / GUI_SCALE;
+    }
+    public static float getMouseFFDY() {
+        return INSTANCE.mouseFFDY / GUI_SCALE;
     }
 
     public static float getMouseX() {

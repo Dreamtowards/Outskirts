@@ -45,12 +45,12 @@ public class Camera {
         if (Outskirts.isIngame()) {
             // actually this mouse-move looks wrong: not sampled full-frame all move records, just sampled frame-tail event move.
             // but this gets better experience effect.
-            eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
-            eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.y += -Math.toRadians(Outskirts.getMouseFFDX() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.x += -Math.toRadians(Outskirts.getMouseFFDY() * ClientSettings.MOUSE_SENSITIVITY);
             eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
 
-            cameraDistance += Math.signum(Outskirts.getDWheel());
-            cameraDistance = Maths.clamp(cameraDistance, -2000, 0);
+            cameraDistance += Math.signum(Outskirts.getFFDWheel());
+            cameraDistance = Math.min(cameraDistance, 0);
         }
 
         // Camera Rotation Matrix

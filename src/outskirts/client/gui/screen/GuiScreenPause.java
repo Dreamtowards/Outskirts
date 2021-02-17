@@ -62,7 +62,9 @@ public class GuiScreenPause extends Gui {
                 new GuiButton("S").exec(g -> {
                     g.setWidth(20);
                     g.setHeight(20);
-                    g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiScreenOptions()));
+                    g.addOnClickListener(e -> {
+                        displayContentGUI(new GuiScreenOptions.GuiGraphicOptions());
+                    });
                 }),
                 new Gui(0, 0, 10, 0),
                 new GuiButton("E").exec(g -> {
@@ -115,8 +117,7 @@ public class GuiScreenPause extends Gui {
     private Gui gTab(String name, Gui gd) {
         return new GuiText(name+"    ").exec((GuiText g) -> {
             g.addOnPressedListener(e -> {
-                gDisplay.removeAllGuis();
-                gDisplay.addGui(gd);
+                displayContentGUI(gd);
                 if (currTab!=null)  // prevents first auto init-select sound
                     GuiButton.playClickSound();
                 currTab=g;
@@ -125,6 +126,11 @@ public class GuiScreenPause extends Gui {
                 g.getTextColor().set(currTab==g?Colors.WHITE: (g.isHover() ? Colors.YELLOW:Colors.GRAY));
             }).priority(EventPriority.HIGH);
         });
+    }
+
+    private void displayContentGUI(Gui gd) {
+        gDisplay.removeAllGuis();
+        gDisplay.addGui(gd);
     }
 
     private static void drawPoint(Vector4f color, float x, float y) {
