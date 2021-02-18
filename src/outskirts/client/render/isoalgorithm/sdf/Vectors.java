@@ -62,14 +62,20 @@ public final class Vectors {
     }
 
 
+    public static AABB aabb(float mnx, float mny, float mnz, float mxx, float mxy, float mxz) {
+        return new AABB(mnx, mny, mnz, mxx, mxy, mxz);
+    }
     public static AABB aabb(Vector3f mn, Vector3f mx) {
-        return new AABB(mn, mx);
+        return aabb(mn.x, mn.y, mn.z, mx.x, mx.y, mx.z);
     }
     public static AABB aabb(Vector3f mn, float sz) {
         return aabb(mn, vec3(mn).add(sz));
     }
     public static AABB aabb(AABB src) {
         return aabb(src.min, src.max);
+    }
+    public static AABB aabb() {
+        return aabb(0, 0, 0, 0, 0, 0);
     }
 
 

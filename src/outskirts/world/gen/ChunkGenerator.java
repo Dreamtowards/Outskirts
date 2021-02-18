@@ -21,14 +21,19 @@ public class ChunkGenerator {
         Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
         GenerationInfo gspec = new GenerationInfo();
 
-        TrifFunc FUNC = (x,y,z) -> {
-            float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
-            if (b < 0) return b;
-            return y-(noise.fbm((chunkpos.x+x)/29,(chunkpos.z+z)/29, 4)*9f+5);
-        };
 
         for (int i = 0;i < 2;i++) {
-            Octree node = Octree.fromSDF(vec3(0,i*16,0), 16, FUNC, 4, lf -> {
+            int finalI = i;
+            TrifFunc FUNC = (x, y, z) -> {
+                x = x+chunkpos.x;
+                y = y+ finalI *16;
+                z = z+chunkpos.z;
+
+                float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
+                if (b < 0) return b;
+                return y-(noise.fbm((x)/29,(z)/29, 4)*9f+19);
+            };
+            Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 4, lf -> {
                 if (FUNC.sample(lf.min) < -1) lf.material = Materials.STONE;
                 else lf.material = Materials.GRASS;
             });

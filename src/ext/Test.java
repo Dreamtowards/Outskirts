@@ -14,7 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.LongConsumer;
 
+import static java.lang.Float.NaN;
 import static java.lang.Math.random;
+import static outskirts.util.Maths.INFINITY;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Test {
@@ -433,7 +435,7 @@ public class Test {
 //        vbuf.inituvnorm();
 //        vbuf.tmpsaveobjfile("ms.obj");
 
-        LOGGER.info(Arrays.asList(StringUtils.explode("", " ")).size());
+        LOGGER.info(Float.POSITIVE_INFINITY == -Float.NEGATIVE_INFINITY);
     }
 
 

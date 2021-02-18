@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public abstract class Octree {
@@ -288,11 +289,11 @@ public abstract class Octree {
                 return null;
             case TYPE_INTERNAL: {
                 Octree.Internal internal = new Octree.Internal();
-                float subsize = size/2f;
+                float subsz = size/2f;
                 Vector3f submin = new Vector3f();
                 for (int i = 0;i < 8;i++) {
-                    submin.set(min).addScaled(subsize, VERT[i]);
-                    internal.child(i, readOctree(is, submin, subsize));
+                    submin.set(min).addScaled(subsz, VERT[i]);
+                    internal.child(i, readOctree(is, submin, subsz));
                 }
                 return internal; }
             case TYPE_LEAF: {
@@ -313,9 +314,9 @@ public abstract class Octree {
 
                     leaf.edges[idx] = h;
                 }
-//                leaf.computefp();
-
                 // METADATA byte[short]
+                int idx = IOUtils.readInt(is);
+                leaf.material = Material.REGISTRY.values().get(idx);
                 return leaf; }
             default:
                 throw new IllegalStateException("Unknown type.");
@@ -335,7 +336,6 @@ public abstract class Octree {
         } else {
             Octree.Leaf leaf = (Octree.Leaf)node;
             IOUtils.writeByte(os, TYPE_LEAF);
-
             IOUtils.writeByte(os, leaf.vsign);
 
             int sz = CollectionUtils.nonnulli(leaf.edges);
@@ -346,10 +346,6 @@ public abstract class Octree {
                 if (h != null) {
                     IOUtils.writeByte(os, (byte)i);
 
-//                    int axis = edgeaxis(i);
-//                    float minf = leaf.min.get(axis);
-//                    float t = Maths.inverseLerp(h.point.get(axis), minf, minf+leaf.size);  assert t >= 0F && t <= 1F;
-//                    IOUtils.writeFloat(os, t);
                     float t = leaf.edgept(i);
                     IOUtils.writeFloat(os, t);
 
@@ -359,6 +355,7 @@ public abstract class Octree {
                 }
             }
             // METADATA byte[short]
+            IOUtils.writeInt(os, Material.REGISTRY.values().indexOf(leaf.material));
         }
     }
 

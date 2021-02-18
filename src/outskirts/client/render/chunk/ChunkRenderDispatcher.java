@@ -10,10 +10,8 @@ import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkUnloadedEvent;
 import outskirts.event.world.chunk.section.SectionLoadedEvent;
 import outskirts.event.world.chunk.section.SectionUnloadedEvent;
-import outskirts.util.CollectionUtils;
-import outskirts.util.CopyOnIterateArrayList;
-import outskirts.util.Ref;
-import outskirts.util.SystemUtil;
+import outskirts.physics.collision.broadphase.bounding.AABB;
+import outskirts.util.*;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.ChunkPos;
 
@@ -21,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -44,6 +43,9 @@ public class ChunkRenderDispatcher {
 
         rs.doLoadUp();
         rendersections.add(rs);
+
+        // also updates neiberghts. for ensure seamless mesh.
+        markRebuild(aabb(e.getPosition(), 16));
     }
 
     @EventHandler
@@ -68,6 +70,14 @@ public class ChunkRenderDispatcher {
         rs.dirty = true;
         return true;
     }
+    public final int markRebuild(AABB range) {
+        Val c = Val.zero();
+        AABB.forGridi(aabb(range).grow(0.1f), 16, p -> {
+            if (markRebuild(p))
+                c.val++;
+        });
+        return (int)c.val;
+    }
 
     public List<RenderSection> getRenderSections() {
         return Collections.unmodifiableList(rendersections);
@@ -78,6 +88,10 @@ public class ChunkRenderDispatcher {
         public void run() {
             while (Outskirts.isRunning()) {
                 for (RenderSection rs : rendersections) {
+                    if (rs == null) {
+                        LOGGER.info("RS == null. HOW??");
+                        continue;
+                    }
                     if (rs.dirty) {
                         rs.dirty = false;
                         processRenderSection(rs);
@@ -98,7 +112,7 @@ public class ChunkRenderDispatcher {
             Outskirts.getScheduler().addScheduledTask(() -> {
                 Model model = Loader.loadModel(3,vbuf.posarr(), 2,vbuf.uvarr(), 3,vbuf.normarr(), 1,vertm.value);
                 rs.setModel(model);
-                LOGGER.info("MODEL UPLOADED. "+model);
+//                LOGGER.info("MODEL UPLOADED. "+model);
             });
         }
     }

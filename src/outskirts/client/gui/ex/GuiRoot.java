@@ -8,23 +8,6 @@ import java.util.List;
 
 public final class GuiRoot extends Gui {
 
-    // how about the convinent startScreen(GuiScreen screen) .?
-    @Override
-    public <T extends Gui> T addGui(T gui, int index) {
-        T r = super.addGui(gui, index);
-        updateMouseGrab();
-        return r;
-    }
-    @Override
-    public Gui removeGui(int index) {
-        Gui r = super.removeGui(index);
-        updateMouseGrab();
-        return r;
-    }
-    private void updateMouseGrab() {
-        Outskirts.setMouseGrabbed(size() == 1 && getGui(0) instanceof GuiIngame);
-    }
-
     public final void removeLastGui() {
         removeGui(size()-1);
     }

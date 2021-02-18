@@ -11,14 +11,15 @@ public final class Registry<T extends Registrable> {
     private List<String> syncedkeys = new ArrayList<>();   // synced with entries
 
     public T register(T entry) {
-        String registryID;
-        Validate.notNull(entry, "Registration Entry must be nonnull. (%s)", entry);
-        Validate.notNull(registryID=entry.getRegistryID(), "RegistryID must be nonnull. (%s)", entry);
-        Validate.validState(!containsKey(registryID), "RegistryID \"%s\" already been registered.", registryID);
+        if (entry == null) {  // for the zero 'null' holdplacer.
+            assert size()==0;
+        } else {
+            String registryID = Objects.requireNonNull(entry.getRegistryID());
+            assert !containsKey(registryID) : "RegistryID '"+registryID+"' already been registered.";
+        }
 
         entries.add(entry);
-
-        rebuildSyncedKeys();
+        rebuildSyncKeys();
 
         return entry;
     }
@@ -50,10 +51,10 @@ public final class Registry<T extends Registrable> {
     }
 
 
-    private void rebuildSyncedKeys() {
+    private void rebuildSyncKeys() {
         syncedkeys.clear();
         for (T e : entries) {
-            syncedkeys.add(e.getRegistryID());
+            syncedkeys.add(e == null ? null : e.getRegistryID());
         }
     }
 }

@@ -5,6 +5,8 @@ import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -62,6 +64,16 @@ public class DObject implements Map<String, Object> {
         return (String)get(k);
     }
 
+    public byte[] getByteArray(String k) {
+        return (byte[])get(k);
+    }
+    public InputStream getByteArrayi(String k) {
+        return new ByteArrayInputStream(getByteArray(k));
+    }
+
+    public int getInt(String k) {
+        return (int)get(k);
+    }
 
 
     @Override

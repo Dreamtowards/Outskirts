@@ -90,7 +90,7 @@ public abstract class World implements Tickable {
         return chunk.octree(p.y);
     }
     public final void forOctrees(AABB aabb, BiConsumer<Octree, Vector3f> visitor) {
-        AABB.forGrid(aabb, 16, v -> {
+        AABB.forGridi(aabb, 16, v -> {
             Octree nd = getOctree(v);
             if (nd != null)
                 visitor.accept(nd, v);
@@ -104,12 +104,6 @@ public abstract class World implements Tickable {
         return Octree.findLeaf(node, rp, lp);
     }
 
-    public void markOctreesModify(AABB range) {
-        forOctrees(aabb(range).grow(0.1f), (nd, pos) -> {
-            Outskirts.renderEngine.chunkRenderDispatcher.markRebuild(pos);
-        });
-    }
-
     /**
      * @param x,z world_coordinate.any
      */
@@ -117,21 +111,13 @@ public abstract class World implements Tickable {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
-//            chunk = chunkLoader.loadChunk(this, chunkpos);
+            chunk = chunkLoader.loadChunk(this, chunkpos);
 
             if (chunk == null) {
                 chunk = chunkGenerator.generate(chunkpos, this);
             }
 
             loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
-//            Chunk finalChunk = chunk;
-//            Outskirts.getScheduler().addScheduledTask(() -> addEntity(finalChunk.proxyEntity));
-//            for (int dx=-1;dx<=0;dx++) {
-//                for (int dz=-1;dz<=0;dz++) {
-//                    Chunk c = getLoadedChunk(x+dx*16, z+dz*16);
-//                    if (c!=null)c.markedRebuildModel=true;
-//                }
-//            }
 
 //            tryPopulate(chunkpos);
 
@@ -171,14 +157,14 @@ public abstract class World implements Tickable {
     public void unloadChunk(Chunk chunk) {
         loadedChunks.remove(ChunkPos.asLong(chunk.x, chunk.z));
 
+        chunkLoader.saveChunk(chunk);
+
         // Unload Sections.
         for (int k : new ArrayList<>(chunk.getOctrees().keySet())) {
             chunk.octree(k, null);
         }
 
         Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk)));
-
-        chunkLoader.saveChunk(chunk);
     }
 
     /**

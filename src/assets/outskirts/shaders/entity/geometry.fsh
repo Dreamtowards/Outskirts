@@ -41,7 +41,6 @@ void main() {
 //        discard;
 //    }
 
-
     gPositionDepth.xyz = FragPos;
     gPositionDepth.w = lineardepth(gl_FragCoord.z);
 
@@ -55,7 +54,6 @@ void main() {
     p_uv[0] = modv2u(vec2(-FragPos.z, FragPos.y));
     p_uv[1] = modv2u(vec2(FragPos.x, -FragPos.z));
     p_uv[2] = modv2u(FragPos.xy);
-
     vec3 p_weight = abs(FragNorm);  p_weight /= p_weight.x + p_weight.y + p_weight.z;
 
     vec4 vfrag[3];
@@ -68,28 +66,27 @@ void main() {
     float h_v2 = texture_triplanar(displacementMap, vfrag[2], p_uv, p_weight).r * TriWeight.z;
     int h_i = h_v0 > h_v1 ? (h_v0 > h_v2 ? 0 : 2) : (h_v1 > h_v2 ? 1 : 2);
 
-    if (texture(normalMap, vec2(0)).a != 0) {  // Valid Normal Map.
-        if (TBN != mat3(0)) { // UV Mesh.
-            FragNorm = TBN * UnpackTNorm(vTexCoord);
-        } else {
-            // Triplanar Normal Mapping. useof Whiteout Blend. based on UDN-blend.
-            // there may have axis dir problem.
-
-            vec3 tnormX = UnpackTNorm(vfrag[h_i].xy +p_uv[0]*vfrag[h_i].zw);
-            vec3 tnormY = UnpackTNorm(vfrag[h_i].xy +p_uv[1]*vfrag[h_i].zw);
-            vec3 tnormZ = UnpackTNorm(vfrag[h_i].xy +p_uv[2]*vfrag[h_i].zw);
-
-            tnormX = vec3(tnormX.xy + vec2(vNorm.z, vNorm.y), abs(tnormX.z) * vNorm.x);
-            tnormY = vec3(tnormY.xy + vec2(vNorm.x, vNorm.z), abs(tnormY.z) * vNorm.y);
-            tnormZ = vec3(tnormZ.xy + vNorm.xy, abs(tnormZ.z) * vNorm.z);
-
-            FragNorm = normalize(
-                vec3(tnormX.zy, tnormX.x) * p_weight.x +  // when 'rotate' tangent-norm to axis X.
-                vec3(tnormY.xz, tnormY.y) * p_weight.y +
-                vec3(tnormZ.xyz)          * p_weight.z
-            );
-        }
-    }
+//    if (TBN != mat3(0)) { // UV Mesh.
+//        if (texture(normalMap, vec2(0)).a != 0) {  // valid normalMap.
+//            FragNorm = TBN * UnpackTNorm(vTexCoord);
+//        }
+//    } else {
+//        // Triplanar Normal Mapping. useof Whiteout Blend. based on UDN-blend.
+//        // there may have axis dir problem.
+//        vec3 tnormX = UnpackTNorm(vfrag[h_i].xy +p_uv[0]*vfrag[h_i].zw);
+//        vec3 tnormY = UnpackTNorm(vfrag[h_i].xy +p_uv[1]*vfrag[h_i].zw);
+//        vec3 tnormZ = UnpackTNorm(vfrag[h_i].xy +p_uv[2]*vfrag[h_i].zw);
+//
+//        tnormX = vec3(tnormX.xy + vec2(vNorm.z, vNorm.y), abs(tnormX.z) * vNorm.x);
+//        tnormY = vec3(tnormY.xy + vec2(vNorm.x, vNorm.z), abs(tnormY.z) * vNorm.y);
+//        tnormZ = vec3(tnormZ.xy + vNorm.xy, abs(tnormZ.z) * vNorm.z);
+//
+//        FragNorm = normalize(
+//            vec3(tnormX.zy, tnormX.x) * p_weight.x +  // when 'rotate' tangent-norm to axis X.
+//            vec3(tnormY.xz, tnormY.y) * p_weight.y +
+//            vec3(tnormZ.xyz)          * p_weight.z
+//        );
+//    }
 
 
     gNormal = FragNorm;

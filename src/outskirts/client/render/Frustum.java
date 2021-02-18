@@ -8,6 +8,7 @@ import outskirts.util.vector.Vector4f;
 
 // http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
 // https://www.flipcode.com/archives/Frustum_Culling.shtml
+// https://iquilezles.org/www/articles/frustumcorrect/frustumcorrect.htm
 public final class Frustum {
 
     /** [-x, +x, -y, +y, -z, +z] */

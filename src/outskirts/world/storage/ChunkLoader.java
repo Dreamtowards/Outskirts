@@ -20,7 +20,7 @@ public class ChunkLoader {
             if (!chunkfile.exists()) return null;
 
             FileInputStream fis = new FileInputStream(chunkfile);
-            DObject mpChunk = DSTUtils.read(fis);fis.close();
+            DObject mpChunk = DSTUtils.read(fis); fis.close();
 
             Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
             chunk.onRead(mpChunk);
@@ -36,9 +36,7 @@ public class ChunkLoader {
             File chunkfile = chunkfile(ChunkPos.of(chunk));
             FileUtils.mkdirs(chunkfile.getParentFile());
 
-            DObject mpChunk = new DObject();
-
-            chunk.onWrite(mpChunk);
+            DObject mpChunk = chunk.onWrite(new DObject());
 
             DSTUtils.write(mpChunk, new FileOutputStream(chunkfile));
         } catch (IOException ex) {

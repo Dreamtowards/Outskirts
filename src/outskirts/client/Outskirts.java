@@ -144,7 +144,7 @@ public class Outskirts {
     //todo: GameRule LS   Separator/ NonCollision
     //tod0: DebugV OP. options
 
-    public static int matId = 0;
+    public static int matId = 1;
 
     {
         EVENT_BUS.register(CharInputEvent.class, e -> {
@@ -156,21 +156,22 @@ public class Outskirts {
         SystemUtil.debugAddKeyHook(KEY_T, () -> {
 //            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
-
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
              Vector3f p = rayPicker.getCurrentPoint();
              if (p == null) return;
 
-             world.findLeaf(p,null).material = Material.REGISTRY.values().get(matId);
+             Octree.Leaf lf = world.findLeaf(p,null);
+             lf.material = Material.REGISTRY.values().get(matId);
 
-            renderEngine.chunkRenderDispatcher.markRebuild(p);
+             Vector3f mn = Vector3f.floor(vec3(p), lf.size);
+             renderEngine.chunkRenderDispatcher.markRebuild(aabb(mn, lf.size));
         });
         SystemUtil.debugAddMouseKeyHook(2, () -> {
             Vector3f p = rayPicker.getCurrentPoint();
             if (p==null)return;
 
-            AABB aabb = new AABB(vec3(p).sub(3), vec3(p).add(3));
+            AABB aabb = aabb(vec3(p).sub(3), 6);
 
             world.forOctrees(aabb, (nd, v) -> {
                 TrifFunc FUNCQ = (x, y, z) -> {
@@ -179,7 +180,7 @@ public class Outskirts {
                 CSG.difference(nd, FUNCQ);
             });
 
-            world.markOctreesModify(aabb);
+            renderEngine.chunkRenderDispatcher.markRebuild(aabb);
         });
     }
 
@@ -278,6 +279,7 @@ public class Outskirts {
                 if (KEY_SNEAK.isKeyDown()) player.walk(lv, new Vector3f(0, -1, 0));
 
             }
+            setMouseGrabbed(isIngame());
 
 
             profiler.push("world");
@@ -418,8 +420,7 @@ public class Outskirts {
     }
 
     public static boolean isCtrlKeyDown() {
-        if (IS_OSX) return isKeyDown(KEY_LMETA) || isKeyDown(KEY_RMETA);
-        else return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL);
+        return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL);
     }
     public static boolean isShiftKeyDown() {
         return isKeyDown(KEY_LSHIFT) || isKeyDown(KEY_RSHIFT);
@@ -436,6 +437,7 @@ public class Outskirts {
     }
 
     public static void setMouseGrabbed(boolean grabbed) {
+        if (Mouse.isGrabbed() == grabbed) return;
         Mouse.setGrabbed(grabbed);
     }
 

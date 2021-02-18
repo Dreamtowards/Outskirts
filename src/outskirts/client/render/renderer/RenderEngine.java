@@ -112,7 +112,7 @@ public final class RenderEngine {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK); // DEF
         glFrontFace(GL_CCW); // DEF
 
@@ -235,6 +235,9 @@ public final class RenderEngine {
         return frustum;
     }
 
+    public ChunkRenderDispatcher getChunkRenderDispatcher() {
+        return chunkRenderDispatcher;
+    }
 
     public static void checkGlError(String msg) {
         int i = glGetError();

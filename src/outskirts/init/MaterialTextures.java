@@ -22,8 +22,13 @@ public final class MaterialTextures {
     public static TextureAtlas DISPLACEMENT_ATLAS = new TextureAtlas();
 
     public static void init() {
+        BufferedImage emp = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        DIFFUSE_ATLAS.register(emp);
+        NORMAL_ATLAS.register(emp);
+        DISPLACEMENT_ATLAS.register(emp);
 
         for (Material mtl : Material.REGISTRY.values()) {
+            if (mtl==null) continue; // the first. Air.
             String regid = new Identifier(mtl.getRegistryID()).getPath();
             BufferedImage diff = loadpng(String.format("materials/%s/%s.png", regid, regid));
             BufferedImage norm = loadpng(String.format("materials/%s/%s_norm.png", regid, regid));

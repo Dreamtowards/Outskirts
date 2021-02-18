@@ -12,16 +12,22 @@ import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DArray;
 import outskirts.storage.dst.DObject;
+import outskirts.util.IOUtils;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static outskirts.util.logging.Log.LOGGER;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.event.Events.EVENT_BUS;
+import static outskirts.util.Maths.INFINITY;
+import static outskirts.util.vector.Vector3f.ZERO;
 
 public class Chunk implements Savable {
 
@@ -61,14 +67,12 @@ public class Chunk implements Savable {
         Vector3f p = vec3(x, k, z);
         if (node == null) {
             // Unload.
-            sections.remove(k);
+            Octree pn = sections.remove(k);  assert pn == null;
             EVENT_BUS.post(new SectionUnloadedEvent(this, p));
         } else {
             // Load
-            Octree prev = sections.put(k, (Octree.Internal)node);
-            assert prev == null : "Cant Replace. looks no sense";
+            Octree pn = sections.put(k, (Octree.Internal)node);  assert pn == null : "Cant Replace. looks no sense";
             EVENT_BUS.post(new SectionLoadedEvent(this, p));
-            world.markOctreesModify(aabb(p, 16));
         }
     }
 
@@ -81,10 +85,12 @@ public class Chunk implements Savable {
     }
 
     @Override
-    public void onRead(DObject mp) {
+    public void onRead(DObject mp) throws IOException {
 
         DObject mpMetadata = mp.getDObject("metadata");
         populated = mpMetadata.getBoolean("populated");
+        assert  x==mpMetadata.getInt("x") &&
+                z==mpMetadata.getInt("z");
 
 
         DArray<DObject> mpEntities = mp.getDArray("entities");
@@ -93,65 +99,54 @@ public class Chunk implements Savable {
         }
 
 
-//        DObject mpTerrain = mp.getDObject("terrain"); {
-//            DArray<String> lsBlocks = mpTerrain.getDArray("blocks");
-//            int i = 0;
-//            for (int x = 0; x < 16; x++) {
-//                for (int y = 0; y < 32; y++) {
-//                    for (int z = 0; z < 16; z++) {
-//                        String s = lsBlocks.getString(i);
-//                        if (!s.isEmpty()) {
-//                            setBlock(x, y, z, Block.REGISTRY.get(s));
-//                        }
-//                        i++;
-//                    }
-//                }
-//            }
-//        }
-
+        InputStream bSections = mp.getByteArrayi("sections");
+        int numSections = IOUtils.readInt(bSections); assert numSections >= 0;
+        for (int i = 0;i < numSections;i++) {
+            int yk = IOUtils.readInt(bSections);
+            Octree rnode = Octree.readOctree(bSections, vec3(0), 16f);
+            octree(yk, rnode);
+        }
     }
 
     @Override
-    public DObject onWrite(DObject mp) {
+    public DObject onWrite(DObject mp) throws IOException {
 
-        {
-            DObject mpMetadata = new DObject();
-            mpMetadata.put("x", x);
-            mpMetadata.put("z", z);
-            mpMetadata.put("modify_time", Outskirts.getSystemTime());
-            mpMetadata.putBoolean("populated", populated);
-            mp.put("metadata", mpMetadata);
-        }
+        DObject mpMetadata = new DObject();
+        mpMetadata.put("x", x);
+        mpMetadata.put("z", z);
+        mpMetadata.put("modify_time", Outskirts.getSystemTime());
+        mpMetadata.putBoolean("populated", populated);
+        mp.put("metadata", mpMetadata);
 
-        {
-            DArray<DObject> lsEntities = new DArray<>();
-            AABB chunkAabb = new AABB(x, 0, z, x+16, 256, z+16);
-            for (Entity entity : world.getEntitiesfc(chunkAabb)) {
-                if (entity instanceof EntityPlayer || entity instanceof EntityStaticMesh || entity instanceof EntityDropItem)
-                    continue;
-                DObject mpEntity = new DObject();
-                entity.onWrite(mpEntity);
-                lsEntities.add(mpEntity);
-            }
-            mp.put("entities", lsEntities);
-        }
 
-        {
-            DObject mpTerrain = new DObject();
-//            DArray lsBlocks = new DArray(); {
-//                for (int x = 0;x < 16;x++) {
-//                    for (int y = 0;y < 32;y++) {
-//                        for (int z = 0;z < 16;z++) {
-//                            Block b = getBlock(x,y,z);
-//                            lsBlocks.add(b==null ? "" : b.getRegistryID());
-//                        }
-//                    }
-//                }
-//            } mpTerrain.put("blocks", lsBlocks);
-            mp.put("terrain", mpTerrain);
+        DArray<DObject> lsEntities = new DArray<>();
+        for (Entity entity : world.getEntitiesfc(getAABB(aabb()))) {
+            if (!shouldStore(entity)) continue;
+            DObject mpEntity = entity.onWrite(new DObject());
+            lsEntities.add(mpEntity);
         }
+        mp.put("entities", lsEntities);
+
+
+        ByteArrayOutputStream bSections = new ByteArrayOutputStream();
+        IOUtils.writeInt(bSections, sections.size());
+        for (int yk : sections.keySet()) {
+            IOUtils.writeInt(bSections, yk);
+            Octree.writeOctree(bSections, sections.get(yk));
+        }
+        mp.put("sections", bSections.toByteArray());
+
 
         return mp;
     }
 
+    private static boolean shouldStore(Entity entity) {
+        if (entity instanceof EntityPlayer || entity instanceof EntityStaticMesh || entity instanceof EntityDropItem)
+            return false;
+        return true;
+    }
+
+    private AABB getAABB(AABB dest) {
+        return dest.set(x,-INFINITY,z, x+16,INFINITY,z+16);
+    }
 }

@@ -16,6 +16,7 @@ public final class Maths {
 
     public static final float FLT_EPSILON = 1.19209290e-07f;
 
+    public static final float INFINITY = Float.POSITIVE_INFINITY;
 
     public static float clamp(float val, float mn, float mx) {
         // val = max(mn, val) clip-min

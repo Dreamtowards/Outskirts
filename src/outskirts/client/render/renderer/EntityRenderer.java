@@ -46,7 +46,7 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.setInt("specularMap", 1);
         shaderGeometry.setInt("normalMap", 2);
         shaderGeometry.setInt("displacementMap", 3);
-        // emissionMap, environmentMap,
+        // emissionMap, environmentMap
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
