@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Framebuffer;
+import outskirts.client.render.Frustum;
 import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.client.render.renderer.gui.FontRenderer;
@@ -16,10 +17,14 @@ import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.client.render.shader.ShaderProgram;
+import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
@@ -31,6 +36,9 @@ public final class RenderEngine {
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
 
+    private Matrix4f cacheProjectionViewMatrix = new Matrix4f();
+    private Frustum frustum = new Frustum();
+
     public static float NEAR_PLANE = 0.1f;
     public static float FAR_PLANE = 1000f;
 
@@ -39,7 +47,7 @@ public final class RenderEngine {
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
-//    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
+    private SkyboxRenderer skyboxRenderer;// = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();
@@ -110,15 +118,28 @@ public final class RenderEngine {
 
         RenderEngine.checkGlError("prepare");
 
-        // todo: split out. refreshViewMatrix(), refreshProjectionMatrix(), or just refreshViewProjectionMatrix().
-        // projection matrix almost only needs been update when, FOV changed, width/height changed.. one of those args changed..
-        // but the calculation is very lightweight. and good at in-time update. like arbitrary to set FOV.. at anytime and dosen't needs manually update (the projmatrix).
-        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), NEAR_PLANE, FAR_PLANE, getProjectionMatrix());
-        // Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
 
-        Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), getViewMatrix());
-
+        refreshProjectionMatrix();
+        refreshViewMatrix();
+        if (!Outskirts.isCtrlKeyDown())
+        refreshViewFrustum();
     }
+
+    // update when view-aspect, FOV, near/far plane changed.
+    private void refreshProjectionMatrix() {
+        Maths.createPerspectiveProjectionMatrix(Maths.toRadians(getFov()), Outskirts.getWidth(), Outskirts.getHeight(), NEAR_PLANE, FAR_PLANE, projectionMatrix);
+        // Maths.createOrthographicProjectionMatrix(Outskirts.getWidth()*f, Outskirts.getHeight()*f, ClientSettings.FAR_PLANE, getProjectionMatrix());
+    }
+
+    private void refreshViewMatrix() {
+        Maths.createViewMatrix(Outskirts.getCamera().getPosition(), Outskirts.getCamera().getRotation(), viewMatrix);
+    }
+
+    private void refreshViewFrustum() {
+        Matrix4f.mul(projectionMatrix, viewMatrix, cacheProjectionViewMatrix);
+        getViewFrustum().set(cacheProjectionViewMatrix);
+    }
+
 
     public void render(World world) {
 
@@ -137,11 +158,20 @@ public final class RenderEngine {
 //        worldFramebuffer.popFramebuffer();
 
 
+        List<Entity> entities = new ArrayList<>();
+        for (Entity entity : world.getEntities()) {
+            if (entity == Outskirts.getCamera().getOwnerEntity() && Outskirts.getCamera().getCameraDistance() == 0)
+                continue;
+            // Frustum Culling.
+            if (getViewFrustum().intersects(entity.getRigidBody().getAABB())) {
+                entities.add(entity);
+            }
+        }
 
         gBufferFBO.bindPushFramebuffer();
             prepare();
             glDisable(GL_BLEND);
-            entityRenderer.renderGBuffer(world.getEntities());
+            entityRenderer.renderGBuffer(entities);
             glEnable(GL_BLEND);
         gBufferFBO.popFramebuffer();
 
@@ -167,13 +197,6 @@ public final class RenderEngine {
 
     }
 
-    public static void checkGlError(String msg) {
-        int i = glGetError();
-        if (i != 0) {
-            LOGGER.warn("######## GL Error ########");
-            LOGGER.warn("{}: {}.", msg, i);
-        }
-    }
 
 
 
@@ -208,6 +231,18 @@ public final class RenderEngine {
         return projectionMatrix;
     }
 
+    public Frustum getViewFrustum() {
+        return frustum;
+    }
+
+
+    public static void checkGlError(String msg) {
+        int i = glGetError();
+        if (i != 0) {
+            LOGGER.warn("######## GL Error ########");
+            LOGGER.warn("{}: {}.", msg, i);
+        }
+    }
 
     public EntityRenderer getEntityRenderer() {
         return entityRenderer;
@@ -224,9 +259,9 @@ public final class RenderEngine {
     public ShadowRenderer getShadowRenderer() {
         return shadowRenderer;
     }
-//    public SkyboxRenderer getSkyboxRenderer() {
-//        return skyboxRenderer;
-//    }
+    public SkyboxRenderer getSkyboxRenderer() {
+        return skyboxRenderer;
+    }
     public ParticleRenderer getParticleRenderer() {
         return particleRenderer;
     }

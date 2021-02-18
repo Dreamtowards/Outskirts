@@ -40,22 +40,13 @@ public class EntityRenderer extends Renderer {
 
     public EntityRenderer() {
         //init Texture-Units
-//        shader.useProgram();
-//        shader.setInt("material.diffuseSampler", 0);
-//        shader.setInt("material.specularSampler", 1);
-//        shader.setInt("material.emissionSampler", 2);
-//        shader.setInt("material.normalSampler", 3);
-//        shader.setInt("material.displacementSampler", 4);
-//
-//        shader.setInt("environmentSampler", 5);
-//        shader.setInt("shadowdepthmapSampler", 6);
 
         shaderGeometry.useProgram();
         shaderGeometry.setInt("diffuseMap", 0);
         shaderGeometry.setInt("specularMap", 1);
         shaderGeometry.setInt("normalMap", 2);
         shaderGeometry.setInt("displacementMap", 3);
-
+        // emissionMap, environmentMap,
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -91,8 +82,6 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
 
         for (Entity entity : entities) {
-            if (entity == Outskirts.getCamera().getOwnerEntity() && Outskirts.getCamera().getCameraDistance() == 0)
-                continue;
             Model model = entity.getModel();
             RenderPerferences renderPerferences = entity.getRenderPerferences();
 

@@ -156,30 +156,7 @@ public class Outskirts {
         SystemUtil.debugAddKeyHook(KEY_T, () -> {
 //            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
-            Frustum frustum = new Frustum();
 
-//            Matrix4f proj = Maths.createPerspectiveProjectionMatrix(Maths.toRadians(170), 1000, 600, .2f, 200, null);
-            Matrix4f mat = Matrix4f.mul(renderEngine.getProjectionMatrix(), renderEngine.getViewMatrix(), null);
-//            mat = new Matrix4f(renderEngine.getProjectionMatrix());
-            frustum.set(mat);
-
-//            mat.invert();
-
-            AABB aabb = aabb(vec3(10), vec3(14));
-            Vector3f point = vec3(10);
-
-            GuiVert3D.INSTANCE.vertices.clear();
-            GuiVert3D.addAABB("AABB", aabb, Colors.GREEN);
-            GuiVert3D.addVert("POINT", point, Colors.GREEN);
-            for (int i = 0;i < 6;i++) {
-                Vector4f plane = frustum.plane(i);
-                LOGGER.info(i+" "+plane);
-                Vector3f n = vec3(plane);
-                GuiVert3D.addNorm("P"+i, vec3(n).scale(-plane.w), n, Colors.RED);
-            }
-            LOGGER.info("CONTAINS_P: "+frustum.contains(point));
-            LOGGER.info("INTERSECTS_AABB: "+frustum.intersects(aabb));
-            System.out.println();
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
              Vector3f p = rayPicker.getCurrentPoint();

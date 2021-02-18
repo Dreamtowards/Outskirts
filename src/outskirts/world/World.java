@@ -244,6 +244,6 @@ public abstract class World implements Tickable {
             LOGGER.info("ChunkLoad Thread Done.");
         });
         t.setDaemon(true);
-//        t.start();
+        t.start();
     }
 }

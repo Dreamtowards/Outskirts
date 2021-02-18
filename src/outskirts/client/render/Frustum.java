@@ -15,17 +15,10 @@ public final class Frustum {
 
     // RH -> LH.
     public void set(Matrix4f m) {
-//        for (int i = 0;i < 6;i++) {
-//            for (int j = 0;j < 4;j++) {
-//                ps[i].setv(j, m.get(3,j) + (i%2==0?1:-1)*m.get(i/2, j));
-//            }
-//        }
         ps[0].set(m.m30 + m.m00, m.m31 + m.m01, m.m32 + m.m02, m.m33 + m.m03);
         ps[1].set(m.m30 - m.m00, m.m31 - m.m01, m.m32 - m.m02, m.m33 - m.m03);
-
         ps[2].set(m.m30 + m.m10, m.m31 + m.m11, m.m32 + m.m12, m.m33 + m.m13);
         ps[3].set(m.m30 - m.m10, m.m31 - m.m11, m.m32 - m.m12, m.m33 - m.m13);
-
         ps[4].set(m.m30 + m.m20, m.m31 + m.m21, m.m32 + m.m22, m.m33 + m.m23);
         ps[5].set(m.m30 - m.m20, m.m31 - m.m21, m.m32 - m.m22, m.m33 - m.m23);
     }
