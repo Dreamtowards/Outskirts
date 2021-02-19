@@ -17,8 +17,8 @@ public class DstJsonConvert {
     public static boolean BYTEARRAY_BASE64STR = true;
 
     public static void main(String[] args) throws IOException {
-        String mode = args[0];
-        String fpath = args[1];
+        String mode = "tojson";//args[0];
+        String fpath = "saves/world1/regions/r.0.0.rgn";//args[1];
 
         File srcFile = new File(fpath);
         if (mode.equals("tojson")) {
@@ -40,6 +40,7 @@ public class DstJsonConvert {
         int type = DST.type(dat);
         if (type == DST.LIST) {
             List l = (List)dat;
+            if (l.size()==0) return;
             byte lType = DST.type(l.get(0));
             for (int i = 0;i < l.size();i++) {
                 if (DST.isStruct(lType)) {

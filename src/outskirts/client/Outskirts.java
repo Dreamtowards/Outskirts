@@ -11,36 +11,25 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.PixelFormat;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
-import outskirts.client.gui.debug.GuiDebugSnapshot;
 import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
-import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
+import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Camera;
-import outskirts.client.render.Frustum;
-import outskirts.client.render.isoalgorithm.csg.CSG;
-import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.sdf.SDF;
-import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.init.Init;
-import outskirts.material.Material;
 import outskirts.mod.Mods;
-import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.function.TrifFunc;
 import outskirts.util.profiler.Profiler;
-import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
 import java.awt.image.BufferedImage;
@@ -50,9 +39,7 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.event.Events.EVENT_BUS;
-import static outskirts.util.SystemUtil.IS_OSX;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
@@ -140,49 +127,9 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE).exec(g -> g.setVisible(false));
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
+        TmpExtTest.init();
     }
-    //todo: GameRule LS   Separator/ NonCollision
-    //tod0: DebugV OP. options
 
-    public static int matId = 1;
-
-    {
-        EVENT_BUS.register(CharInputEvent.class, e -> {
-            char c = e.getChar();
-            if (c >= '0' && c <= '9') {
-                matId = c-48;
-            }
-        });
-        SystemUtil.debugAddKeyHook(KEY_T, () -> {
-//            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
-
-        });
-        SystemUtil.debugAddMouseKeyHook(1, () -> {
-             Vector3f p = rayPicker.getCurrentPoint();
-             if (p == null) return;
-
-             Octree.Leaf lf = world.findLeaf(p,null);
-             lf.material = Material.REGISTRY.values().get(matId);
-
-             Vector3f mn = Vector3f.floor(vec3(p), lf.size);
-             renderEngine.chunkRenderDispatcher.markRebuild(aabb(mn, lf.size));
-        });
-        SystemUtil.debugAddMouseKeyHook(2, () -> {
-            Vector3f p = rayPicker.getCurrentPoint();
-            if (p==null)return;
-
-            AABB aabb = aabb(vec3(p).sub(3), 6);
-
-            world.forOctrees(aabb, (nd, v) -> {
-                TrifFunc FUNCQ = (x, y, z) -> {
-                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2,3,2));
-                };
-                CSG.difference(nd, FUNCQ);
-            });
-
-            renderEngine.chunkRenderDispatcher.markRebuild(aabb);
-        });
-    }
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -241,16 +188,6 @@ public class Outskirts {
         INSTANCE.world = world;
         if (world == null)
             return;
-
-        Light lightSun = new Light();
-        lightSun.position().set(40, 50, 40);
-        lightSun.color().set(1, 1, 1).scale(1.2f);
-        world.lights.add(lightSun);
-        SystemUtil.debugAddKeyHook(KEY_E, () -> {
-            lightSun.position().set(getPlayer().position());
-            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
-        });
-
 
         RigidBody prb = getPlayer().getRigidBody();
         prb.transform().set(Transform.IDENTITY);

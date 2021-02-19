@@ -446,6 +446,7 @@ public abstract class Octree {
         return findLeaf((Internal)sub, rp, lp);
     }
 
+    // traverse
     public static void forEach(Octree node, TriConsumer<Octree, Vector3f, Float> call, Vector3f min, float size) {
         if (node==null) return;
         call.accept(node, min, size);
