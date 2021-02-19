@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -15,45 +16,36 @@ import java.util.function.Predicate;
  */
 public final class ReflectionUtils {
 
-    public static sun.misc.Unsafe UNSAFE = ReflectionUtils.getFieldValue(Objects.requireNonNull(getField(Unsafe.class, "theUnsafe")), null);
+    private static sun.misc.Unsafe UNSAFE = ReflectionUtils.getFieldv(Unsafe.class, "theUnsafe");
 
 
-    public static Field findFieldUpward(Class<?> fromclass, String fieldname, Predicate<Class<?>> predicate) {
-        for (Class clazz = fromclass;clazz != Object.class;clazz = clazz.getSuperclass()) {
-            if (predicate.test(clazz)) {
-                Field f = ReflectionUtils.getField(clazz, fieldname);
-                if (f != null)
-                    return f;
+    public static Class findSuperior(Class subclass, Predicate<Class> until) {
+        Class c = subclass;
+        while (c != Object.class) {
+            if (until.test(c)) {
+                return c;
             }
+            c = c.getSuperclass();
         }
-        return null;
+        throw new NoSuchElementException("Not found such Super class.");
     }
 
-    public static Field getField(Class<?> clazz, String fieldname) {
+    /**
+     * Get Field Value.
+     * @param objOrCls non-static-field: Owner Object. static-field: the Class.
+     */
+    public static <T> T getFieldv(Object objOrCls, String fname) {
         try {
-            return clazz.getDeclaredField(fieldname);
-        } catch (NoSuchFieldException ex) {
-            return null;
-        }
-    }
-
-    public static <T> T getFieldValue(Field field, Object owner) {
-        try {
+            boolean isStatic = objOrCls instanceof Class;
+            Class cls = isStatic ? (Class)objOrCls : objOrCls.getClass();
+            Field field = cls.getDeclaredField(fname);
             field.setAccessible(true);
-            return (T) field.get(owner);
-        } catch (IllegalAccessException ex) {
+            return (T) field.get(isStatic ? null : objOrCls);
+        } catch (IllegalAccessException | NoSuchFieldException ex) {
             throw new RuntimeException("Failed to get field value.", ex);
         }
     }
 
-    public static void setFieldValue(Field field, Object owner, Object value) {
-        try {
-            field.setAccessible(true);
-            field.set(owner, value);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException("Failed to set field value.", ex);
-        }
-    }
 
 
     private static Method getMethod(Class<?> clazz, String methodname, Class<?>... args) {

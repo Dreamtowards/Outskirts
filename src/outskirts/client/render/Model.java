@@ -3,6 +3,12 @@ package outskirts.client.render;
 import outskirts.client.Loader;
 import outskirts.util.IOUtils;
 
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 import static org.lwjgl.opengl.ARBVertexArrayObject.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -59,6 +65,21 @@ public final class Model {
         this.eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, Loader.loadBuffer(indices), GL_STATIC_DRAW);
+    }
+
+    Queue<ByteBuffer> bf = new LinkedList<>();
+    public void disposeBufs() {
+        while (!bf.isEmpty()) {
+
+        }
+    }
+    public static void dsps(ByteBuffer buffer) throws Exception {
+        Method cleanerMethod = buffer.getClass().getMethod("cleaner");
+        cleanerMethod.setAccessible(true);
+        Object cleaner = cleanerMethod.invoke(buffer);
+        Method cleanMethod = cleaner.getClass().getMethod("clean");
+        cleanMethod.setAccessible(true);
+        cleanMethod.invoke(cleaner);
     }
 
     public void createAttribute(int attributeNumber, int vertexSize, float[] data) {

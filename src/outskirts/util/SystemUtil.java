@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.lwjgl.input.Keyboard.KEY_K;
 import static outskirts.util.logging.Log.LOGGER;
@@ -161,6 +162,31 @@ public final class SystemUtil {
         MEM_USED = MEM_TOTAL - Runtime.getRuntime().freeMemory();
     }
 
+    public static long DMEM_MAX;
+    public static long DMEM_RESERVED;
+
+    public static void updateDirectMemoryInfo() {
+        try {
+            Class cbits = Class.forName("java.nio.Bits");
+            DMEM_MAX = ReflectionUtils.getFieldv(cbits, "maxMemory");
+            DMEM_RESERVED = ((AtomicLong)ReflectionUtils.getFieldv(cbits, "reservedMemory")).get();
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void printMemoryInfo() {
+        updateMemoryInfo();
+        updateDirectMemoryInfo();
+
+        LOGGER.info("VM Heap Max: {}. Used: {}. Allocated: {}",
+                FileUtils.toDisplaySize(MEM_MAXIMUM),
+                FileUtils.toDisplaySize(MEM_USED),
+                FileUtils.toDisplaySize(MEM_TOTAL));
+        LOGGER.info("VM DirectMemory Max: {}. Used: {}",
+                FileUtils.toDisplaySize(DMEM_MAX),
+                FileUtils.toDisplaySize(DMEM_RESERVED));
+    }
 
 
 

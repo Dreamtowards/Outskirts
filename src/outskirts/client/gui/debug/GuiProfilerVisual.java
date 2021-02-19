@@ -23,7 +23,7 @@ public class GuiProfilerVisual extends Gui {
     public float fixedRootTimeNano = 0f*1_000_000; // -1 == Disable this FixedRoottime
 
     private void drawSectionNav(float x, float y, Profiler.Section section, int i, String[] secNames) {
-        drawString(secNames[i], x, y, Colors.BLACK, 16, false, false);
+        drawString(secNames[i], x, y, Colors.BLACK, 16, 0, false);
         float nameWid = Outskirts.renderEngine.getFontRenderer().calculateBound(secNames[i], GuiText.DEFAULT_TEXT_HEIGHT).x;
         if (isMouseOver(x, y, nameWid, 16)) {
             drawRect(Colors.BLACK40, x, y, nameWid, 16);
@@ -39,7 +39,7 @@ public class GuiProfilerVisual extends Gui {
         if (i+1 < secNames.length) {
             for (Profiler.Section s : section.subs) {
                 if (s.name.equals(secNames[i+1])) {
-                    drawString(".", x+nameWid, y, Colors.GRAY, 16, false, false);
+                    drawString(".", x+nameWid, y, Colors.GRAY, 16, 0, false);
                     drawSectionNav(x+nameWid+5, y, s, i + 1, secNames);
                 }
             }

@@ -10,7 +10,7 @@ import outskirts.util.vector.Vector3f;
 public final class RenderSection {
 
     public boolean dirty;
-    private EntityStaticMesh proxyentity = new EntityStaticMesh();
+    public EntityStaticMesh proxyentity = new EntityStaticMesh();
 
 //    private Stitcher stitcher = new Stitcher();
 

@@ -20,6 +20,7 @@ import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.screen.*;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Frustum;
+import outskirts.client.render.Model;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.SDF;
@@ -46,6 +47,9 @@ import outskirts.world.WorldClient;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
 
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -236,6 +240,7 @@ public class Outskirts {
     }
 
 
+    static Queue<ByteBuffer> qs = new LinkedList<>();
 
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
@@ -247,8 +252,25 @@ public class Outskirts {
         lightSun.color().set(1, 1, 1).scale(1.2f);
         world.lights.add(lightSun);
         SystemUtil.debugAddKeyHook(KEY_E, () -> {
-            lightSun.position().set(getPlayer().position());
-            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
+//            lightSun.position().set(getPlayer().position());
+//            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
+            if (isCtrlKeyDown()) {
+                if (isShiftKeyDown()) {
+                    if (!qs.isEmpty()) {
+                        qs.poll().clear();
+                        LOGGER.info("Clear One");
+                    }
+                } else {
+                    qs.add(BufferUtils.createByteBuffer(1024*1024*60));
+                    try {
+                        Model.dsps(qs.peek());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                SystemUtil.printMemoryInfo();
+            }
         });
 
 

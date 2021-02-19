@@ -1,9 +1,6 @@
 package outskirts.util.registry;
 
-import outskirts.util.CollectionUtils;
-import outskirts.util.ReflectionUtils;
-import outskirts.util.ResourceLocation;
-import outskirts.util.Validate;
+import outskirts.util.*;
 
 import java.lang.reflect.Field;
 
@@ -23,18 +20,17 @@ public interface Registrable {
     default <T extends Registrable> T setRegistryID(String registryID) {
         try {
             //impl class's 'registryID' field.
-            Field f = ReflectionUtils.findFieldUpward(getClass(), "registryID",
-                    clz -> CollectionUtils.contains(clz.getInterfaces(), Registrable.class));
+            Class c = ReflectionUtils.findSuperior(getClass(), supc -> CollectionUtils.contains(supc.getInterfaces(), Registrable.class));
+            Field f = c.getDeclaredField("registryID");
             Validate.notNull(f, "'registryID' field is not found.");
-
             f.setAccessible(true);
 
-            Validate.validState(f.get(this) == null, "registryID already been initialized, can't be change again");
+            Validate.validState(f.get(this)==null, "registryID already been initialized, can't be change again");
 
-            f.set(this, new ResourceLocation(registryID).toString());
+            f.set(this, new Identifier(registryID).toString());
 
             return (T) this;
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | NoSuchFieldException ex) {
             throw new RuntimeException("A exception occurred in Registrable::setRegistry() default impl.", ex);
         }
     }

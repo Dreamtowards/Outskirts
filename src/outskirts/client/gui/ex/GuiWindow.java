@@ -46,7 +46,7 @@ public final class GuiWindow extends Gui {
                   setY(getY() + e.dy);
               });
               g.addOnDrawListener(e -> {
-                  drawString(title, g.getX() + g.getWidth() / 2, g.getY() + 8, Colors.GRAY, 16, true, false);
+                  drawString(title, g.getX() + g.getWidth() / 2, g.getY() + 8, Colors.GRAY, 16, .5f, false);
               });
           }).addChildren(
             new Gui().exec(g -> { // Close Window
@@ -61,7 +61,7 @@ public final class GuiWindow extends Gui {
                 g.addOnDrawListener(e -> {
                     if (g.isHover()) drawRect(Colors.BLACK10, g);
                     if (g.isPressed()) drawRect(Colors.BLACK40, g);
-                    drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
+                    drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, .5f, false);
                 });
             }),
             new Gui().exec(g -> { // Min Window
@@ -82,7 +82,7 @@ public final class GuiWindow extends Gui {
                 g.addOnDrawListener(e -> {
                     if (g.isHover()) drawRect(Colors.BLACK10, g);
                     if (g.isPressed()) drawRect(Colors.BLACK40, g);
-                    drawString("-", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, true, false);
+                    drawString("-", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, .5f, false);
                 });
             })
           ),

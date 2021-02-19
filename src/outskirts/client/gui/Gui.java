@@ -694,18 +694,18 @@ public class Gui {
 //        return Outskirts.renderEngine.getFontRenderer().drawString(texts, x, y, height, color, true);
 //    }
 
-    public static void drawString(String text, float x, float y, Vector4f color, float textHeight, boolean centerHorizontal, boolean drawShadow) {
-        if (centerHorizontal) { // shoulddo tex_x = t * (max_width - tex_width)
+    public static void drawString(String text, float x, float y, Vector4f color, float textHeight, float horizontalAlign, boolean drawShadow) {
+        if (horizontalAlign != 0) { // shoulddo tex_x = t * (max_width - tex_width)
             float textWidth = Outskirts.renderEngine.getFontRenderer().calculateBound(text, textHeight).x;
-            x -= textWidth/2f;
+            x -= textWidth*horizontalAlign;
         }
         Outskirts.renderEngine.getFontRenderer().renderString(text, x, y, textHeight, color, drawShadow);
     }
-    public static void drawString(String text, float x, float y, Vector4f color, float height, boolean centerHorizontal) {
-        drawString(text, x, y, color, height, centerHorizontal, true);
+    public static void drawString(String text, float x, float y, Vector4f color, float height, float horizontalAlign) {
+        drawString(text, x, y, color, height, horizontalAlign, true);
     }
     public static void drawString(String text, float x, float y, Vector4f color, float height) {
-        drawString(text, x, y, color, height, false);
+        drawString(text, x, y, color, height, 0);
     }
     public static void drawString(String text, float x, float y, Vector4f color) {
         drawString(text, x, y, color, GuiText.DEFAULT_TEXT_HEIGHT);

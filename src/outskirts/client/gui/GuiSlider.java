@@ -83,7 +83,7 @@ public class GuiSlider extends Gui {
                 float margin = 4;
                 float bgY = dragGui.getY()-bgHeight-margin;
                 drawRect(Colors.BLACK40, midX-bgWidth/2f, bgY, bgWidth, bgHeight);
-                drawString(String.valueOf(getCurrentUserValue()), midX, bgY+3, Colors.YELLOW, 16, true);
+                drawString(String.valueOf(getCurrentUserValue()), midX, bgY+3, Colors.YELLOW, 16, .5f);
             }
 
             if (isPressed()) {

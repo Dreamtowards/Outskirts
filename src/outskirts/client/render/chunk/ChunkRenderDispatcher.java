@@ -52,7 +52,10 @@ public class ChunkRenderDispatcher {
     private void sectionUnloaded(SectionUnloadedEvent e) {
         int i = CollectionUtils.removeIf(rendersections,
                 rs -> rs.position().equals(e.getPosition()),
-                RenderSection::doUnloadDown);
+                rs -> {
+                    rs.proxyentity.getModel();
+                    rs.doUnloadDown();
+                });
         assert i == 1;
     }
 
