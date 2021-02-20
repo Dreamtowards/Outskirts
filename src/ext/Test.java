@@ -16,6 +16,7 @@ import java.util.function.LongConsumer;
 
 import static java.lang.Float.NaN;
 import static java.lang.Math.random;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
 import static outskirts.util.Maths.INFINITY;
 import static outskirts.util.logging.Log.LOGGER;
 
@@ -435,7 +436,10 @@ public class Test {
 //        vbuf.inituvnorm();
 //        vbuf.tmpsaveobjfile("ms.obj");
 
-        LOGGER.info(Float.POSITIVE_INFINITY == -Float.NEGATIVE_INFINITY);
+//        LOGGER.info(Float.POSITIVE_INFINITY == -Float.NEGATIVE_INFINITY);
+
+        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
+        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
     }
 
 

@@ -27,6 +27,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  * those getter not "get" prefix cuz the prefix have some turn down the mainly feel.
  */
 //todo move Model, Texture to client.render package. (.?)
+    //todo: should Model been data-free-changeable type.? like vec.s. ? 
 public final class Model {
 
     private int vaoID;
@@ -71,6 +72,7 @@ public final class Model {
     public void disposeBufs() {
         while (!bf.isEmpty()) {
 
+            // todo: edit.
         }
     }
     public static void dsps(ByteBuffer buffer) throws Exception {

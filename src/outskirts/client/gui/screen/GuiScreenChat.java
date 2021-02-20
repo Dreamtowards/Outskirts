@@ -41,118 +41,10 @@ public class GuiScreenChat extends Gui {
     private int historyIdx;
 
     private GuiScreenChat() {
-        setWidth(INFINITY);
-        setHeight(INFINITY);
+        addLayoutorAlignParentLTRB(2, NaN, 80, 2);
         initEscClose(this);
 
         addChildren(
-          new GuiTextBox().exec((GuiTextBox g) -> {
-              tbInputBox=g;
-              g.setMaxLines(1);
-              g.addLayoutorAlignParentLTRB(2, NaN, 80, 2);
-              g.setHeight(20);
-              g.getText().setRelativeXY(4, 2);
-              g.removeListeners(EVTAG_DEFDECO);
-              g.addOnDrawListener(e -> {
-                  drawRect(g.isFocused() ? Colors.BLACK80 : Colors.BLACK40, g);
-              }).priority(EventPriority.HIGH);
-              g.addOnDetachListener(e -> {
-                  g.texts("");
-                  historyIdx=0;
-              });
-              g.addOnAttachListener(e -> {
-                  g.setFocused(true);
-              });
-              g.addOnFocusChangedListener(e -> {
-                  completeLs.setVisible(g.isFocused());
-              });
-              g.getText().addOnTextChangedListener(e -> {
-                  if (historyIdx==0) {
-                      histories.set(0, g.texts());  // update current text record.
-                  }
-                  String inputPrefix = tabCompleteInputPrefix();
-                  // when text changed, let tabItemIdx = first matched-prefix item.
-                  if (inputPrefix.isEmpty()) {
-                      tabItemIdx = -1;
-                  } else {
-                      boolean matched = false;
-                      for (int i = 0; i < completeLs.size(); i++) {
-                          if (tabCompleteItem(i).startsWith(inputPrefix)) {
-                              tabItemIdx = i; matched=true;
-                              break;
-                          }
-                      }
-                      if (!matched)
-                          tabItemIdx=-1;
-                  }
-                  // update CompleteList item display status. selected/ same-prefix.
-                  for (int i = 0;i < completeLs.size();i++) {
-                      GuiText gText = completeLs.getGui(i);
-                      boolean samepref = tabCompleteItem(i).startsWith(inputPrefix);
-                      boolean selected = i==tabItemIdx;
-
-                      gText.getTextColor().set(selected ? Colors.YELLOW : (samepref ? Colors.WHITE : Colors.GRAY));
-                  }
-              });
-              g.addKeyboardListener(e -> {
-                  if (g.isFocused() && e.getKeyState()) {
-                      switch (e.getKey()) {
-                          case KEY_RETURN:
-                              String s = g.texts();
-                              if (s.isEmpty()) return;
-                              histories.add(0, "");  // required before 'clear texts'.
-                              historyIdx=0;
-                              g.texts("");
-                              dispatchLine(s);
-                              break;
-                          case KEY_TAB:
-                              if (completeLs.size() == 0) {
-                                  updateTabComplete();
-                                  tbInputBox.getText().performEvent(new GuiText.OnTextChangedEvent());
-                              } else {
-                                  String line = tbInputBox.texts();
-                                  int start = tabCompleteStartIndex();
-                                  if (tabItemIdx==-1 || tabCompleteInputPrefix().equals(tabCompleteItem(tabItemIdx))) {
-                                      tabItemIdx++;
-                                      tabItemIdx %= completeLs.size();
-                                  }
-                                  String comp = tabCompleteItem(tabItemIdx);
-                                  tbInputBox.texts(line.substring(0, start) + comp + line.substring(tabCompleteEndIndex()));
-                                  tbInputBox.setCursorPosition(start+comp.length());
-                              }
-                              break;
-                          case KEY_UP:
-                              switchHistory(1);
-                              break;
-                          case KEY_DOWN:
-                              switchHistory(-1);
-                              break;
-                      }
-                  }
-              });
-              g.addOnCursorPositionChangedListener(e -> {
-                  int tabCompleteStartIdx = tabCompleteStartIndex();
-                  if (lastTabCompleteStartIdx!=tabCompleteStartIdx) {
-                      completeLs.removeAllGuis();
-                      if (enableAutoCommandComplete) {
-                          updateTabComplete();
-                      }
-                  }
-                  lastTabCompleteStartIdx = tabCompleteStartIdx;
-              });
-          }),
-          new GuiScrollPanel().exec((GuiScrollPanel g) -> {
-              g.addLayoutorAlignParentLTRB(2, 80, 80, 24);
-              g.addOnDrawListener(e -> {
-                  drawRect(Colors.BLACK40, g.getX(), Math.max(g.getY(), g.getContent().getY()), g.getWidth(), Math.min(g.getHeight(), g.getContent().getHeight()));
-              });
-              g.addOnLayoutListener(e -> {
-                  Gui gContent = g.getContent();
-                  if (gContent.getHeight() < g.getHeight()) {
-                      gContent.setRelativeY(g.getHeight() - gContent.getHeight());
-                  }
-              });
-          }).setContent(msgLs=new GuiColumn()),
           completeLs=new GuiColumn().exec(g -> {
               g.addOnDrawListener(e -> {
                   drawRect(Colors.BLACK80, g);
@@ -162,7 +54,124 @@ public class GuiScreenChat extends Gui {
                   g.setX(p.x);
                   g.setY(tbInputBox.getY()-g.getHeight());
               });
-          })
+          }),
+          new GuiColumn().exec(g -> {
+              g.setWidth(INFINITY);
+          }).addChildren(
+            new GuiScrollPanel().exec((GuiScrollPanel g) -> {
+                g.setWidth(INFINITY);
+                g.addOnDrawListener(e -> {
+                    drawRect(Colors.BLACK40, g);
+                    if (Outskirts.isCtrlKeyDown())
+                        LOGGER.info(g);
+                });
+                g.addOnLayoutListener(e -> {
+                    g.setHeight(Math.min(Outskirts.getHeight()-100, g.getContent().getHeight()));
+
+                    Gui gContent = g.getContent();
+                    if (gContent.getHeight() < g.getHeight()) {
+                        gContent.setRelativeY(g.getHeight() - gContent.getHeight());
+                    }
+                });
+            }).setContent(msgLs=new GuiColumn()),
+            new Gui(0, 0, 0, 2),
+            new GuiTextBox().exec((GuiTextBox g) -> {
+                tbInputBox=g;
+                g.setWidth(INFINITY);
+                g.setHeight(20);
+                g.setMaxLines(1);
+                g.getText().setRelativeXY(4, 2);
+                g.removeListeners(EVTAG_DEFDECO);
+                g.addOnDrawListener(e -> {
+                    drawRect(g.isFocused() ? Colors.BLACK80 : Colors.BLACK40, g);
+                }).priority(EventPriority.HIGH);
+                g.addOnDetachListener(e -> {
+                    g.texts("");
+                    historyIdx=0;
+                });
+                g.addOnAttachListener(e -> {
+                    g.setFocused(true);
+                });
+                g.addOnFocusChangedListener(e -> {
+                    completeLs.setVisible(g.isFocused());
+                });
+                g.getText().addOnTextChangedListener(e -> {
+                    if (historyIdx==0) {
+                        histories.set(0, g.texts());  // update current text record.
+                    }
+                    String inputPrefix = tabCompleteInputPrefix();
+                    // when text changed, let tabItemIdx = first matched-prefix item.
+                    if (inputPrefix.isEmpty()) {
+                        tabItemIdx = -1;
+                    } else {
+                        boolean matched = false;
+                        for (int i = 0; i < completeLs.size(); i++) {
+                            if (tabCompleteItem(i).startsWith(inputPrefix)) {
+                                tabItemIdx = i; matched=true;
+                                break;
+                            }
+                        }
+                        if (!matched)
+                            tabItemIdx=-1;
+                    }
+                    // update CompleteList item display status. selected/ same-prefix.
+                    for (int i = 0;i < completeLs.size();i++) {
+                        GuiText gText = completeLs.getGui(i);
+                        boolean samepref = tabCompleteItem(i).startsWith(inputPrefix);
+                        boolean selected = i==tabItemIdx;
+
+                        gText.getTextColor().set(selected ? Colors.YELLOW : (samepref ? Colors.WHITE : Colors.GRAY));
+                    }
+                });
+                g.addKeyboardListener(e -> {
+                    if (g.isFocused() && e.getKeyState()) {
+                        switch (e.getKey()) {
+                            case KEY_RETURN:
+                                String s = g.texts();
+                                if (s.isEmpty()) return;
+                                histories.add(0, "");  // required before 'clear texts'.
+                                historyIdx=0;
+                                g.texts("");
+                                dispatchLine(s);
+//                                onLayout();onLayout();
+                                break;
+                            case KEY_TAB:
+                                if (completeLs.size() == 0) {
+                                    updateTabComplete();
+                                    tbInputBox.getText().performEvent(new GuiText.OnTextChangedEvent());
+                                } else {
+                                    String line = tbInputBox.texts();
+                                    int start = tabCompleteStartIndex();
+                                    if (tabItemIdx==-1 || tabCompleteInputPrefix().equals(tabCompleteItem(tabItemIdx))) {
+                                        tabItemIdx++;
+                                        tabItemIdx %= completeLs.size();
+                                    }
+                                    String comp = tabCompleteItem(tabItemIdx);
+                                    tbInputBox.texts(line.substring(0, start) + comp + line.substring(tabCompleteEndIndex()));
+                                    tbInputBox.setCursorPosition(start+comp.length());
+                                }
+                                break;
+                            case KEY_UP:
+                                switchHistory(1);
+                                break;
+                            case KEY_DOWN:
+                                switchHistory(-1);
+                                break;
+                        }
+                    }
+                });
+                g.addOnCursorPositionChangedListener(e -> {
+                    int tabCompleteStartIdx = tabCompleteStartIndex();
+                    if (lastTabCompleteStartIdx!=tabCompleteStartIdx) {
+                        completeLs.removeAllGuis();
+                        if (enableAutoCommandComplete) {
+                            updateTabComplete();
+                        }
+                    }
+                    lastTabCompleteStartIdx = tabCompleteStartIdx;
+                });
+            })
+          )
         );
 
     }

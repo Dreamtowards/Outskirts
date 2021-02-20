@@ -10,6 +10,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.PixelFormat;
 import outskirts.client.audio.AudioEngine;
+import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
 import outskirts.client.gui.debug.GuiDebugSnapshot;
 import outskirts.client.gui.debug.GuiDebugV;
@@ -158,8 +159,8 @@ public class Outskirts {
             }
         });
         SystemUtil.debugAddKeyHook(KEY_T, () -> {
-//            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
+            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
              Vector3f p = rayPicker.getCurrentPoint();
@@ -187,6 +188,7 @@ public class Outskirts {
             renderEngine.chunkRenderDispatcher.markRebuild(aabb);
         });
     }
+    public static boolean bl = false;
 
     private void runGameLoop() throws Throwable { profiler.push("rt");
 
@@ -224,8 +226,12 @@ public class Outskirts {
             profiler.pop("world");
 
             profiler.push("gui");
+            int i = 0;
+            while (Gui.hasVolumeChanged()) {
+                rootGUI.onLayout(); i++;
+            }
+            if (i > 0) LOGGER.info("GlobalLayout "+i);
             glDisable(GL_DEPTH_TEST);
-            rootGUI.onLayout();
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
             profiler.pop("gui");
@@ -254,23 +260,6 @@ public class Outskirts {
         SystemUtil.debugAddKeyHook(KEY_E, () -> {
 //            lightSun.position().set(getPlayer().position());
 //            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
-            if (isCtrlKeyDown()) {
-                if (isShiftKeyDown()) {
-                    if (!qs.isEmpty()) {
-                        qs.poll().clear();
-                        LOGGER.info("Clear One");
-                    }
-                } else {
-                    qs.add(BufferUtils.createByteBuffer(1024*1024*60));
-                    try {
-                        Model.dsps(qs.peek());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                SystemUtil.printMemoryInfo();
-            }
         });
 
 

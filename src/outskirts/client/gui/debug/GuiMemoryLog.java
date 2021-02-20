@@ -2,6 +2,7 @@ package outskirts.client.gui.debug;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiText;
 import outskirts.util.Colors;
 import outskirts.util.FileUtils;
 import outskirts.util.Maths;
@@ -24,12 +25,13 @@ public class GuiMemoryLog extends Gui {
         setWidth(600);
         setHeight(300);
 
-        addOnClickListener(e -> {
-            if (Outskirts.isCtrlKeyDown()) {
-                System.gc();
-                LOGGER.info("GC.");
-            }
-        });
+        addChildren(
+          new GuiText("GX").exec((GuiText g) -> {
+              g.addOnDrawListener(e -> g.getTextColor().set(g.isHover() ? Colors.YELLOW : Colors.WHITE));
+              g.addOnClickListener(e -> System.gc());
+              g.setRelativeXY(0, 16);
+          })
+        );
 
         addOnDrawListener(e -> {
             SystemUtil.updateMemoryInfo(); // Utils supports..  // updates states

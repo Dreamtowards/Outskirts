@@ -12,10 +12,10 @@ public class GuiColumn extends Gui {
     }
 
     @EventHandler
-    private void onLayout0(OnLayoutEvent event) {
+    private void onLayout0(OnLayoutEvent e) {
         float dy=0;
         for (Gui g : getChildren()) {
-            g.setRelativeXY(0, dy);
+            g.setRelativeY(dy);
             dy += g.getHeight();
         }
     }

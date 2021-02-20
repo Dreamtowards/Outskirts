@@ -52,10 +52,7 @@ public class ChunkRenderDispatcher {
     private void sectionUnloaded(SectionUnloadedEvent e) {
         int i = CollectionUtils.removeIf(rendersections,
                 rs -> rs.position().equals(e.getPosition()),
-                rs -> {
-                    rs.proxyentity.getModel();
-                    rs.doUnloadDown();
-                });
+                RenderSection::doUnloadDown);
         assert i == 1;
     }
 
@@ -99,7 +96,7 @@ public class ChunkRenderDispatcher {
                         rs.dirty = false;
                         processRenderSection(rs);
 
-                        SystemUtil.sleep(100);
+                        //SystemUtil.sleep(100);
                     }
                 }
                 SystemUtil.sleep(100);

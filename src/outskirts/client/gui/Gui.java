@@ -13,6 +13,7 @@ import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.Maths;
+import outskirts.util.Val;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -23,6 +24,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
+import static outskirts.util.logging.Log.LOGGER;
 
 /**
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
@@ -425,6 +429,24 @@ public class Gui {
         performEvent(new OnPostDrawEvent());
     }
 
+    private int cachedvolumehash;
+    private boolean isVolumeChanged() {
+        int h = vec4(getX(),getY(),getWidth(),getHeight()).hashCode() + (isVisible() ? 1 : 0);
+        if (cachedvolumehash != h) {
+            cachedvolumehash = h;
+            return true;
+        }
+        return false;
+    }
+    public static boolean hasVolumeChanged() {
+        Val v = Val.zero();
+        forChildren(getRootGUI(), g -> {
+            // Needs Full-through volume-cache-update. dont early exit. otherwise it will cause a lot of onLayout calls.
+            if (g.isVolumeChanged())
+                v.val = 1;
+        });
+        return v.val > 0;
+    }
 
     public final void onLayout() {
         if (!isVisible()) return;

@@ -10,10 +10,10 @@ public class GuiRow extends Gui {
     }
 
     @EventHandler
-    private void onLayout0(OnLayoutEvent event) {
+    private void onLayout0(OnLayoutEvent e) {
         float dx=0;
         for (Gui g : getChildren()) {
-            g.setRelativeXY(dx, 0);
+            g.setRelativeX(dx);
             dx += g.getWidth();
         }
     }
