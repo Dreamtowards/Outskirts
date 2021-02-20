@@ -227,7 +227,7 @@ public class GuiDebugV extends Gui {
     }
 
     private static void renderMarkedRenderSections() {
-        for (RenderSection rs : Outskirts.renderEngine.chunkRenderDispatcher.getRenderSections()) {
+        for (RenderSection rs : Outskirts.renderEngine.getChunkRenderDispatcher().getRenderSections()) {
             if (rs.dirty) {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(rs.position()), vec3(rs.position()).add(16)), Colors.RED);
             }

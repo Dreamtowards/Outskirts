@@ -2,8 +2,8 @@ package outskirts.client.render.renderer;
 
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
-import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
+import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Frustum;
 import outskirts.client.render.chunk.ChunkRenderDispatcher;
@@ -16,14 +16,13 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
-import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
-import outskirts.event.Events;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix4f;
 import outskirts.world.World;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -54,7 +53,7 @@ public final class RenderEngine {
     private MapRenderer mapRenderer = new MapRenderer();
     private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
 
-    public ChunkRenderDispatcher chunkRenderDispatcher = new ChunkRenderDispatcher();
+    private ChunkRenderDispatcher chunkRenderDispatcher = new ChunkRenderDispatcher();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
@@ -189,7 +188,7 @@ public final class RenderEngine {
         prepare();
         glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        entityRenderer.renderCompose(gBufferFBO, world.lights);
+        entityRenderer.renderCompose(gBufferFBO, Collections.singletonList(TmpExtTest.theLight));
 //        skyboxRenderer.render();
 
 //        Gui.drawTexture(ssaoBlurFBO.colorTextures(0), Outskirts.getRootGUI());
