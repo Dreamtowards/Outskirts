@@ -151,6 +151,11 @@ public class GuiDebugV extends Gui {
                             g.setWidth(NaN);
                             g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets())));
                         }),
+                        new GuiButton("DumpRTG").exec(g -> {
+                            g.addOnClickListener(e -> {
+                                Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
+                            });
+                        }),
                         new GuiSlider().exec((GuiSlider g) -> {
                             g.setUserMinMaxValue(0.01f, 10);
                             g.addOnValueChangedListener(ge -> {

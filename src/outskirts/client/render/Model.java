@@ -68,21 +68,6 @@ public final class Model {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, Loader.loadBuffer(indices), GL_STATIC_DRAW);
     }
 
-    Queue<ByteBuffer> bf = new LinkedList<>();
-    public void disposeBufs() {
-        while (!bf.isEmpty()) {
-
-            // todo: edit.
-        }
-    }
-    public static void dsps(ByteBuffer buffer) throws Exception {
-        Method cleanerMethod = buffer.getClass().getMethod("cleaner");
-        cleanerMethod.setAccessible(true);
-        Object cleaner = cleanerMethod.invoke(buffer);
-        Method cleanMethod = cleaner.getClass().getMethod("clean");
-        cleanMethod.setAccessible(true);
-        cleanMethod.invoke(cleaner);
-    }
 
     public void createAttribute(int attributeNumber, int vertexSize, float[] data) {
         glBindVertexArray(vaoID);

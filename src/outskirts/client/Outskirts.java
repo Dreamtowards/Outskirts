@@ -177,11 +177,9 @@ public class Outskirts {
             profiler.pop("world");
 
             profiler.push("gui");
-            int i = 0;
             while (Gui.hasVolumeChanged()) {
-                rootGUI.onLayout(); i++;
+                rootGUI.onLayout();
             }
-            if (i > 0) LOGGER.info("GlobalLayout "+i);
             glDisable(GL_DEPTH_TEST);
             rootGUI.onDraw();
             glEnable(GL_DEPTH_TEST);
@@ -195,9 +193,6 @@ public class Outskirts {
         profiler.pop("updateDisplay");
         numFrames++;
     }
-
-
-    static Queue<ByteBuffer> qs = new LinkedList<>();
 
     public static void setWorld(WorldClient world) {
         INSTANCE.world = world;
@@ -264,7 +259,7 @@ public class Outskirts {
         }
 
         while (Keyboard.next()) {
-
+            
             EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKey(), Keyboard.getEventKeyState()));
             KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
 
