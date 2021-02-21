@@ -160,7 +160,7 @@ public class Matrix3f extends Matrix {
         return buf;
     }
 
-    public static void load(Matrix3f dest, float[] buf) {
+    public static Matrix3f load(Matrix3f dest, float[] buf) {
         dest.m00 = buf[0];
         dest.m01 = buf[1];
         dest.m02 = buf[2];
@@ -170,6 +170,7 @@ public class Matrix3f extends Matrix {
         dest.m20 = buf[6];
         dest.m21 = buf[7];
         dest.m22 = buf[8];
+        return dest;
     }
 
     public Matrix3f add(Matrix3f right) {

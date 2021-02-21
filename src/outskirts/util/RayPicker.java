@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static outskirts.util.logging.Log.LOGGER;
+
 // have not really implement now yet
 @SideOnly(Side.CLIENT)
 public class RayPicker {
@@ -56,7 +58,7 @@ public class RayPicker {
                             t.val = Float.MAX_VALUE;
                         }
                     } catch (ArithmeticException ex) {
-                        ex.printStackTrace();
+                        LOGGER.warn("RayPicker failed calc with a illegal triangle. (line/point)");
                     }
                     continue;
                 }

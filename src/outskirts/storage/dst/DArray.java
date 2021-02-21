@@ -19,35 +19,6 @@ public class DArray<E> implements List<E> {
         this.ls = ls;
     }
 
-    public static List fromVector3f(Vector3f vec) {
-        return Arrays.asList(vec.x, vec.y, vec.z);
-    }
-    public static Vector3f toVector3f(List<Float> l, Vector3f dest) {
-        assert l.size() == 3;
-        if (dest == null) dest = new Vector3f();
-        return dest.set(l.get(0), l.get(1), l.get(2));
-    }
-
-    public static List fromVector4f(Vector4f vec) {
-        return Arrays.asList(vec.x, vec.y, vec.z, vec.w);
-    }
-    public static Vector4f toVector4f(List<Float> l, Vector4f dest) {
-        assert l.size() == 4;
-        if (dest == null) dest = new Vector4f();
-        return dest.set(l.get(0), l.get(1), l.get(2), l.get(3));
-    }
-
-    public static List fromMatrix3f(Matrix3f m) {
-        return Arrays.asList(m.m00, m.m01, m.m02,
-                             m.m10, m.m11, m.m12,
-                             m.m20, m.m21, m.m22);
-    }
-    public static Matrix3f toMatrix3f(List<Float> l, Matrix3f dest) {
-        assert l.size() == 9;
-        if (dest == null) dest = new Matrix3f();
-        return dest.set(l.get(0), l.get(1), l.get(2), l.get(3), l.get(4), l.get(5), l.get(6), l.get(7), l.get(8));
-    }
-
     public String getString(int i) {
         return (String)get(i);
     }

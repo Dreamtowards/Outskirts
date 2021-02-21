@@ -159,8 +159,8 @@ public final class Loader {
     public static Texture loadTexture(InputStream pngInputStream) {
         return loadTexture(Loader.loadPNG(pngInputStream));
     }
-    public static Texture loadTexture(byte[] pngBytes) { // TOOL METHOD
-        return Loader.loadTexture(Loader.loadPNG(pngBytes));
+    public static Texture loadTexture(byte[] pngbytes) { // TOOL METHOD
+        return Loader.loadTexture(Loader.loadPNG(pngbytes));
     }
 
     public static Texture loadTexture(BufferedImage bufferedImage) {

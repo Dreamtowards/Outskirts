@@ -1,10 +1,11 @@
 package outskirts.command;
 
-import outskirts.util.logging.Log;
+import static outskirts.util.logging.Log.LOGGER;
 
 public class ConsoleCommandSender implements CommandSender {
+
     @Override
     public void sendMessage(String msg) {
-        Log.info(msg);
+        LOGGER.info(msg);
     }
 }

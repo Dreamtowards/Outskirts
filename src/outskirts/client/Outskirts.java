@@ -138,6 +138,7 @@ public class Outskirts {
         GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE).exec(g -> g.setVisible(false));
 
         TmpExtTest.init();
+        // Why stores HermiteData.? use for what.? what if just stores featurepoints.?
     }
 
 

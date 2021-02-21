@@ -58,11 +58,20 @@ public final class ReflectionUtils {
         }
     }
 
-    public static <T> T newInstance(Class<T> cls) {
+    public static <T> T newInstance(Class<T> cls, Object... initargs) {
         try {
-            return cls.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            Class[] inittypes = CollectionUtils.filli(new Class[initargs.length], i -> initargs[i].getClass());
+            return cls.getDeclaredConstructor(inittypes).newInstance(initargs);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
             throw new RuntimeException("Failed to newInstance.", ex);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public static <T> T newInstance(String clsname, Object... initargs) {
+        try {
+            return (T)ReflectionUtils.newInstance(Class.forName(clsname), initargs);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Failed find class.", ex);
         }
     }
 

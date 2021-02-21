@@ -1,7 +1,9 @@
 package outskirts.storage.dst;
 
 
+import outskirts.util.CollectionUtils;
 import outskirts.util.vector.Matrix3f;
+import outskirts.util.vector.Quaternion;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
@@ -25,25 +27,34 @@ public class DObject implements Map<String, Object> {
         this.mp = new HashMap();
     }
 
-    public void putVector3f(String key, Vector3f vec) {
-        put(key, DArray.fromVector3f(vec));
+    public void putVector3f(String key, Vector3f v) {
+        put(key, Arrays.asList(v.x, v.y, v.z));
     }
     public Vector3f getVector3f(String key, Vector3f dest) {
-        return DArray.toVector3f((List<Float>)get(key), dest);
+        if (dest == null) dest = new Vector3f();
+        List<Float> l = getv(key);
+        assert l.size() == 3;
+        return dest.set(l.get(0), l.get(1), l.get(2));
     }
 
-    public void putVector4f(String key, Vector4f vec) {
-        put(key, DArray.fromVector4f(vec));
+    public void putVector4f(String key, Vector4f v) {
+        put(key, Arrays.asList(v.x, v.y, v.z));
     }
-    public Vector4f getVector4f(String key, Vector4f dest) {
-        return DArray.toVector4f((List<Float>)get(key), dest);
+    public <T> T getVector4f(String key, Vector4f dest) {
+        if (dest == null) dest = new Vector4f();
+        List<Float> l = getv(key);
+        assert l.size() == 4;
+        return (T)dest.set(l.get(0), l.get(1), l.get(2), l.get(3));
     }
 
     public void putMatrix3f(String key, Matrix3f mat) {
-        put(key, DArray.fromMatrix3f(mat));
+        put(key, CollectionUtils.asList(Matrix3f.store(mat, new float[9])));
     }
     public Matrix3f getMatrix3f(String key, Matrix3f dest) {
-        return DArray.toMatrix3f((List<Float>)get(key), dest);
+        List<Float> l = getv(key);
+        assert l.size() == 9;
+        if (dest==null) dest = new Matrix3f();
+        return Matrix3f.load(dest, CollectionUtils.toArrayf(l));
     }
 
     public <T> DArray<T> getDArray(String key) {
@@ -73,6 +84,13 @@ public class DObject implements Map<String, Object> {
 
     public int getInt(String k) {
         return (int)get(k);
+    }
+
+    public float getFloat(String k) {
+        return (float)get(k);
+    }
+    public void putFloat(String k, float v) {
+        put(k, v);
     }
 
 
@@ -107,6 +125,9 @@ public class DObject implements Map<String, Object> {
     @Override
     public Object get(Object key) {
         return mp.get(key);
+    }
+    public <T> T getv(Object k) {
+        return (T)get(k);
     }
     @Override
     public Object remove(Object key) {

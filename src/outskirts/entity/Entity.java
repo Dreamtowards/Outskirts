@@ -13,6 +13,8 @@ import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
+import java.io.IOException;
+
 public abstract class Entity implements Registrable, Savable, Tickable {
 
     public static final Registry<Entity> REGISTRY = new Registry<>();
@@ -31,16 +33,17 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     public static Entity createEntity(String registryID) {
         try {
-            return REGISTRY.get(registryID).getClass().getDeclaredConstructor().newInstance();
+            return REGISTRY.get(registryID).getClass().newInstance();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create Entity. ("+registryID, ex);
         }
     }
-    public static Entity loadEntity(DObject mpEntity) {
-        Entity entity = createEntity((String)mpEntity.get("registryID"));
+    public static Entity loadEntity(DObject mpEntity) throws IOException {
+        Entity entity = createEntity(mpEntity.getString("registryID"));
         entity.onRead(mpEntity);
         return entity;
     }
+
 
     public final RenderPerferences getRenderPerferences() {
         return renderPerferences;
@@ -77,6 +80,12 @@ public abstract class Entity implements Registrable, Savable, Tickable {
     }
 
     @Override
+    public final String getRegistryID() {
+        return registryID;
+    }
+
+
+    @Override
     public void onTick() {
 
 
@@ -84,27 +93,23 @@ public abstract class Entity implements Registrable, Savable, Tickable {
     }
 
     @Override
-    public void onRead(DObject mp) {
+    public void onRead(DObject mp) throws IOException {
 
-        SAVERS.RIGIDBODY.read(getRigidBody(), (DObject)mp.get("rigidbody"));
+//        SAVERS.RIGIDBODY.read(getRigidBody(), (DObject)mp.get("rigidbody"));
 
-//        Savable.of(rigidbody()).onRead(mp.getDObject("rigidbody"));
+        Savable.of(rigidbody).onRead(mp.getDObject("rigidbody"));
 
     }
 
     @Override
-    public DObject onWrite(DObject mp) {
+    public DObject onWrite(DObject mp) throws IOException {
         mp.put("registryID", registryID);
 
-        mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DObject()));
+//        mp.put("rigidbody", SAVERS.RIGIDBODY.write(getRigidBody(), new DObject()));
 
-//        Savable.of(getRigidBody()).onWrite(new DObject());
+        mp.put("rigidbody", Savable.of(rigidbody).onWrite(new DObject()));
 
         return mp;
     }
 
-    @Override
-    public final String getRegistryID() {
-        return registryID;
-    }
 }

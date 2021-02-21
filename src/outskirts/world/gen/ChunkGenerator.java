@@ -34,7 +34,7 @@ public class ChunkGenerator {
                 return y-(noise.fbm((x)/29,(z)/29, 4)*9f+19);
             };
             Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 4, lf -> {
-                if (FUNC.sample(lf.min) < -1) lf.material = Materials.STONE;
+                if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.STONE;
                 else lf.material = Materials.GRASS;
             });
             chunk.octree(i*16, node);

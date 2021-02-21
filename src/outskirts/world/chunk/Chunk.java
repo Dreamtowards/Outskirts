@@ -100,9 +100,9 @@ public class Chunk implements Savable {
 
 
         InputStream bSections = mp.getByteArrayi("sections");
-        int numSections = IOUtils.readInt(bSections); assert numSections >= 0;
-        for (int i = 0;i < numSections;i++) {
-            int yk = IOUtils.readInt(bSections);
+        int numSections = IOUtils.readShort(bSections) & 0xFFFF; // assert numSections >= 0;
+        for (int i = 0; i < numSections; i++) {
+            int yk = IOUtils.readShort(bSections);
             Octree rnode = Octree.readOctree(bSections, vec3(0), 16f);
             octree(yk, rnode);
         }
@@ -114,7 +114,7 @@ public class Chunk implements Savable {
         DObject mpMetadata = new DObject();
         mpMetadata.put("x", x);
         mpMetadata.put("z", z);
-        mpMetadata.put("modify_time", Outskirts.getSystemTime());
+        mpMetadata.put("modify_time", System.currentTimeMillis());  // cuz. do not needs very accuracy.
         mpMetadata.putBoolean("populated", populated);
         mp.put("metadata", mpMetadata);
 
@@ -129,13 +129,12 @@ public class Chunk implements Savable {
 
 
         ByteArrayOutputStream bSections = new ByteArrayOutputStream();
-        IOUtils.writeInt(bSections, sections.size());
-        for (int yk : sections.keySet()) {
-            IOUtils.writeInt(bSections, yk);
+        IOUtils.writeShort(bSections, (short)sections.size());  assert sections.size() < 65536;
+        for (int yk : sections.keySet()) { assert Math.abs(yk) < 32768;
+            IOUtils.writeShort(bSections, (short)yk);
             Octree.writeOctree(bSections, sections.get(yk));
         }
         mp.put("sections", bSections.toByteArray());
-
 
         return mp;
     }
@@ -149,4 +148,5 @@ public class Chunk implements Savable {
     private AABB getAABB(AABB dest) {
         return dest.set(x,-INFINITY,z, x+16,INFINITY,z+16);
     }
+
 }

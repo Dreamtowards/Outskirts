@@ -50,6 +50,14 @@ public class TmpExtTest {
         SystemUtil.debugAddKeyHook(KEY_T, () -> {
 //            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
+            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+            if (p == null) return;
+
+            Octree.Internal nd = Outskirts.getWorld().getOctree(p);
+
+            Octree.doLOD(nd, 4, vec3(0), 16);
+
+            renderEngine.getChunkRenderDispatcher().markRebuild(p);
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();

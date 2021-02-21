@@ -7,6 +7,7 @@ import outskirts.event.gui.GuiEvent;
 import outskirts.storage.dst.DST;
 import outskirts.storage.dst.DSTUtils;
 import outskirts.storage.tools.DstJsonConvert;
+import outskirts.util.ReflectionUtils;
 import outskirts.util.StringUtils;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
@@ -441,8 +442,12 @@ public class Test {
 
 //        LOGGER.info(Float.POSITIVE_INFINITY == -Float.NEGATIVE_INFINITY);
 
-        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
-        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
+//        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
+//        LOGGER.info(vec4(10, 20 , NaN ,Float.POSITIVE_INFINITY).hashCode());
+
+        ArrayList i = ReflectionUtils.newInstance(ArrayList.class);
+
+        LOGGER.info(i);
 
     }
 

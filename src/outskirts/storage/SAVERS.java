@@ -9,144 +9,129 @@ import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.dst.DArray;
 import outskirts.storage.dst.DObject;
+import outskirts.util.BytesConvert;
 import outskirts.util.Transform;
 import outskirts.util.vector.Quaternion;
 import outskirts.util.vector.Vector3f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL15.glGetBufferSubData;
 
 public final class SAVERS {
 
 
-
-    // should basis/rotation uses mat3x3 or quat4 .?
-    public static final Saver<Transform> TRANSFORM = new Saver<Transform>() {
-        @Override
-        public void read(Transform obj, DObject mp) {
-            mp.getVector3f("origin", obj.origin);
-
-            Quaternion tmpquat = new Quaternion(); // opt cache
-            mp.getVector4f("basis",  tmpquat);
-            Quaternion.toMatrix(tmpquat, obj.basis);
-        }
-        @Override
-        public DObject write(Transform obj, DObject mp) {
-            mp.putVector3f("origin", obj.origin);
-
-            Quaternion tmpquat = Quaternion.fromMatrix(obj.basis, null); // opt: do the quat cache
-            mp.putVector4f("basis",  tmpquat);
-            return mp;
-        }
-    };
-
     // should CollisionShape properties saves with system-lv-CollShape field(s).? (e.g. "type": "Shape-Class-Name" Field.
     // when yes (isolate): more boundary, more safeity.  when no (not isolate shape-properties): more mainly feeling, but may not 100% safe.
     public static final Map<Class, Saver> COLLISIONSHAPE_SMAP = new HashMap<>();
     static {
-        COLLISIONSHAPE_SMAP.put(BoxShape.class, new Saver<BoxShape>() {
-            @Override
-            public void read(BoxShape obj, DObject mp) {
-                mp.getVector3f("halfextent", obj.getHalfExtent());
-            }
-            @Override
-            public DObject write(BoxShape obj, DObject mp) {
-                mp.putVector3f("halfextent", obj.getHalfExtent());
-                return mp;
-            }
-        });
-        COLLISIONSHAPE_SMAP.put(SphereShape.class, new Saver<SphereShape>() {
-            @Override
-            public void read(SphereShape obj, DObject mp) {
-                obj.setRadius((float)mp.get("radius"));
-            }
-            @Override
-            public DObject write(SphereShape obj, DObject mp) {
-                mp.put("radius", obj.getRadius());
-                return mp;
-            }
-        });
+//        COLLISIONSHAPE_SMAP.put(BoxShape.class, new Saver<BoxShape>() {
+//            @Override
+//            public void read(BoxShape obj, DObject mp) {
+//                mp.getVector3f("halfextent", obj.getHalfExtent());
+//            }
+//            @Override
+//            public DObject write(BoxShape obj, DObject mp) {
+//                mp.putVector3f("halfextent", obj.getHalfExtent());
+//                return mp;
+//            }
+//        });
+//        COLLISIONSHAPE_SMAP.put(SphereShape.class, new Saver<SphereShape>() {
+//            @Override
+//            public void read(SphereShape obj, DObject mp) {
+//                obj.setRadius((float)mp.get("radius"));
+//            }
+//            @Override
+//            public DObject write(SphereShape obj, DObject mp) {
+//                mp.put("radius", obj.getRadius());
+//                return mp;
+//            }
+//        });
         // sometimes not recormended to load/save the ConvexHullShape data,
         // cuz the data sometimes is runtime-defined/dependent by other data like the Model/Meshes.
         COLLISIONSHAPE_SMAP.put(ConvexHullShape.class, new Saver<ConvexHullShape>() {
             @Override
             public void read(ConvexHullShape obj, DObject mp) {
-                DArray<DArray> lsVertices = mp.getDArray("vertices");
-                List<Vector3f> vts = new ArrayList<>();
-                for (DArray v3dat : lsVertices) {
-                    vts.add(DArray.toVector3f(v3dat, null));
+                float[] vfs = BytesConvert.toFloatArray(mp.getByteArray("vertices"));
+                List<Vector3f> verts = new ArrayList<>();
+                for (int i = 0;i < vfs.length;i+=3) {
+                    verts.add(new Vector3f(vfs[i], vfs[i+1], vfs[i+2]));
                 }
                 obj.getVertices().clear();
-                obj.getVertices().addAll(vts);
+                obj.getVertices().addAll(verts);
             }
             @Override
             public DObject write(ConvexHullShape obj, DObject mp) {
-                DArray lsVertices = new DArray();
-                for (Vector3f v : obj.getVertices()) {
-                    lsVertices.add(DArray.fromVector3f(v));
+                Set<Vector3f> verts = obj.getVertices();
+                float[] vfs = new float[verts.size() * 3];
+                int vfi = 0;
+                for (Vector3f v : verts) {
+                    vfs[vfi++] = v.x;
+                    vfs[vfi++] = v.y;
+                    vfs[vfi++] = v.z;
                 }
-                mp.put("vertices", lsVertices);
+                mp.put("vertices", BytesConvert.toByteArray(vfs));
                 return mp;
             }
         });
     }
 
-    public static boolean OP_RIGIDBODY_WRITECOLLISIONSHAPE = false;
-    public static final Saver<RigidBody> RIGIDBODY = new Saver<RigidBody>() {
-        // Transform
-        // CollisionShape
-        // gravity
-        // linvel, angvel
-        // mass
-        // lindamping, angdamping
-        // restitution, friction
-        @Override
-        public void read(RigidBody obj, DObject mp) {
-            SAVERS.TRANSFORM.read(obj.transform(), (DObject)mp.get("transform"));
-            //todo: option to Custom set CollShape, not 100% nesecary do load.
-            if (mp.containsKey("collisionshape")) {
-                try {
-                    DObject mpCollisionshape = (DObject) mp.get("collisionshape");
-                    CollisionShape collisionshape = (CollisionShape) Class.forName((String) mpCollisionshape.get("type")).newInstance();
-                    COLLISIONSHAPE_SMAP.get(collisionshape.getClass()).read(collisionshape, mpCollisionshape);
-                    obj.setCollisionShape(collisionshape);
-                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            mp.getVector3f("gravity", obj.getGravity());
-            mp.getVector3f("linearvelocity", obj.getLinearVelocity());
-            mp.getVector3f("angularvelocity", obj.getAngularVelocity());
-            obj.setMass((float)mp.get("mass"));
-            obj.setLinearDamping((float)mp.get("lineardamping"));
-            obj.setAngularDamping((float)mp.get("angulardamping"));
-            obj.setRestitution((float)mp.get("restitution"));
-            obj.setFriction((float)mp.get("friction"));
-        }
-        @Override
-        public DObject write(RigidBody obj, DObject mp) {
-            mp.put("transform", SAVERS.TRANSFORM.write(obj.transform(), new DObject()));
-            if (OP_RIGIDBODY_WRITECOLLISIONSHAPE) {
-                DObject mpCollisionShape = new DObject();
-                mpCollisionShape.put("type", obj.getCollisionShape().getClass().getName());
-                COLLISIONSHAPE_SMAP.get(obj.getCollisionShape().getClass()).write(obj.getCollisionShape(), mpCollisionShape);
-                mp.put("collisionshape", mpCollisionShape);
-            }
-            mp.putVector3f("gravity", obj.getGravity());
-            mp.putVector3f("linearvelocity", obj.getLinearVelocity());
-            mp.putVector3f("angularvelocity", obj.getAngularVelocity());
-            mp.put("mass", obj.getMass());
-            mp.put("lineardamping", obj.getLinearDamping());
-            mp.put("angulardamping", obj.getAngularDamping());
-            mp.put("restitution", obj.getRestitution());
-            mp.put("friction", obj.getFriction());
-            return mp;
-        }
-    };
+//    public static boolean OP_RIGIDBODY_WRITECOLLISIONSHAPE = false;
+//    public static final Saver<RigidBody> RIGIDBODY = new Saver<RigidBody>() {
+//        // Transform
+//        // CollisionShape
+//        // gravity
+//        // linvel, angvel
+//        // mass
+//        // lindamping, angdamping
+//        // restitution, friction
+//        @Override
+//        public void read(RigidBody obj, DObject mp) {
+////            Savable.of(obj.transform()).onRead(mp.getDObject("transform"));
+//
+//            //todo: option to Custom set CollShape, not 100% nesecary do load.
+//            // because most times, the Enity's CollisionShape is been setup in runtime by programs.
+//            if (mp.containsKey("collisionshape")) {
+//                try {
+//                    DObject mpCollisionshape = (DObject) mp.get("collisionshape");
+//                    CollisionShape collisionshape = (CollisionShape) Class.forName((String) mpCollisionshape.get("type")).newInstance();
+//                    COLLISIONSHAPE_SMAP.get(collisionshape.getClass()).read(collisionshape, mpCollisionshape);
+//                    obj.setCollisionShape(collisionshape);
+//                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//            mp.getVector3f("gravity", obj.getGravity());
+//            mp.getVector3f("linearvelocity", obj.getLinearVelocity());
+//            mp.getVector3f("angularvelocity", obj.getAngularVelocity());
+//            obj.setMass((float)mp.get("mass"));
+//            obj.setLinearDamping((float)mp.get("lineardamping"));
+//            obj.setAngularDamping((float)mp.get("angulardamping"));
+//            obj.setRestitution((float)mp.get("restitution"));
+//            obj.setFriction((float)mp.get("friction"));
+//        }
+//        @Override
+//        public DObject write(RigidBody obj, DObject mp) {
+////            mp.put("transform", TRANSFORM.write(obj.transform(), new DObject()));
+////            mp.put("transform", Savable.of(obj.transform()).onWrite(new DObject()));
+//            if (OP_RIGIDBODY_WRITECOLLISIONSHAPE) {
+//                DObject mpCollisionShape = new DObject();
+//                mpCollisionShape.put("type", obj.getCollisionShape().getClass().getName());
+//                COLLISIONSHAPE_SMAP.get(obj.getCollisionShape().getClass()).write(obj.getCollisionShape(), mpCollisionShape);
+//                mp.put("collisionshape", mpCollisionShape);
+//            }
+//            mp.putVector3f("gravity", obj.getGravity());
+//            mp.putVector3f("linearvelocity", obj.getLinearVelocity());
+//            mp.putVector3f("angularvelocity", obj.getAngularVelocity());
+//            mp.put("mass", obj.getMass());
+//            mp.put("lineardamping", obj.getLinearDamping());
+//            mp.put("angulardamping", obj.getAngularDamping());
+//            mp.put("restitution", obj.getRestitution());
+//            mp.put("friction", obj.getFriction());
+//            return mp;
+//        }
+//    };
 
 
     // deprecated(load model to an existed Model instance).
@@ -179,39 +164,38 @@ public final class SAVERS {
 //        }
 //    };
 
-    public static final Saver<RenderPerferences> MATERIAL = new Saver<RenderPerferences>() {
-        @Override
-        public void read(RenderPerferences obj, DObject mp) {
 
-            obj.setDiffuseMap(Loader.loadTexture((byte[])mp.get("diffuseMap")));
-            obj.setEmissionMap(Loader.loadTexture((byte[])mp.get("emissionMap")));
-            obj.setNormalMap(Loader.loadTexture((byte[])mp.get("normalMap")));
 
-            obj.setSpecularMap(Loader.loadTexture((byte[])mp.get("specularMap")));
-            obj.setSpecularStrength((float)mp.get("specularStrength"));
-            obj.setShininess((float)mp.get("shininess"));
-
-            obj.setDisplacementMap(Loader.loadTexture((byte[])mp.get("displacementMap")));
-            obj.setDisplacementScale((float)mp.get("displacementScale"));
-
-        }
-
-        @Override
-        public DObject write(RenderPerferences obj, DObject mp) {
-
-            mp.put("diffuseMap", Loader.savePNG(obj.getDiffuseMap()));
-            mp.put("emissionMap", Loader.savePNG(obj.getEmissionMap()));
-            mp.put("normalMap", Loader.savePNG(obj.getNormalMap()));
-
-            mp.put("specularMap", Loader.savePNG(obj.getSpecularMap()));
-            mp.put("specularStrength", obj.getSpecularStrength());
-            mp.put("shininess", obj.getShininess());
-
-            mp.put("displacementMap", Loader.savePNG(obj.getDisplacementMap()));
-            mp.put("displacementScale", obj.getDisplacementScale());
-
-            return mp;
-        }
-    };
-
+//    @Override
+//    public void onRead(DObject mp) throws IOException {
+//
+//        setDiffuseMap(Loader.loadTexture(mp.getByteArray("diffuseMap")));
+//        setEmissionMap(Loader.loadTexture(mp.getByteArray("emissionMap")));
+//        setNormalMap(Loader.loadTexture(mp.getByteArray("normalMap")));
+//
+//        setSpecularMap(Loader.loadTexture(mp.getByteArray("specularMap")));
+//        setSpecularStrength(mp.getFloat("specularStrength"));
+//        setShininess(mp.getFloat("shininess"));
+//
+//        setDisplacementMap(Loader.loadTexture(mp.getByteArray("displacementMap")));
+//        setDisplacementScale(mp.getFloat("displacementScale"));
+//
+//    }
+//
+//    @Override
+//    public DObject onWrite(DObject mp) throws IOException {
+//
+//        mp.put("diffuseMap", Loader.savePNG(getDiffuseMap()));
+//        mp.put("emissionMap", Loader.savePNG(getEmissionMap()));
+//        mp.put("normalMap", Loader.savePNG(getNormalMap()));
+//
+//        mp.put("specularMap", Loader.savePNG(getSpecularMap()));
+//        mp.put("specularStrength", getSpecularStrength());
+//        mp.put("shininess", getShininess());
+//
+//        mp.put("displacementMap", Loader.savePNG(getDisplacementMap()));
+//        mp.put("displacementScale", getDisplacementScale());
+//
+//        return mp;
+//    }
 }

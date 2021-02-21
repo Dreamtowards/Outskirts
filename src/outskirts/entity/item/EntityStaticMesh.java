@@ -7,6 +7,8 @@ import outskirts.physics.collision.shapes.GhostShape;
 import outskirts.physics.collision.shapes.concave.BvhTriangleMeshShape;
 import outskirts.storage.dst.DObject;
 
+import java.io.IOException;
+
 public class EntityStaticMesh extends Entity {
 
     public EntityStaticMesh() {
@@ -31,7 +33,7 @@ public class EntityStaticMesh extends Entity {
     }
 
     @Override
-    public void onRead(DObject mp) {
+    public void onRead(DObject mp) throws IOException {
         super.onRead(mp);
 
 //        setModel(Loader.loadOBJ(new ByteArrayInputStream((byte[])mp.get("modelobj"))));
@@ -40,7 +42,7 @@ public class EntityStaticMesh extends Entity {
     }
 
     @Override
-    public DObject onWrite(DObject mp) {
+    public DObject onWrite(DObject mp) throws IOException {
         super.onWrite(mp);
 
 //        mp.put("modelobj", Loader.saveOBJ(getModel()));

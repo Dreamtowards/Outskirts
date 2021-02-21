@@ -112,7 +112,7 @@ public abstract class Octree {
         private static final byte SG_FULL = (byte)0xFF;
         private static final byte SG_EMPTY = (byte)0x00;
 
-        /** Cell Vertices Signums.  NotNumVal. Jus. 8 bits.  0: Negative(-1)(Empty), 1: Positive(+1)(Solid).  indices.{76543210} */
+        /** Cell Vertices Signums.  NotNumVal. Jus. 8 bits.  bit0: Empty, bit1: Solid.  indices.{76543210} */
         public byte vsign;
 
         // is there has data-repeat.? some edge are shared.
@@ -161,8 +161,13 @@ public abstract class Octree {
             }
         }
 
+        private boolean lodObjDontUseHermiteDataFp = false;
+        boolean hasfp() {
+            return !vempty() && !vfull();
+        }
         void computefp() {
-            if (vempty() || vfull()) throw new IllegalStateException("Useless invoke.");
+            if (!hasfp()) throw new IllegalStateException("this Leaf dosent have featurepoint.");
+            if (lodObjDontUseHermiteDataFp) return;
             int hash = Arrays.hashCode(edges);
             if (lascomp_fpdshash != hash) {
                 lascomp_fpdshash = hash;
@@ -570,6 +575,51 @@ public abstract class Octree {
         BvhTriangleMeshShape mesh = new BvhTriangleMeshShape(CollectionUtils.range(vbuf.positions.size()/3), vbuf.posarr());
         return fromMESH(aabb.min, sz, mesh, depthcap);
     }
+
+
+    // usize: until size
+    public static Octree doLOD(Octree.Internal intern, float usize, Vector3f min, float size) {
+        float subsz = size/2f;
+        Vector3f submin = new Vector3f();
+        for (int i = 0;i < 8;i++) {
+            Octree child = intern.child(i);
+            if (child != null && child.isInternal()) {
+                submin.set(min).addScaled(subsz, Octree.VERT[i]);
+                intern.child(i, doLOD((Internal)child, usize, submin, subsz));
+            }
+        }
+        if (CollectionUtils.nonnulli(intern.children) == 0)
+            return null;
+        if (size <= usize) {
+            Octree.Leaf lf = new Octree.Leaf(min, size);
+            Vector3f avgfp = new Vector3f();
+            int avgn = 0;
+            List<Material> mtls = new ArrayList<>();
+            for (int i = 0;i < 8;i++) {
+                Octree.Leaf c = (Leaf)intern.child(i);
+                // get signs.
+                lf.sign(i, c != null && c.sign(i));
+                // avg verts
+                if (c != null && c.hasfp()) {
+                    c.computefp();
+                    avgfp.add(c.featurepoint);
+                    avgn++;
+                }
+                if (c != null && !c.vempty())
+                    mtls.add(c.material);
+            }
+            lf.lodObjDontUseHermiteDataFp = true;
+            lf.featurepoint.set(avgfp.scale(1f / avgn));
+
+            lf.material = CollectionUtils.mostDuplicated(mtls);
+            return lf;
+        } else {
+
+            return intern;
+        }
+    }
+
+
 
 
 

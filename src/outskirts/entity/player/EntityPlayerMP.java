@@ -5,6 +5,8 @@ import outskirts.server.OutskirtsServer;
 import outskirts.storage.dst.DObject;
 import outskirts.world.WorldServer;
 
+import java.io.IOException;
+
 public class EntityPlayerMP extends EntityPlayer {
 
     private String uuid;
@@ -18,7 +20,7 @@ public class EntityPlayerMP extends EntityPlayer {
     }
 
     @Override
-    public void onRead(DObject mp) {
+    public void onRead(DObject mp) throws IOException {
 
         if (mp.containsKey("world"))
             setWorld(OutskirtsServer.getWorlds().get(mp.getString("world")));  // probably null. when saves curr not exists
@@ -27,7 +29,7 @@ public class EntityPlayerMP extends EntityPlayer {
     }
 
     @Override
-    public DObject onWrite(DObject mp) {
+    public DObject onWrite(DObject mp) throws IOException {
 
         if (getWorld() != null)  // when is null ..?
             mp.put("world", getWorld().getRegistryID());

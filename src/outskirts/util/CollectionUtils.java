@@ -257,6 +257,7 @@ public final class CollectionUtils {
         return arr;
     }
 
+    // could use of count(arr, null);
     private static int nulli(Object[] arr) {
         int i = 0;
         for (Object e : arr) {
@@ -288,6 +289,37 @@ public final class CollectionUtils {
         });
         return (int)v.val;
     }
+
+    public static <T> T mostDuplicated(List<T> ls) { assert ls.size() > 0;
+        Set<T> set = new HashSet<>(ls);
+        T mobj = null;
+        int mi = -1;
+        for (T t : set) {
+            int n = CollectionUtils.count(ls, t);
+            if (n > mi) {
+                mi = n;
+                mobj = t;
+            }
+        }
+        return mobj;
+    }
+    private static <T> int count(List<T> ls, T find) {
+        int n = 0;
+        if (find == null) {
+            for (T e : ls) {
+                if (e == null) n++;
+            }
+        } else {
+            for (T e : ls) {
+                if (e.equals(find)) n++;
+            }
+        }
+        return n;
+    }
+    private static <T> int count(T[] arr, T find) {
+        return CollectionUtils.count(Arrays.asList(arr), find);
+    }
+
 
     /**
      * @param list both "src" AND "dest"
