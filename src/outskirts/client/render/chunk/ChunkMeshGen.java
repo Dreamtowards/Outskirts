@@ -30,16 +30,16 @@ public class ChunkMeshGen {
             // we choose stitching towards min-er. cuz miner are always exists. chunk-load is from min to max in each axis.
             Octree neib = world.getOctree(vec3(rs.position()).addv(i, 16));
             if (neib != null) {
-                int beginv = vbuf.positions.size()/3;
+                int beginfi = vbuf.positions.size();
                 fp[0] = node;
                 fp[1] = neib;
                 DualContouring.doFaceContour(fp, i, vbuf);
 
                 // vertex-axis-pos correct offset. because Octrees are all rel-pos.
-                for (int vi = beginv;vi < vbuf.positions.size()/3;vi++) {
-                    float f = vbuf.positions.get(vi*3+i);
+                for (int fi = beginfi;fi < vbuf.positions.size();fi+=3) {
+                    float f = vbuf.positions.get(fi+i);
                     if (f < 8) {
-                        vbuf.positions.set(vi*3+i, 16+f);
+                        vbuf.positions.set(fi+i, 16+f);
                     }
                 }
             }
@@ -60,15 +60,15 @@ public class ChunkMeshGen {
             }
 
             if (comple) {
-                int beginv = vbuf.positions.size()/3;
+                int beginfi = vbuf.positions.size();
                 DualContouring.doEdgeContour(ea, i, vbuf);
 
-                for (int vi = beginv;vi < vbuf.positions.size()/3;vi++) {
+                for (int fi = beginfi;fi < vbuf.positions.size();fi+=3) {
                     for (int j = 0;j < 3;j++) {
                         if (j == i) continue;
-                        float f = vbuf.positions.get(vi*3+j);
+                        float f = vbuf.positions.get(fi+j);
                         if (f < 8) {
-                            vbuf.positions.set(vi*3+j, 16+f);
+                            vbuf.positions.set(fi+j, 16+f);
                         }
                     }
                 }
@@ -81,7 +81,7 @@ public class ChunkMeshGen {
 
         VertexUtil.smoothnorm(vbuf);
 
-        vertm.value = CollectionUtils.toArrayf((List<Float>)(Object)vbuf.verttags);
+        vertm.value = CollectionUtils.toArrayf((List)vbuf.verttags);
         assert vertm.value.length == vbuf.positions.size()/3;
 
         return vbuf;

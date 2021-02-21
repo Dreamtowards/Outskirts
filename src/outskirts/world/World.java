@@ -111,7 +111,7 @@ public abstract class World implements Tickable {
         Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
             ChunkPos chunkpos = ChunkPos.of(x, z);
-            chunk = chunkLoader.loadChunk(this, chunkpos);
+//            chunk = chunkLoader.loadChunk(this, chunkpos);
 
             if (chunk == null) {
                 chunk = chunkGenerator.generate(chunkpos, this);

@@ -97,7 +97,7 @@ public abstract class EntityPlayer extends EntityCreature implements CommandSend
         this.flymode = flymode;
         if (flymode) {
             rigidbody().getGravity().set(0, 0, 0);
-            rigidbody().setLinearDamping(0.0001f);
+            rigidbody().setLinearDamping(0.001f);
         } else {
             rigidbody().getGravity().set(0, -10, 0);
             rigidbody().setLinearDamping(0.95f);

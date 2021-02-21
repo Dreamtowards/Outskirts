@@ -58,7 +58,7 @@ public class RayPicker {
                             t.val = Float.MAX_VALUE;
                         }
                     } catch (ArithmeticException ex) {
-                        LOGGER.warn("RayPicker failed calc with a illegal triangle. (line/point)");
+                        LOGGER.warn("RayPicker failed calc raycast."+ex.getMessage());
                     }
                     continue;
                 }

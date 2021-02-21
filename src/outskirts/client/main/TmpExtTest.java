@@ -55,9 +55,10 @@ public class TmpExtTest {
 
             Octree.Internal nd = Outskirts.getWorld().getOctree(p);
 
-            Octree.doLOD(nd, 4, vec3(0), 16);
+            Octree.doLOD(nd, 2, vec3(0), 16);
 
-            renderEngine.getChunkRenderDispatcher().markRebuild(p);
+            renderEngine.getChunkRenderDispatcher().markRebuild(
+                    aabb(Vector3f.floor(vec3(p),16), 16));
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();

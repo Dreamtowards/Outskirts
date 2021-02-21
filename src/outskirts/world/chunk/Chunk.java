@@ -67,7 +67,7 @@ public class Chunk implements Savable {
         Vector3f p = vec3(x, k, z);
         if (node == null) {
             // Unload.
-            Octree pn = sections.remove(k);  assert pn == null;
+            Octree pn = sections.remove(k);  assert pn != null : "Dosent exists.";
             EVENT_BUS.post(new SectionUnloadedEvent(this, p));
         } else {
             // Load

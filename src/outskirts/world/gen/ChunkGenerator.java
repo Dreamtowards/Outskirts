@@ -1,5 +1,6 @@
 package outskirts.world.gen;
 
+import outskirts.client.Outskirts;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.SDF;
 import outskirts.init.Materials;
@@ -33,7 +34,7 @@ public class ChunkGenerator {
                 if (b < 0) return b;
                 return y-(noise.fbm((x)/29,(z)/29, 4)*9f+19);
             };
-            Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 4, lf -> {
+            Octree node = Octree.fromSDF(vec3(0), 16, FUNC, Outskirts.isCtrlKeyDown() ? 2 : 4, lf -> {
                 if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.STONE;
                 else lf.material = Materials.GRASS;
             });

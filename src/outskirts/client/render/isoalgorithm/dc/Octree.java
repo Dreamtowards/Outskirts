@@ -3,6 +3,7 @@ package outskirts.client.render.isoalgorithm.dc;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvBFAVG;
 import outskirts.client.render.isoalgorithm.dc.qefsv.QEFSolvDCJAM3;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
@@ -162,7 +163,7 @@ public abstract class Octree {
         }
 
         private boolean lodObjDontUseHermiteDataFp = false;
-        boolean hasfp() {
+        private boolean hasfp() {
             return !vempty() && !vfull();
         }
         void computefp() {
@@ -276,8 +277,9 @@ public abstract class Octree {
             }
         }
         if (ps.size() != 0) {
-                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(ps, ns));
+//                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(ps, ns));
 //            cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
+            cell.featurepoint.set(cell.min).add(cell.size/2f);
         }
         assert Vector3f.isFinite(cell.featurepoint) && cell.featurepoint.lengthSquared()!=0
                 : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.sc_edges();
@@ -588,8 +590,11 @@ public abstract class Octree {
                 intern.child(i, doLOD((Internal)child, usize, submin, subsz));
             }
         }
-        if (CollectionUtils.nonnulli(intern.children) == 0)
-            return null;
+        assert CollectionUtils.nonnulli(intern.children) == 8;  // curr disabled collapse.
+//        if (CollectionUtils.nonnulli(intern.children) == 0) {
+//            LOGGER.info("NO CHIL");
+//            return null;
+//        }
         if (size <= usize) {
             Octree.Leaf lf = new Octree.Leaf(min, size);
             Vector3f avgfp = new Vector3f();
@@ -605,13 +610,21 @@ public abstract class Octree {
                     avgfp.add(c.featurepoint);
                     avgn++;
                 }
-                if (c != null && !c.vempty())
+                if (c != null && !c.vempty()) {
                     mtls.add(c.material);
+                    if (!c.sign(i))
+                        mtls.add(c.material); // add weight. for 'surface' children.
+                }
             }
-            lf.lodObjDontUseHermiteDataFp = true;
-            lf.featurepoint.set(avgfp.scale(1f / avgn));
+            if (!lf.vempty()) {
+                lf.lodObjDontUseHermiteDataFp = true;
+                lf.featurepoint.set(avgfp.scale(1f / avgn));
 
-            lf.material = CollectionUtils.mostDuplicated(mtls);
+                lf.material = CollectionUtils.mostDuplicated(mtls);
+            } else {
+                assert mtls.isEmpty();
+                assert avgn == 0;
+            }
             return lf;
         } else {
 

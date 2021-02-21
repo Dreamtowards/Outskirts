@@ -21,7 +21,9 @@ import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 import outskirts.world.World;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -76,7 +78,7 @@ public class GuiDebugV extends Gui {
                             g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
                         }),
                         new GuiCheckBox("FE/BordV").exec(g->{
-                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.WHITE, g));
+                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
                         }),
                         new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
                             g.addOnDrawListener(e -> {
@@ -90,10 +92,18 @@ public class GuiDebugV extends Gui {
                         }),
                         new GuiCheckBox("FRO/OctreesAHD").exec((GuiCheckBox g)->{
                             g.addOnDrawListener(e -> {
-                                Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()).setY(0), 16f);
+                                Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()), 16f);
                                 Octree nd = Outskirts.getWorld().getOctree(base);
                                 if (g.isChecked() && nd != null) {
                                     drawOctreeAHD(nd, base, 16);
+                                }
+                                Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+                                if (p != null) {
+                                    Vector3f pbase = Vector3f.floor(vec3(p), 16f);
+                                    Octree pnd = Outskirts.getWorld().getOctree(pbase);
+                                    if (g.isChecked() && pnd != null) {
+                                        drawOctreeAHD(pnd, pbase, 16);
+                                    }
                                 }
                             });
                         }),
@@ -186,7 +196,7 @@ public class GuiDebugV extends Gui {
             if (nd.isInternal()) {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), COL_INTERN);
             } else {
-                if (vec3(mn).sub(Outskirts.getPlayer().position()).length() > 5)
+                if (vec3(mn).sub(Outskirts.getPlayer().position()).length() > 3.5f)
                     return;
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), ((Octree.Leaf)nd).vfull() ? COL_LEAF_FULL : COL_LEAF_DIFF);
                 drawOctreeLeafEdgesHDT((Octree.Leaf)nd, mn);
@@ -216,6 +226,13 @@ public class GuiDebugV extends Gui {
             if (h != null) {
                 Vector3f base = vec3(h.point).add(Vector3f.floor(vec3(min),16f));
                 Outskirts.renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.2f,h.norm), Colors.GREEN);
+            } else {  // DEBUG Virtual-Leaf. (no-hermite-data, have signs and fp.
+                if (leaf.signchange(i)) {
+                    Vector3f p = Octree.edgelerp(leaf, i, .5f, null).add(Vector3f.floor(vec3(min),16f));
+                    Gui.drawWorldpoint(p, (x, y) -> {
+                        drawRect(Colors.WHITE, x, y, 4, 4);
+                    });
+                }
             }
         }
     }
@@ -223,8 +240,15 @@ public class GuiDebugV extends Gui {
     private static void renderDVGIfFEOkRGCk(Vector4f ncol, Vector4f bcol, Gui g) {
         if (!((Checkable)g).isChecked())
             return;
-        Entity entity = Outskirts.getRayPicker().getCurrentEntity();
-        if (entity != null) {
+        List<Entity> entities = new ArrayList<>();
+        if (Outskirts.isCtrlKeyDown()) {
+            Entity entity = Outskirts.getRayPicker().getCurrentEntity();
+            if (entity != null)
+                entities.add(entity);
+        } else {
+            entities.addAll(Outskirts.getWorld().getEntities());
+        }
+        for (Entity entity : entities) {
             Outskirts.renderEngine.getDebugVisualGeoRenderer().normColor.set(ncol);
             Outskirts.renderEngine.getDebugVisualGeoRenderer().borderColor.set(bcol);
             Outskirts.renderEngine.getDebugVisualGeoRenderer().render(entity);
