@@ -2,16 +2,22 @@ package outskirts.storage;
 
 import outskirts.physics.collision.shapes.CollisionShape;
 import outskirts.physics.collision.shapes.convex.BoxShape;
+import outskirts.physics.collision.shapes.convex.ConvexHullShape;
 import outskirts.physics.collision.shapes.convex.SphereShape;
 import outskirts.physics.dynamics.RigidBody;
+import outskirts.storage.dst.DArray;
 import outskirts.storage.dst.DObject;
+import outskirts.util.IOUtils;
 import outskirts.util.ReflectionUtils;
 import outskirts.util.Transform;
 import outskirts.util.vector.Quaternion;
+import outskirts.util.vector.Vector3f;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public final class SavableExternalExtensions {
 
@@ -25,6 +31,7 @@ public final class SavableExternalExtensions {
 
         REG.put(BoxShape.class, SE_BoxShape.class);
         REG.put(SphereShape.class, SE_SphereShape.class);
+        REG.put(ConvexHullShape.class, SE_ConvexHullShape.class);
     }
 
     static class SE_Transform implements Savable {
@@ -141,4 +148,31 @@ public final class SavableExternalExtensions {
         }
     }
 
+    static class SE_ConvexHullShape implements Savable {
+        ConvexHullShape shape;
+        SE_ConvexHullShape(ConvexHullShape in) { shape=in; }
+
+        @Override
+        public void onRead(DObject mp) throws IOException {
+            Set<Vector3f> verts = shape.getVertices();
+            verts.clear();
+            DArray<Float> vfs = mp.getDArray("vertices"); assert vfs.size()%3 == 0;
+            for (int i = 0;i < vfs.size();i+=3) {
+                verts.add(new Vector3f(vfs.get(i), vfs.get(i+1), vfs.get(i+2)));
+            }
+        }
+
+        @Override
+        public DObject onWrite(DObject mp) throws IOException {
+            Set<Vector3f> verts = shape.getVertices();
+            DArray<Float> vfs = new DArray<>();
+            for (Vector3f v : verts) {
+                vfs.add(v.x);
+                vfs.add(v.y);
+                vfs.add(v.z);
+            }
+            mp.put("vertices", vfs);
+            return mp;
+        }
+    }
 }

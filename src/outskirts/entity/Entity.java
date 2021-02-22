@@ -3,7 +3,6 @@ package outskirts.entity;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.physics.dynamics.RigidBody;
-import outskirts.storage.SAVERS;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DObject;
 import outskirts.util.Tickable;
