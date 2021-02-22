@@ -112,9 +112,9 @@ public class Chunk implements Savable {
     public DObject onWrite(DObject mp) throws IOException {
 
         DObject mpMetadata = new DObject();
-        mpMetadata.put("x", x);
-        mpMetadata.put("z", z);
-        mpMetadata.put("modify_time", System.currentTimeMillis());  // cuz. do not needs very accuracy.
+        mpMetadata.putInt("x", x);
+        mpMetadata.putInt("z", z);
+        mpMetadata.putLong("modify_time", System.currentTimeMillis());  // cuz. do not needs very accuracy.
         mpMetadata.putBoolean("populated", populated);
         mp.put("metadata", mpMetadata);
 
@@ -130,7 +130,7 @@ public class Chunk implements Savable {
 
         ByteArrayOutputStream bSections = new ByteArrayOutputStream();
         IOUtils.writeShort(bSections, (short)sections.size());  assert sections.size() < 65536;
-        for (int yk : sections.keySet()) { assert Math.abs(yk) < 32768;
+        for (int yk : sections.keySet()) {                      assert Math.abs(yk) < 32768;
             IOUtils.writeShort(bSections, (short)yk);
             Octree.writeOctree(bSections, sections.get(yk));
         }

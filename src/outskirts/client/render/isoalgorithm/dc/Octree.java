@@ -621,9 +621,6 @@ public abstract class Octree {
                 lf.featurepoint.set(avgfp.scale(1f / avgn));
 
                 lf.material = CollectionUtils.mostDuplicated(mtls);
-            } else {
-                assert mtls.isEmpty();
-                assert avgn == 0;
             }
             return lf;
         } else {

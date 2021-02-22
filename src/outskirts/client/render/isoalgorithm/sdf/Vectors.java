@@ -7,6 +7,8 @@ import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
+import java.util.List;
+
 public final class Vectors {
 
 
@@ -27,6 +29,12 @@ public final class Vectors {
         return vec3(v[begin], v[begin+1], v[begin+2]);
     }
     public static Vector3f vec3(float[] v) {
+        return vec3(v, 0);
+    }
+    public static Vector3f vec3(List<Float> v, int begin) {
+        return vec3(v.get(begin), v.get(begin+1), v.get(begin+2));
+    }
+    public static Vector3f vec3(List<Float> v) {
         return vec3(v, 0);
     }
     public static Vector3f vec3(String s) {

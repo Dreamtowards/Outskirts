@@ -58,7 +58,7 @@ public class RayPicker {
                             t.val = Float.MAX_VALUE;
                         }
                     } catch (ArithmeticException ex) {
-                        LOGGER.warn("RayPicker failed calc raycast."+ex.getMessage());
+                        LOGGER.warn("RayPicker failed raycast: "+ex.getMessage());
                     }
                     continue;
                 }
@@ -70,16 +70,6 @@ public class RayPicker {
         } else {
             currentPoint = null;
         }
-
-//        prevousBlockPos=currentBlockPos;
-//        currentBlockPos=null;
-//        if (currentEntity != null) {
-//            currentBlockPos = new Vector3f(currentPoint).addScaled(0.01f, rayDirection);
-//            currentBlockPos.set(Maths.floor(currentBlockPos.x), Maths.floor(currentBlockPos.y), Maths.floor(currentBlockPos.z));
-//            if (Outskirts.getWorld().getBlock(currentBlockPos) == null) {
-//                currentBlockPos = null;
-//            }
-//        }
     }
 
     private Entity getCloserAabbEntity(Vector3f raypos, Vector3f raydir, Val thanT, List<Entity> excepts) {

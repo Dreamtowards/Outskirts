@@ -24,6 +24,7 @@ public class ChunkMeshGen {
 
         VertexBuffer vbuf = DualContouring.contouring(node);
 
+        if (false) {
         // Stitching. FACEs.
         Octree[] fp = new Octree[2];
         for (int i = 0;i < 3;i++) {
@@ -43,6 +44,7 @@ public class ChunkMeshGen {
                     }
                 }
             }
+        }
         }
 
         // Stitching ADJACENTs.
@@ -73,6 +75,8 @@ public class ChunkMeshGen {
                     }
                 }
             }
+
+
         }
 
 

@@ -85,6 +85,13 @@ public class DObject implements Map<String, Object> {
     public int getInt(String k) {
         return (int)get(k);
     }
+    public void putInt(String k, int v) {
+        put(k, v);
+    }
+
+    public void putLong(String k, long v) {
+        put(k, v);
+    }
 
     public float getFloat(String k) {
         return (float)get(k);

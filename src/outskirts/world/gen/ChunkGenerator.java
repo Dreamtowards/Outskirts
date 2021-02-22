@@ -32,10 +32,10 @@ public class ChunkGenerator {
 
                 float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
                 if (b < 0) return b;
-                return y-(noise.fbm((x)/29,(z)/29, 4)*9f+19);
+                return y-(noise.fbm((x)/29,(z)/29, 4)*6f+10);
             };
             Octree node = Octree.fromSDF(vec3(0), 16, FUNC, Outskirts.isCtrlKeyDown() ? 2 : 4, lf -> {
-                if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.STONE;
+                if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.DIRT;
                 else lf.material = Materials.GRASS;
             });
             chunk.octree(i*16, node);

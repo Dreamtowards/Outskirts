@@ -193,7 +193,8 @@ public class Vector3f extends Vector {
         if (dest.lengthSquared() == 0) {
             if (defnorm != null)
                 return dest.set(defnorm);
-            throw new ArithmeticException("not a really triangle. (point/line) ("+v1+", "+v2+", "+v3+")");
+            boolean onepos = v1.equals(v2) && v1.equals(v3);
+            throw new ArithmeticException("illegal triangle. ("+(onepos?"point":"line")+") ("+v1+", "+v2+", "+v3+")");
         }
         if (forcedir!=null && dot(dest, forcedir) < 0)
             dest.negate();
