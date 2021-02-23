@@ -157,6 +157,9 @@ public final class IOUtils {
     public static short readShort(InputStream is) throws IOException {
         return readShort(readFully(is, DEFAULT_BUFFER, 0, 2), 0);
     }
+    public static int readUnsignedShort(InputStream is) throws IOException {
+        return readShort(is) & 0xFFFF;
+    }
     public static int readInt(InputStream is) throws IOException {
         return readInt(readFully(is, DEFAULT_BUFFER, 0, 4), 0); // local var just for short call
     }
@@ -190,13 +193,18 @@ public final class IOUtils {
     public static void writeFloat(OutputStream os, float f) throws IOException {
         writeInt(os, Float.floatToIntBits(f));
     }
+    public static double readDouble(InputStream is) throws IOException {
+        return Double.longBitsToDouble(readLong(is));
+    }
+    public static void writeDouble(OutputStream os, double d) throws IOException {
+        writeLong(os, Double.doubleToLongBits(d));
+    }
     /**
      * ISO 10646 .UTF-8 Specification.
      * but actually only supports 1bytes, 2bytes, and 3bytes char. (Unicode range U+0000 - U+FFFF.)
-     * and in addition, write 2bytes (a unsigned-short) in start for utflen.
+     * @param utflen data bytes length.
      */
-    public static String readUTF(InputStream is) throws IOException {
-        int utflen = IOUtils.readShort(is) & 0xFFFF;
+    public static String readUTF(InputStream is, int utflen) throws IOException {
         byte[] bytearr = new byte[utflen];
         char[] chararr = new char[utflen];
         readFully(is, bytearr);
@@ -232,6 +240,10 @@ public final class IOUtils {
         }
         return new String(chararr, 0, ci);
     }
+    public static String readUTF(InputStream is) throws IOException {
+        int utflen = readUnsignedShort(is);
+        return readUTF(is, utflen);
+    }
 
     /**
      * UTF-8.
@@ -254,8 +266,7 @@ public final class IOUtils {
             }
         }
         if (bi > 0xFFFF) throw new IndexOutOfBoundsException();
-        os.write(bi >> 8);
-        os.write(bi & 0xFF);
+        writeShort(os, (short)bi);
         writeFully(os, bytearr, 0, bi);
     }
 
