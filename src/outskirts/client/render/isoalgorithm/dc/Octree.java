@@ -164,12 +164,12 @@ public abstract class Octree {
             }
         }
 
-        private boolean lodObjDontUseHermiteDataFp = false;
+        public boolean lodObjDontUseHermiteDataFp = false;
         private boolean hasfp() {
             return !vempty() && !vfull();
         }
         void computefp() {
-            if (!hasfp()) throw new IllegalStateException("this Leaf dosent have featurepoint.");
+//            if (!hasfp()) throw new IllegalStateException("this Leaf dosent have featurepoint.");
             if (lodObjDontUseHermiteDataFp) return;
             int hash = Arrays.hashCode(edges);
             if (lascomp_fpdshash != hash) {
@@ -579,6 +579,7 @@ public abstract class Octree {
         return fromMESH(aabb.min, sz, mesh, depthcap);
     }
 
+    // LOD problem: 20210224: when LOD resolution too,
 
     // usize: until size
     public static Octree doLOD(Octree.Internal intern, float usize, Vector3f min, float size) {
@@ -611,13 +612,15 @@ public abstract class Octree {
                     avgfp.add(c.featurepoint);
                     avgn++;
                 }
-                if (c != null && !c.vempty()) {
+                if (c != null && c.material != null) { //!c.vempty()) {
+                    assert c.material != null;
                     mtls.add(c.material);
                     if (!c.sign(i))
                         mtls.add(c.material); // add weight. for 'surface' children.
                 }
             }
-            if (!lf.vempty()) {
+//            if (!lf.vempty()) {  // cant be !lf.vempty(). its cause some holes. because when LOD too big, tho inner has detail leaves, but for sampleing vertex-signs, its been a empty. but actually shouldn't just do not connect it in dc.
+            if (avgn != 0) {
                 lf.lodObjDontUseHermiteDataFp = true;
                 lf.featurepoint.set(avgfp.scale(1f / avgn));
 

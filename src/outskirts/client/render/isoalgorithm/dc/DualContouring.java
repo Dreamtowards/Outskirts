@@ -47,7 +47,7 @@ public final class DualContouring {
     static boolean startRootDoFace = false;
 
     private static void doCellContour(Octree node, VertexBuffer vbuf) {
-        LOGGER.info(StringUtils.repeat(" ", space)+"doCell()"); space+=2;
+//        LOGGER.info(StringUtils.repeat(" ", space)+"doCell()"); space+=2;
         if (node == null) return;
         if (node.isInternal()) {
             Octree.Internal internal = (Octree.Internal)node;
@@ -79,7 +79,7 @@ public final class DualContouring {
                 doEdgeContour(eadjacent, i/2, vbuf);
             }
         }
-        space -= 2;
+//        space -= 2;
     }
 
     public static final int[][] axisFace4PrepEdgeTb = {
@@ -92,7 +92,7 @@ public final class DualContouring {
      * @param facepair order-required: [0]: min-side, [1] max-side. (relatively.)
      */
     public static void doFaceContour(Octree[] facepair, int axis, VertexBuffer vbuf) {
-        LOGGER.info(StringUtils.repeat(" ", space)+"doFace()"); space+=2;
+//        LOGGER.info(StringUtils.repeat(" ", space)+"doFace()"); space+=2;
         if (facepair[0]==null || facepair[1]==null) return;
         if (facepair[0].isInternal() || facepair[1].isInternal()) {
 
@@ -114,18 +114,18 @@ public final class DualContouring {
                     int pair_i = pairside[ tb[0] ][j];  // index of src-pair.
                     eadjacent[j] = facepair[pair_i].isInternal() ? ((Octree.Internal)facepair[pair_i]).child(tb[1+j]) : facepair[pair_i];
                 }
-                LOGGER.info("-FaceEAdjacent["+i+"]: tb: " + Arrays.toString(tb) + "   ; leafs: "+leafsposes(eadjacent));
+//                LOGGER.info("-FaceEAdjacent["+i+"]: tb: " + Arrays.toString(tb) + "   ; leafs: "+leafsposes(eadjacent));
                 doEdgeContour(eadjacent, tb[ 5 ], vbuf);
             }
         }
-        space -=2;
+//        space -=2;
     }
     private static String leafsposes(Octree[] leafs) {
         return "["+CollectionUtils.toString(Arrays.asList(leafs), ", ", e -> ((Octree.Leaf)e).min.toString())+"]";
     }
 
     public static void doEdgeContour(Octree[] eadjacent, int axis, VertexBuffer vbuf) {
-        LOGGER.info(StringUtils.repeat(" ", space)+"doEdge()"); space+=2;
+//        LOGGER.info(StringUtils.repeat(" ", space)+"doEdge()"); space+=2;
         if (eadjacent[0]==null || eadjacent[1]==null || eadjacent[2]==null || eadjacent[3]==null) return;
 
         if (eadjacent[0].isLeaf() && eadjacent[1].isLeaf() && eadjacent[2].isLeaf() && eadjacent[3].isLeaf()) {
@@ -140,8 +140,15 @@ public final class DualContouring {
                 doEdgeContour(subadjacent, axis, vbuf);
             }
         }
-        space-=2;
+//        space-=2;
     }
+
+    /*
+     * Dont just use vempty(), vfull() to check is a leaf should be connect.  should use hasActuallyFeaturePoint().  else, in LOD may cause some holes.
+     * LOD: because some LOD-leaf which vertex-sign sampled as vempty, may its originally contains a lots of littler leafs which should connect with 'external' leaves.
+     * tho the LOD-leaf is rought-sampled as vempty, but its has LOD-fp, its may originally should connects with some 'external' leaves.
+     * once the LOD-leaf been discord, the 'external' leaves which originally should beem connected with, just cant connect, cause some holes.
+     */
 
     /**
      * 2 Triangles forms a Quad. indexing to 4 edge-adjacents [0,3].  CCW winding.
@@ -163,7 +170,8 @@ public final class DualContouring {
         for (int i = 0;i < 4;i++) {
             Octree.Leaf leaf = (Octree.Leaf)eadjacent[i];
 
-            if (leaf.vfull() || leaf.vempty()) return;
+            if (!leaf.lodObjDontUseHermiteDataFp)
+                if (leaf.vfull() || leaf.vempty()) return;
 //            assert leaf.material != null;  // debugging disabled
 
             // "Diagonal EDGE in a Cell". for access centric-'shared'-edge on one axis.
@@ -179,7 +187,7 @@ public final class DualContouring {
             }
         }
         if (startRootDoFace) {
-            LOGGER.info("  DO VERTEX INFO: min_sc: {}, , min_sz: {}, axis: {}, min_i: {}, min_leaf: {}", minsz_signchanged, minsz, axis, min_i, eadjacent[min_i]);
+//            LOGGER.info("  DO VERTEX INFO: min_sc: {}, , min_sz: {}, axis: {}, min_i: {}, min_leaf: {}", minsz_signchanged, minsz, axis, min_i, eadjacent[min_i]);
         }
         if (minsz_signchanged) {  // put the QUAD. 2tri 6vts.
             boolean finalFlip = flip;
@@ -195,17 +203,18 @@ public final class DualContouring {
                     else if (lfs[i] == lfs[i+2]) dup=true;
                     else if (lfs[i+1] == lfs[i+2]) dup=true;
                     if (dup) {
-//                        i+=2;
-//                        continue;
+                        i+=2;
+                        continue;
                     }
 
-                    LOGGER.info(StringUtils.repeat(" ", space)+"processEdgeVertex()");
+//                    LOGGER.info(StringUtils.repeat(" ", space)+"processEdgeVertex()");
                 }
                 // todo: may 1 duplicated triangle: when 2 sub-size vs 1 big-size (used 2 places.)
                 lf.computefp();
                 vbuf.addpos(lf.featurepoint);
 //                if (vbuf.verttags != null)  // put cell/vertex material.
-//                    vbuf.verttags.add((float)Material.REGISTRY.indexOf(lf.material.getRegistryID()));
+//                if (lf.material != null)
+                    vbuf.verttags.add((float)Material.REGISTRY.indexOf(lf.material.getRegistryID()));
                 if (i==2 || i==5) {
                     int si = vbuf.positions.size()-9;
                     Vector3f v1=vec3(vbuf.positions,si), v2=vec3(vbuf.positions,si+3), v3=vec3(vbuf.positions,si+6);

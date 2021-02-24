@@ -52,6 +52,14 @@ public class TmpExtTest {
         SystemUtil.debugAddKeyHook(KEY_T, () -> {
 //            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
+            if (Outskirts.isAltKeyDown()) {
+
+                Outskirts.getWorld().unloadChunk(Outskirts.getWorld().getLoadedChunk(Outskirts.getPlayer().position()));
+
+                LOGGER.info("regenerated.");
+                return;
+            }
+
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
             if (p == null) return;
 
@@ -60,13 +68,14 @@ public class TmpExtTest {
             //chunk.octree(0,
 //                    Octree.collapse(nd);
             //);
-            Octree.doLOD((Octree.Internal)nd.child(2), 4, vec3(0), 8);
+//            Octree.doLOD((Octree.Internal)nd.child(2), 4, vec3(0), 8);
 //            nd.child(0, null);
+            Octree.doLOD(nd, 4, vec3(0), 16);
 
 
             renderEngine.getChunkRenderDispatcher().markRebuild(aabb(Vector3f.floor(vec3(p),16), 16));
 
-            LOGGER.info("TEST EXECTUED.");
+//            LOGGER.info("TEST EXECTUED.");
         });
         SystemUtil.debugAddMouseKeyHook(1, () -> {
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
