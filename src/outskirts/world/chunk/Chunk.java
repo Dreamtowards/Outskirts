@@ -31,6 +31,8 @@ import static outskirts.util.vector.Vector3f.ZERO;
 
 public class Chunk implements Savable {
 
+    // well. sections just must be Internals.? cant be leafs.?
+    // most times should Internals. but as chunks are one-body, the sections should able been a leaf.
     /**
      * SparseArray holds Y-Unlimited Sections.
      * the key:int is floor(ypos, 16).
@@ -67,12 +69,16 @@ public class Chunk implements Savable {
         Vector3f p = vec3(x, k, z);
         if (node == null) {
             // Unload.
-            Octree pn = sections.remove(k);  assert pn != null : "Dosent exists.";
-            EVENT_BUS.post(new SectionUnloadedEvent(this, p));
+            Octree pn = sections.remove(k);  // assert pn != null : "Dosent exists.";
+            if (pn != null) {
+                EVENT_BUS.post(new SectionUnloadedEvent(this, p));
+            }
         } else {
             // Load
-            Octree pn = sections.put(k, (Octree.Internal)node);  assert pn == null : "Cant Replace. looks no sense";
-            EVENT_BUS.post(new SectionLoadedEvent(this, p));
+            Octree pn = sections.put(k, (Octree.Internal)node);  // assert pn == null : "Cant Replace. looks no sense";
+            if (pn == null) {
+                EVENT_BUS.post(new SectionLoadedEvent(this, p));
+            }
         }
     }
 
@@ -100,7 +106,7 @@ public class Chunk implements Savable {
 
 
         InputStream bSections = mp.getByteArrayi("sections");
-        int numSections = IOUtils.readShort(bSections) & 0xFFFF; // assert numSections >= 0;
+        int numSections = IOUtils.readUnsignedShort(bSections); // assert numSections >= 0;
         for (int i = 0; i < numSections; i++) {
             int yk = IOUtils.readShort(bSections);
             Octree rnode = Octree.readOctree(bSections, vec3(0), 16f);
@@ -134,7 +140,7 @@ public class Chunk implements Savable {
             IOUtils.writeShort(bSections, (short)yk);
             Octree.writeOctree(bSections, sections.get(yk));
         }
-        mp.put("sections", bSections.toByteArray());
+        mp.putByteArray("sections", bSections.toByteArray());
 
         return mp;
     }

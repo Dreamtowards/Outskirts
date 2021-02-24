@@ -29,8 +29,8 @@ public final class ClientSettings {
     // CommandLineArguments or ProgramArguments ..?
     public static class ProgramArguments {
 
-        public static int WIDTH = 700;
-        public static int HEIGHT = 500;
+        public static int WIDTH = 1200;  // 700, 500
+        public static int HEIGHT = 710;
 
         public static String UUID;
         public static String TOKEN;

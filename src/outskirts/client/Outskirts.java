@@ -265,7 +265,10 @@ public class Outskirts {
             KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
 
             char ch = Keyboard.getEventCharacter();
-            if (Keyboard.getEventKeyState() && ch >= ' ') {
+            if (Keyboard.getEventKeyState() && ch >= ' ' && ch != 127) {  // 127: backspace/DEL
+                int k = Keyboard.getEventKey();
+                if (SystemUtil.IS_OSX && (k==KEY_LEFT || k==KEY_UP || k==KEY_RIGHT || k==KEY_DOWN))
+                    continue;
                 EVENT_BUS.post(new CharInputEvent(ch));
             }
         }

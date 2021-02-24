@@ -49,6 +49,8 @@ public abstract class Octree {
             new Vector3f(1, 1, 1)
     };
 
+    //todo: change Y,Z order, reduce EDGE_ADJACENT, fits faceTable
+
     // from Min to Max in each Edge.
     // orders as X, Y, Z.
     // Diagonal Edge in Cell is in-axis-flip-index edge.  i.e. diag of edge[axis*4 +i] is edge[axis*4 +(3-i)]
@@ -235,9 +237,8 @@ public abstract class Octree {
         @Override
         public String toString() {
             return "Leaf{\n" +
-                    "\tvsign=" + Integer.toBinaryString(vsign & 0xff) + " (SCES:"+ sc_edges()+") \n"+
+                    "\tvsign=" + Integer.toBinaryString(vsign & 0xff) + " (SC:"+ sc_edges()+"), "+"min"+min+", sz" + size +". featurepoint=" + featurepoint +". material=" + material  +"\n"+
                     "\tedges=" + Arrays.toString(edges) +"\n"+
-                    "\tmin="+min+", sz=" + size +". featurepoint=" + featurepoint +". material=" + material  +"\n"+
                     '}';
         }
         public static String dbgtojson(Leaf lf) {  // debug.
@@ -277,9 +278,9 @@ public abstract class Octree {
             }
         }
         if (ps.size() != 0) {
-//                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(ps, ns));
+                    cell.featurepoint.set(QEFSolvDCJAM3.wCalcQEF(ps, ns));
 //            cell.featurepoint.set(QEFSolvBFAVG.doAvg(ps, ns));
-            cell.featurepoint.set(cell.min).add(cell.size/2f);
+//            cell.featurepoint.set(cell.min).add(cell.size/2f);
         }
         assert Vector3f.isFinite(cell.featurepoint) && cell.featurepoint.lengthSquared()!=0
                 : "Illegal fp("+cell.featurepoint+") ps:"+ps+", ns:"+ns + " SG: "+Integer.toBinaryString(cell.vsign & 0xff) + "  SCES: "+cell.sc_edges();

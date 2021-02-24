@@ -105,6 +105,9 @@ public class GuiVert3D extends Gui {
         Vert vNorm = addVert(name, new Vector3f(p).add(norm), color, new Vert[]{v});
         return Arrays.asList(v, vNorm);
     }
+    public static List<Vert> addTri(String prefix, Vector3f v0, Vector3f v1, Vector3f v2, Vector4f color) {
+        return addTri(prefix, v0, v1, v2, color, Vector3f.trinorm(v0, v1, v2, null, null, Vector3f.UNIT_X));
+    }
     public static List<Vert> addTri(String prefix, Vector3f v0, Vector3f v1, Vector3f v2, Vector4f color, Vector3f norm) {
         List<Vert> added = new ArrayList<>();
         Vert vert1 = addVert(prefix+".v0", v0, color);
@@ -137,22 +140,6 @@ public class GuiVert3D extends Gui {
 
     public GuiVert3D() {
 
-        addKeyboardListener(e -> {
-            if (isVisible() && e.getKeyState() && e.getKey() == KEY_I) {
-                vertices.clear();
-                try {
-                    JSONArray array = new JSONArray(IOUtils.toString(new FileInputStream("vert.json")));
-                    for (int i = 0;i < array.length();i++) {
-                        JSONObject vertJSON = array.getJSONObject(i);
-                        vertices.add(Vert.readFromJSON(vertJSON));
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                Log.LOGGER.info("Imported.");
-            }
-        });
-
         GuiSlider sldVertDisplayNum;
         // todo: add "clear" btn
         addChildren(
@@ -176,7 +163,17 @@ public class GuiVert3D extends Gui {
             }),
             new GuiButton("Import.").exec(g -> {
                 g.addOnClickListener(e -> {
-
+                    vertices.clear();
+                    try {
+                        JSONArray array = new JSONArray(IOUtils.toString(new FileInputStream("vert.json")));
+                        for (int i = 0;i < array.length();i++) {
+                            JSONObject vertJSON = array.getJSONObject(i);
+                            vertices.add(Vert.readFromJSON(vertJSON));
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    Log.LOGGER.info("Imported.");
                 });
             })
           )

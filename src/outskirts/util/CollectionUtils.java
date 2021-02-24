@@ -4,10 +4,7 @@ import outskirts.util.function.TriConsumer;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public final class CollectionUtils {
 
@@ -222,17 +219,21 @@ public final class CollectionUtils {
         return sb.toString();
     }
 
-    public static <E> String toString(List<E> list, String delimiter) {
+    public static <E> String toString(List<E> list, String delimiter, Function<E, String> tostr) {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (E e : list) {
-            sb.append(e.toString());
+            sb.append(tostr.apply(e));
             if (++i != list.size()) {
                 sb.append(delimiter);
             }
         }
         return sb.toString();
     }
+    public static <E> String toString(List<E> list, String delimiter) {
+        return CollectionUtils.toString(list, delimiter, Object::toString);
+    }
+
 
     private static <T> void forEach(T[] array, Consumer<T> c) {
         for (T e : array)
@@ -290,7 +291,7 @@ public final class CollectionUtils {
         return (int)v.val;
     }
 
-    public static <T> T mostDuplicated(List<T> ls) { assert ls.size() > 0;
+    public static <T> T mostDuplicated(List<T> ls, Val num) { assert ls.size() > 0;
         Set<T> set = new HashSet<>(ls);
         T mobj = null;
         int mi = -1;
@@ -301,7 +302,12 @@ public final class CollectionUtils {
                 mobj = t;
             }
         }
+        if (num != null)
+            num.val = mi;
         return mobj;
+    }
+    public static <T> T mostDuplicated(List<T> ls) {
+        return CollectionUtils.mostDuplicated(ls, null);
     }
     private static <T> int count(List<T> ls, T find) {
         int n = 0;

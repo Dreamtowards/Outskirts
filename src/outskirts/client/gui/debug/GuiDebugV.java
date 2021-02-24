@@ -16,6 +16,7 @@ import outskirts.event.EventPriority;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Colors;
+import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -28,8 +29,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_FILL;
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiDebugV extends Gui {
@@ -98,7 +98,7 @@ public class GuiDebugV extends Gui {
                                     drawOctreeAHD(nd, base, 16);
                                 }
                                 Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-                                if (p != null) {
+                                if (p != null && Outskirts.isCtrlKeyDown()) {
                                     Vector3f pbase = Vector3f.floor(vec3(p), 16f);
                                     Octree pnd = Outskirts.getWorld().getOctree(pbase);
                                     if (g.isChecked() && pnd != null) {
@@ -114,20 +114,28 @@ public class GuiDebugV extends Gui {
                                 }
                             });
                         }),
+                        new GuiCheckBox("SectionBoundary.").exec((GuiCheckBox g)->{
+                            g.addOnDrawListener(e -> {
+                                if (g.isChecked()) {
+//                                    for (RenderSection rs : Outskirts.renderEngine.getChunkRenderDispatcher().getRenderSections())
+                                        Outskirts.renderEngine.getModelRenderer().drawOutline(aabb(vec3floor(Outskirts.getPlayer().position(), 16f), 16), Colors.WHITE);
+                                }
+                            });
+                        }),
                         new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL))),
 
                         new GuiExpander("COMM").setContent(new GuiColumn().addChildren(
-                                new GuiComboBox().exec((GuiComboBox g) -> {
-                                    g.getOptions().addAll(Arrays.asList(
-                                            new GuiText("SURVIVAL"),
-                                            new GuiText("CREATIVE"),
-                                            new GuiText("SPECTATOR")
-                                    ));
-                                    g.addOnSelectedListener(e -> {
-                                        Outskirts.getPlayer().setGamemode(Gamemode.values()[g.getSelectedIndex()]);
-                                    });
-                                    g.setSelectedIndex(Outskirts.getPlayer().getGamemode().ordinal());
-                                })
+                          new GuiComboBox().exec((GuiComboBox g) -> {
+                              g.getOptions().addAll(Arrays.asList(
+                                new GuiText("SURVIVAL"),
+                                new GuiText("CREATIVE"),
+                                new GuiText("SPECTATOR")
+                              ));
+                              g.addOnSelectedListener(e -> {
+                                  Outskirts.getPlayer().setGamemode(Gamemode.values()[g.getSelectedIndex()]);
+                              });
+                              g.setSelectedIndex(Outskirts.getPlayer().getGamemode().ordinal());
+                          })
                         )),
                         new GuiText("PHYS"),
                         new GuiCheckBox("BoundingBox").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showBoundingBox=b)),
@@ -136,25 +144,25 @@ public class GuiDebugV extends Gui {
 
 
                         new GuiExpander("INSP").setContent(new GuiColumn().addChildren(
-                                new GuiButton("GIPlayer").exec(g -> {
-                                    g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer()))));
-                                }),
-                                new GuiButton("GIPickerETT").exec(g -> {
-                                    g.addOnClickListener(e -> {
-                                        if (Outskirts.getRayPicker().getCurrentEntity() == null) return;
-                                        Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
-                                    });
-                                }),
-                                new GuiButton("Add EStaticMesh.").exec(g -> {
-                                    g.addOnClickListener(e -> {
-                                        if (Outskirts.getRayPicker().getCurrentPoint() == null) return;
-                                        EntityStaticMesh sm = new EntityStaticMesh();
-                                        sm.setModel(Models.GEO_CUBE);
-                                        sm.rigidbody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
-                                        Outskirts.getWorld().addEntity(sm);
-                                    });
-                                }),
-                                new GuiCheckBox("Lights Marks").exec(g->initCBL(g, false, GuiILightsList.INSTANCE::setVisible))
+                          new GuiButton("GIPlayer").exec(g -> {
+                              g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer()))));
+                          }),
+                          new GuiButton("GIPickerETT").exec(g -> {
+                              g.addOnClickListener(e -> {
+                                  if (Outskirts.getRayPicker().getCurrentEntity() == null) return;
+                                  Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                              });
+                          }),
+                          new GuiButton("Add EStaticMesh.").exec(g -> {
+                              g.addOnClickListener(e -> {
+                                  if (Outskirts.getRayPicker().getCurrentPoint() == null) return;
+                                  EntityStaticMesh sm = new EntityStaticMesh();
+                                  sm.setModel(Models.GEO_CUBE);
+                                  sm.rigidbody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
+                                  Outskirts.getWorld().addEntity(sm);
+                              });
+                          }),
+                          new GuiCheckBox("Lights Marks").exec(g->initCBL(g, false, GuiILightsList.INSTANCE::setVisible))
                         )),
                         new GuiText("TEST"),
                         new GuiButton("Gui Weights Test Window").exec(g -> {
@@ -194,16 +202,18 @@ public class GuiDebugV extends Gui {
     private static void drawOctreeAHD(Octree node, Vector3f min, float size) {
         Octree.forEach(node, (nd, mn, sz) -> {
             if (nd.isInternal()) {
+                if (vec3(Outskirts.getPlayer().position()).sub(mn).length() < 8f)
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), COL_INTERN);
             } else {
-                if (vec3(mn).sub(Outskirts.getPlayer().position()).length() > 3.5f)
-                    return;
-                Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), ((Octree.Leaf)nd).vfull() ? COL_LEAF_FULL : COL_LEAF_DIFF);
-                drawOctreeLeafEdgesHDT((Octree.Leaf)nd, mn);
+                if (vec3(mn).sub(Outskirts.getPlayer().position()).length() < 5f) {
+                    Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(mn), vec3(mn).add(sz)), ((Octree.Leaf) nd).vfull() ? COL_LEAF_FULL : COL_LEAF_DIFF);
+                    drawOctreeLeafEdgesHDT((Octree.Leaf) nd, mn);
+                }
             }
         }, min, size);
     }
 
+    // min: worldpos.
     private static void drawOctreeOp(Octree node, Vector3f min, float sz, Vector3f rp) {
         if (node==null)return;
         if (node.isInternal()) {
@@ -220,6 +230,7 @@ public class GuiDebugV extends Gui {
         }
     }
 
+    // min: worldpos
     private static void drawOctreeLeafEdgesHDT(Octree.Leaf leaf, Vector3f min) {
         for (int i=0;i<12;i++) {
             HermiteData h = leaf.edges[i];
@@ -228,7 +239,7 @@ public class GuiDebugV extends Gui {
                 Outskirts.renderEngine.getModelRenderer().drawLine(base, vec3(base).addScaled(.2f,h.norm), Colors.GREEN);
             } else {  // DEBUG Virtual-Leaf. (no-hermite-data, have signs and fp.
                 if (leaf.signchange(i)) {
-                    Vector3f p = Octree.edgelerp(leaf, i, .5f, null).add(Vector3f.floor(vec3(min),16f));
+                    Vector3f p = Octree.edgelerp(leaf, i, .5f, null).sub(leaf.min).add(min);
                     Gui.drawWorldpoint(p, (x, y) -> {
                         drawRect(Colors.WHITE, x, y, 4, 4);
                     });

@@ -5,6 +5,7 @@ import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.isoalgorithm.sdf.SDF;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.vector.Vector3f;
@@ -179,6 +180,32 @@ public class TestDualc {
         lf.sign(4, true);
         lf.sign(5, true);
 
+
+    }
+
+
+    public static Octree rootNode;
+    @Test
+    public void adaptiveTest() {
+
+        TrifFunc FUN = (x,y,z) -> {
+            return SDF.box(vec3(x,y,z).sub(8), vec3(7.5f));  // a box, margin 0.5f to size16, size15
+//            return SDF.sphere(vec3(x,y,z).sub(8), 7.5f);
+        };
+
+        Octree nd = Octree.fromSDF(vec3(0), 16, FUN, 2, lf -> {});
+
+        ((Octree.Internal)nd).child(0,
+                Octree.fromSDF(vec3(0), 8, FUN, 0, lf -> {})
+        );
+
+        rootNode = nd;  // 579 11
+
+        VertexBuffer vbuf = DualContouring.contouring(nd);
+        vbuf.inituvnorm();
+        vbuf.tmpsaveobjfile("testAdaptive.obj");
+
+        Octree.dbgaabbC(nd, vec3(0), 16, "dbg/testadaptive");
 
     }
 }

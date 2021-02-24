@@ -49,6 +49,9 @@ public final class Vectors {
     public static Vector3f vec3(Vector4f v) {
         return vec3(v.x, v.y, v.z);
     }
+    public static Vector3f vec3floor(Vector3f v, float u) {
+        return Vector3f.floor(vec3(v), u);
+    }
 
 
     public static Vector4f vec4(float x, float y, float z, float w) {

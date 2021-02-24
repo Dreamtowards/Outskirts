@@ -157,9 +157,6 @@ public final class IOUtils {
     public static short readShort(InputStream is) throws IOException {
         return readShort(readFully(is, DEFAULT_BUFFER, 0, 2), 0);
     }
-    public static int readUnsignedShort(InputStream is) throws IOException {
-        return readShort(is) & 0xFFFF;
-    }
     public static int readInt(InputStream is) throws IOException {
         return readInt(readFully(is, DEFAULT_BUFFER, 0, 4), 0); // local var just for short call
     }
@@ -186,6 +183,15 @@ public final class IOUtils {
         writeFully(os, writeLong(DEFAULT_BUFFER, 0, l), 0, 8);
     }
 
+    public static int readUnsignedByte(InputStream is) throws IOException {
+        return readByte(is) & 0xFF;
+    }
+    public static int readUnsignedShort(InputStream is) throws IOException {
+        return readShort(is) & 0xFFFF;
+    }
+    public static long readUnsignedInt(InputStream is) throws IOException {
+        return readInt(is) & 0xFFFFFFFFL;
+    }
 
     public static float readFloat(InputStream is) throws IOException {
         return Float.intBitsToFloat(readInt(is));

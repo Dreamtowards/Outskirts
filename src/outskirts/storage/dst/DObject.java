@@ -81,6 +81,9 @@ public class DObject implements Map<String, Object> {
     public InputStream getByteArrayi(String k) {
         return new ByteArrayInputStream(getByteArray(k));
     }
+    public void putByteArray(String k, byte[] v) {
+        put(k, v);
+    }
 
     public int getInt(String k) {
         return (int)get(k);
