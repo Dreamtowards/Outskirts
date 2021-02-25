@@ -7,11 +7,25 @@ import outskirts.entity.item.EntityStaticMesh;
 import outskirts.init.MaterialTextures;
 import outskirts.util.vector.Vector3f;
 
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.util.logging.Log.LOGGER;
+
 
 public final class RenderSection {
 
     public boolean dirty;
     public EntityStaticMesh proxyentity = new EntityStaticMesh();
+
+    public Octree cachedLod;
+    public float cachedLodSize;
+
+    public void updateCachedLOD(Vector3f p) {
+        cachedLodSize = ChunkRenderDispatcher.sectionLodSZ(p);
+        Octree n = Outskirts.getWorld().getOctree(p);
+        if (n==null) return;
+        cachedLod = Octree.doLOD((Octree.Internal)Octree.copy(n), cachedLodSize, vec3(0), 16f);
+        LOGGER.info("Build LOD");
+    }
 
     public RenderSection(Vector3f p) {
         assert p.x%16==0 && p.y%16==0 && p.z%16==0;

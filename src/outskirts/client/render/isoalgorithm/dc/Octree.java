@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
@@ -105,6 +106,11 @@ public abstract class Octree {
         public String toString() {
             return "Internal"+Arrays.toString(children);
         }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(children);
+        }
     }
 
     /**
@@ -134,6 +140,15 @@ public abstract class Octree {
         public Leaf(Vector3f minVal, float size) {
             this.min.set(minVal);
             this.size = size;
+        }
+
+        @Override
+        public int hashCode() {
+            return vsign *
+                    Arrays.hashCode(edges) *
+                    min.hashCode() *
+                    Float.floatToIntBits(size) *
+                    (31+Objects.hashCode(material));
         }
 
         public Leaf(Leaf src) {

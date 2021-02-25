@@ -19,6 +19,7 @@ import outskirts.world.chunk.ChunkPos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.util.logging.Log.LOGGER;
@@ -26,7 +27,7 @@ import static outskirts.util.vector.Vector3f.abs;
 
 public class ChunkRenderDispatcher {
 
-    private final List<RenderSection> rendersections = new CopyOnIterateArrayList<>();
+    private final List<RenderSection> rendersections = new CopyOnWriteArrayList<>();
 
     public ChunkRenderDispatcher() {
 
@@ -70,11 +71,14 @@ public class ChunkRenderDispatcher {
             return null;
         //todo: hash check cache.
         float shouldLODsz = sectionLodSZ(pos);
-//        if (shouldLODsz != rs.lodsize) {  // lod size different or modified
-//            rs.lodsize = shouldLODsz;
-        LOGGER.info("Build LOD");
-        Octree.Internal cp = (Octree.Internal)Octree.copy(Outskirts.getWorld().getOctree(pos));
-        return Octree.doLOD(cp, shouldLODsz, vec3(0), 16f);
+        Octree n = Outskirts.getWorld().getOctree(pos);
+        if (n==null)return null;
+//        int hash = n.hashCode();
+//        if (shouldLODsz != rs.cachedLodSize) {  // lod size different or modified
+//            rs.updateCachedLOD(pos);
+//            assert shouldLODsz == rs.cachedLodSize;
+//        }
+        return n;//rs.cachedLod;
     }
     public static float sectionLodSZ(Vector3f pos) {
         int lv = (int)(vec3(pos).sub(Outskirts.getPlayer().position()).length() / (16*3));

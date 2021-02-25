@@ -46,7 +46,7 @@ public final class RenderEngine {
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
-    private SkyboxRenderer skyboxRenderer;// = new SkyboxRenderer();
+    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();
@@ -186,7 +186,7 @@ public final class RenderEngine {
 
 
         prepare();
-        glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
+        glClearColor(0.3f, 0.4f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         entityRenderer.renderCompose(gBufferFBO, Collections.singletonList(TmpExtTest.theLight));
 //        skyboxRenderer.render();

@@ -31,9 +31,11 @@ public final class HermiteData {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HermiteData c = (HermiteData)o;
-        return point.equals(c.point) && norm.equals(c.norm);
+        if (o instanceof HermiteData) {
+            HermiteData c = (HermiteData) o;
+            return point.equals(c.point) && norm.equals(c.norm);
+        }
+        return false;
     }
 
     @Override

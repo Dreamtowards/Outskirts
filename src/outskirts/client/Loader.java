@@ -190,7 +190,7 @@ public final class Loader {
     }
 
     /**
-     * @param bufferedImages 6 faces. order: +X, -X, +Y, -Y, +Z, -Z.
+     * @param bufferedImages 6 faces. order: +X, -X, +Y, -Y, +Z, -Z.  right, left, top, bottom, front, back.
      */
     public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage[] bufferedImages) {
         Validate.isTrue(bufferedImages.length == 6, "Texture CubeMap requires 6 faces.");
@@ -221,6 +221,17 @@ public final class Loader {
         }
 
         return dest;
+    }
+    public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage map) {
+        int xu = map.getWidth() / 4, yu = map.getHeight() / 3;
+        return loadTextureCubeMap(dest, new BufferedImage[] {
+                map.getSubimage(2*xu, yu, xu, yu),
+                map.getSubimage(0, yu, xu, yu),
+                map.getSubimage(xu, 0, xu, yu),
+                map.getSubimage(xu, 2*yu, xu, yu),
+                map.getSubimage(xu, yu, xu, yu),
+                map.getSubimage(3*xu, yu, xu, yu),
+        });
     }
 
     /**
