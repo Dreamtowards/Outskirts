@@ -37,7 +37,7 @@ public abstract class Octree {
      *  3+-----+7|
      *   |0+---|-+4
      *   |/    |/
-     *  1+-----+5   RH */  // 000,001,010,011,100,101,110,111
+     *  1+-----+5   RH */  // *math gen table.
     public static final Vector3f[] VERT = new Vector3f[] {
             new Vector3f(0, 0, 0),
             new Vector3f(0, 0, 1),
@@ -49,22 +49,23 @@ public abstract class Octree {
             new Vector3f(1, 1, 1)
     };
 
-    //todo: change Y,Z order, reduce EDGE_ADJACENT, fits faceTable
-
-    // from Min to Max in each Edge.
-    // orders as X, Y, Z.
+    // from min to max in each Edge.  axis-orders as X, Y, Z.   // *spec defined table.
     // Diagonal Edge in Cell is in-axis-flip-index edge.  i.e. diag of edge[axis*4 +i] is edge[axis*4 +(3-i)]
     /**       -          |          /     AXIS XYZ.
      *     +--2--+    +-----+    +-----+
-     *    /|    /|   /4    /6   9|    11
+     *    /|    /|   /7    /6  11|    10
      *   +--3--+ |  +-----+ |  +-----+ |
-     *   | +--0|-+  5 +---7-+  | +---|-+
-     *   |/    |/   |/    |/   |8    |10
-     *   +--1--+    +-----+    +-----+    */
+     *   | +--0|-+  5 +---4-+  | +---|-+
+     *   |/    |/   |/    |/   |9    |8
+     *   +--1--+    +-----+    +-----+
+     *
+     *   |3  2| winding. for each axis.
+     *   |1  0|
+     */
     public static final int[][] EDGE =
            {{0,4},{1,5},{2,6},{3,7},  // X
-            {0,2},{1,3},{4,6},{5,7},  // Y
-            {0,1},{2,3},{4,5},{6,7}}; // Z
+            {5,7},{1,3},{4,6},{0,2},  // Y
+            {4,5},{0,1},{6,7},{2,3}}; // Z
 
 
     /**
@@ -673,13 +674,13 @@ public abstract class Octree {
     }
     public static void dbgaabbC(Octree node, Vector3f min, float size, String outfileprefix) {
         dbgaabbobjmode(true, false, false, false);
-        Octree.dbgaabbobj(node, outfileprefix+"_l.obj", min, size);
+        Octree.dbgaabbobj(node, outfileprefix+"_leaf.obj", min, size);
         dbgaabbobjmode(false, true, false, false);
-        Octree.dbgaabbobj(node, outfileprefix+"_i.obj", min, size);
+        Octree.dbgaabbobj(node, outfileprefix+"_internal.obj", min, size);
         dbgaabbobjmode(false, false, true, false);
-        Octree.dbgaabbobj(node, outfileprefix+"_h.obj", min, size);
+        Octree.dbgaabbobj(node, outfileprefix+"_hermitedata.obj", min, size);
         dbgaabbobjmode(false, false, false, true);
-        Octree.dbgaabbobj(node, outfileprefix+"_lv.obj", min, size);
+        Octree.dbgaabbobj(node, outfileprefix+"_leafvsign.obj", min, size);
     }
     private static void dbgaabbobj(StringBuilder sb, Octree node, Vector3f min, float size, Val vi) {
         if (node == null) return;

@@ -87,7 +87,7 @@ public class TmpExtTest {
             Vector3f mn = Vector3f.floor(vec3(p), lf.size);
             renderEngine.getChunkRenderDispatcher().markRebuild(aabb(mn, lf.size));
         });
-        SystemUtil.debugAddMouseKeyHook(2, () -> {
+        SystemUtil.debugAddMouseKeyHook(0, () -> {
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
             if (p==null)return;
 

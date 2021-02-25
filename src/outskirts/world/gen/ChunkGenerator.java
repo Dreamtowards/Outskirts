@@ -38,6 +38,7 @@ public class ChunkGenerator {
                 if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.DIRT;
                 else lf.material = Materials.GRASS;
             });
+//            Octree.doLOD((Octree.Internal)node, 4, vec3(0), 16);
             chunk.octree(i*16, node);
         }
 

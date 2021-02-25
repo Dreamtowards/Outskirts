@@ -13,13 +13,13 @@ import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 /* (Shinked Util name.)  */
 public class VertexUtil {
 
-    public static void validTriangle(List<Float> positions, int begin) {
-        Vector3f v1=vec3(positions, begin), v2=vec3(positions,begin+3), v3=vec3(positions, begin+6);
-        if (v1.equals(v2) || v1.equals(v3) || v2.equals(v3)) {
-            boolean p = v1.equals(v2) && v1.equals(v3);
-            throw new ArithmeticException("Illegal triangle. "+(p?"Point.":"Line.")+" ("+v1+","+v2+","+v3);
-        }
-    }
+//    public static void validTriangle(List<Float> positions, int begin) {
+//        Vector3f v1=vec3(positions, begin), v2=vec3(positions,begin+3), v3=vec3(positions, begin+6);
+//        if (v1.equals(v2) || v1.equals(v3) || v2.equals(v3)) {
+//            boolean p = v1.equals(v2) && v1.equals(v3);
+//            throw new ArithmeticException("Illegal triangle. "+(p?"Point.":"Line.")+" ("+v1+","+v2+","+v3);
+//        }
+//    }
 
     // needs rename.
     public static float[] centeraabb(float[] positions) {

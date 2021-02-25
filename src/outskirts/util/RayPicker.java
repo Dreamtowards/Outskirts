@@ -18,7 +18,7 @@ import static outskirts.util.logging.Log.LOGGER;
 @SideOnly(Side.CLIENT)
 public class RayPicker {
 
-    private Vector3f currentPoint = new Vector3f();
+    private Vector3f currentPoint;
     private Entity currentEntity;
     private Vector3f rayOrigin = new Vector3f();
     private Vector3f rayDirection = new Vector3f(Vector3f.UNIT_X);

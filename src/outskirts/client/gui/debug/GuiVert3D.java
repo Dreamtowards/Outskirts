@@ -149,9 +149,12 @@ public class GuiVert3D extends Gui {
                 g.setUserMinMaxValue(0, 200);
                 g.setValue(1f);
             }),
-            new GuiButton("Clear Vts").exec(g -> {
+            new GuiButton("Clear Vts").exec((GuiButton g) -> {
                 g.addOnClickListener(e -> {
                     vertices.clear();
+                });
+                g.addOnDrawListener(e -> {
+                    g.getText().setText("Clear Vts ("+vertices.size()+")");
                 });
             }),
             new GuiButton("LsAl").exec(g -> {
