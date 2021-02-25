@@ -12,19 +12,15 @@ import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class ChunkMeshGen {
 
-    public static Vector3f rsp = new Vector3f();
+    public static VertexBuffer buildModel(RenderSection rs, Ref<float[]> vertm, Function<Vector3f, Octree> octreeGet) {
 
-    public static VertexBuffer buildModel(RenderSection rs, Ref<float[]> vertm) {
-        rsp.set(rs.position());
-
-        World world = Outskirts.getWorld();
-        if (world==null) return null;
-        Octree node = Outskirts.getWorld().getOctree(rs.position());
+        Octree node = octreeGet.apply(rs.position());
         if (node==null) return null;
 
         VertexBuffer vbuf = DualContouring.contouring(node);
@@ -34,7 +30,7 @@ public class ChunkMeshGen {
         Octree[] fp = new Octree[2];
         for (int i = 0;i < 3;i++) {
             // we choose stitching towards min-er. cuz miner are always exists. chunk-load is from min to max in each axis.
-            Octree neib = world.getOctree(vec3(rs.position()).addv(i, 16));
+            Octree neib = octreeGet.apply(vec3(rs.position()).addv(i, 16));
             if (neib != null) {
                 int beginfi = vbuf.positions.size();
                 fp[0] = node;
@@ -57,14 +53,13 @@ public class ChunkMeshGen {
             boolean comple = true;
             int[] adja = DualContouring.EDGE_ADJACENT[i*2];
             for (int j = 0;j < 4;j++) {
-                Octree neib = world.getOctree(vec3(rs.position()).addScaled(16, Octree.VERT[adja[j]]));
+                Octree neib = octreeGet.apply(vec3(rs.position()).addScaled(16, Octree.VERT[adja[j]]));
                 if (neib == null) {
                     comple = false;
                     break;
                 }
                 ea[j] = neib;
             }
-
             if (comple) {
                 int beginfi = vbuf.positions.size();
                 DualContouring.doEdgeContour(ea, i, vbuf);

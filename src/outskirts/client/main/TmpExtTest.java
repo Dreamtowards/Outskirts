@@ -88,6 +88,8 @@ public class TmpExtTest {
             renderEngine.getChunkRenderDispatcher().markRebuild(aabb(mn, lf.size));
         });
         SystemUtil.debugAddMouseKeyHook(0, () -> {
+            if (!Outskirts.isIngame())
+                return;
             Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
             if (p==null)return;
 

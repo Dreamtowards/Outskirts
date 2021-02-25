@@ -5,6 +5,7 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.chunk.RenderSection;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
@@ -122,6 +123,12 @@ public class GuiDebugV extends Gui {
                                 }
                             });
                         }),
+                        new GuiCheckBox("LODSizes.").exec((GuiCheckBox g)->{
+                            g.addOnDrawListener(e -> {
+                                if (g.isChecked())
+                                    renderLODSizes();
+                            });
+                        }),
                         new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL))),
 
                         new GuiExpander("COMM").setContent(new GuiColumn().addChildren(
@@ -226,7 +233,7 @@ public class GuiDebugV extends Gui {
             Octree.Leaf leaf = (Octree.Leaf)node;
             Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(min, vec3(min).add(sz,sz,sz)), COL_LEAF_DIFF);
             drawOctreeLeafEdgesHDT(leaf, min);
-            Gui.drawWorldpoint(min, (x, y) -> Gui.drawString("S"+leaf.size, x, y, Colors.GRAY, 8));
+            Gui.drawWorldpoint(min, (x, y) -> Gui.drawString("S"+leaf.size, x, y, Colors.GRAY, 16));
         }
     }
 
@@ -272,6 +279,14 @@ public class GuiDebugV extends Gui {
                 Outskirts.renderEngine.getModelRenderer().drawOutline(new AABB(vec3(rs.position()), vec3(rs.position()).add(16)), Colors.RED);
             }
         }
+    }
+
+    private static void renderLODSizes() {
+        Outskirts.renderEngine.getChunkRenderDispatcher().getRenderSections().forEach(e -> {
+            Gui.drawWorldpoint(e.position(), (x,y) -> {
+                Gui.drawString("LV: "+ ChunkRenderDispatcher.sectionLodSZ(e.position()), x,y, Colors.WHITE);
+            });
+        });
     }
 
     private static void initCBL(Gui g, boolean dfb, Consumer<Boolean> onchecked) {

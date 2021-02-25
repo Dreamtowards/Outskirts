@@ -21,6 +21,7 @@ import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Frustum;
 import outskirts.client.render.Model;
+import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.SDF;
@@ -39,6 +40,7 @@ import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;

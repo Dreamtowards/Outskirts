@@ -277,6 +277,9 @@ public final class CollectionUtils {
     public static <T> T orDefault(T nullable, T def) {
         return orDefault(nullable, def, Objects::isNull);
     }
+//    public static <T, R> R orFurther(T obj, Function<T, R> get) {
+//        return obj == null ? null : get.apply(obj);
+//    }
 
     public static <T> int removeIf(Collection<T> c, Predicate<T> filter, Consumer<T> onremove) {
         Val v = Val.zero();

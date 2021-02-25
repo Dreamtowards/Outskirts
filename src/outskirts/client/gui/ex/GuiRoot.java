@@ -35,6 +35,8 @@ public final class GuiRoot extends Gui {
     }
 
     private static Gui findHoveredChild(Gui parent) {
+        if (Outskirts.isIngame())  // is that right.?!
+            return null;
         Gui hovered = null;
         for (Gui child : parent.getChildren()) {
             if (Gui.isMouseOver(child)) {
@@ -80,13 +82,13 @@ public final class GuiRoot extends Gui {
 
     private static void performOnClickeds() {
         Gui targ = findHoveredChild(Outskirts.getRootGUI());
+        if (targ == null)
+            return;
 
-        if (targ != null) {
-            Gui.forParents(targ, g -> {
-                if (g.isEnable() && g.isPressed()) {
-                    g.performEvent(new OnClickEvent());
-                }
-            });
-        }
+        Gui.forParents(targ, g -> {
+            if (g.isEnable() && g.isPressed()) {
+                g.performEvent(new OnClickEvent());
+            }
+        });
     }
 }

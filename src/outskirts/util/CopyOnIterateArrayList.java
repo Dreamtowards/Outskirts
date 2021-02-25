@@ -1,6 +1,7 @@
 package outskirts.util;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * this can make dynamic write(add/set/remove) when <Iterable> iterating
@@ -49,6 +50,13 @@ public class CopyOnIterateArrayList<E> extends ArrayList<E> implements RandomAcc
         @Override
         public E next() {
             return itrArray[cursor++];
+        }
+    }
+
+    @Override
+    public void forEach(Consumer<? super E> action) {
+        for (E e : this) {
+            action.accept(e);
         }
     }
 }

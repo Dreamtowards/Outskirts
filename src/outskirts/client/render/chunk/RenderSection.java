@@ -2,6 +2,7 @@ package outskirts.client.render.chunk;
 
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.entity.item.EntityStaticMesh;
 import outskirts.init.MaterialTextures;
 import outskirts.util.vector.Vector3f;
@@ -11,8 +12,6 @@ public final class RenderSection {
 
     public boolean dirty;
     public EntityStaticMesh proxyentity = new EntityStaticMesh();
-
-//    private Stitcher stitcher = new Stitcher();
 
     public RenderSection(Vector3f p) {
         assert p.x%16==0 && p.y%16==0 && p.z%16==0;

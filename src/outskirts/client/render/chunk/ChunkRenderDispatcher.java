@@ -4,6 +4,7 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
 import outskirts.client.render.VertexBuffer;
+import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
@@ -19,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.util.logging.Log.LOGGER;
+import static outskirts.util.vector.Vector3f.abs;
 
 public class ChunkRenderDispatcher {
 
@@ -63,6 +64,22 @@ public class ChunkRenderDispatcher {
         }
         return null;
     }
+    public Octree findLOD(Vector3f pos) {
+        RenderSection rs = findSection(pos);
+        if (rs == null)
+            return null;
+        //todo: hash check cache.
+        float shouldLODsz = sectionLodSZ(pos);
+//        if (shouldLODsz != rs.lodsize) {  // lod size different or modified
+//            rs.lodsize = shouldLODsz;
+        LOGGER.info("Build LOD");
+        Octree.Internal cp = (Octree.Internal)Octree.copy(Outskirts.getWorld().getOctree(pos));
+        return Octree.doLOD(cp, shouldLODsz, vec3(0), 16f);
+    }
+    public static float sectionLodSZ(Vector3f pos) {
+        int lv = (int)(vec3(pos).sub(Outskirts.getPlayer().position()).length() / (16*3));
+        return Math.min(1 << lv, 8);
+    }
 
     public boolean markRebuild(Vector3f pos) {
         RenderSection rs = findSection(pos);
@@ -80,7 +97,7 @@ public class ChunkRenderDispatcher {
     }
 
     public List<RenderSection> getRenderSections() {
-        return Collections.unmodifiableList(rendersections);
+        return rendersections;
     }
 
     private class ModelBuildWorker implements Runnable {
@@ -88,6 +105,8 @@ public class ChunkRenderDispatcher {
         public void run() {
             while (Outskirts.isRunning()) {
                 for (RenderSection rs : rendersections) {
+                    if (Outskirts.getWorld() == null)
+                        continue;
                     if (rs == null) {
                         LOGGER.info("RS == null. HOW??");
                         continue;
@@ -105,7 +124,7 @@ public class ChunkRenderDispatcher {
 
         private void processRenderSection(RenderSection rs) {
             Ref<float[]> vertm = Ref.wrap();
-            VertexBuffer vbuf = ChunkMeshGen.buildModel(rs, vertm);
+            VertexBuffer vbuf = ChunkMeshGen.buildModel(rs, vertm, ChunkRenderDispatcher.this::findLOD);
 
             if (vbuf==null) return;
 

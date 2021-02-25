@@ -124,7 +124,7 @@ public abstract class Octree {
         public final HermiteData[] edges = new HermiteData[12];
 
         public final Vector3f featurepoint = new Vector3f();
-        private int lascomp_fpdshash;
+        private int lascomp_fpdshash;  // last computed fp's data hash
 
         public final Vector3f min = new Vector3f();
         public final float size;  // actually size.
@@ -265,6 +265,19 @@ public abstract class Octree {
         }
     }
 
+    public static Octree copy(Octree src) {
+        if (src==null) return null;
+        if (src.isLeaf()) {
+            return new Octree.Leaf((Octree.Leaf)src);
+        } else {
+            Octree.Internal out = new Octree.Internal();
+            for (int i = 0;i < 8;i++) {
+                Octree c = ((Internal)src).child(i);
+                out.child(i, copy(c) );
+            }
+            return out;
+        }
+    }
 
     private static void computefeaturepoint(Octree.Leaf cell) {
         List<Vector3f> ps = new ArrayList<>();
@@ -593,11 +606,7 @@ public abstract class Octree {
                 intern.child(i, doLOD((Internal)child, usize, submin, subsz));
             }
         }
-        assert CollectionUtils.nonnulli(intern.children) == 8;  // curr disabled collapse.
-//        if (CollectionUtils.nonnulli(intern.children) == 0) {
-//            LOGGER.info("NO CHIL");
-//            return null;
-//        }
+        assert CollectionUtils.nonnulli(intern.children) == 8;  // curr disabled collapse
         if (size <= usize) {
             Octree.Leaf lf = new Octree.Leaf(min, size);
             Vector3f avgfp = new Vector3f();
