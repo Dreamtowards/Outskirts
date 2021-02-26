@@ -3,6 +3,7 @@ package outskirts.client.gui;
 import outskirts.client.Outskirts;
 import outskirts.event.Event;
 import outskirts.event.EventBus;
+import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class GuiSlider extends Gui {
 
@@ -160,6 +162,21 @@ public class GuiSlider extends Gui {
         addOnValueChangeListener(e -> {
             e.setNewUserValue(Maths.floor(e.getNewUserValue()));
         });
+    }
+
+    public final void initValueSync(Supplier<Float> get, Consumer<Float> set) {
+        addOnValueChangedListener(e -> {
+            float thisf = getCurrentUserValue();
+            if (get.get() != thisf) {
+                set.accept(thisf);
+            }
+        });
+        addOnDrawListener(e -> {
+            float f = get.get();
+            if (f != getCurrentUserValue()) {
+                setCurrentUserValue(f);
+            }
+        }).priority(EventPriority.HIGH);
     }
 
     public static class OnValueChangedEvent extends GuiEvent { }

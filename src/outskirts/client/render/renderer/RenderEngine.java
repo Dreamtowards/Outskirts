@@ -46,7 +46,7 @@ public final class RenderEngine {
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
-    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
+    private SkyboxRenderer skyboxRenderer;// = new SkyboxRenderer();
     private ParticleRenderer particleRenderer = new ParticleRenderer();
     private PostRenderer postRenderer = new PostRenderer();
     private SSAORenderer ssaoRenderer = new SSAORenderer();

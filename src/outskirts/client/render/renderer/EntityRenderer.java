@@ -38,6 +38,9 @@ public class EntityRenderer extends Renderer {
             new ResourceLocation("shaders/entity/compose.fsh").getInputStream()
     );
 
+    public float fogDensity = 0.03f;
+    public float fogGradient = 1.5f;
+
     public EntityRenderer() {
         //init Texture-Units
 
@@ -108,6 +111,9 @@ public class EntityRenderer extends Renderer {
         shaderCompose.useProgram();
 
         shaderCompose.setVector3f("CameraPos", Outskirts.getCamera().getPosition());
+
+        shaderCompose.setFloat("fogDensity", fogDensity);
+        shaderCompose.setFloat("fogGradient", fogGradient);
 
         {   // setup lights
             int lightCount = Math.min(lights.size(), RENDER_LIGHTS);

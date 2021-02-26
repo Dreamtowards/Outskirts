@@ -30,10 +30,12 @@ uniform sampler2D shadowdepthMap;
 
 uniform sampler2D ssaoBlurMap;
 
+uniform float fogDensity;
+uniform float fogGradient;
+
+
 float inverseLerp(float, float, float);
-
 mat3 computeLighting(vec3, vec3, vec3);
-
 float computeShadow(vec3 FragPos);
 
 void main() {
@@ -46,10 +48,10 @@ void main() {
     vec3 Albedo = texture(gAlbedoSpecular, QuadTexCoord).rgb;
     float Specularf = texture(gAlbedoSpecular, QuadTexCoord).a;
 
-    vec3 fragToCamera = normalize(CameraPos - FragPos);
+    vec3 FragToCamera = CameraPos - FragPos;
 
-    mat3 ltRst = computeLighting(FragPos, Normal, fragToCamera);
-    vec3 totalDiffuse = ltRst[0];
+    mat3 ltRst = computeLighting(FragPos, Normal, normalize(FragToCamera));
+    vec3 totalDiffuse  = ltRst[0];
     vec3 totalSpecular = ltRst[1];
 
 //    float shadow = max(1.0 - computeShadow(FragPos), 0.3);
@@ -59,11 +61,15 @@ void main() {
     FragColor.rgb = totalDiffuse  * Albedo +
                     totalSpecular * Specularf;
 
+    vec3 bgColor = vec3(.3, .4, .4);
+    float visibility = clamp(pow(length(FragToCamera) * fogDensity, fogGradient), 0.0, 1.0);
+    FragColor.rgb = mix(FragColor.rgb, bgColor, visibility);
+
     FragColor.a = 1.0;
 }
 
 
-mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
+mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 FragToCameraDir) {
     float occlusionf = texture(ssaoBlurMap, QuadTexCoord).r;
 
     vec3 totalDiffuse = vec3(0.0);
@@ -78,7 +84,7 @@ mat3 computeLighting(vec3 FragPos, vec3 Normal, vec3 fragToCamera) {
         vec3 diffuse = max(dot(Normal, fragToLight), 0.0) * light.color;
 
         // Specular. Blinn-Phong Model
-        vec3 halfwayDir = normalize(fragToLight + fragToCamera);
+        vec3 halfwayDir = normalize(fragToLight + FragToCameraDir);
         float spec = pow(max(dot(halfwayDir, Normal),0.0), mtlShininess);
         vec3 specular = mtlSpecularStrength * spec * light.color;
 

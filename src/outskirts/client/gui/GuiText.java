@@ -90,15 +90,18 @@ public final class GuiText extends Gui {
     public static class OnTextChangedEvent extends GuiEvent {}
 
 
-//    public void addValueSyncer(Supplier<String> getter, Consumer<String> setter) {
+//    public final void initTextSync(Supplier<String> get, Consumer<String> set) {
 //        addOnTextChangedListener(e -> {
-//            setter.accept(getText());
+//            String thist = getText();
+//            if (!get.get().equals(thist)) {
+//                set.accept(getText());
+//            }
 //        });
 //        addOnDrawListener(e -> {
-//            String s = getter.get();
+//            String s = get.get();
 //            if (!s.equals(getText())) {
 //                setText(s);
 //            }
-//        });
+//        }).priority(EventPriority.HIGH);
 //    }
 }

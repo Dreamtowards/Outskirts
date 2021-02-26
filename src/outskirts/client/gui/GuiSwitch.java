@@ -2,7 +2,11 @@ package outskirts.client.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.render.Texture;
+import outskirts.event.EventPriority;
 import outskirts.util.Identifier;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class GuiSwitch extends Gui implements Gui.Checkable {
 
@@ -21,7 +25,7 @@ public class GuiSwitch extends Gui implements Gui.Checkable {
 
         addOnPressedListener(e -> {
             setChecked(!isChecked());
-        });
+        }).priority(EventPriority.HIGH);
 
         addOnDrawListener(e -> {
             drawTexture(
@@ -36,6 +40,10 @@ public class GuiSwitch extends Gui implements Gui.Checkable {
     }
     @Override
     public void setChecked(boolean checked) {
-        this.checked = checked;
+        if (this.checked != checked) {
+            this.checked = checked;
+            performEvent(new OnCheckedEvent());
+        }
     }
+
 }

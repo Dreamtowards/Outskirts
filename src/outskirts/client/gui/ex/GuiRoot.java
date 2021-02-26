@@ -52,9 +52,9 @@ public final class GuiRoot extends Gui {
 
     {
         // refreshHovered() onDraw may better effects, thats in-time, when mouse stay but ui moveing, still working good.
-        addOnDrawListener(e -> {
-            refreshHovered();
-        });
+//        addOnDrawListener(e -> {
+//            refreshHovers();
+//        });
 
         addMouseButtonListener(e -> {
             if (e.getMouseButton() == 0 && !e.getButtonState()) {
@@ -63,7 +63,9 @@ public final class GuiRoot extends Gui {
         });
     }
 
-    private static void refreshHovered() {
+    // refreshHovered() call onDraw() can correctly detect when mouse-stay but ui-moving.
+    // should call before do layout. cuz layout may change during refreshHovrs(). (MouseIn/Out Events..)
+    public static void refreshHovers() {
         Gui hoveredGui = findHoveredChild(Outskirts.getRootGUI());
         List<Gui> hoveredGuis = new ArrayList<>();
 

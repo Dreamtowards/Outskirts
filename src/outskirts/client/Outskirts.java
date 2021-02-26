@@ -17,6 +17,7 @@ import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Camera;
 import outskirts.client.render.Frustum;
@@ -180,6 +181,7 @@ public class Outskirts {
             profiler.pop("world");
 
             profiler.push("gui");
+            GuiRoot.refreshHovers();
             while (Gui.hasVolumeChanged()) {
                 rootGUI.onLayout();
             }

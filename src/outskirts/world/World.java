@@ -34,6 +34,10 @@ public abstract class World implements Tickable {
     private final List<Entity> entities = new ArrayList<>();
 
     private Map<Long, Chunk> loadedChunks = new HashMap<>();
+    /**
+     * K:vec3 MOD 16 == 0.
+     */
+    private Map<Vector3f, Chunk> loadedSections = new HashMap<>();
 
     public List<Light> lights = new ArrayList<>(); // better to get from entities.
 
@@ -192,7 +196,7 @@ public abstract class World implements Tickable {
         dynamicsWorld.stepSimulation(1f/GameTimer.TPS);
         Outskirts.getProfiler().pop("Physics");
 
-        for (Entity entity : entities.toArray(new Entity[0])) {
+        for (Entity entity : new ArrayList<>(entities)) {
             entity.onTick();
         }
 
@@ -200,7 +204,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=4;
+    public static int sz=1;
     {
         Thread t = new Thread(() -> {
             while (true) {

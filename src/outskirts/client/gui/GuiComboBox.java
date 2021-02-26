@@ -4,12 +4,14 @@ import outskirts.client.Loader;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.render.Texture;
 import outskirts.event.EventBus;
+import outskirts.event.EventPriority;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class GuiComboBox extends Gui {
 
@@ -137,4 +139,20 @@ public class GuiComboBox extends Gui {
     }
 
     public static class OnSelectedEvent extends GuiEvent { }
+
+
+    public final void initSelectionSync(Supplier<Integer> get, Consumer<Integer> set) {
+        addOnSelectedListener(e -> {
+            int thisi = getSelectedIndex();
+            if (get.get() != thisi) {
+                set.accept(thisi);
+            }
+        });
+        addOnDrawListener(e -> {
+            int i = get.get();
+            if (i != getSelectedIndex()) {
+                setSelectedIndex(i);
+            }
+        }).priority(EventPriority.HIGH);
+    }
 }

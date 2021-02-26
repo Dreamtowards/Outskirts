@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 /**
  * this can make dynamic write(add/set/remove) when <Iterable> iterating
  */
+// Iterate Unsafe: while iterating, element may wrongly been null.
+// (as element been modified/removed, and another iterate been started async)
 public class CopyOnIterateArrayList<E> extends ArrayList<E> implements RandomAccess {
 
     private E[] tmpItrArray = (E[])new Object[16];

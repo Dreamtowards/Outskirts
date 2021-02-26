@@ -20,6 +20,7 @@ uniform vec4 mtlfrags[256];
 const float P_NEAR = 0.1f;
 const float P_FAR  = 1000.0f;
 
+
 float inverseLerp(float, float, float);
 float lineardepth(float);
 float mod(float, float);

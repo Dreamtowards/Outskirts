@@ -68,86 +68,18 @@ public class GuiDebugV extends Gui {
                         drawRect(Colors.BLACK80, g);
                     });
                 }).addChildren(
-                        new GuiExpander("DebugV").setContent(new GuiColumn().addChildren(
-                                new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
-                                new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
-                        )),
+//                        new GuiExpander("DebugV").setContent(new GuiColumn().addChildren(
+//                                new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
+//                                new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
+//                        )),
                         new GuiText("GEO Rd. RENDERING."),
-                        new GuiCheckBox("BasisVisual").exec(g->initCBL(g, true, basisv::setVisible)),
-                        new GuiCheckBox("GBuff/v").exec(g->initCBL(g, false, gbufv::setVisible)),
-                        new GuiCheckBox("FE/NormV").exec(g->{
-                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
-                        }),
-                        new GuiCheckBox("FE/BordV").exec(g->{
-                            g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
-                        }),
-                        new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
-                            g.addOnDrawListener(e -> {
-                                Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-                                if (g.isChecked() && p != null) {
-                                    Octree nd = Outskirts.getWorld().getOctree(p);
-                                    Vector3f base = Vector3f.floor(vec3(p), 16f);
-                                    drawOctreeOp(nd, base, 16, vec3(p).sub(base).scale(1/16f));
-                                }
-                            });
-                        }),
-                        new GuiCheckBox("FRO/OctreesAHD").exec((GuiCheckBox g)->{
-                            g.addOnDrawListener(e -> {
-                                Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()), 16f);
-                                Octree nd = Outskirts.getWorld().getOctree(base);
-                                if (g.isChecked() && nd != null) {
-                                    drawOctreeAHD(nd, base, 16);
-                                }
-                                Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-                                if (p != null && Outskirts.isCtrlKeyDown()) {
-                                    Vector3f pbase = Vector3f.floor(vec3(p), 16f);
-                                    Octree pnd = Outskirts.getWorld().getOctree(pbase);
-                                    if (g.isChecked() && pnd != null) {
-                                        drawOctreeAHD(pnd, pbase, 16);
-                                    }
-                                }
-                            });
-                        }),
-                        new GuiCheckBox("MarkedRenderSections.").exec((GuiCheckBox g)->{
-                            g.addOnDrawListener(e -> {
-                                if (g.isChecked()) {
-                                    renderMarkedRenderSections();
-                                }
-                            });
-                        }),
-                        new GuiCheckBox("SectionBoundary.").exec((GuiCheckBox g)->{
-                            g.addOnDrawListener(e -> {
-                                if (g.isChecked()) {
-//                                    for (RenderSection rs : Outskirts.renderEngine.getChunkRenderDispatcher().getRenderSections())
-                                        Outskirts.renderEngine.getModelRenderer().drawOutline(aabb(vec3floor(Outskirts.getPlayer().position(), 16f), 16), Colors.WHITE);
-                                }
-                            });
-                        }),
-                        new GuiCheckBox("LODSizes.").exec((GuiCheckBox g)->{
-                            g.addOnDrawListener(e -> {
-                                if (g.isChecked())
-                                    renderLODSizes();
-                            });
-                        }),
-                        new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL))),
+
+
 
                         new GuiExpander("COMM").setContent(new GuiColumn().addChildren(
-                          new GuiComboBox().exec((GuiComboBox g) -> {
-                              g.getOptions().addAll(Arrays.asList(
-                                new GuiText("SURVIVAL"),
-                                new GuiText("CREATIVE"),
-                                new GuiText("SPECTATOR")
-                              ));
-                              g.addOnSelectedListener(e -> {
-                                  Outskirts.getPlayer().setGamemode(Gamemode.values()[g.getSelectedIndex()]);
-                              });
-                              g.setSelectedIndex(Outskirts.getPlayer().getGamemode().ordinal());
-                          })
+
                         )),
                         new GuiText("PHYS"),
-                        new GuiCheckBox("BoundingBox").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showBoundingBox=b)),
-                        new GuiCheckBox("Velocities").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showVelocities=b)),
-                        new GuiCheckBox("ContactPoints").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showContactPoints=b)),
 
 
                         new GuiExpander("INSP").setContent(new GuiColumn().addChildren(
@@ -180,25 +112,103 @@ public class GuiDebugV extends Gui {
                             g.addOnClickListener(e -> {
                                 Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
                             });
-                        }),
-                        new GuiSlider().exec((GuiSlider g) -> {
-                            g.setUserMinMaxValue(0.01f, 10);
-                            g.addOnValueChangedListener(ge -> {
-                                PostRenderer.exposure = g.getCurrentUserValue();
-                                LOGGER.info(PostRenderer.exposure);
-                            });
-                        }),
-                        new GuiSlider().exec((GuiSlider g) -> {
-                            g.setUserMinMaxValue(0, 10);
-                            g.addOnValueChangedListener(ge -> {
-                                if (g.getCurrentUserValue() != World.sz) {
-                                    World.sz = (int)g.getCurrentUserValue();
-                                    g.setCurrentUserValue(World.sz);
-                                    LOGGER.info(World.sz);
-                                }
-                            });
                         })
-                )
+                ),
+                new GuiPopupMenu.GuiMenubar().exec((GuiPopupMenu.GuiMenubar menubar) -> {
+                    menubar.addMenu("Profiler", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
+                                new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
+                        ));
+                    }));
+                    menubar.addMenu("Physics", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiCheckBox("BoundingBox").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showBoundingBox=b)),
+                                new GuiCheckBox("Velocities").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showVelocities=b)),
+                                new GuiCheckBox("ContactPoints").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showContactPoints=b))
+                        ));
+                    }));
+                    menubar.addMenu("GEO Rd. RENDERING.", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiCheckBox("BasisVisual").exec(g->initCBL(g, true, basisv::setVisible)),
+                                new GuiCheckBox("GBuff/v").exec(g->initCBL(g, false, gbufv::setVisible)),
+                                new GuiCheckBox("FE/NormV").exec(g->{
+                                    g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
+                                }),
+                                new GuiCheckBox("FE/BordV").exec(g->{
+                                    g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
+                                }),
+                                new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL)))
+                        ));
+                    }));
+                    menubar.addMenu("WorldC", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
+                                    g.addOnDrawListener(e -> {
+                                        Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+                                        if (g.isChecked() && p != null) {
+                                            Octree nd = Outskirts.getWorld().getOctree(p);
+                                            Vector3f base = Vector3f.floor(vec3(p), 16f);
+                                            drawOctreeOp(nd, base, 16, vec3(p).sub(base).scale(1/16f));
+                                        }
+                                    });
+                                }),
+                                new GuiCheckBox("FRO/OctreesAHD").exec((GuiCheckBox g)->{
+                                    g.addOnDrawListener(e -> {
+                                        Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()), 16f);
+                                        Octree nd = Outskirts.getWorld().getOctree(base);
+                                        if (g.isChecked() && nd != null) {
+                                            drawOctreeAHD(nd, base, 16);
+                                        }
+                                        Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+                                        if (p != null && Outskirts.isCtrlKeyDown()) {
+                                            Vector3f pbase = Vector3f.floor(vec3(p), 16f);
+                                            Octree pnd = Outskirts.getWorld().getOctree(pbase);
+                                            if (g.isChecked() && pnd != null) {
+                                                drawOctreeAHD(pnd, pbase, 16);
+                                            }
+                                        }
+                                    });
+                                }),
+                                new GuiCheckBox("MarkedRenderSections.").exec((GuiCheckBox g)->{
+                                    g.addOnDrawListener(e -> {
+                                        if (g.isChecked()) renderMarkedRenderSections();
+                                    });
+                                }),
+                                new GuiCheckBox("SectionBoundary.").exec((GuiCheckBox g)->{
+                                    g.addOnDrawListener(e -> {
+                                        if (g.isChecked()) {
+                                            Outskirts.renderEngine.getModelRenderer().drawOutline(aabb(vec3floor(Outskirts.getPlayer().position(), 16f), 16), Colors.WHITE);
+                                        }
+                                    });
+                                }),
+                                new GuiCheckBox("LODSizes.").exec((GuiCheckBox g)->{
+                                    g.addOnDrawListener(e -> {
+                                        if (g.isChecked())
+                                            renderLODSizes();
+                                    });
+                                })
+                        ));
+                    }));
+                    menubar.addMenu("GGeneral", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiComboBox().exec((GuiComboBox g) -> {
+                                    Arrays.asList(Gamemode.values()).forEach(gm -> {
+                                            g.getOptions().add(new GuiText(gm.name()));
+                                    });
+                                    g.initSelectionSync(
+                                            () -> Outskirts.getPlayer().getGamemode().ordinal(),
+                                            i -> Outskirts.getPlayer().setGamemode(Gamemode.values()[i]));
+                                })
+                        ));
+                    }));
+                    menubar.addMenu("Inspection", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiButton("STH"));
+                    }));
+                    menubar.addMenu("GUI", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
+                        menu.addItem(new GuiButton("STH"));
+                    }));
+                })
         );
     }
 
@@ -294,6 +304,7 @@ public class GuiDebugV extends Gui {
         cb.addOnCheckedListener(e -> {
             onchecked.accept(cb.isChecked());
         });
+        cb.setChecked(!dfb); // make sure OnCheckedEvent will be perform. (change checked-status.)
         cb.setChecked(dfb);
     }
 }

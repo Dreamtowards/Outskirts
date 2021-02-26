@@ -52,7 +52,10 @@ public class GuiRadioButton extends Gui implements Gui.Checkable {
     }
     @Override
     public void setChecked(boolean checked) {
-        this.checked = checked;
+        if (this.checked != checked) {
+            this.checked = checked;
+            performEvent(new OnCheckedEvent());
+        }
         if (checked) {
             for (Gui sibling : getParent().getChildren()) {
                 if (sibling != this && sibling instanceof GuiRadioButton) {

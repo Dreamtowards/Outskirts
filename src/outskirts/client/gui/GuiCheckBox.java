@@ -50,17 +50,13 @@ public class GuiCheckBox extends Gui implements Gui.Checkable {
     }
     @Override
     public void setChecked(boolean checked) {
-        this.checked = checked;
-        performEvent(new CheckedEvent());
+        if (this.checked != checked) {
+            this.checked = checked;
+            performEvent(new OnCheckedEvent());
+        }
     }
 
     private void toggleChecked() {
         setChecked(!isChecked());
     }
-
-    public final EventBus.Handler addOnCheckedListener(Consumer<CheckedEvent> lsr) {
-        return attachListener(CheckedEvent.class, lsr);
-    }
-
-    public static class CheckedEvent extends GuiEvent { }
 }

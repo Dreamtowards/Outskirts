@@ -6,6 +6,7 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.world.World;
@@ -25,41 +26,41 @@ public class GuiScreenOptions extends Gui {
         setWidth(INFINITY);
         setHeight(INFINITY);
         addOnDrawListener(e -> {
-            drawRect(Colors.BLACK40, this);
+            drawRect(Colors.BLACK10, this);
         });
         initEscClose(this);
 
         addChildren(
-                new GuiScrollPanel().exec((GuiScrollPanel g) -> {
-                    g.addLayoutorAlignParentLTRB(72, 20, NaN, 0);
-                    g.addOnDrawListener(e -> {
-                        drawRect(Colors.BLACK80, g);
-                    });
-                }).setContent(
-                    new GuiColumn().exec(g -> {
+          new GuiScrollPanel().exec((GuiScrollPanel g) -> {
+              g.addLayoutorAlignParentLTRB(72, 20, NaN, 0);
+              g.addOnDrawListener(e -> {
+                  drawRect(Colors.BLACK80, g);
+              });
+          }).setContent(
+              new GuiColumn().exec(g -> {
 
-                    }).addChildren(
-                            new GuiButton("Video/ Graphi").exec(g -> {
-                                g.addOnClickListener(e -> gOptionsDisplay.setContent(new GuiGraphicOptions()));
-                            }),
-                            new GuiButton("Music/ Soundx"),
-                            new GuiButton("Controls"),
-                            new GuiButton("Language"),
-                            new GuiButton("Resource Packs"),
-                            new GuiButton("Mods")
-                    ).exec(g -> {
-                        g.getChildren().forEach(c -> {
-                            c.setWidth(160);
-                            c.setHeight(80);
-                        });
-                    })
-                ),
-                gOptionsDisplay=new GuiScrollPanel().exec((GuiScrollPanel g) -> {
-                    g.addLayoutorAlignParentLTRB(255, 20, 42, 20);
-                    g.addOnDrawListener(e -> {
-                        drawRect(Colors.BLACK80, g);
-                    });
-                })
+              }).addChildren(
+                new GuiButton("Video/ Graphi").exec(g -> {
+                    g.addOnClickListener(e -> gOptionsDisplay.setContent(new GuiGraphicOptions()));
+                }),
+                new GuiButton("Music/ Soundx"),
+                new GuiButton("Controls"),
+                new GuiButton("Language"),
+                new GuiButton("Resource Packs"),
+                new GuiButton("Mods")
+              ).exec(g -> {
+                  g.getChildren().forEach(c -> {
+                      c.setWidth(160);
+                      c.setHeight(80);
+                  });
+              })
+          ),
+          gOptionsDisplay=new GuiScrollPanel().exec((GuiScrollPanel g) -> {
+              g.addLayoutorAlignParentLTRB(255, 20, 42, 20);
+              g.addOnDrawListener(e -> {
+                  drawRect(Colors.BLACK80, g);
+              });
+          })
         );
     }
 
@@ -68,61 +69,68 @@ public class GuiScreenOptions extends Gui {
         public GuiGraphicOptions() {
 
             addChildren(
-                    new GuiColumn().addChildren(
-                            new GuiText("GRAPHI/ VIDEO").exec((GuiText g) -> {
-                                g.setTextHeight(48);
-                            }),
-                            row("FOV", new GuiSlider().exec((GuiSlider g) -> {
-                                g.setUserMinMaxValue(10, 140);
-                                g.getUserOptionalValues().addAll(Arrays.asList(30f, 70f, 90f));
-                                g.initOnlyIntegerValues();
-                                g.addOnValueChangedListener(e -> {
-                                    Outskirts.renderEngine.setFov(g.getCurrentUserValue());
-                                });
-                                g.addOnDrawListener(e -> {
-                                    if (Outskirts.renderEngine.getFov() != g.getCurrentUserValue()) {
-                                        g.setCurrentUserValue(Outskirts.renderEngine.getFov());
-                                    }
-                                });
-                            })),
-                            row("RenderDistance", new GuiSlider().exec((GuiSlider g) -> {
-                                g.setUserMinMaxValue(0, 10);
-                                g.getUserOptionalValues().addAll(Arrays.asList(0f, 1f, 2f, 3f, 6f, 8f));
-                                g.initOnlyIntegerValues();
-                                g.addOnValueChangedListener(e -> {
-                                    World.sz = (int)g.getCurrentUserValue();
-                                });
-                                g.addOnDrawListener(e -> {
-                                    if (World.sz != (int)g.getCurrentUserValue()) {
-                                        g.setCurrentUserValue(World.sz);
-                                    }
-                                });
-                            })),
-                            row("VSync", new GuiSwitch().exec((GuiSwitch g) -> {
-                                g.addOnPressedListener(e -> {
-                                    Outskirts.renderEngine.setVSync(g.isChecked());
-                                });
-                                g.addOnDrawListener(e -> {
-                                    if (Outskirts.renderEngine.isVSync() != g.isChecked()) {
-                                        g.setChecked(Outskirts.renderEngine.isVSync());
-                                        LOGGER.info(Outskirts.renderEngine.isVSync());
-                                    }
-                                });
-                            })),
-                            row("FPS Capacity", new GuiSlider().exec((GuiSlider g) -> {
-                                g.setUserMinMaxValue(1, 200);
-                                g.getUserOptionalValues().addAll(Arrays.asList(30f, 60f, 120f, 144f));
-                                g.initOnlyIntegerValues();
-                                g.addOnValueChangedListener(e -> {
-                                    ClientSettings.FPS_CAPACITY = (int)g.getCurrentUserValue();
-                                });
-                                g.addOnDrawListener(e -> {
-                                    if (ClientSettings.FPS_CAPACITY != (int)g.getCurrentUserValue()) {
-                                        g.setCurrentUserValue(ClientSettings.FPS_CAPACITY);
-                                    }
-                                });
-                            }))
-                    )
+              new GuiColumn().addChildren(
+                new GuiText("GRAPHI/ VIDEO").exec((GuiText g) -> {
+                    g.setTextHeight(48);
+                }),
+                row("FOV", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(10, 140);
+                    g.getUserOptionalValues().addAll(Arrays.asList(30f, 70f, 90f));
+                    g.initOnlyIntegerValues();
+                    g.initValueSync(
+                            () -> Outskirts.renderEngine.getFov(),
+                            f -> Outskirts.renderEngine.setFov(f));
+
+                })),
+                row("RenderDistance", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0, 10);
+                    g.getUserOptionalValues().addAll(Arrays.asList(0f, 1f, 2f, 3f, 6f, 8f));
+                    g.initOnlyIntegerValues();
+                    g.initValueSync(
+                            () -> (float)World.sz,
+                            f -> World.sz = f.intValue());
+                })),
+                row("VSync", new GuiSwitch().exec((GuiSwitch g) -> {
+                    g.initCheckedSync(
+                            () -> Outskirts.renderEngine.isVSync(),
+                            b -> Outskirts.renderEngine.setVSync(b));
+
+                })),
+                row("FPS Capacity", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(1, 200);
+                    g.getUserOptionalValues().addAll(Arrays.asList(30f, 60f, 120f, 144f));
+                    g.initOnlyIntegerValues();
+                    g.initValueSync(
+                            () -> (float)ClientSettings.FPS_CAPACITY,
+                            f -> ClientSettings.FPS_CAPACITY=f.intValue());
+                })),
+                row("GUI Scale", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0.1f, 2.5f);
+                    g.getUserOptionalValues().addAll(Arrays.asList(.5f, 1f, 1.5f, 2f));
+                    g.initValueSync(
+                            () -> ClientSettings.GUI_SCALE,
+                            f -> ClientSettings.GUI_SCALE=f);
+                })),
+                row("Fog Density", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0.0001f, 1f);
+                    g.initValueSync(
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogDensity,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogDensity=f);
+                })),
+                row("Fog Gradient", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0.1f, 4f);
+                    g.getUserOptionalValues().addAll(Arrays.asList(1.5f));
+                    g.initValueSync(
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogGradient,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogGradient=f);
+                })),
+                row("Post Exposure", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0.01f, 10);
+                    g.initValueSync(
+                            () -> PostRenderer.exposure,
+                            f -> PostRenderer.exposure=f);
+                }))
+              )
             );
 
         }

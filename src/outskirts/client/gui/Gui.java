@@ -5,10 +5,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.GuiRenderer;
-import outskirts.event.Cancellable;
-import outskirts.event.Event;
-import outskirts.event.EventBus;
-import outskirts.event.Events;
+import outskirts.event.*;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.CopyOnIterateArrayList;
@@ -20,10 +17,7 @@ import outskirts.util.vector.Vector4f;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
 import static outskirts.util.logging.Log.LOGGER;
@@ -32,7 +26,6 @@ import static outskirts.util.logging.Log.LOGGER;
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
  * we reduce "return (T)this".
  */
-//todo: GuiWrapLayout
 
 public class Gui {
 
@@ -431,7 +424,7 @@ public class Gui {
 
     private int cachedvolumehash;
     private boolean isVolumeChanged() {
-        int h = vec4(getX(),getY(),getWidth(),getHeight()).hashCode() + (isVisible() ? 1 : 0);
+        int h = vec4(getX(),getY(),getWidth(),getHeight()).hashCode() + (isVisible() ? 1 : 0); // child count.?
         if (cachedvolumehash != h) {
             cachedvolumehash = h;
             return true;
@@ -806,6 +799,28 @@ public class Gui {
 
         void setChecked(boolean checked);
 
+
+
+        default void initCheckedSync(Supplier<Boolean> get, Consumer<Boolean> set) {
+            addOnCheckedListener(e -> {
+                boolean thisb = isChecked();
+                if (get.get() != thisb) {
+                    set.accept(thisb);
+                }
+            });
+            ((Gui)this).addOnDrawListener(e -> {
+                boolean b = get.get();
+                if (b != isChecked()) {
+                    setChecked(b);
+                }
+            }).priority(EventPriority.HIGH);
+        }
+
+        default EventBus.Handler addOnCheckedListener(Consumer<OnCheckedEvent> lsr) {
+            return ((Gui)this).attachListener(OnCheckedEvent.class, lsr);
+        }
+        /** spec: Only perform on checked-changed. */
+        class OnCheckedEvent extends GuiEvent { }
     }
 
     public interface Contentable {

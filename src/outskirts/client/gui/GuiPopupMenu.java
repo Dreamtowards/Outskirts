@@ -2,6 +2,7 @@ package outskirts.client.gui;
 
 import outskirts.client.Loader;
 import outskirts.client.gui.stat.GuiColumn;
+import outskirts.client.gui.stat.GuiRow;
 import outskirts.client.render.Texture;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
@@ -171,6 +172,58 @@ public class GuiPopupMenu extends Gui {
                 }
             });
         }
+    }
+
+
+    public static class GuiMenubar extends Gui {
+
+        private GuiRow lsMenu;
+
+        public GuiMenubar() {
+            setWidth(INFINITY);
+
+            addChildren(
+              lsMenu=new GuiRow().exec(g -> {
+                  g.setWidth(INFINITY);
+                  g.setHeight(16);
+                  g.addOnDrawListener(e -> {
+                      drawRect(Colors.WHITE20, g);
+                  });
+              })
+            );
+
+        }
+
+        public void addMenu(String name, GuiPopupMenu gmenu) {
+            lsMenu.addGui(new GuiText("  "+name+"  ").exec(g -> {
+                g.setTag(gmenu);
+                g.addOnDrawListener(e -> {
+                    if (gmenu.isVisible())
+                        drawRect(Colors.BLUE, g);
+                });
+                g.addOnPressedListener(e -> {
+                    if (!gmenu.isVisible()) {
+                        gmenu.show(g.getX(), g.getY() + 16);
+                    }
+                });
+                g.addOnMouseInListener(e -> {
+                    for (Gui gtex : lsMenu.getChildren()) {
+                        GuiPopupMenu menu = (GuiPopupMenu)gtex.getTag();
+                        boolean hasOtherOpenedMenu = false;
+                        if (menu.isVisible()) {  // has opened menu.
+                            if (gtex != g) {  // other tab's menu
+                                menu.hide();
+                                hasOtherOpenedMenu = true;
+                            }
+                        }
+                        if (hasOtherOpenedMenu) {
+                            gmenu.show(g.getX(), g.getY()+16);
+                        }
+                    }
+                });
+            }));
+        }
+
     }
 
 }
