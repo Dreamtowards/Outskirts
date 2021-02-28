@@ -6,6 +6,7 @@ import outskirts.client.Outskirts;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Frustum;
+import outskirts.client.render.Texture;
 import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.renderer.debug.visualgeo.DebugVisualGeoRenderer;
 import outskirts.client.render.renderer.gui.FontRenderer;
@@ -14,11 +15,17 @@ import outskirts.client.render.renderer.map.MapRenderer;
 import outskirts.client.render.renderer.particle.ParticleRenderer;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.renderer.shadow.ShadowRenderer;
+import outskirts.client.render.renderer.sky.SkyRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.entity.Entity;
+import outskirts.init.Textures;
+import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Matrix4f;
+import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 import outskirts.world.World;
 
 import java.util.ArrayList;
@@ -28,6 +35,8 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
+import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
+import static outskirts.client.render.renderer.EntityRenderer.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderEngine {
@@ -52,6 +61,7 @@ public final class RenderEngine {
     private SSAORenderer ssaoRenderer = new SSAORenderer();
     private MapRenderer mapRenderer = new MapRenderer();
     private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
+    private SkyRenderer skyRenderer = new SkyRenderer();
 
     private ChunkRenderDispatcher chunkRenderDispatcher = new ChunkRenderDispatcher();
 
@@ -184,17 +194,42 @@ public final class RenderEngine {
 //            ssaoRenderer.renderSSAOBlur(ssaoFBO.colorTextures(0));
 //        ssaoBlurFBO.popFramebuffer();
 
+//        skyColor.set(Colors.fromRGB(149, 185, 214));
+//        LOGGER.info(skyColor);
 
         prepare();
-        glClearColor(0.3f, 0.4f, 0.4f, 1.0f);
+        glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         entityRenderer.renderCompose(gBufferFBO, Collections.singletonList(TmpExtTest.theLight));
-//        skyboxRenderer.render();
+        if (skyboxRenderer != null) // disable: debug fast boost
+            skyboxRenderer.render();
+
+        glDisable(GL_CULL_FACE);
+
+        skyRenderer.render(skyHei, 0,
+                vec3(skyColor));
+        skyRenderer.render(-skyHei, 0,
+                vec3(voidColor));
+
+        Vector3f sunpos = vec3(100, 0, 0);
+
+        Matrix3f.transform(Matrix3f.rotate((Maths.PI*2) * (Outskirts.getWorld().daytime / 24000f), Vector3f.UNIT_Z, null),
+                sunpos);
+
+        modelRenderer.render(ModelRenderer.MODEL_CUBE, Texture.UNIT,
+                vec3(Outskirts.getCamera().getPosition()).add(sunpos), vec3(2), Matrix3f.IDENTITY, Colors.RED,
+                true,
+                true,
+                GL_TRIANGLES);
+
+//        EntityRenderer.setColors();
 
 //        Gui.drawTexture(ssaoBlurFBO.colorTextures(0), Outskirts.getRootGUI());
 //        postRenderer.render(ssaoFBO.colorTextures(0));
 
     }
+
+    public static float skyHei = 100;
 
 
 

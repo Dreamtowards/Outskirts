@@ -4,9 +4,12 @@ import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiDrag;
 import outskirts.client.gui.GuiTextBox;
+import outskirts.event.EventPriority;
 import outskirts.util.Colors;
+import outskirts.util.logging.Log;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.Float.NaN;
@@ -15,20 +18,19 @@ public class GuiIScalar extends GuiTextBox {
 
     private float cachedvalue;
 
-    private float sens = 0.2f;
+    /**
+     * deltaValue = numDragPixel * dragSensitivity
+     */
+    private float dragSensitivity = 0.2f;
 
-    public GuiIScalar(Supplier<Float> getter, Consumer<Float> setter) {
+    private Function<Float, Float> valuefilter = Function.identity();
+
+    public GuiIScalar(Supplier<Float> get, Consumer<Float> set) {
         setHeight(22);
         setWidth(80);
         getText().setRelativeY(3);
         getText().setText("0");
 
-        addOnDrawListener(e -> {
-            float rv = getter.get();
-            if (rv != getValue()) {
-                setValue(rv);
-            }
-        });
 
         getText().addOnTextChangeListener(e -> {
             try {
@@ -36,17 +38,24 @@ public class GuiIScalar extends GuiTextBox {
             } catch (NumberFormatException ex) {
                 e.setCancelled(true); return;
             }
-            float v = getValue();
-            if (getter.get() != v) {
-                setter.accept(v);
+            cachedvalue = valuefilter.apply(cachedvalue);
+            e.setNewText(Float.toString(cachedvalue));
+            if (get.get() != cachedvalue) {
+                set.accept(cachedvalue);
             }
         });
+        addOnDrawListener(e -> {
+            float rv = get.get();
+            if (rv != getValue()) {
+                setValue(rv);
+            }
+        }).priority(EventPriority.HIGH);
 
         addChildren(new GuiDrag().exec((GuiDrag g) -> {
             g.setWidth(10);
             g.addLayoutorAlignParentLTRB(NaN, 0, 0, 0);
             g.addOnDraggingListener(e -> {
-                setValue(getValue() + -Outskirts.getMouseDY()*sens);
+                setValue(getValue() + -Outskirts.getMouseDY()*getDragSensitivity());
                 setSelectionEmpty();
             });
             g.addOnDrawListener(e -> {
@@ -62,5 +71,16 @@ public class GuiIScalar extends GuiTextBox {
 
     public void setValue(float v) {
         getText().setText(Float.toString(v));
+    }
+
+    public void setValueFilter(Function<Float, Float> valuefilter) {
+        this.valuefilter = valuefilter;
+    }
+
+    public float getDragSensitivity() {
+        return dragSensitivity;
+    }
+    public void setDragSensitivity(float dragSensitivity) {
+        this.dragSensitivity = dragSensitivity;
     }
 }

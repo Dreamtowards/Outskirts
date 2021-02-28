@@ -19,6 +19,8 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
  */
 public class ModelRenderer extends Renderer {
 
+    public static boolean useFog = false;
+
     private ShaderProgram shader = new ShaderProgram(
             new ResourceLocation("shaders/model.vsh").getInputStream(),
             new ResourceLocation("shaders/model.fsh").getInputStream()
@@ -36,6 +38,7 @@ public class ModelRenderer extends Renderer {
         shader.setMatrix4f("projectionMatrix", projectionMatrix ? Outskirts.renderEngine.getProjectionMatrix() : Matrix4f.IDENTITY);
 
         shader.setMatrix4f("modelMatrix", Maths.createModelMatrix(position, scale, rotation, MAT_MODELMAT_TRANS));
+
 
         glBindVertexArray(model.vaoID());
 
@@ -84,6 +87,11 @@ public class ModelRenderer extends Renderer {
 
 
 
+    public static Model M_HORIZ_PLANE = Loader.loadModel(3, new float[] {
+            -1, 0,-1,-1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0,-1,-1, 0,-1
+    }, 2, new float[] {
+            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0
+    });
     /**
      *  0,5     4
      *  +-------+

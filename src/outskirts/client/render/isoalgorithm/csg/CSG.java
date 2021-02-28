@@ -39,7 +39,7 @@ public class CSG {
                 // if the edge original intersection point has inside the OPR, update point and norm by the OPR.
                 if (f0<0 || f1<0) {  // edge vert inside. need forther test
                     if (f0<0 != f1<0) {  // sign-change.
-                        float opr_t = Maths.inverseLerp(0, f0, f1);  assert opr_t >= 0f && opr_t < 1f;
+                        float opr_t = Maths.inverseLerp(0, f0, f1);  assert opr_t >= 0f && opr_t <= 1f : opr_t;
                         if (leaf.edges[i] != null) {  // already had hermitedata intersection-point. if the point outside the OPR, just jump over, do not need substract.
                             float ben_t = leaf.edgept(i);
                             if (f0 < 0 ? (ben_t > opr_t) : (ben_t < opr_t))  // the original intersection-point outside of the OPR.

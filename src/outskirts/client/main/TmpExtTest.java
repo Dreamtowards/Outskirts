@@ -1,20 +1,19 @@
 package outskirts.client.main;
 
 import outskirts.client.Outskirts;
+import outskirts.client.gui.ex.GuiColorPicker;
+import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.render.isoalgorithm.csg.CSG;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.isoalgorithm.sdf.SDF;
 import outskirts.client.render.lighting.Light;
+import outskirts.client.render.renderer.EntityRenderer;
 import outskirts.event.client.input.CharInputEvent;
 import outskirts.material.Material;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.SystemUtil;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.chunk.Chunk;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.input.Keyboard.KEY_E;
 import static org.lwjgl.input.Keyboard.KEY_T;
@@ -39,8 +38,12 @@ public class TmpExtTest {
         theLight.color().set(1, 1, 1).scale(1.2f);
 
         SystemUtil.debugAddKeyHook(KEY_E, () -> {
-            theLight.position().set(getPlayer().position());
-            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
+//            theLight.position().set(getPlayer().position());
+//            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
+
+            Outskirts.getRootGUI().addGui(new GuiWindow(
+                    new GuiColorPicker(Outskirts.isAltKeyDown() ? EntityRenderer.skyColor : EntityRenderer.bgColor)
+            ));
         });
 
         EVENT_BUS.register(CharInputEvent.class, e -> {

@@ -12,7 +12,7 @@ public final class Models {
 
 //    public static final Model STALL = loadOBJ("outskirts:materials/stall/stall.obj");
 
-    public static final Model EMPTY = Loader.loadModelT(new VertexBuffer());
+    public static final Model EMPTY = Loader.loadModel(new VertexBuffer());
     public static final Model GEO_CUBE = loadOBJ("elements/entity/geo/cube.obj"); // ModelRenderer.MODEL_CUBE; //
     public static final Model GEO_SPHERE = loadOBJ("elements/entity/geo/sphere.obj");
 //    public static final Model GEO_CYLINDER = loadOBJ("materials/geo/cylinder.obj");

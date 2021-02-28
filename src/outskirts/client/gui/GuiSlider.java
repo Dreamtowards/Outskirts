@@ -10,6 +10,7 @@ import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector4f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,16 +33,11 @@ public class GuiSlider extends Gui {
     private float userMaxValue = 100;
 
     private Set<Float> userOptionalValues = new HashSet<>();
+    private boolean forceUserOptionalValues = false;
 
     private GuiDrag dragGui = addGui(new GuiDrag()); {
         dragGui.addOnDraggingListener(e -> {
-            float f = calculateCurrentCursorValue();
-            for (float v : getUserOptionalValues()) {
-                float percen = Maths.inverseLerp(v, getUserMinValue(), getUserMaxValue());
-                if (Math.abs(percen*getWidth() - f*getWidth()) < 9)
-                    f = percen;
-            }
-            setValue(f);
+            setValue(calculateCurrentCursorValue());
         });
         dragGui.addOnLayoutListener(e -> {
             dragGui.setWidth(getHeight()*0.64f);
@@ -60,6 +56,30 @@ public class GuiSlider extends Gui {
             dragGui.setPressed(true);
             setValue(calculateCurrentCursorValue());
         });
+
+        // UserOptionalValues Control.
+        addOnValueChangeListener(e -> {
+            final float curr = e.getNewUserValue();
+            float result = curr;
+
+            final float magniticUservRange = (getUserMaxValue() - getUserMinValue()) / 18;  // disable force
+            float minDist = Float.MAX_VALUE; // enable force
+
+            for (float v : getUserOptionalValues()) {
+                float dist = Math.abs(curr - v);
+                if (isForceUserOptionalValues()) {
+                    if (dist < minDist) {
+                        minDist = dist;
+                        result = v;
+                    }
+                } else {
+                    if (dist < magniticUservRange) {
+                        result = v;
+                    }
+                }
+            }
+            e.setNewUserValue(result);
+        }).priority(EventPriority.LOW); // higher-control
 
         addOnDrawListener(e -> {
             drawRect(isHover()||isPressed()?Colors.WHITE:Colors.BLACK, getX(), getY()+4, getWidth(), getHeight()-8); // Background Border
@@ -135,14 +155,12 @@ public class GuiSlider extends Gui {
         return value;
     }
     public void setValue(float value) {
-        float oldValue = this.value;
-        OnValueChangeEvent e = new OnValueChangeEvent(value, this);
-        performEvent(e);
-        this.value = Maths.clamp(e.getNewValue(), 0.0f, 1.0f);
-        if (oldValue != this.value) {
+        if (this.value != value) {
+            OnValueChangeEvent e = new OnValueChangeEvent(value, this);
+            performEvent(e);
+            this.value = Maths.clamp(e.getNewValue(), 0.0f, 1.0f);
             performEvent(new OnValueChangedEvent());
-
-            dragGui.setRelativeX( getValue()*(getWidth()-dragGui.getWidth()) );
+            dragGui.setRelativeX(getValue() * (getWidth() - dragGui.getWidth()));
         }
     }
 
@@ -158,19 +176,28 @@ public class GuiSlider extends Gui {
         return attachListener(OnValueChangeEvent.class, lsr);
     }
 
+    public final boolean isForceUserOptionalValues() {
+        return forceUserOptionalValues;
+    }
+    public final void setForceUserOptionalValues(boolean forceUserOptionalValues) {
+        this.forceUserOptionalValues = forceUserOptionalValues;
+    }
+
     public final void initOnlyIntegerValues() {
         addOnValueChangeListener(e -> {
             e.setNewUserValue(Maths.floor(e.getNewUserValue()));
         });
     }
 
-    public final void initValueSync(Supplier<Float> get, Consumer<Float> set) {
-        addOnValueChangedListener(e -> {
-            float thisf = getCurrentUserValue();
-            if (get.get() != thisf) {
-                set.accept(thisf);
-            }
-        });
+    public final void initValueSync(Supplier<Float> get, @Nullable  Consumer<Float> set) {
+        if (set != null) {
+            addOnValueChangedListener(e -> {
+                float thisf = getCurrentUserValue();
+                if (get.get() != thisf) {
+                    set.accept(thisf);
+                }
+            });
+        }
         addOnDrawListener(e -> {
             float f = get.get();
             if (f != getCurrentUserValue()) {

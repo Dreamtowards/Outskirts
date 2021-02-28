@@ -81,6 +81,7 @@ public class GuiScreenOptions extends Gui {
                             () -> Outskirts.renderEngine.getFov(),
                             f -> Outskirts.renderEngine.setFov(f));
 
+                    g.setForceUserOptionalValues(true);
                 })),
                 row("RenderDistance", new GuiSlider().exec((GuiSlider g) -> {
                     g.setUserMinMaxValue(0, 10);
@@ -105,24 +106,30 @@ public class GuiScreenOptions extends Gui {
                             f -> ClientSettings.FPS_CAPACITY=f.intValue());
                 })),
                 row("GUI Scale", new GuiSlider().exec((GuiSlider g) -> {
-                    g.setUserMinMaxValue(0.1f, 2.5f);
+                    g.setUserMinMaxValue(0.5f, 2.5f);
                     g.getUserOptionalValues().addAll(Arrays.asList(.5f, 1f, 1.5f, 2f));
                     g.initValueSync(
                             () -> ClientSettings.GUI_SCALE,
                             f -> ClientSettings.GUI_SCALE=f);
+                    g.setForceUserOptionalValues(true);
                 })),
-                row("Fog Density", new GuiSlider().exec((GuiSlider g) -> {
-                    g.setUserMinMaxValue(0.0001f, 1f);
+                row("Fog Near", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0, 800);
                     g.initValueSync(
-                            () -> Outskirts.renderEngine.getEntityRenderer().fogDensity,
-                            f -> Outskirts.renderEngine.getEntityRenderer().fogDensity=f);
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogNear,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogNear=f);
                 })),
-                row("Fog Gradient", new GuiSlider().exec((GuiSlider g) -> {
-                    g.setUserMinMaxValue(0.1f, 4f);
-                    g.getUserOptionalValues().addAll(Arrays.asList(1.5f));
+                row("Fog Far", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0, 1800);
                     g.initValueSync(
-                            () -> Outskirts.renderEngine.getEntityRenderer().fogGradient,
-                            f -> Outskirts.renderEngine.getEntityRenderer().fogGradient=f);
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogFar,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogFar=f);
+                })),
+                row("Sky Height", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0, 1000);
+                    g.initValueSync(
+                            () -> RenderEngine.skyHei,
+                            f -> RenderEngine.skyHei=f);
                 })),
                 row("Post Exposure", new GuiSlider().exec((GuiSlider g) -> {
                     g.setUserMinMaxValue(0.01f, 10);

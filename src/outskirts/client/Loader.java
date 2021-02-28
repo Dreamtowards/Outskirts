@@ -65,21 +65,21 @@ public final class Loader {
     /**
      * Load "General 3D Vertices Data" with Tangents. (positions:vec3, textureCoords:vec2, normals:vec3)
      */
-    private static Model loadModelT(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
-        float[] tangents = new float[positions.length];
-        Maths.computeTangents(indices, positions, textureCoords, tangents);
-        return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
-    }
-    public static Model loadModelT(VertexBuffer vbuf, Function<float[], float[]> posproc) {
-        int vsz = vbuf.positions.size()/3;
-        return Loader.loadModelT(CollectionUtils.range(vsz),
-                posproc.apply(CollectionUtils.toArrayf(vbuf.positions)),
-                CollectionUtils.toArrayf(vbuf.textureCoords),
-                CollectionUtils.toArrayf(vbuf.normals));
-    }
-    public static Model loadModelT(VertexBuffer vbuf) {
-        return Loader.loadModelT(vbuf, pos -> pos);
-    }
+//    private static Model loadModelT(int[] indices, float[] positions, float[] textureCoords, float[] normals) {
+//        float[] tangents = new float[positions.length];
+//        Maths.computeTangents(indices, positions, textureCoords, tangents);
+//        return loadModel(indices, 3,positions, 2,textureCoords, 3,normals, 3,tangents);
+//    }
+//    public static Model loadModelT(VertexBuffer vbuf, Function<float[], float[]> posproc) {
+//        int vsz = vbuf.positions.size()/3;
+//        return Loader.loadModelT(CollectionUtils.range(vsz),
+//                posproc.apply(CollectionUtils.toArrayf(vbuf.positions)),
+//                CollectionUtils.toArrayf(vbuf.textureCoords),
+//                CollectionUtils.toArrayf(vbuf.normals));
+//    }
+//    public static Model loadModelT(VertexBuffer vbuf) {
+//        return Loader.loadModelT(vbuf, pos -> pos);
+//    }
     // vertexSize is Required.! its can't been get by calc data.length/indices.length.
     /**
      * Load VertexData to VAO
@@ -100,13 +100,19 @@ public final class Loader {
     public static Model loadModel(Object... attrvsz_vdat) {
         return loadModel(CollectionUtils.range(((float[])attrvsz_vdat[1]).length / (int)attrvsz_vdat[0]), attrvsz_vdat);
     }
+    public static Model loadModel(VertexBuffer vbuf) {
+        return Loader.loadModel(
+                3,CollectionUtils.toArrayf(vbuf.positions),
+                2,CollectionUtils.toArrayf(vbuf.textureCoords),
+                3,CollectionUtils.toArrayf(vbuf.normals));
+    }
 
     public static Model loadOBJ(InputStream is, Ref<VertexBuffer> mdatrf) { // boolean center .?
         try {
             VertexBuffer vbuf = OBJLoader.loadOBJ(is);
             if (mdatrf != null)
                 mdatrf.value = vbuf;
-            return Loader.loadModelT(vbuf);
+            return Loader.loadModel(vbuf);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to loadOBJ().", ex);
         }

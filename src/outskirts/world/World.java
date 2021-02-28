@@ -46,6 +46,8 @@ public abstract class World implements Tickable {
     private ChunkGenerator chunkGenerator = new ChunkGenerator();
     private ChunkLoader chunkLoader = new ChunkLoader();
 
+    // 24000, 0==sunrise.
+    public float daytime;
 
     public void addEntity(Entity entity) {
         assert !entities.contains(entity);
@@ -200,6 +202,9 @@ public abstract class World implements Tickable {
             entity.onTick();
         }
 
+        daytime += Outskirts.isAltKeyDown() ? 80 : 2;
+        if (daytime > 24000)
+            daytime = 0;
 
 
     }

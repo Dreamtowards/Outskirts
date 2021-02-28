@@ -18,10 +18,10 @@ public class GuiImage extends Gui {
         });
     }
 
-    public Texture getTexture() {
+    public final Texture getTexture() {
         return texture;
     }
-    public void setTexture(Texture texture) {
+    public final void setTexture(Texture texture) {
         this.texture = texture;
     }
 }

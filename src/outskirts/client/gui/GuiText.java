@@ -37,10 +37,11 @@ public final class GuiText extends Gui {
     public final void setText(String text) {
         if (this.text.equals(text))
             return;
-        if (performEvent(new OnTextChangeEvent(text)))
+        OnTextChangeEvent ce = new OnTextChangeEvent(text);
+        if (performEvent(ce))
             return; // cancelled.
 
-        this.text = text;
+        this.text = ce.getNewText();
 
         performEvent(new OnTextChangedEvent());
 
@@ -85,6 +86,9 @@ public final class GuiText extends Gui {
         }
         public String getNewText() {
             return newText;
+        }
+        public void setNewText(String newText) {
+            this.newText = newText;
         }
     }
     public static class OnTextChangedEvent extends GuiEvent {}

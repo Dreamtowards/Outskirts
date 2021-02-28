@@ -653,6 +653,7 @@ public final class Maths {
         );
     }
 
+    // scaling -> rotate -> translate
     public static Matrix4f createModelMatrix(Vector3f position, Vector3f scale, Matrix3f rotation, Matrix4f dest) {
         if (dest == null)
             dest = new Matrix4f();

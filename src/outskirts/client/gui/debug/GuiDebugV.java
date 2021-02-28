@@ -62,65 +62,21 @@ public class GuiDebugV extends Gui {
                     g.addLayoutorAlignParentLTRB(NaN, NaN, 10, 10);
                 }),
                 gbufv=new GuiEntityGBufferVisual(),
-                new GuiColumn().exec(g -> {
-                    g.addLayoutorAlignParentLTRB(NaN, 30, 30, NaN);
-                    g.addOnDrawListener(e -> {
-                        drawRect(Colors.BLACK80, g);
-                    });
-                }).addChildren(
-//                        new GuiExpander("DebugV").setContent(new GuiColumn().addChildren(
-//                                new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
-//                                new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
-//                        )),
-                        new GuiText("GEO Rd. RENDERING."),
-
-
-
-                        new GuiExpander("COMM").setContent(new GuiColumn().addChildren(
-
-                        )),
-                        new GuiText("PHYS"),
-
-
-                        new GuiExpander("INSP").setContent(new GuiColumn().addChildren(
-                          new GuiButton("GIPlayer").exec(g -> {
-                              g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer()))));
-                          }),
-                          new GuiButton("GIPickerETT").exec(g -> {
-                              g.addOnClickListener(e -> {
-                                  if (Outskirts.getRayPicker().getCurrentEntity() == null) return;
-                                  Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
-                              });
-                          }),
-                          new GuiButton("Add EStaticMesh.").exec(g -> {
-                              g.addOnClickListener(e -> {
-                                  if (Outskirts.getRayPicker().getCurrentPoint() == null) return;
-                                  EntityStaticMesh sm = new EntityStaticMesh();
-                                  sm.setModel(Models.GEO_CUBE);
-                                  sm.rigidbody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
-                                  Outskirts.getWorld().addEntity(sm);
-                              });
-                          }),
-                          new GuiCheckBox("Lights Marks").exec(g->initCBL(g, false, GuiILightsList.INSTANCE::setVisible))
-                        )),
-                        new GuiText("TEST"),
-                        new GuiButton("Gui Weights Test Window").exec(g -> {
-                            g.setWidth(NaN);
-                            g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets())));
-                        }),
-                        new GuiButton("DumpRTG").exec(g -> {
-                            g.addOnClickListener(e -> {
-                                Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
-                            });
-                        })
-                ),
                 new GuiPopupMenu.GuiMenubar().exec((GuiPopupMenu.GuiMenubar menubar) -> {
+
+
+
+
                     menubar.addMenu("Profiler", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
                                 new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
                         ));
                     }));
+
+
+
+
                     menubar.addMenu("Physics", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("BoundingBox").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showBoundingBox=b)),
@@ -128,23 +84,31 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("ContactPoints").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showContactPoints=b))
                         ));
                     }));
+
+
+
+
                     menubar.addMenu("GEO Rd. RENDERING.", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("BasisVisual").exec(g->initCBL(g, true, basisv::setVisible)),
                                 new GuiCheckBox("GBuff/v").exec(g->initCBL(g, false, gbufv::setVisible)),
                                 new GuiCheckBox("FE/NormV").exec(g->{
-                                    g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
+                                    addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
                                 }),
                                 new GuiCheckBox("FE/BordV").exec(g->{
-                                    g.addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
+                                    addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
                                 }),
                                 new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL)))
                         ));
                     }));
+
+
+
+
                     menubar.addMenu("WorldC", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("FRO/Octrees-P").exec((GuiCheckBox g)->{
-                                    g.addOnDrawListener(e -> {
+                                    addOnDrawListener(e -> {
                                         Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
                                         if (g.isChecked() && p != null) {
                                             Octree nd = Outskirts.getWorld().getOctree(p);
@@ -154,7 +118,7 @@ public class GuiDebugV extends Gui {
                                     });
                                 }),
                                 new GuiCheckBox("FRO/OctreesAHD").exec((GuiCheckBox g)->{
-                                    g.addOnDrawListener(e -> {
+                                    addOnDrawListener(e -> {
                                         Vector3f base = Vector3f.floor(vec3(Outskirts.getPlayer().position()), 16f);
                                         Octree nd = Outskirts.getWorld().getOctree(base);
                                         if (g.isChecked() && nd != null) {
@@ -171,25 +135,26 @@ public class GuiDebugV extends Gui {
                                     });
                                 }),
                                 new GuiCheckBox("MarkedRenderSections.").exec((GuiCheckBox g)->{
-                                    g.addOnDrawListener(e -> {
+                                    addOnDrawListener(e -> {
                                         if (g.isChecked()) renderMarkedRenderSections();
                                     });
                                 }),
                                 new GuiCheckBox("SectionBoundary.").exec((GuiCheckBox g)->{
-                                    g.addOnDrawListener(e -> {
-                                        if (g.isChecked()) {
-                                            Outskirts.renderEngine.getModelRenderer().drawOutline(aabb(vec3floor(Outskirts.getPlayer().position(), 16f), 16), Colors.WHITE);
-                                        }
+                                    addOnDrawListener(e -> {
+                                        if (g.isChecked()) Outskirts.renderEngine.getModelRenderer().drawOutline(aabb(vec3floor(Outskirts.getPlayer().position(), 16f), 16), Colors.WHITE);
                                     });
                                 }),
                                 new GuiCheckBox("LODSizes.").exec((GuiCheckBox g)->{
-                                    g.addOnDrawListener(e -> {
-                                        if (g.isChecked())
-                                            renderLODSizes();
+                                    addOnDrawListener(e -> {
+                                        if (g.isChecked()) renderLODSizes();
                                     });
                                 })
                         ));
                     }));
+
+
+
+
                     menubar.addMenu("GGeneral", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiComboBox().exec((GuiComboBox g) -> {
@@ -202,11 +167,49 @@ public class GuiDebugV extends Gui {
                                 })
                         ));
                     }));
+
+
+
+
                     menubar.addMenu("Inspection", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
-                        menu.addItem(new GuiButton("STH"));
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiButton("Insp Player").exec(g -> {
+                                    g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getPlayer()))));
+                                }),
+                                new GuiButton("Insp Picker Entity").exec(g -> {
+                                    g.addOnClickListener(e -> {
+                                        if (Outskirts.getRayPicker().getCurrentEntity() == null) return;
+                                        Outskirts.getRootGUI().addGui(new GuiWindow(new GuiIEntity(Outskirts.getRayPicker().getCurrentEntity())));
+                                    });
+                                }),
+                                new GuiButton("Add EStaticMesh.").exec(g -> {
+                                    g.addOnClickListener(e -> {
+                                        if (Outskirts.getRayPicker().getCurrentPoint() == null) return;
+                                        EntityStaticMesh sm = new EntityStaticMesh();
+                                        sm.setModel(Models.GEO_CUBE);
+                                        sm.rigidbody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
+                                        Outskirts.getWorld().addEntity(sm);
+                                    });
+                                }),
+                                new GuiCheckBox("Lights Marks").exec(g->initCBL(g, false, GuiILightsList.INSTANCE::setVisible))
+                        ));
                     }));
+
+
+
+
                     menubar.addMenu("GUI", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
-                        menu.addItem(new GuiButton("STH"));
+                        menu.addItem(new GuiColumn().addChildren(
+                                new GuiButton("Gui Weights Test Window").exec(g -> {
+                                    g.setWidth(NaN);
+                                    g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets())));
+                                }),
+                                new GuiButton("DumpRTG").exec(g -> {
+                                    g.addOnClickListener(e -> {
+                                        Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
+                                    });
+                                })
+                        ));
                     }));
                 })
         );

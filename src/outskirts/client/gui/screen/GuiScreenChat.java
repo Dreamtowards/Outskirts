@@ -27,7 +27,7 @@ public class GuiScreenChat extends Gui {
 
     public static final GuiScreenChat INSTANCE = new GuiScreenChat();
 
-    private boolean enableAutoCommandComplete = false;
+    private boolean enableAutoCommandComplete = true;
 
     private GuiColumn msgLs;
 
@@ -134,6 +134,7 @@ public class GuiScreenChat extends Gui {
                                 g.texts("");
                                 dispatchLine(s);
 //                                onLayout();onLayout();
+                                Outskirts.getRootGUI().removeGui(this);
                                 break;
                             case KEY_TAB:
                                 if (completeLs.size() == 0) {
