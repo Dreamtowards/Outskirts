@@ -76,8 +76,8 @@ public class EntityRenderer extends Renderer {
     public static Vector4f skyColor = new Vector4f(fromRGB(34,99,175));
     public static Vector4f voidColor = new Vector4f(fromRGB(0,45,84));
 
-    public static float fogNear = 30f;
-    public static float fogFar = 40f;
+    public static float fogDensity = 0.01f;
+    public static float fogGradient = 1.5f;
 
     public EntityRenderer() {
         //init Texture-Units
@@ -151,9 +151,9 @@ public class EntityRenderer extends Renderer {
 
         shaderCompose.setVector3f("CameraPos", Outskirts.getCamera().getPosition());
 
-        shaderCompose.setFloat("fogNear", fogNear);
-        shaderCompose.setFloat("fogFar", fogFar);
-        shaderCompose.setVector3f("bgColor", vec3(bgColor));
+        shaderCompose.setFloat("fogDensity", fogDensity);
+        shaderCompose.setFloat("fogGradient", fogGradient);
+        shaderCompose.setVector3f("fogColor", vec3(bgColor));
 
         {   // setup lights
             int lightCount = Math.min(lights.size(), RENDER_LIGHTS);

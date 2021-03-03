@@ -30,10 +30,10 @@ uniform sampler2D shadowdepthMap;
 
 uniform sampler2D ssaoBlurMap;
 
-uniform float fogNear;
-uniform float fogFar;
+uniform float fogDensity;
+uniform float fogGradient;
 
-uniform vec3 bgColor;
+uniform vec3 fogColor;
 
 float inverseLerp(float, float, float);
 mat3 computeLighting(vec3, vec3, vec3);
@@ -62,8 +62,8 @@ void main() {
     FragColor.rgb = totalDiffuse  * Albedo +
                     totalSpecular * Specularf;
 
-    float visibility = clamp(smoothstep(fogNear, fogFar, length(FragToCamera)), 0.0, 1.0);
-    FragColor.rgb = mix(FragColor.rgb, bgColor, visibility);
+    float visibility = clamp(pow(length(FragToCamera) * fogDensity, fogGradient), 0.0, 1.0);
+    FragColor.rgb = mix(FragColor.rgb, fogColor, visibility);
 
     FragColor.a = 1.0;
 }

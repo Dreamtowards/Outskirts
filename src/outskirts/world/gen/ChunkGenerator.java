@@ -32,7 +32,7 @@ public class ChunkGenerator {
 
                 float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
                 if (b < 0) return b;
-                return y-5;//(noise.fbm((x)/29,(z)/29, 4)*8f+8);
+                return y-(noise.fbm((x)/29,(z)/29, 6)*17+8);
             };
             Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 4, lf -> {
                 if (FUNC.sample(lf.min) < -1.5f) lf.material = Materials.DIRT;

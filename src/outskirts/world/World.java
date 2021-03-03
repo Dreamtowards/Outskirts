@@ -209,7 +209,7 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=1;
+    public static int sz=3;
     {
         Thread t = new Thread(() -> {
             while (true) {

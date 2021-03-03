@@ -52,25 +52,4 @@ public final class RenderSection {
         proxyentity.setModel(model);
     }
 
-//    public Stitcher stitcher() {
-//        return stitcher;
-//    }
-//
-//    public static final class Stitcher {
-//
-//        private EntityStaticMesh[] edgeproxy = CollectionUtils.fill(new EntityStaticMesh[3], EntityStaticMesh::new);
-//        private EntityStaticMesh[] faceproxy = CollectionUtils.fill(new EntityStaticMesh[3], EntityStaticMesh::new);
-//
-//        public final boolean[] edgedirty = new boolean[3];
-//        public final boolean[] facedirty = new boolean[3];
-//
-//        public void setEdgeProxyModel(int i, Model model) {
-//            edgeproxy[i].setModel(model);
-//        }
-//
-//        public void setFaceProxyModel(int i, Model model) {
-//            faceproxy[i].setModel(model);
-//        }
-//
-//    }
 }

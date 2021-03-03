@@ -44,7 +44,7 @@ public class Chunk implements Savable {
 
     private World world;  // rf.
 
-    public boolean populated = false;
+    public boolean populated = false;  // Unlimited Y Unsupported.
 
     public Chunk(World world, int x, int z) {
         ChunkPos.validate(x, z);
@@ -151,7 +151,7 @@ public class Chunk implements Savable {
         return true;
     }
 
-    private AABB getAABB(AABB dest) {
+    private final AABB getAABB(AABB dest) {
         return dest.set(x,-INFINITY,z, x+16,INFINITY,z+16);
     }
 

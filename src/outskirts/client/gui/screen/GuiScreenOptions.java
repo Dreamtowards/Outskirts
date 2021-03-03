@@ -113,17 +113,17 @@ public class GuiScreenOptions extends Gui {
                             f -> ClientSettings.GUI_SCALE=f);
                     g.setForceUserOptionalValues(true);
                 })),
-                row("Fog Near", new GuiSlider().exec((GuiSlider g) -> {
-                    g.setUserMinMaxValue(0, 800);
+                row("Fog Density", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0.0001f, 0.1f);
                     g.initValueSync(
-                            () -> Outskirts.renderEngine.getEntityRenderer().fogNear,
-                            f -> Outskirts.renderEngine.getEntityRenderer().fogNear=f);
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogDensity,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogDensity=f);
                 })),
-                row("Fog Far", new GuiSlider().exec((GuiSlider g) -> {
-                    g.setUserMinMaxValue(0, 1800);
+                row("Fog Gradient", new GuiSlider().exec((GuiSlider g) -> {
+                    g.setUserMinMaxValue(0, 4);
                     g.initValueSync(
-                            () -> Outskirts.renderEngine.getEntityRenderer().fogFar,
-                            f -> Outskirts.renderEngine.getEntityRenderer().fogFar=f);
+                            () -> Outskirts.renderEngine.getEntityRenderer().fogGradient,
+                            f -> Outskirts.renderEngine.getEntityRenderer().fogGradient=f);
                 })),
                 row("Sky Height", new GuiSlider().exec((GuiSlider g) -> {
                     g.setUserMinMaxValue(0, 1000);
