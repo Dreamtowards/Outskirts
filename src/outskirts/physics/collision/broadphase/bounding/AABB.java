@@ -148,6 +148,9 @@ public class AABB {
     public final AABB translate(float scalar, Vector3f trans) {  // translateScaled
         return translate(trans.x*scalar, trans.y*scalar, trans.z*scalar);
     }
+    public final AABB translate(float f) {
+        return translate(f, f, f);
+    }
 
     private boolean intersects(AABB other, float e) {
         return  min.x < other.max.x+e && max.x > other.min.x-e &&
@@ -274,9 +277,9 @@ public class AABB {
     /** suffix i: intersects grids. */
     public static void forGridi(AABB aabb, float sz, Consumer<Vector3f> visitor) {
         Vector3f tmp = new Vector3f();
-        for (float x=Maths.floor(aabb.min.x, sz);x < aabb.max.x;x+=sz) {
-            for (float y=Maths.floor(aabb.min.y, sz);y < aabb.max.y;y+=sz) {
-                for (float z=Maths.floor(aabb.min.z, sz);z < aabb.max.z;z+=sz) {
+        for (float x=Maths.floor(aabb.min.x, sz);x <= aabb.max.x;x+=sz) {
+            for (float y=Maths.floor(aabb.min.y, sz);y <= aabb.max.y;y+=sz) {
+                for (float z=Maths.floor(aabb.min.z, sz);z <= aabb.max.z;z+=sz) {
                     visitor.accept(tmp.set(x,y,z));
                 }
             }

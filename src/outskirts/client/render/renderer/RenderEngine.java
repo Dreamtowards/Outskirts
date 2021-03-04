@@ -50,6 +50,8 @@ public final class RenderEngine {
     public static float NEAR_PLANE = 0.1f;
     public static float FAR_PLANE = 1000f;
 
+    public static boolean dbg_EnableFrustumUpdate = true;
+
     private EntityRenderer entityRenderer = new EntityRenderer();
     private GuiRenderer guiRenderer = new GuiRenderer();
     private FontRenderer fontRenderer = new FontRenderer();
@@ -130,7 +132,7 @@ public final class RenderEngine {
 
         refreshProjectionMatrix();
         refreshViewMatrix();
-        if (!Outskirts.isCtrlKeyDown())
+        if (dbg_EnableFrustumUpdate)
         refreshViewFrustum();
     }
 

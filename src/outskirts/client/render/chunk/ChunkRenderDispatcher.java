@@ -18,6 +18,7 @@ import outskirts.world.chunk.ChunkPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -46,8 +47,8 @@ public class ChunkRenderDispatcher {
         rs.doLoadUp();
         rendersections.add(rs);
 
-        // also updates neiberghts. for ensure seamless mesh.
-        markRebuild(aabb(e.getPosition(), 16));
+        // translate -Epsolion: also updates neg-neiberghts. for ensure seamless mesh.
+        markRebuild(aabb(e.getPosition(), 16).translate(-0.1f));
     }
 
     @EventHandler
@@ -58,14 +59,14 @@ public class ChunkRenderDispatcher {
         assert i == 1;
     }
 
-    public RenderSection findSection(Vector3f pos) {
-        Vector3f secpos = Vector3f.floor(vec3(pos), 16f);
+    public RenderSection findSection(Vector3f p) {
+        Vector3f basepos = Vector3f.floor(vec3(p), 16f);
         for (RenderSection rs : rendersections) {
-            if (rs.position().equals(secpos)) return rs;
+            if (rs.position().equals(basepos)) return rs;
         }
         return null;
     }
-    public Octree findLOD(Vector3f pos) {
+    private Octree findLOD(Vector3f pos) {
         RenderSection rs = findSection(pos);
         if (rs == null) return null;
         if (rs.cachedLod == null) {
@@ -73,9 +74,13 @@ public class ChunkRenderDispatcher {
         }
         return rs.cachedLod;
     }
-    public static float sectionLodSZ(Vector3f pos) {
-        int lv = (int)(vec3(pos).sub(vec3floor(Outskirts.getPlayer().position(), 16f)).length() / (16*2));
-        return Math.min(1 << lv, 8);
+    static float calculateLodSize(Vector3f basepos, Vector3f playerpos) {
+        Vector3f midpoint = vec3(basepos).add(8f);
+        int lv = (int)(midpoint.sub(playerpos).length() / 16f);
+        if (lv == 0)
+            return 0;  // the near places, just do not LoD.
+        lv /= 2f;  // dont lose detail too soon.
+        return Math.min(1 << lv, 8);  // clamp size upon 8, then root octree won't been a leaf.
     }
 
     public boolean markRebuild(Vector3f pos) {
@@ -86,7 +91,7 @@ public class ChunkRenderDispatcher {
     }
     public final int markRebuild(AABB range) {
         Val c = Val.zero();
-        AABB.forGridi(aabb(range).grow(0.1f), 16, p -> {
+        AABB.forGridi(aabb(range), 16f, p -> {
             if (markRebuild(p))
                 c.val++;
         });
@@ -97,30 +102,45 @@ public class ChunkRenderDispatcher {
         return rendersections;
     }
 
+    private void doSort() {
+        CollectionUtils.insertionSort(rendersections, Comparator.comparing(e -> e.cachedLodSize));
+    }
+    private RenderSection pollForUpdate() {
+        for (RenderSection rs : rendersections) {
+            if (rs.dirty) {
+                rs.dirty = false;
+                return rs;
+            }
+        }
+        return null;
+    }
+
     private class ModelBuildWorker implements Runnable {
         @Override
         public void run() {
             while (Outskirts.isRunning()) {
+
                 for (RenderSection rs : rendersections) {
                     // check/update LOD.
-                    float should = sectionLodSZ(rs.position());
-                    if (rs.cachedLodSize != should || rs.dirty) {
-                        if (rs.cachedLodSize != should) {  // let negs sections update.
-                            markRebuild(aabb(vec3(rs.position()).sub(1), 16));
-                        }
-                        rs.updateCachedLOD();
-                        rs.dirty = true;  // markRebuild().
+                    float should = rs.calcShouldLodSize();
+                    if (rs.cachedLodSize != should) {
+                        // let negs sections update.
+                        markRebuild(aabb(rs.position(), 16).translate(-0.1f));
                     }
-                }
-                for (RenderSection rs : rendersections) {
-                    // build MESH.
+                    // Bad: lots of wasted computation.
                     if (rs.dirty) {
-                        rs.dirty = false;
-                        processRenderSection(rs);
-
-                        SystemUtil.sleep(100);
+                        rs.updateCachedLOD();
                     }
                 }
+
+                doSort();
+
+                RenderSection rs = pollForUpdate();
+                if (rs != null) {
+
+                    processRenderSection(rs);
+                }
+
                 SystemUtil.sleep(100);
             }
         }

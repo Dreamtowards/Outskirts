@@ -9,6 +9,7 @@ import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.chunk.RenderSection;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
+import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.Entity;
 import outskirts.entity.item.EntityStaticMesh;
@@ -95,8 +96,15 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("FE/NormV").exec(g->{
                                     addOnDrawListener(e -> renderDVGIfFEOkRGCk(Colors.YELLOW, Vector4f.ZERO, g));
                                 }),
-                                new GuiCheckBox("FE/BordV").exec(g->{
+                                new GuiCheckBox("FE/BorderV").exec((GuiCheckBox g)->{
+                                    g.setChecked(true);
                                     addOnDrawListener(e -> renderDVGIfFEOkRGCk(Vector4f.ZERO, Colors.BLACK80, g));
+                                }),
+                                new GuiCheckBox("FrustumCulling").exec((GuiCheckBox g)->{
+                                    g.setChecked(true);
+                                    g.initCheckedSync(
+                                            () -> RenderEngine.dbg_EnableFrustumUpdate,
+                                            b -> RenderEngine.dbg_EnableFrustumUpdate=b);
                                 }),
                                 new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL)))
                         ));
@@ -135,6 +143,7 @@ public class GuiDebugV extends Gui {
                                     });
                                 }),
                                 new GuiCheckBox("MarkedRenderSections.").exec((GuiCheckBox g)->{
+                                    g.setChecked(true);
                                     addOnDrawListener(e -> {
                                         if (g.isChecked()) renderMarkedRenderSections();
                                     });
@@ -297,7 +306,7 @@ public class GuiDebugV extends Gui {
     private static void renderLODSizes() {
         Outskirts.renderEngine.getChunkRenderDispatcher().getRenderSections().forEach(e -> {
             Gui.drawWorldpoint(e.position(), (x,y) -> {
-                Gui.drawString("LV: "+ ChunkRenderDispatcher.sectionLodSZ(e.position()), x,y, Colors.WHITE);
+                Gui.drawString("LV: "+ e.calcShouldLodSize(), x,y, Colors.WHITE);
             });
         });
     }

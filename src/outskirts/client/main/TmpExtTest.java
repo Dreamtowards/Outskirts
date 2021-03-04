@@ -100,7 +100,7 @@ public class TmpExtTest {
 
             Outskirts.getWorld().forOctrees(aabb, (nd, v) -> {
                 TrifFunc FUNCQ = (x, y, z) -> {
-                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2,3,2));
+                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2));
                 };
                 CSG.difference(nd, FUNCQ);
             });

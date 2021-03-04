@@ -610,7 +610,7 @@ public abstract class Octree {
 
     // LOD problem: 20210224: when LOD resolution too,
 
-    // usize: until size
+    // usize: until size.  0 ~= do not Lod.  INFINITY ~= avg any to a leaf.
     public static Octree doLOD(Octree.Internal intern, float usize, Vector3f min, float size) {
         float subsz = size/2f;
         Vector3f submin = new Vector3f();

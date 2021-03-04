@@ -20,14 +20,14 @@ public final class RenderSection {
     public float cachedLodSize;
 
     public void updateCachedLOD() {
-        cachedLodSize = ChunkRenderDispatcher.sectionLodSZ(position());
+        cachedLodSize = calcShouldLodSize();
         Octree n = Outskirts.getWorld().getOctree(position());
         if (n==null) return;
         cachedLod = Octree.doLOD((Octree.Internal)Octree.copy(n), cachedLodSize, vec3(0), 16f);
         LOGGER.info("Build LOD");
     }
-    public float shouldLodSize() {
-        return -1;
+    public float calcShouldLodSize() {
+        return ChunkRenderDispatcher.calculateLodSize(position(), Outskirts.getPlayer().position());
     }
 
     public RenderSection(Vector3f p) {
