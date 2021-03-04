@@ -273,11 +273,11 @@ public class GuiDebugV extends Gui {
             return;
         List<Entity> entities = new ArrayList<>();
         if (Outskirts.isCtrlKeyDown()) {
+            entities.addAll(Outskirts.getWorld().getEntities());
+        } else {
             Entity entity = Outskirts.getRayPicker().getCurrentEntity();
             if (entity != null)
                 entities.add(entity);
-        } else {
-            entities.addAll(Outskirts.getWorld().getEntities());
         }
         for (Entity entity : entities) {
             Outskirts.renderEngine.getDebugVisualGeoRenderer().normColor.set(ncol);

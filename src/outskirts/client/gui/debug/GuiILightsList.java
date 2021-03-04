@@ -13,12 +13,12 @@ public class GuiILightsList extends Gui {
 
         addOnDrawListener(e -> {
 
-            for (Light light : Outskirts.getWorld().lights) {
-
-                Gui.drawWorldpoint(light.position(), (x, y) -> {
-                    drawString("Light", x,y, Colors.WHITE);
-                });
-            }
+//            for (Light light : Outskirts.getWorld().lights) {
+//
+//                Gui.drawWorldpoint(light.position(), (x, y) -> {
+//                    drawString("Light", x,y, Colors.WHITE);
+//                });
+//            }
         });
 
     }

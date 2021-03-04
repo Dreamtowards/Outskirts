@@ -67,21 +67,14 @@ public class ChunkRenderDispatcher {
     }
     public Octree findLOD(Vector3f pos) {
         RenderSection rs = findSection(pos);
-        if (rs == null)
-            return null;
-        //todo: hash check cache.
-        float shouldLODsz = sectionLodSZ(pos);
-        Octree n = Outskirts.getWorld().getOctree(pos);
-        if (n==null)return null;
-//        int hash = n.hashCode();
-//        if (shouldLODsz != rs.cachedLodSize) {  // lod size different or modified
-//            rs.updateCachedLOD(pos);
-//            assert shouldLODsz == rs.cachedLodSize;
-//        }
-        return n;//rs.cachedLod;
+        if (rs == null) return null;
+        if (rs.cachedLod == null) {
+            rs.updateCachedLOD();
+        }
+        return rs.cachedLod;
     }
     public static float sectionLodSZ(Vector3f pos) {
-        int lv = (int)(vec3(pos).sub(Outskirts.getPlayer().position()).length() / (16*3));
+        int lv = (int)(vec3(pos).sub(vec3floor(Outskirts.getPlayer().position(), 16f)).length() / (16*2));
         return Math.min(1 << lv, 8);
     }
 
@@ -100,7 +93,7 @@ public class ChunkRenderDispatcher {
         return (int)c.val;
     }
 
-    public List<RenderSection> getRenderSections() {
+    public final List<RenderSection> getRenderSections() {
         return rendersections;
     }
 
@@ -109,24 +102,30 @@ public class ChunkRenderDispatcher {
         public void run() {
             while (Outskirts.isRunning()) {
                 for (RenderSection rs : rendersections) {
-                    if (Outskirts.getWorld() == null)
-                        continue;
-                    if (rs == null) {
-                        LOGGER.info("RS == null. HOW??");
-                        continue;
+                    // check/update LOD.
+                    float should = sectionLodSZ(rs.position());
+                    if (rs.cachedLodSize != should || rs.dirty) {
+                        if (rs.cachedLodSize != should) {  // let negs sections update.
+                            markRebuild(aabb(vec3(rs.position()).sub(1), 16));
+                        }
+                        rs.updateCachedLOD();
+                        rs.dirty = true;  // markRebuild().
                     }
+                }
+                for (RenderSection rs : rendersections) {
+                    // build MESH.
                     if (rs.dirty) {
                         rs.dirty = false;
                         processRenderSection(rs);
 
-                        //SystemUtil.sleep(100);
+                        SystemUtil.sleep(100);
                     }
                 }
                 SystemUtil.sleep(100);
             }
         }
 
-        private void processRenderSection(RenderSection rs) {
+        private void processRenderSection(RenderSection rs) {  if (Outskirts.getWorld() == null) return;
             Ref<float[]> vertm = Ref.wrap();
             VertexBuffer vbuf = ChunkMeshGen.buildModel(rs, vertm, ChunkRenderDispatcher.this::findLOD);
 

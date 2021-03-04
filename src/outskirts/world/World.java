@@ -17,6 +17,7 @@ import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 import outskirts.world.gen.ChunkGenerator;
+import outskirts.world.section.Section;
 import outskirts.world.storage.ChunkLoader;
 
 import javax.annotation.Nullable;
@@ -34,12 +35,8 @@ public abstract class World implements Tickable {
     private final List<Entity> entities = new ArrayList<>();
 
     private Map<Long, Chunk> loadedChunks = new HashMap<>();
-    /**
-     * K:vec3 MOD 16 == 0.
-     */
-    private Map<Vector3f, Chunk> loadedSections = new HashMap<>();
 
-    public List<Light> lights = new ArrayList<>(); // better to get from entities.
+    private Map<Vector3f, Section> loadedsections = new HashMap<>();
 
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
 
