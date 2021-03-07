@@ -69,7 +69,7 @@ public final class RenderEngine {
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
             .bindPushFramebuffer()
-            .resize(1280, 720)
+            .resize(1280/2, 720/2)
             .attachTextureColor(0, GL_RGBA16F) // position,depth  ?todo: RGB?RGBA
             .attachTextureColor(1, GL_RGB16F) // normal
             .attachTextureColor(2, GL_RGBA) // diffuse

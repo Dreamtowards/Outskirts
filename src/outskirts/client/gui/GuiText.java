@@ -33,15 +33,14 @@ public final class GuiText extends Gui {
         }).priority(EventPriority.LOW); // let text always overlay
     }
 
-    //todo: just set(s)
     public final void setText(String text) {
         if (this.text.equals(text))
             return;
-        OnTextChangeEvent ce = new OnTextChangeEvent(text);
-        if (performEvent(ce))
+        OnTextChangeEvent e = new OnTextChangeEvent(text);
+        if (performEvent(e))
             return; // cancelled.
 
-        this.text = ce.getNewText();
+        this.text = e.getNewText();
 
         performEvent(new OnTextChangedEvent());
 
@@ -81,13 +80,13 @@ public final class GuiText extends Gui {
     // "Change"  listsner -> e.g. in check text content, isEmail, isNumber, and cancel.
     public static class OnTextChangeEvent extends GuiEvent implements Cancellable {
         private String newText;
-        public OnTextChangeEvent(String newText) {
+        private OnTextChangeEvent(String newText) {
             this.newText = newText;
         }
-        public String getNewText() {
+        public final String getNewText() {
             return newText;
         }
-        public void setNewText(String newText) {
+        public final void setNewText(String newText) {
             this.newText = newText;
         }
     }

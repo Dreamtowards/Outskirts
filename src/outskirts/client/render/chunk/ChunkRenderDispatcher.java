@@ -40,7 +40,7 @@ public class ChunkRenderDispatcher {
     }
 
     @EventHandler
-    private void sectionLoaded(SectionLoadedEvent e) {
+    private void onSectionLoaded(SectionLoadedEvent e) {
         RenderSection rs = new RenderSection(e.getPosition());
         rs.dirty = true;
 
@@ -52,7 +52,7 @@ public class ChunkRenderDispatcher {
     }
 
     @EventHandler
-    private void sectionUnloaded(SectionUnloadedEvent e) {
+    private void onSectionUnloaded(SectionUnloadedEvent e) {
         int i = CollectionUtils.removeIf(rendersections,
                 rs -> rs.position().equals(e.getPosition()),
                 RenderSection::doUnloadDown);
@@ -70,28 +70,29 @@ public class ChunkRenderDispatcher {
         RenderSection rs = findSection(pos);
         if (rs == null) return null;
         if (rs.cachedLod == null) {
-            rs.updateCachedLOD();
+            rs.computeLOD();
         }
         return rs.cachedLod;
     }
     static float calculateLodSize(Vector3f basepos, Vector3f playerpos) {
-        Vector3f midpoint = vec3(basepos).add(8f);
+        Vector3f midpoint = vec3(basepos).add(8f);  // section midpoint instead of basepoint. better accuracy.
         int lv = (int)(midpoint.sub(playerpos).length() / 16f);
         if (lv == 0)
-            return 0;  // the near places, just do not LoD.
+            return 0;  // the near sections, just do not lod.
         lv /= 2f;  // dont lose detail too soon.
         return Math.min(1 << lv, 8);  // clamp size upon 8, then root octree won't been a leaf.
     }
 
-    public boolean markRebuild(Vector3f pos) {
-        RenderSection rs = findSection(pos);
+    public boolean markRebuild(Vector3f p) {
+        RenderSection rs = findSection(p);
         if (rs == null) return false;
         rs.dirty = true;
+        rs.lodDirty = true;
         return true;
     }
-    public final int markRebuild(AABB range) {
+    public final int markRebuild(AABB rangei) {
         Val c = Val.zero();
-        AABB.forGridi(aabb(range), 16f, p -> {
+        AABB.forGridi(aabb(rangei), 16f, p -> {
             if (markRebuild(p))
                 c.val++;
         });
@@ -102,43 +103,38 @@ public class ChunkRenderDispatcher {
         return rendersections;
     }
 
-    private void doSort() {
+    private void doSortForPriority() {
         CollectionUtils.insertionSort(rendersections, Comparator.comparing(e -> e.cachedLodSize));
-    }
-    private RenderSection pollForUpdate() {
-        for (RenderSection rs : rendersections) {
-            if (rs.dirty) {
-                rs.dirty = false;
-                return rs;
-            }
-        }
-        return null;
     }
 
     private class ModelBuildWorker implements Runnable {
         @Override
         public void run() {
             while (Outskirts.isRunning()) {
+                List<RenderSection> rendersections = new ArrayList<>(ChunkRenderDispatcher.this.rendersections);
 
                 for (RenderSection rs : rendersections) {
-                    // check/update LOD.
-                    float should = rs.calcShouldLodSize();
-                    if (rs.cachedLodSize != should) {
-                        // let negs sections update.
+                    if (rs.cachedLodSize != rs.calcShouldLodSize()) {
+                        // also let neg sections update. for seamless.
                         markRebuild(aabb(rs.position(), 16).translate(-0.1f));
-                    }
-                    // Bad: lots of wasted computation.
-                    if (rs.dirty) {
-                        rs.updateCachedLOD();
                     }
                 }
 
-                doSort();
+                for (RenderSection rs : rendersections) {
+                    if (rs.lodDirty) {
+                        rs.lodDirty = false;
+                        rs.computeLOD();
+                    }
+                }
 
-                RenderSection rs = pollForUpdate();
-                if (rs != null) {
+                doSortForPriority();  // looks some useless. the React dosen't really work as interating all.
 
-                    processRenderSection(rs);
+                for (RenderSection rs : rendersections) {
+                    if (rs.dirty) {
+                        rs.dirty = false;
+
+                        processRenderSection(rs);
+                    }
                 }
 
                 SystemUtil.sleep(100);

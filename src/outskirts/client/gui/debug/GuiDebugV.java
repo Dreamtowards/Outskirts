@@ -67,14 +67,12 @@ public class GuiDebugV extends Gui {
 
 
 
-
                     menubar.addMenu("Profiler", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("Memory Log").exec(g->initCBL(g, true, memLog::setVisible)),
                                 new GuiCheckBox("Profiler Visual").exec(g->initCBL(g, true, profv::setVisible))
                         ));
                     }));
-
 
 
 
@@ -85,7 +83,6 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("ContactPoints").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showContactPoints=b))
                         ));
                     }));
-
 
 
 
@@ -109,7 +106,6 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL)))
                         ));
                     }));
-
 
 
 
@@ -163,7 +159,6 @@ public class GuiDebugV extends Gui {
 
 
 
-
                     menubar.addMenu("GGeneral", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiComboBox().exec((GuiComboBox g) -> {
@@ -176,7 +171,6 @@ public class GuiDebugV extends Gui {
                                 })
                         ));
                     }));
-
 
 
 
@@ -203,7 +197,6 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("Lights Marks").exec(g->initCBL(g, false, GuiILightsList.INSTANCE::setVisible))
                         ));
                     }));
-
 
 
 

@@ -36,7 +36,7 @@ public abstract class World implements Tickable {
 
     private Map<Long, Chunk> loadedChunks = new HashMap<>();
 
-    private Map<Vector3f, Section> loadedsections = new HashMap<>();
+    // private Map<Vector3f, Section> loadedsections = new HashMap<>();
 
     public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
 

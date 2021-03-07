@@ -18,8 +18,9 @@ public final class RenderSection {
 
     public Octree cachedLod;
     public float cachedLodSize;
+    public boolean lodDirty;
 
-    public void updateCachedLOD() {
+    public void computeLOD() {
         cachedLodSize = calcShouldLodSize();
         Octree n = Outskirts.getWorld().getOctree(position());
         if (n==null) return;
