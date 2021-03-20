@@ -10,6 +10,7 @@ import outskirts.util.logging.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Ruled Reader/Parser.
@@ -22,10 +23,18 @@ public abstract class Rule {
     public abstract Syntax read(Lexer lexer);
 
 
+    public static RuleList rulels(Function<List<Syntax>, Syntax> createfunc) {
+        return new RuleList(createfunc);
+    }
 
     public static class RuleList extends Rule {
 
         private List<Rule> rules = new ArrayList<>();
+        private Function<List<Syntax>, Syntax> createfunc;
+
+        public RuleList(Function<List<Syntax>, Syntax> createfunc) {
+            this.createfunc = createfunc;
+        }
 
         @Override
         public Syntax read(Lexer lexer) {
@@ -36,7 +45,7 @@ public abstract class Rule {
                     ls.add(syn);
                 }
             }
-            return new Syntax(ls);
+            return createfunc.apply(ls);
         }
 
         public RuleList and(Rule rule) {
@@ -54,6 +63,9 @@ public abstract class Rule {
 
         public final RuleList repeat(Rule e) {
             return and(new RuleRepeat(e));
+        }
+        public final RuleList or(Rule... e) {
+            return and(new RuleOr(e));
         }
     }
 
@@ -97,7 +109,7 @@ public abstract class Rule {
                 // ex.printStackTrace();
                 lexer.index = i;  // rollback.
             }
-            return new Syntax(ls);
+            return new Syntax(ls); // todo:
         }
     }
 

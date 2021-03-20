@@ -1,6 +1,5 @@
 
 
-
 class Main {
 
     float f;
@@ -8,12 +7,9 @@ class Main {
 
     void main() {
 
-
+        print();
 
     }
 
 
 }
-
-
-print("abc");

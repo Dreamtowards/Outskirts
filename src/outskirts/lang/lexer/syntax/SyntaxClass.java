@@ -2,12 +2,11 @@ package outskirts.lang.lexer.syntax;
 
 import outskirts.lang.lexer.Lexer;
 
-public class SyntaxClass {
+import java.util.List;
 
-    public SyntaxClass(Lexer lexer) {
-//        lexer.iden("class").iden(rfclassname).op(inherit).iden("{")
-//                .opm(field, method)
-//                .iden("}");
+public class SyntaxClass extends Syntax {
+
+    public SyntaxClass(List<Syntax> ls) {
+        super(ls);
     }
-
 }

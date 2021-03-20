@@ -22,6 +22,10 @@ public class Syntax {
 
     @Override
     public String toString() {
-        return children.toString();
+        return getClass().getSimpleName()+children.toString();
+    }
+
+    public String asToken() {
+        return ((SyntaxToken)this).getToken().getText();
     }
 }
