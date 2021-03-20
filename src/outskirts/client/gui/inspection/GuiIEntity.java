@@ -75,7 +75,7 @@ public class GuiIEntity extends Gui {
                       g.setHeight(25);
                       g.addOnPressedListener(e -> {
                           g.getOptions().clear();
-                          for (File file : FileUtils.listFiles(new File("src/assets/outskirts/materials"))) {
+                          for (File file : FileUtils.listFiles(new File("."))) {
                               if (file.isFile() && file.getName().endsWith(".obj"))
                                   g.getOptions().add(new GuiText(file.getName()).exec(gitem -> gitem.setTag(file)));
                           }

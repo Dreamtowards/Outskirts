@@ -190,7 +190,7 @@ public class GuiDebugV extends Gui {
                                         if (Outskirts.getRayPicker().getCurrentPoint() == null) return;
                                         EntityStaticMesh sm = new EntityStaticMesh();
                                         sm.setModel(Models.GEO_CUBE);
-                                        sm.rigidbody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
+                                        sm.getRigidBody().transform().origin.set(Outskirts.getRayPicker().getCurrentPoint());
                                         Outskirts.getWorld().addEntity(sm);
                                     });
                                 }),

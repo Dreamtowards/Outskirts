@@ -53,7 +53,7 @@ void main() {
     // Triplanar Planar UVs. Shared.
     vec2 p_uv[3];
     p_uv[0] = modv2u(vec2(-FragPos.z, FragPos.y));
-    p_uv[1] = modv2u(vec2(FragPos.x, -FragPos.z));
+    p_uv[1] = modv2u(vec2(FragPos.x/5, -FragPos.z/5));
     p_uv[2] = modv2u(FragPos.xy);
     vec3 p_weight = abs(FragNorm);  p_weight /= p_weight.x + p_weight.y + p_weight.z;
 

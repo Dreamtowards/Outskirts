@@ -5,6 +5,7 @@ import outskirts.client.render.Model;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.Savable;
 import outskirts.storage.dst.DObject;
+import outskirts.util.Side;
 import outskirts.util.Tickable;
 import outskirts.util.registry.Registrable;
 import outskirts.util.registry.Registry;
@@ -22,11 +23,16 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     private final RigidBody rigidbody = new RigidBody();
 
-    private final RenderPerferences renderPerferences = new RenderPerferences();
+    private final RenderPerferences renderPerferences;
     private Model model;
 
     // ref to the world
     private World world;
+
+    public Entity() {
+        renderPerferences = Side.CURRENT.isClient() ? new RenderPerferences() : null;
+
+    }
 
     public Vector3f tmp_boxSphere_scale = new Vector3f(1, 1, 1);
 
@@ -57,9 +63,6 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     // directly rigidbody().
     public final RigidBody getRigidBody() {
-        return rigidbody;
-    }
-    public final RigidBody rigidbody() { // Feel One-Body.
         return rigidbody;
     }
 

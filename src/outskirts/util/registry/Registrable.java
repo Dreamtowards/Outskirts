@@ -17,7 +17,7 @@ public interface Registrable {
      * and setRegistryID() needs to check does registryID has already been set, this'll make a lots of duplicate loose codes.
      * so have this default reflection impl.
      */
-    default <T extends Registrable> T setRegistryID(String registryID) {
+    default void setRegistryID(String registryID) {
         try {
             //impl class's 'registryID' field.
             Class c = ReflectionUtils.findSuperior(getClass(), supc -> CollectionUtils.contains(supc.getInterfaces(), Registrable.class));
@@ -29,7 +29,6 @@ public interface Registrable {
 
             f.set(this, new Identifier(registryID).toString());
 
-            return (T) this;
         } catch (IllegalAccessException | NoSuchFieldException ex) {
             throw new RuntimeException("A exception occurred in Registrable::setRegistry() default impl.", ex);
         }

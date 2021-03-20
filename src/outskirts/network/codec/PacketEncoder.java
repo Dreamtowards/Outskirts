@@ -12,7 +12,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
 
-        int packetID = Packet.findPacketID(packet.getClass());
+        int packetID = Packet.REGISTRY.indexOf(packet.getRegistryID());
 
         out.writeInt(packetID);
 

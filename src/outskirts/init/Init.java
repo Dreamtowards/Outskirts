@@ -14,7 +14,8 @@ public final class Init {
     //use event to register/release..?
     public static void registerAll(Side side) {
 
-        Materials.init();  MaterialTextures.init();
+        Materials.init();
+        if (side.isClient()) MaterialTextures.init();
 
         Items.init();
 //        for (Block b : Block.REGISTRY.values()) {
@@ -32,26 +33,10 @@ public final class Init {
             Models.init();
         }
 
-        registerPackets();
+        Packets.init();
 
         Entities.init();
 
-    }
-
-
-    private static void registerPackets() {
-
-
-        //todo: refact
-        Packet.registerPacket(CPacketLogin.class);
-        Packet.registerPacket(SPacketDisconnect.class);
-        Packet.registerPacket(SPacketLoginSuccess.class);
-
-        Packet.registerPacket(outskirts.network.play.packet.SPacketDisconnect.class);
-        Packet.registerPacket(SPacketChatMessage.class);
-
-
-        Packet.buildRegistry();
     }
 
 }

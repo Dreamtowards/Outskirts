@@ -3,6 +3,7 @@ package outskirts.network.login;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.screen.GuiScreenDisconnect;
+import outskirts.event.EventBus;
 import outskirts.event.EventHandler;
 import outskirts.event.conn.ChannelInactiveEvent;
 import outskirts.network.ChannelHandler;
@@ -23,8 +24,9 @@ public class PacketHandlerLoginClient {
     private void handleLoginSuccess(SPacketLoginSuccess packet) {
 
         // switch handler
-        connection.eventBus().unregister(this); // modify list
-        connection.eventBus().register(new PacketHandlerPlayClient(connection));
+        EventBus bus = connection.eventBus();
+        bus.unregister(this); // modify list
+        bus.register(new PacketHandlerPlayClient(connection));
 
         // init GUI
         Outskirts.getRootGUI().removeAllGuis();

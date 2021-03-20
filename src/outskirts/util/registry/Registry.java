@@ -11,11 +11,11 @@ public final class Registry<T extends Registrable> {
     private List<String> syncedkeys = new ArrayList<>();   // synced with entries
 
     public T register(T entry) {
-        if (entry == null) {  // for the zero 'null' holdplacer.
+        if (entry == null) {  // allowed 'null' holdplacer exist in zero-idx.
             assert size()==0;
         } else {
             String registryID = Objects.requireNonNull(entry.getRegistryID());
-            assert !containsKey(registryID) : "RegistryID '"+registryID+"' already been registered.";
+            assert !containsKey(registryID) : "RegistryID '"+registryID+"' has already been registered.";
         }
 
         entries.add(entry);

@@ -1,7 +1,5 @@
 package outskirts.util;
 
-import outskirts.util.logging.Log;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,18 +12,33 @@ public final class StringUtils {
     public static final String EMPTY = "";
     public static final String SPACE = " ";
 
-    private static final char[] HEX_MAPPING = {
-            '0', '1', '2', '3', '4', '5', '6', '7',
-            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
+    private static final String HEX_MAPPING = "0123456789abcdef";
 
     public static String toHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
-            sb.append(HEX_MAPPING[(b >> 4) & 0x0F]);
-            sb.append(HEX_MAPPING[b & 0x0F]);
+            sb.append(HEX_MAPPING.charAt((b >> 4) & 0xF));
+            sb.append(HEX_MAPPING.charAt(b & 0xF));
         }
         return sb.toString();
+    }
+
+    public static byte[] fromHexString(String hex) {
+        Validate.isTrue(hex.length() % 2 == 0);
+        byte[] b = new byte[hex.length() / 2];
+        for (int i = 0;i < b.length;i++) {
+            int base = i*2;
+            int n1 = HEX_MAPPING.indexOf(hex.charAt(base)),
+                n2 = HEX_MAPPING.indexOf(hex.charAt(base+1));
+            Validate.isTrue(n1 != -1 && n2 != -1, "illegal hex.");
+            b[i] = (byte)((n1 << 4) | n2);
+        }
+        return b;
+    }
+    public static char fromHexString4(String hex) {
+        Validate.isTrue(hex.length() == 4, "required 4 hexcode.");
+        byte[] b = fromHexString(hex);
+        return (char)(((b[0] << 8) & 0xF000) | ((b[0] << 8) & 0xF00) | (b[1] & 0xF0) | (b[1] & 0xF));
     }
 
     /**
@@ -83,7 +96,7 @@ public final class StringUtils {
 
 
 
-    public static boolean isNumrical(char ch) {
+    public static boolean isInteger(char ch) {
         return ch >= '0' && ch <= '9';
     }
 
@@ -92,43 +105,43 @@ public final class StringUtils {
      * @return a range. the number String is s.substring(r[0], r[1]).
      */
     public static int[] nextNumber(CharSequence s, int fromIndex) {  // Pattern.compile("-?\\d+(\\.\\d+)?([eE]-?\\d+)?");
-        int matchingStart = -1;
+        int startm = -1;  // matching start
         for (int i = fromIndex;i < s.length();i++) {
             char ch = s.charAt(i);
-            if (matchingStart == -1) {
-                if (StringUtils.isNumrical(ch)) {
-                    matchingStart=i;
+            if (startm == -1) {
+                if (StringUtils.isInteger(ch)) {
+                    startm=i;
                 } else if (ch == '-') {
-                    if (i+1 < s.length() && StringUtils.isNumrical(s.charAt(i+1)))
-                        matchingStart=i;
+                    if (i+1 < s.length() && StringUtils.isInteger(s.charAt(i+1)))
+                        startm=i;
                 }
             } else {
                 if (ch == '.') {
-                    if (i == s.length()-1 || !StringUtils.isNumrical(s.charAt(i+1)))
-                        return new int[] {matchingStart, i};
+                    if (i == s.length()-1 || !StringUtils.isInteger(s.charAt(i+1)))
+                        return new int[] {startm, i};
                 } else if (ch == 'e' || ch == 'E') {
-                    if (i==s.length()-1 || ("+-".indexOf(s.charAt(i+1)) == -1 && !StringUtils.isNumrical(s.charAt(i+1)))) {
-                        return new int[] {matchingStart, i};
+                    if (i==s.length()-1 || ("+-".indexOf(s.charAt(i+1)) == -1 && !StringUtils.isInteger(s.charAt(i+1)))) {
+                        return new int[] {startm, i};
                     } else { // is Num
                         i++; // step over [eE]
                         if ("+-".indexOf(s.charAt(i)) != -1) {
                             i++;
-                            if (i==s.length() || !StringUtils.isNumrical(s.charAt(i)))
-                                return new int[] {matchingStart, i-2};
+                            if (i==s.length() || !StringUtils.isInteger(s.charAt(i)))
+                                return new int[] {startm, i-2};
                         }
                         while (i < s.length()) {
-                            if (!StringUtils.isNumrical(s.charAt(i)))
-                                return new int[] {matchingStart, i};
+                            if (!StringUtils.isInteger(s.charAt(i)))
+                                return new int[] {startm, i};
                             i++;
                         }
                     }
-                } else if (!StringUtils.isNumrical(ch)) {
-                    return new int[] {matchingStart, i};
+                } else if (!StringUtils.isInteger(ch)) {
+                    return new int[] {startm, i};
                 }
             }
         }
-        if (matchingStart != -1) {
-            return new int[] {matchingStart, s.length()};
+        if (startm != -1) {
+            return new int[] {startm, s.length()};
         }
         return null;
     }

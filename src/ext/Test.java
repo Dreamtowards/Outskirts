@@ -7,6 +7,8 @@ import outskirts.event.gui.GuiEvent;
 import outskirts.storage.dst.DST;
 import outskirts.storage.dst.DSTUtils;
 import outskirts.storage.tools.DstJsonConvert;
+import outskirts.util.CollectionUtils;
+import outskirts.util.HttpUtils;
 import outskirts.util.ReflectionUtils;
 import outskirts.util.StringUtils;
 import outskirts.util.logging.Log;
@@ -32,6 +34,34 @@ public class Test {
     static float f = 1;
 
     public static void main(String[] args) throws Exception {
+
+        // curl 'http://www.jxzyz.cn/user/zan.php' \
+        //  -H 'Connection: keep-alive' \
+        //  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+        //  -H 'X-Requested-With: XMLHttpRequest' \
+        //  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36' \
+        //  -H 'Content-Type: application/x-www-form-urlencoded' \
+        //  -H 'Origin: http://www.jxzyz.cn' \
+        //  -H 'Referer: http://www.jxzyz.cn/user/ren_xx.php?id=6000399' \
+        //  -H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8' \
+        //  --data-raw 'id=6000399' \
+        //  --compressed \
+        //  --insecure
+        for (int ti = 0;ti < 5;ti++) {
+            new Thread(() -> {
+                for (int i = 0;i < 2000;i++) {
+                    try {
+                        String s = HttpUtils.httpPost("http://www.jxzyz.cn/user/zan.php", "id=6000399".getBytes(), CollectionUtils.asMap(
+
+                        ));
+
+                        LOGGER.info(i+": "+s);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
 //        LOGGER.info(Float.MIN_VALUE);
 //        LOGGER.info(Vector3f.dot(new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(1.0f, -0.06548178f, 49.0f)) > Float.MIN_VALUE);

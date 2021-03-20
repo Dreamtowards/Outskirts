@@ -15,7 +15,7 @@ public class EntityStaticMesh extends Entity {
         setRegistryID("staticmesh");
 
         setModel(Models.EMPTY);
-        rigidbody().setMass(0);
+        getRigidBody().setMass(0);
     }
 
     @Override
@@ -25,9 +25,9 @@ public class EntityStaticMesh extends Entity {
         if (model.vertexCount() == 0) {
             getRigidBody().setCollisionShape(new GhostShape());
         } else {
-            rigidbody().setCollisionShape(new BvhTriangleMeshShape(
-                    getModel().indices,
-                    getModel().attribute(0).data
+            getRigidBody().setCollisionShape(new BvhTriangleMeshShape(
+                    model.indices,
+                    model.attribute(0).data
             ));
         }
     }

@@ -77,7 +77,7 @@ public abstract class EntityPlayer extends EntityCreature implements CommandSend
 
     public boolean isOnGround() {
         for (CollisionManifold mf : getWorld().dynamicsWorld.getCollisionManifolds()) {
-            if (mf.containsBody(rigidbody())) {
+            if (mf.containsBody(getRigidBody())) {
                 for (int i = 0; i < mf.getNumContactPoints(); i++) {
                     CollisionManifold.ContactPoint cp = mf.getContactPoint(i);
                     if (cp.pointOnB.y < position().y && Math.abs(cp.pointOnB.x - position().x) < 0.3f && Math.abs(cp.pointOnB.z - position().z) < 0.3f) {
@@ -95,12 +95,13 @@ public abstract class EntityPlayer extends EntityCreature implements CommandSend
     }
     public void setFlymode(boolean flymode) {
         this.flymode = flymode;
+        RigidBody rb = getRigidBody();
         if (flymode) {
-            rigidbody().getGravity().set(0, 0, 0);
-            rigidbody().setLinearDamping(0.001f);
+            rb.getGravity().set(0, 0, 0);
+            rb.setLinearDamping(0.001f);
         } else {
-            rigidbody().getGravity().set(0, -10, 0);
-            rigidbody().setLinearDamping(0.95f);
+            rb.getGravity().set(0, -10, 0);
+            rb.setLinearDamping(0.95f);
         }
     }
 

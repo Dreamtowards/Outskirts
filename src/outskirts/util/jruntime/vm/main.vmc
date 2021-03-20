@@ -1,0 +1,83 @@
+
+void main() {
+
+    float f = 10;
+
+    f = f + 8;
+
+    while () {
+
+    }
+
+    byte b = 10;
+
+
+    print(f);
+}
+
+--- variable_table
+#0  f: float
+
+--- gcode
+
+const float 10
+store 0
+
+load 0
+const float 8
+nadd
+store 0
+
+load 0
+invoke print
+
+return
+
+---
+
+const <type> <value>
+store <var_i>
+load <var_i>
+
+
+---
+
+general.lang.primetive
+
+public primetive class byte : 8 {
+
+    ubyte parseByte() {
+
+
+
+    }
+    {
+        System.initOperator(byte.class, "*", byte::add);
+    }
+
+    public byte add(byte left, byte right) {
+
+
+    }
+
+
+
+    native ubyte add(u8 v);
+    native ubyte mul(u8 v);
+
+}
+
+public class int {
+
+
+
+}
+
+public inline class vec3 {
+
+    public float x;
+    public float y;
+    public float z;
+
+
+}
