@@ -16,4 +16,8 @@ public final class Val {
 
     public float val;
 
+    public final int i() {
+        return (int)val;
+    }
+
 }

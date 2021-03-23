@@ -2,7 +2,7 @@ package outskirts.lang.lexer.syntax;
 
 import outskirts.lang.lexer.Token;
 
-public final class SyntaxToken extends Syntax {
+public class SyntaxToken extends Syntax {
 
     private Token token;
 
@@ -16,6 +16,10 @@ public final class SyntaxToken extends Syntax {
 
     @Override
     public String toString() {
-        return "SyntaxToken{" + token + '}';
+        return "" + token + "";
+    }
+
+    public static SyntaxToken ofname(String name) {
+        return new SyntaxToken(new Token(name, Token.TYPE_NAME, 0, 0));
     }
 }

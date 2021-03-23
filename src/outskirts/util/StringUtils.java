@@ -203,4 +203,19 @@ public final class StringUtils {
         }
         return num;
     }
+
+
+    public static void locate(String str, int idx, Val linenumber, Val charnumber) {
+        linenumber.val = 0;
+        charnumber.val = 0;
+        for (int i = 0;i < idx;i++) {
+            char ch = str.charAt(i);
+            if (ch == '\n') {
+                linenumber.val++;
+                charnumber.val = 0;
+            } else if (ch >= ' ') {
+                charnumber.val++;
+            }
+        }
+    }
 }

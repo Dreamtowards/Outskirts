@@ -1,11 +1,15 @@
 package outskirts.lang.lexer.syntax;
 
+import outskirts.lang.interpreter.Evaluable;
+import outskirts.lang.interpreter.RuntimeEnvironment;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class Syntax {
+public class Syntax implements Evaluable {
 
-    private List<Syntax> children = new ArrayList<>();
+    private final List<Syntax> children = new ArrayList<>();
 
     public Syntax() { }
 
@@ -20,12 +24,21 @@ public class Syntax {
         return children.size();
     }
 
+    public List<Syntax> children() {
+        return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public Object eval(RuntimeEnvironment env) {
+        throw new UnsupportedOperationException("Eval Unsupported. "+getClass());
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName()+children.toString();
     }
 
     public String asToken() {
-        return ((SyntaxToken)this).getToken().getText();
+        return ((SyntaxToken)this).getToken().text();
     }
 }

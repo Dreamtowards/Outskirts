@@ -1,7 +1,9 @@
 package outskirts.lang.lexer;
 
+import outskirts.util.Ref;
 import outskirts.util.StringUtils;
 import outskirts.util.Val;
+import outskirts.util.Validate;
 import outskirts.util.logging.Log;
 
 import java.util.ArrayList;
@@ -18,22 +20,42 @@ public class Lexer {
         while ((ch = nextUnblank(code, rfidx)) != 0) {
             String text;
             int type;
-            if (isInteger(ch) || ch == '.') {  // Number
+            final int idx = rfidx.i();  // tmp local.
+
+            Val linenum = Val.zero(), charnum = Val.zero();
+            StringUtils.locate(code, idx, linenum, charnum);
+
+            if (startsWith("//", code, idx)) {   // singleline Comment.
+                int end = code.indexOf("\n", idx);
+                rfidx.val = end==-1 ? code.length() : end+1;  // +1: jump over the '\n'.
+                continue;
+            } else if (startsWith("/*", code, idx)) {  // multiline Comment.
+                int end = code.indexOf("*/", idx);
+                Validate.isTrue(end != -1, "Unterminaled Multiline Comment.");
+                rfidx.val = end + 2;  // +2: jump over the "*/".
+                continue;
+            } else if (isInteger(ch) || ch == '.') {  // Number Constant.
+
                 text = readNumber(code, rfidx); type = Token.TYPE_NUMBER;
-            } else if (ch == '"') {  // String
+            } else if (ch == '"') {  // String Constant.
+
                 text = readQuote(code, rfidx, '"'); type = Token.TYPE_STRING;
-            } else if (isNameCharacter(ch, true)) {  // Name
+            } else if (isNameCharacter(ch, true)) {  // Name.
+
                 text = readName(code, rfidx); type = Token.TYPE_NAME;
-            } else if (isBorderCharacter(ch)) {  // Border
+            } else if (isBorderCharacter(ch)) {  // Border.
+
                 text = readBorder(code, rfidx); type = Token.TYPE_BORDER;
             } else {
                 throw new IllegalStateException(String.format("Unexpected token: %s [%s]", ch, rfidx.val));
             }
-            tokens.add(new Token(text, type));
+            tokens.add(new Token(text, type, linenum.i(), charnum.i()));
         }
     }
 
     public Token peek() {
+        if (index == tokens.size())
+            return null;
         return tokens.get(index);
     }
 
@@ -41,6 +63,10 @@ public class Lexer {
         if (index == tokens.size())
             throw new IllegalStateException("EOF");
         return tokens.get(index++);
+    }
+
+    public List<Token> tokens() {
+        return tokens;
     }
 
     public static char nextUnblank(String s, Val rfidx) {
@@ -148,7 +174,8 @@ public class Lexer {
         int i = (int)rfidx.val;
         if (startsWith("||",s,i) || startsWith("&&",s,i) ||
             startsWith("<<",s,i) || startsWith(">>",s,i) ||
-            startsWith("==",s,i) || startsWith("<=",s,i) || startsWith(">=",s,i)) {
+            startsWith("==",s,i) || startsWith("!=",s,i) ||
+            startsWith("<=",s,i) || startsWith(">=",s,i)) {
             rfidx.val = i+2;
             return s.substring(i, i+2);
         }
@@ -159,7 +186,9 @@ public class Lexer {
         throw new IllegalStateException();
     }
     private static boolean startsWith(String search, String full, int fromIndex) {
-        return full.indexOf(search, fromIndex) == 0;
+        return full.indexOf(search, fromIndex) == fromIndex;
     }
+
+
 
 }

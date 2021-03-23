@@ -1,19 +1,19 @@
 package outskirts.lang;
 
+import org.lwjgl.Sys;
+import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.lang.lexer.Lexer;
-import outskirts.lang.lexer.parser.Rule;
+import outskirts.lang.lexer.Token;
+import outskirts.lang.lexer.parser.RuleLs;
 import outskirts.lang.lexer.syntax.*;
 import outskirts.util.IOUtils;
-import outskirts.util.StringUtils;
 import outskirts.util.logging.Log;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 
-import static outskirts.lang.lexer.parser.Rule.rulels;
+import static outskirts.lang.lexer.parser.RuleLs.*;
 
 public class GeneralVM {
 
@@ -21,24 +21,75 @@ public class GeneralVM {
 
     public static void main(String[] args) throws Throwable {
 
-        Rule rMethodCall = rulels(SyntaxMethodCall::new).name().id("(").id(")");
+        RuleLs expr = pass();
 
-        Rule statement = new Rule.RuleOr(
-                rMethodCall
+        RuleLs primary = pass().or(
+                pass().number(SyntaxConstantNumber::new),
+                pass().name(SyntaxVariableReference::new),
+                pass().string(SyntaxConstantString::new)
         );
-        Rule rBlock = rulels(SyntaxBlock::new).id("{").repeat(statement).id("}");
+        RuleLs factor = pass().or(
+                primary,
+                pass().id("(").and(expr).id(")"),
+                struc(SyntaxNegativeExpression::new).id("-").and(primary)
+        );
 
-        Rule rField  = rulels(SyntaxField::new).name().name().id(";");
-        Rule rMethod = rulels(SyntaxMethod::new).name().name().id("(").id(")").and(rBlock);
+        // expr setup.
+        expr.expr(factor);
 
+        RuleLs block = struc(SyntaxBlock::new);
 
-        Rule rClass = rulels(SyntaxClass::new).id("class").name().id("{").repeat(new Rule.RuleOr(rField, rMethod)).id("}");
+        RuleLs ifstatement = struc(SyntaxStatementIf::new);
+        RuleLs printstatement = struc(SyntaxDirectPrint::new).id("print").and(expr).id(";");
+
+        RuleLs paramlist = struc(Syntax::new).op(pass().name()).repeat(pass().id(",").name());
+        RuleLs funcdef = struc(SyntaxMethodDeclarate::new).id("def").name()
+                .id("(").and(paramlist).id(")").and(block);
+
+        RuleLs funccall = struc(SyntaxMethodCall::new).id("call").name()
+                .id("(").and(struc(Syntax::new).op(expr).repeat(pass().id(",").and(expr))).id(")").id(";");
+
+        RuleLs statement = pass().or(
+                ifstatement,
+                struc(SyntaxStatementWhile::new).id("while").id("(").and(expr).id(")").and(block),
+                printstatement,
+                pass().and(expr).id(";"),
+                struc(SyntaxVariableDeclarate::new).id("var").name().id(";"),
+                funcdef,
+                funccall
+        );
+
+        // ifstatement setup.
+        ifstatement.id("if").id("(").and(expr).id(")").or(block, statement)
+                .op(pass().id("else").or(block, statement));
+
+        // block setup.
+        block.id("{").repeat(
+                statement
+        ).id("}");
+
 
         String code = IOUtils.toString(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/outskirts/lang/vm/rt/main.g"));
         Lexer lexer = new Lexer(code);
 
-        Log.LOGGER.info(rClass.read(lexer));
-//        Log.LOGGER.info(rMethod.read(new Lexer("void main() { func() }")));
+
+        RuntimeEnvironment env = new RuntimeEnvironment();
+
+        env.varables.put("print", new SyntaxMethodDeclarate(Arrays.asList(
+                SyntaxToken.ofname("print"),
+                new Syntax(Collections.singletonList(SyntaxToken.ofname("str"))),
+                new SyntaxBlock(Collections.singletonList(new Syntax() {
+                    @Override
+                    public Object eval(RuntimeEnvironment env) {
+                        System.out.println(env.varables.get("str"));
+                        return null;
+                    }
+                }))
+        )));
+
+        Syntax s = block.read(lexer);
+        Log.LOGGER.info(s);
+        Log.LOGGER.info(s.eval(env));
 
     }
 
