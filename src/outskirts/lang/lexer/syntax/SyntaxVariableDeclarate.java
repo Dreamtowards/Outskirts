@@ -17,7 +17,7 @@ public class SyntaxVariableDeclarate extends Syntax {
     @Override
     public Object eval(RuntimeEnvironment env) {
 
-        env.varables.put(name(), null);
+        env.declare(name(), null);
 
         return null;
     }

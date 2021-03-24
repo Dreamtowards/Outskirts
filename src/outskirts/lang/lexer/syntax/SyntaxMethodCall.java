@@ -21,8 +21,7 @@ public class SyntaxMethodCall extends Syntax {
 
     @Override
     public Object eval(RuntimeEnvironment env) {
-        SyntaxMethodDeclarate method = (SyntaxMethodDeclarate)env.varables.get(name());
-        Validate.notNull(method, "Couldn't found method: %s", name());
+        SyntaxMethodDeclarate method = (SyntaxMethodDeclarate)env.get(name());
 
         List<Syntax> synargs = arguments();
         Object[] args = new Object[synargs.size()];

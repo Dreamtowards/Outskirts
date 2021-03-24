@@ -1,9 +1,14 @@
 
 {
 
-    call print("some thing123");
-    call print("Sth ABC");
+    print("some thing123");
+    print("Sth ABC");
 
+    {
+        var str;
+        str="abc";
+        print(str);
+    }
 
     def func1(arg1, arg2) {
         var abc;
@@ -12,12 +17,14 @@
         while (abc < arg1) {
 
             abc = abc + 1;
-            print "abc: " + abc;
+            print("abc: " + abc);
+            return;
         }
     }
 
-    call func1(5, 6);
+    var a = func1(5, 6);
+    print("ret: "+a);
 
-    print "Call Func2: ";
-    call func1(2, 6);
+    print("Call Func2: ");
+    func1(2, 6);
 }

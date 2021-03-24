@@ -11,7 +11,9 @@ public class SyntaxBlock extends Syntax {
     }
 
     @Override
-    public Object eval(RuntimeEnvironment env) {
+    public Object eval(RuntimeEnvironment outerenv) {
+        RuntimeEnvironment env = new RuntimeEnvironment();
+        env.outer = outerenv;
         for (Syntax s : children()) {
             s.eval(env);
         }

@@ -23,7 +23,11 @@ public class GeneralVM {
 
         RuleLs expr = pass();
 
+        RuleLs funccall = struc(SyntaxMethodCall::new);
+
+
         RuleLs primary = pass().or(
+                funccall,
                 pass().number(SyntaxConstantNumber::new),
                 pass().name(SyntaxVariableReference::new),
                 pass().string(SyntaxConstantString::new)
@@ -40,23 +44,22 @@ public class GeneralVM {
         RuleLs block = struc(SyntaxBlock::new);
 
         RuleLs ifstatement = struc(SyntaxStatementIf::new);
-        RuleLs printstatement = struc(SyntaxDirectPrint::new).id("print").and(expr).id(";");
 
-        RuleLs paramlist = struc(Syntax::new).op(pass().name()).repeat(pass().id(",").name());
         RuleLs funcdef = struc(SyntaxMethodDeclarate::new).id("def").name()
-                .id("(").and(paramlist).id(")").and(block);
+                .id("(").and(struc(Syntax::new).op(pass().name()).repeat(pass().id(",").name())).id(")").and(block);
 
-        RuleLs funccall = struc(SyntaxMethodCall::new).id("call").name()
-                .id("(").and(struc(Syntax::new).op(expr).repeat(pass().id(",").and(expr))).id(")").id(";");
+        // funccall setup.
+        funccall.name().id("(").and(struc(Syntax::new).op(expr).repeat(pass().id(",").and(expr))).id(")");
 
         RuleLs statement = pass().or(
                 ifstatement,
                 struc(SyntaxStatementWhile::new).id("while").id("(").and(expr).id(")").and(block),
-                printstatement,
+                struc(SyntaxMethodReturn::new).id("return").op(expr).id(";"),
+                struc(SyntaxVariableDeclarate::new).id("var").name().op(pass().id("=").and(expr)).id(";"),
                 pass().and(expr).id(";"),
-                struc(SyntaxVariableDeclarate::new).id("var").name().id(";"),
                 funcdef,
-                funccall
+                pass().and(funccall).id(";"),
+                block
         );
 
         // ifstatement setup.
@@ -75,17 +78,10 @@ public class GeneralVM {
 
         RuntimeEnvironment env = new RuntimeEnvironment();
 
-        env.varables.put("print", new SyntaxMethodDeclarate(Arrays.asList(
-                SyntaxToken.ofname("print"),
-                new Syntax(Collections.singletonList(SyntaxToken.ofname("str"))),
-                new SyntaxBlock(Collections.singletonList(new Syntax() {
-                    @Override
-                    public Object eval(RuntimeEnvironment env) {
-                        System.out.println(env.varables.get("str"));
-                        return null;
-                    }
-                }))
-        )));
+        env.declare("print", SyntaxMethodDeclarate.ofDirect("print", farg -> {
+            System.out.println(farg[0]);
+            return null;
+        }, "str"));
 
         Syntax s = block.read(lexer);
         Log.LOGGER.info(s);

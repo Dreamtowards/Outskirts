@@ -49,7 +49,7 @@ public class SyntaxBiExpression extends Syntax {
         } else if (opr.equals("=")) {
             SyntaxVariableReference var = (SyntaxVariableReference)left();
             Object val = right().eval(env);
-            env.varables.put(var.name(), val);
+            env.set(var.name(), val);
             return val;
         } else if (opr.equals("==")) {
 

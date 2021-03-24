@@ -13,10 +13,7 @@ public class SyntaxVariableReference extends SyntaxToken {
 
     @Override
     public Object eval(RuntimeEnvironment env) {
-        String nm = name();
-        Validate.isTrue(env.varables.containsKey(nm), "Undeclared variable: "+nm+" ("+getToken().detailString());
-
-        return env.varables.get(nm);
+        return env.get(name());
     }
 
     public String name() {
