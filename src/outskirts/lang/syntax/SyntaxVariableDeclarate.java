@@ -1,4 +1,4 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
 
@@ -14,10 +14,14 @@ public class SyntaxVariableDeclarate extends Syntax {
         return child(0).asToken();
     }
 
+    public Syntax init() {
+        return child(1);
+    }
+
     @Override
     public Object eval(RuntimeEnvironment env) {
 
-        env.declare(name(), null);
+        env.declare(name(), init().eval(env));
 
         return null;
     }

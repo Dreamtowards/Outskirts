@@ -22,7 +22,7 @@ public class RuntimeEnvironment {
     }
 
     public void declare(String name, Object val) {
-        Validate.isTrue(!varables.containsKey(name), "Already declared.");
+        Validate.isTrue(!varables.containsKey(name), "Already declared. "+name);
         varables.put(name, val);
     }
 

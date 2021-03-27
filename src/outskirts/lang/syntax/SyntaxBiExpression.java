@@ -1,4 +1,4 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.util.Validate;
@@ -28,7 +28,11 @@ public class SyntaxBiExpression extends Syntax {
     @Override
     public Object eval(RuntimeEnvironment env) {
         String opr = operator();
-        if ("+-*/<>".contains(opr)) {
+        if (opr.equals(".")) {
+            SyntaxClassDeclarate clsobj = (SyntaxClassDeclarate)left().eval(env);
+//            return l.selfenv.get(((SyntaxVariableReference)right()).name());
+            return right().eval(clsobj.selfenv);
+        } else if ("+-*/<>".contains(opr)) {
             Object l = left().eval(env);
             Object r = right().eval(env);
             if (l instanceof String || r instanceof String) {

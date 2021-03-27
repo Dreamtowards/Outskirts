@@ -1,5 +1,6 @@
 package outskirts.util;
 
+import org.lwjgl.Sys;
 import outskirts.util.function.TriConsumer;
 
 import java.lang.reflect.Array;
@@ -245,6 +246,13 @@ public final class CollectionUtils {
             swap(arr, i, arr.length-1-i);
         }
         return arr;
+    }
+
+    public static <T> T[] concat(T[] a, T... b) {
+        T[] r = (T[]) Array.newInstance(a.getClass().getComponentType(), a.length + b.length);
+        System.arraycopy(a, 0, r, 0, a.length);
+        System.arraycopy(b, 0, r, a.length, b.length);
+        return r;
     }
 
     // actually not good. not common, but useful in Generate FakeIndices(EBO).  DO NOT JUST USE FOR FOREACH!!... thats cause joke.

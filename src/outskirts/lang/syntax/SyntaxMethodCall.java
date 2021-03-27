@@ -1,7 +1,6 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
-import outskirts.util.Validate;
 
 import java.util.List;
 
@@ -12,7 +11,13 @@ public class SyntaxMethodCall extends Syntax {
     }
 
     public String name() {
-        return child(0).asToken();
+       try {
+           return child(0).asToken();
+       } catch (Exception ex) {
+           ex.printStackTrace();
+           System.exit(0);
+           return null;
+       }
     }
 
     public List<Syntax> arguments() {

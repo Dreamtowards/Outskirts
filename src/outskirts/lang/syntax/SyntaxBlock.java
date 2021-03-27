@@ -1,8 +1,9 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SyntaxBlock extends Syntax {
 
@@ -12,12 +13,21 @@ public class SyntaxBlock extends Syntax {
 
     @Override
     public Object eval(RuntimeEnvironment outerenv) {
+        return eval0(outerenv, e -> {});
+    }
+
+    public Object eval0(RuntimeEnvironment outerenv, Consumer<RuntimeEnvironment> envinit) {
         RuntimeEnvironment env = new RuntimeEnvironment();
         env.outer = outerenv;
+        envinit.accept(env);
+        execute(env);
+        return null;
+    }
+
+    public void execute(RuntimeEnvironment env) {
         for (Syntax s : children()) {
             s.eval(env);
         }
-        return null;
     }
 
     @Override

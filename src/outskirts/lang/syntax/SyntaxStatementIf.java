@@ -1,8 +1,6 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
-import outskirts.lang.lexer.parser.RuleLs;
-import outskirts.util.Val;
 import outskirts.util.Validate;
 
 import java.util.List;
@@ -23,10 +21,12 @@ public class SyntaxStatementIf extends Syntax {
     }
 
     public Syntax elseblock() {
-        if (size() == 2) return null;
         return child(2);
     }
 
+    /**
+     * @param obj evaluated expr result.
+     */
     public static boolean isConditionPass(Object obj) {
         if (obj == null)
             return false;

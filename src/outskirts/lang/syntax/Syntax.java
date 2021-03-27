@@ -1,5 +1,7 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
+import outskirts.lang.compiler.Code;
+import outskirts.lang.compiler.Compilable;
 import outskirts.lang.interpreter.Evaluable;
 import outskirts.lang.interpreter.RuntimeEnvironment;
 
@@ -7,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Syntax implements Evaluable {
+public class Syntax implements Evaluable, Compilable {
 
     private final List<Syntax> children = new ArrayList<>();
 
@@ -31,6 +33,11 @@ public class Syntax implements Evaluable {
     @Override
     public Object eval(RuntimeEnvironment env) {
         throw new UnsupportedOperationException("Eval Unsupported. "+getClass());
+    }
+
+    @Override
+    public void compile(Code codebuf) {
+        throw new UnsupportedOperationException("Compile Unsupported. "+getClass());
     }
 
     @Override

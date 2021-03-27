@@ -1,17 +1,13 @@
 package outskirts.lang;
 
-import org.lwjgl.Sys;
 import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.lang.lexer.Lexer;
-import outskirts.lang.lexer.Token;
 import outskirts.lang.lexer.parser.RuleLs;
-import outskirts.lang.lexer.syntax.*;
+import outskirts.lang.syntax.*;
 import outskirts.util.IOUtils;
 import outskirts.util.logging.Log;
 
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static outskirts.lang.lexer.parser.RuleLs.*;
 
@@ -25,11 +21,12 @@ public class GeneralVM {
 
         RuleLs funccall = struc(SyntaxMethodCall::new);
 
+        RuleLs varref = pass().name(SyntaxVariableReference::new);
 
         RuleLs primary = pass().or(
                 funccall,
                 pass().number(SyntaxConstantNumber::new),
-                pass().name(SyntaxVariableReference::new),
+                varref,
                 pass().string(SyntaxConstantString::new)
         );
         RuleLs factor = pass().or(
@@ -51,14 +48,20 @@ public class GeneralVM {
         // funccall setup.
         funccall.name().id("(").and(struc(Syntax::new).op(expr).repeat(pass().id(",").and(expr))).id(")");
 
+        RuleLs vardef = struc(SyntaxVariableDeclarate::new).id("var").name().ornull(pass().id("=").and(expr)).id(";");
+
+
+
+        RuleLs clazz = struc(SyntaxClassDeclarate::new).id("class").name().and(block);
+
         RuleLs statement = pass().or(
                 ifstatement,
                 struc(SyntaxStatementWhile::new).id("while").id("(").and(expr).id(")").and(block),
-                struc(SyntaxMethodReturn::new).id("return").op(expr).id(";"),
-                struc(SyntaxVariableDeclarate::new).id("var").name().op(pass().id("=").and(expr)).id(";"),
-                pass().and(expr).id(";"),
+                struc(SyntaxMethodReturn::new).id("return").ornull(expr).id(";"),
+                clazz,
+                vardef,
                 funcdef,
-                pass().and(funccall).id(";"),
+                pass().and(expr).id(";"),
                 block
         );
 
@@ -83,9 +86,10 @@ public class GeneralVM {
             return null;
         }, "str"));
 
+//        Log.LOGGER.info(expr.read(new Lexer("abc . abc . abc")));
         Syntax s = block.read(lexer);
-        Log.LOGGER.info(s);
-        Log.LOGGER.info(s.eval(env));
+//        Log.LOGGER.info(s);
+        s.eval(env);
 
     }
 

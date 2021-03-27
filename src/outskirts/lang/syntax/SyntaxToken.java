@@ -1,4 +1,4 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.lexer.Token;
 

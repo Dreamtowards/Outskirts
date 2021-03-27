@@ -27,7 +27,8 @@ public final class Operator {
             new Operator("-", 3, ASS_LEFT),
             new Operator("*", 4, ASS_LEFT),
             new Operator("/", 4, ASS_LEFT),
-            new Operator("%", 4, ASS_LEFT)
+            new Operator("%", 4, ASS_LEFT),
+            new Operator(".", 9, ASS_LEFT)
     );
 
     public static Operator get(String oper) {

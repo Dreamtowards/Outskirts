@@ -1,7 +1,6 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
-import outskirts.util.Val;
 import outskirts.util.Validate;
 
 import java.util.List;

@@ -1,11 +1,11 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.util.Validate;
 
 import java.util.List;
 
-import static outskirts.lang.lexer.syntax.SyntaxStatementIf.isConditionPass;
+import static outskirts.lang.syntax.SyntaxStatementIf.isConditionPass;
 
 public class SyntaxStatementWhile extends Syntax {
 

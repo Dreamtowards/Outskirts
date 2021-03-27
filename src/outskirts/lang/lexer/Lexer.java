@@ -34,7 +34,7 @@ public class Lexer {
                 Validate.isTrue(end != -1, "Unterminaled Multiline Comment.");
                 rfidx.val = end + 2;  // +2: jump over the "*/".
                 continue;
-            } else if (isInteger(ch) || ch == '.') {  // Number Constant.
+            } else if (isInteger(ch) || (ch == '.' && code.length() > idx+1 && isInteger(code.charAt(idx+1)))) {  // Number Constant.
 
                 text = readNumber(code, rfidx); type = Token.TYPE_NUMBER;
             } else if (ch == '"') {  // String Constant.
@@ -51,6 +51,7 @@ public class Lexer {
             }
             tokens.add(new Token(text, type, linenum.i(), charnum.i()));
         }
+//        Log.LOGGER.info(tokens);
     }
 
     public Token peek() {

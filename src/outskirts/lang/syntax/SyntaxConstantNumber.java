@@ -1,6 +1,5 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
-import outskirts.lang.interpreter.Evaluable;
 import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.lang.lexer.Token;
 

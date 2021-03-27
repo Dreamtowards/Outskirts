@@ -2,12 +2,12 @@ package outskirts.lang.lexer.parser;
 
 import outskirts.lang.lexer.Lexer;
 import outskirts.lang.lexer.Token;
-import outskirts.lang.lexer.syntax.Syntax;
-import outskirts.lang.lexer.syntax.SyntaxBiExpression;
-import outskirts.lang.lexer.syntax.SyntaxToken;
-import outskirts.util.Val;
+import outskirts.lang.syntax.Syntax;
+import outskirts.lang.syntax.SyntaxBiExpression;
+import outskirts.lang.syntax.SyntaxNullStatement;
+import outskirts.lang.syntax.SyntaxToken;
+import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
-import outskirts.util.logging.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,6 +115,9 @@ public final class RuleLs {
     /** Rule-Or. must select one of options. */
     public final RuleLs or(RuleLs... e) {
         return and(new RuleLs.Or(e));
+    }
+    public final RuleLs ornull(RuleLs... e) {
+        return or(CollectionUtils.concat(e, struc(SyntaxNullStatement::new)));
     }
 
     /** Rule-Expr. a specual-construction-rule. a bi-expression or just a factor */

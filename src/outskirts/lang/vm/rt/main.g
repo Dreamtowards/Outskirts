@@ -1,30 +1,47 @@
+//{
+
+func (abc,b)
+
+//}
+
 
 {
 
-    print("some thing123");
-    print("Sth ABC");
+class Color {
+    var r = 5;
+    var g;
+    var b;
 
-    {
-        var str;
-        str="abc";
-        print(str);
-    }
+    def prt() {
 
-    def func1(arg1, arg2) {
-        var abc;
-        abc = 0;
-
-        while (abc < arg1) {
-
-            abc = abc + 1;
-            print("abc: " + abc);
-            return;
+        print("abc");
+        def doprt() {
+            print("Inner Really Print");
         }
+        return doprt;
+    }
+}
+
+class Pos {
+    var x;
+    var y;
+    var color = Color();
+
+    def add() {
+        return x + y;
     }
 
-    var a = func1(5, 6);
-    print("ret: "+a);
+    def getColor() {
+        return color;
+    }
 
-    print("Call Func2: ");
-    func1(2, 6);
+    print(123);
+}
+
+var col = Pos().color;
+
+col = col.prt();
+
+col();
+
 }

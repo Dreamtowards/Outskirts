@@ -1,4 +1,4 @@
-package outskirts.lang.lexer.syntax;
+package outskirts.lang.syntax;
 
 import outskirts.lang.interpreter.RuntimeEnvironment;
 import outskirts.util.CollectionUtils;
@@ -7,7 +7,6 @@ import outskirts.util.Validate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SyntaxMethodDeclarate extends Syntax {
@@ -24,8 +23,8 @@ public class SyntaxMethodDeclarate extends Syntax {
         return child(1).children().stream().map(Syntax::asToken).toArray(String[]::new);
     }
 
-    public Syntax body() {
-        return child(2);
+    public SyntaxBlock body() {
+        return (SyntaxBlock)child(2);
     }
 
     @Override
@@ -39,10 +38,11 @@ public class SyntaxMethodDeclarate extends Syntax {
         return new SyntaxMethodDeclarate(Arrays.asList(
                 SyntaxToken.ofname(name),
                 new Syntax(Arrays.asList(CollectionUtils.filli(new SyntaxToken[params.length], i -> SyntaxToken.ofname(params[i])))),
-                new SyntaxBlock(Collections.singletonList(new Syntax() {
+                new SyntaxBlock(Collections.singletonList(new SyntaxBlock(Collections.emptyList()) {
                     @Override
-                    public Object eval(RuntimeEnvironment env) {
-                        return func.apply(CollectionUtils.filli(new Object[params.length], i -> env.get(params[i])));
+                    public void execute(RuntimeEnvironment env) {
+                        Object ret = func.apply(CollectionUtils.filli(new Object[params.length], i -> env.get(params[i])));
+                        throw new MethodReturnException(ret);
                     }
                 }))
         ));
@@ -50,14 +50,13 @@ public class SyntaxMethodDeclarate extends Syntax {
 
     public static Object call(SyntaxMethodDeclarate smethod, RuntimeEnvironment outerenv, Object... args) {
         String[] params = smethod.params();
-        RuntimeEnvironment env = new RuntimeEnvironment();
-        env.outer = outerenv;
         Validate.isTrue(args.length == params.length, "Incomplete arguments.");
-        for (int i = 0;i < params.length;i++) {
-            env.declare(params[i], args[i]);
-        }
         try {
-            smethod.body().eval(env);
+            smethod.body().eval0(outerenv, benv -> {
+                for (int i = 0;i < params.length;i++) {
+                    benv.declare(params[i], args[i]);
+                }
+            });
         } catch (MethodReturnException e) {
             return e.obj;
         }
