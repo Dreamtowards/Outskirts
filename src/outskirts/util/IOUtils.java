@@ -108,7 +108,7 @@ public final class IOUtils {
                 ((b[off+1] & 0xFFL) << 48) |
                 ((b[off+2] & 0xFFL) << 40) |
                 ((b[off+3] & 0xFFL) << 32) |
-                ((b[off+4] & 0xFF) << 24) |
+                ((b[off+4] & 0xFFL) << 24) |
                 ((b[off+5] & 0xFF) << 16) |
                 ((b[off+6] & 0xFF) << 8 ) |
                  (b[off+7] & 0xFF);
@@ -195,6 +195,9 @@ public final class IOUtils {
 
     public static float readFloat(InputStream is) throws IOException {
         return Float.intBitsToFloat(readInt(is));
+    }
+    public static float readFloat(byte[] b, int off) throws IOException {
+        return Float.intBitsToFloat(readInt(b, off));
     }
     public static void writeFloat(OutputStream os, float f) throws IOException {
         writeInt(os, Float.floatToIntBits(f));

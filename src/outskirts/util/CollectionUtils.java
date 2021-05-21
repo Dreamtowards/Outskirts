@@ -61,6 +61,14 @@ public final class CollectionUtils {
         }
         return array;
     }
+    public static byte[] toArrayb(List<Byte> ls) {
+        byte[] arr = new byte[ls.size()];
+        int i = 0;
+        for (Byte b : ls) {
+            arr[i++] = b;
+        }
+        return arr;
+    }
 
     public static int[] toArrayi(List<Integer> ls) {
         int[] arr = new int[ls.size()];

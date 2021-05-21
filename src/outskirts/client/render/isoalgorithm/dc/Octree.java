@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public abstract class Octree {

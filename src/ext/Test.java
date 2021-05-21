@@ -473,6 +473,10 @@ public class Test {
 
         LOGGER.info(i);
 
+        LOGGER.info(Long.parseLong("ekcYw8b", 36)); // 6955380418954742568
+
+        LOGGER.info("6955380418954742568");
+        LOGGER.info(StringUtils.parseNumber("ekcYw8b", 26*2+10));
     }
 
 

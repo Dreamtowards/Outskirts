@@ -23,8 +23,19 @@ public class TestClassA implements Runnable {
 
         return testfield;
     }
+    private static final int STATIC_I2 = 2;
 
-    public int[] func1() {
+    public int[] func1(int i) {
+
+        switch (i) {
+            case STATIC_I2:
+
+                i++;
+                break;
+            default:
+                break;
+        }
+
         return null;
     }
 

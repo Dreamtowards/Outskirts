@@ -1,6 +1,8 @@
 package outskirts.util;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.IllegalFormatException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -205,17 +207,34 @@ public final class StringUtils {
     }
 
 
-    public static void locate(String str, int idx, Val linenumber, Val charnumber) {
-        linenumber.val = 0;
-        charnumber.val = 0;
+    public static void locate(String str, int idx, Intptr linenumber, Intptr charnumber) {
+        linenumber.i = 0;
+        charnumber.i = 0;
         for (int i = 0;i < idx;i++) {
             char ch = str.charAt(i);
             if (ch == '\n') {
-                linenumber.val++;
-                charnumber.val = 0;
+                linenumber.i++;
+                charnumber.i = 0;
             } else if (ch >= ' ') {
-                charnumber.val++;
+                charnumber.i++;
             }
         }
+    }
+
+    private static final String DIGIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public static BigInteger parseNumber(String s, int radix) {
+        int len = s.length();
+        if (len == 0) throw new IllegalStateException();
+        BigInteger num = new BigInteger("0");
+
+        for (int i = 0;i < len;i++) {
+            int endchar = s.charAt(len-1 - i);
+            int endn = DIGIST.indexOf(endchar);
+
+            num = num.add(BigInteger.valueOf(endn * (long)Math.pow(radix, i)));
+        }
+
+        return num;
     }
 }

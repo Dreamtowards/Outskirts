@@ -1,0 +1,31 @@
+
+
+gruntime
+
+gcompiler
+
+
+class {
+
+    type field;
+
+    @Setter()
+    @Getter()
+    type field = init;
+
+    type_function<void, string, string> func = (arg1, arg2) {
+
+    }
+
+    // how about the "Atlas-name".? like, v.x,y,z; v.u,v,w; v.a,b,c. even v.xyz, v.xxy...
+
+
+    get type fieldname() {
+        return a;
+    }
+
+    set void fieldname(val) {
+        fiel = a;
+    }
+
+}
