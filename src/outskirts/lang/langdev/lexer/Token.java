@@ -2,13 +2,14 @@ package outskirts.lang.langdev.lexer;
 
 public final class Token {
 
-    public static Token EOF = new Token("", 0, 0, 0);
+//    public static Token EOF = new Token("", 0, 0, 0);
 
     public static final int TYPE_NAME = 1;
     public static final int TYPE_BORDER = 2;
     public static final int TYPE_NUMBER = 3;
     public static final int TYPE_STRING = 4;
-    public static final String[] TYPES_NAME = {"NULL", "NAME", "BORDER", "NUMBER", "STRING"};
+    public static final int TYPE_CHARACTER = 5;
+    public static final String[] TYPES_NAME = {"NULL", "NAME", "BORDER", "NUMBER", "STRING", "CHARACTER"};
 
     private final String text;
     private final int type;

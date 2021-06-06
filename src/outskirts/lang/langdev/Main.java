@@ -1,10 +1,13 @@
 package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.*;
+import outskirts.lang.langdev.interpreter.GObject;
+import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.parser.Parserls;
 import outskirts.util.IOUtils;
 
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -20,89 +23,70 @@ public class Main {
         Lexer lex = new Lexer();
         lex.read(s);
 
-        int i = 0;
+        var typename = struct(AST_Token_VariableName::new).name().initname("TypeName");
+
+        var varname = struct(AST_Token_VariableName::new).name().initname("VariableName");
 
         var exprbase = pass().initname("expression");
         {
-            Parserls varname;
             var primary = pass().or(
                     struct(AST_Token_LiteralNumber::new).number().initname("NumberLiteral"),
                     struct(AST_Token_LiteralString::new).string().initname("StringLiteral"),
-                    varname=struct(AST_Token_VariableName::new).name().initname("VariableName")
+                    varname
             ).initname("Primary");
 
-            var fargls = struct(ASTls::new).op(pass().and(exprbase).repeat(pass().id(",").and(exprbase))).initname("FuncArgs");
+            var fnargls = struct(ASTls::new).op(pass().and(exprbase).repeat(pass().id(",").and(exprbase))).initname("FuncArgs");
 
-            var expr1 = pass();
-                expr1.or(
+            var expr0 = pass().or(
                     pass().id("(").and(exprbase).id(")").initname("ExprParentheses"),
-                    pass().or(primary).repeat(pass().or(
-                            pass().id(".").and(varname).composer(stk -> {
-                                var r = stk.pop();
-                                var l = stk.pop();
-                                stk.push(new AST_Expr_BiOper(l, ".", r));
-                            }).initname("MemberAccess"),
-                            pass().id("(").and(fargls).id(")").composer(stk -> {
-                                ASTls ls = stk.pop();
-                                var f = stk.pop();
-                                stk.push(new AST_Expr_FuncCall(f, ls.toArray()));
-                            }).initname("FuncCall"),
-                            pass().id("[").and(exprbase).id("]").composer(stk -> {
-                                var r = stk.pop();
-                                var l = stk.pop();
-                                stk.push(new AST() {
-                                    @Override
-                                    public String toString() {
-                                        return "array_access{"+l+"["+r+"]}";
-                                    }
-                                });
-                            }).initname("ArrayAccess")
-                    ))
-            ).initname("expr1");
+                    primary
+            ).initname("expr0_1");
 
-//            int[] arr = {};
-//            int in = ((arr)).[0];
-//
-//            AST l, r;
-//            AST_Token o;
-//            l = primary.readone(lex);
-//            while (true) {
-//                o = (AST_Token)primary.readone(lex);
-//                if (o.text().equals(".")) {
-//                    r = primary.readone(lex);
-//                    l = new AST_Expr_BiOper(l, o, r);
-//                } else if (o.text().equals("[")){
-//                    r = exprbase.readone(lex);
-//                    pass().id("]").read(lex);
-//                    l = new AST_Expr_ArrAcc(l, r);
-//                } else if (o.text().equals("(")) {
-//                    r = p_args.read(lex);
-//                    l = new FunCall(l, r);
-//                }
-//            }
+            var expr1 = pass().and(expr0).repeat(pass().or(
+                    pass().iden(".").and(varname).composesp(3, AST_Expr_OperBi::new).initname("MemberAccess"),
+                    pass().id("(").and(fnargls).id(")").composesp(2, AST_Expr_FuncCall::new).initname("FuncCall")
+            )).initname("expr1");
 
-            var expr2 = pass().or(
-                    struct(AST_Expr_PostInc::new).and(expr1).id("++").markLookahead().initname("PostInc"),
-                    expr1
-            ).initname("expr2_suffix");
+            var expr2 = pass().and(expr1).repeat(
+                    pass().iden("++", "--").composesp(2, AST_Expr_OperUnaryPost::new).initname("UnaryOperPost")
+            ).initname("expr2_unarypost");
 
-            var expr3 = pass().or(
-                    struct(AST_Expr_Neg::new).id("-").and(expr2).initname("Neg"),
+            var expr3 = pass();
+                expr3.or(
+                    struct(AST_Expr_OperUnaryPre::new).iden("++","--", "+","-", "!", "~").and(expr3).initname("UnaryOperPre"),
                     expr2
-            ).initname("expr3_prefix");
+            ).initname("expr3_unarypre");
 
-            var expr4 = struct(AST_Expr_BiOper::composite).and(expr3).repeat(pass().iden("*", "/").and(expr3));
-            var expr5 = struct(AST_Expr_BiOper::composite).and(expr4).repeat(pass().iden("+", "-").and(expr4));
+            var expr4 = pass().and(expr3).repeat(pass().iden("*", "/").and(expr3).composesp(3, AST_Expr_OperBi::new));
+            var expr5 = pass().and(expr4).repeat(pass().iden("+", "-").and(expr4).composesp(3, AST_Expr_OperBi::new));
 
-            var expr15 = struct(AST_Expr_BiOper::composite);
-                expr15.and(expr5).op(pass().iden("=").and(expr15));
+            var expr15 = pass();
+                expr15.and(expr5).op(pass().iden("=").and(expr15).composesp(3, AST_Expr_OperBi::new));
 
             exprbase.and(expr15);  // init.
-
-
-            System.out.println(exprbase.readone(lex));
         }
 
+        Parserls stmt = pass().initname("StatmentElection");
+        stmt.or(
+                struct(AST_Stmt_Block::new).id("{").repeat(stmt).id("}").initname("StmtBlock"),
+                struct(AST_Stmt_If::new).id("if").id("(").and(exprbase).id(")").and(stmt).op(pass().id("else").and(stmt)).initname("StmtIf"),
+                struct(AST_Stmt_While::new).id("while").id("(").and(exprbase).id(")").and(stmt).initname("StmtWhile"),
+                struct(AST_Stmt_VariableDeclare::new).and(typename).and(varname).markLookahead().op(pass().id("=").and(exprbase)).id(";").initname("StmtVarDef"),
+                pass().and(exprbase).id(";").markLookahead().initname("StmtExpr")
+        );
+
+        Scope sc = new Scope(null);
+        sc.declare("prt", new GObject((AST_Expr_FuncCall.FuncInterf) args1 -> {
+            System.out.println(args1[0].value);
+            return GObject.VOID;
+        }));
+        sc.declare("alert", new GObject((AST_Expr_FuncCall.FuncInterf) args1 -> {
+            JOptionPane.showMessageDialog(null, args1[0].value);
+            return GObject.VOID;
+        }));
+
+        stmt.readone(lex).eval(sc);
+//        System.out.println(stmt.readone(lex).eval(sc).value);
 
 
 
@@ -114,5 +98,6 @@ public class Main {
 //
 //        }
     }
+
 
 }

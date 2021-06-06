@@ -1,4 +1,6 @@
-package outskirts.lang.langdev.ast;
+package outskirts.lang.langdev.ast.oop;
+
+import outskirts.lang.langdev.ast.AST;
 
 public class AST_Class extends AST {
 

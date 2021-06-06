@@ -1,4 +1,4 @@
-package outskirts.util.jruntime.vm;
+package outskirts.util.tools.jruntime.vm;
 
 import outskirts.util.StringUtils;
 

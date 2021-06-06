@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.interpreter.GObject;
+import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.util.Validate;
 
@@ -15,6 +17,11 @@ public class AST_Token_VariableName extends AST_Token {
     public AST_Token_VariableName(List<AST> ls) {
         this(((AST_Token)ls.get(0)).token());
         Validate.isTrue(ls.size() == 1);
+    }
+
+    @Override
+    public GObject eval(Scope scope) {
+        return scope.access(text());
     }
 
     @Override

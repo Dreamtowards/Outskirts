@@ -37,24 +37,29 @@ only allowed Classes.? or allowed external var/funcs..?
 </tr>
 
 <tr>
-    <td rowspan="1">15</td>
-    <td><kbd>.</kbd> Member selection</td>
-    <td>Bi</td>
-    <td>-></td>
+    <td rowspan="1">MAX</td>
+    <td><kbd>(<i>expr</i>)</kbd> Parentheses</td>
 </tr>
+<tr>
+    <td rowspan="2">15</td>
+    <td><kbd>.<i>memb</i></kbd> Member Access</td>
+    <td rowspan="2">Unary-Suffix<br>Advanced</td>
+    <td rowspan="4">-></td>
+</tr>
+<tr><td><kbd>(<i>args</i>)</kbd> Function Call</td></tr>
 
 <tr>
-    <td rowspan="3">14</td>
+    <td rowspan="2">14</td>
     <td><kbd>++</kbd> Post-increase</td>
-    <td rowspan="3">Unary-Suffix</td>
+    <td rowspan="2">Unary-Suffix</td>
 </tr>
 <tr><td><kbd>--</kbd> Post-decrease</td></tr>
-<tr><td><kbd>(<i>args</i>)</kbd> Function Call (?)</td></tr>
 
 <tr>
     <td rowspan="7">13</td>
     <td><kbd>++</kbd> Pre-increase</td>
     <td rowspan="6">Unary-Prefix</td>
+    <td rowspan="6"><-</td>
 </tr>
 <tr><td><kbd>--</kbd> Pre-decrease</td></tr>
 <tr><td><kbd>+</kbd> Positive</td></tr>

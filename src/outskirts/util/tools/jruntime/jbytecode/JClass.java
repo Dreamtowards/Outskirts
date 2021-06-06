@@ -1,4 +1,4 @@
-package outskirts.util.jruntime.jbytecode;
+package outskirts.util.tools.jruntime.jbytecode;
 
 import outskirts.util.CollectionUtils;
 import outskirts.util.ReflectionUtils;

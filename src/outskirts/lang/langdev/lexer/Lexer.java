@@ -30,12 +30,16 @@ public final class Lexer {
                 Validate.isTrue(end != -1, "Unterminated Multiline Comment.");
                 idx.i= end +2;  // +2: jump over the "*/".
                 continue;
-            } else if (isIntegerChar(ch) || (ch=='.' && isIntegerChar(atchar(s,i+1)))) {  // Number Literal.
+            } else if (isNumberChar(ch) || (ch=='.' && isNumberChar(atchar(s,i+1)))) {  // Number Literal.
                 text = readNumber(s, idx);
                 type = Token.TYPE_NUMBER;
             } else if (ch == '"') {  // String Literal.
                 text = readQuote(s, idx, '"');
                 type = Token.TYPE_STRING;
+            } else if (ch == '\'') {
+                text = readQuote(s, idx, '\'');
+                type = Token.TYPE_CHARACTER;
+                Validate.isTrue(text.length() == 1);
             } else if (isNameChar(ch, true)) {  // Name.
                 text = readName(s, idx);
                 type = Token.TYPE_NAME;
@@ -52,15 +56,13 @@ public final class Lexer {
 
     public Token peek() {
         if (eof())
-            return Token.EOF;
-            // throw new IllegalStateException("EOF");
+             throw new IllegalStateException("EOF");
         return tokens.get(index);
     }
 
     public Token next() {
         if (eof())
-            return Token.EOF;
-            // throw new IllegalStateException("EOF");
+             throw new IllegalStateException("EOF");
         return tokens.get(index++);
     }
 
@@ -92,10 +94,19 @@ public final class Lexer {
     }
     private static boolean isNameChar(char ch, boolean first) {
         return (ch=='_' || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z'))
-                || (!first && isIntegerChar(ch));
+                || (!first && isNumberChar(ch));
     }
-    private static boolean isIntegerChar(char ch) {
-        return ch >= '0' && ch <= '9';
+    private static boolean isNumberChar(char ch, int numtype) {
+        switch (numtype) {
+            case NUM_BINARY: return ch == '0' || ch == '1';
+            case NUM_OCTAL: return ch >= '0' && ch <= '7';
+            case NUM_DECIMAL: return ch >= '0' && ch <= '9';
+            case NUM_HEX: return (ch>='0' && ch<='9') || (ch>='a' && ch<='f') || (ch>='A' && ch<='F');
+            default: throw new IllegalArgumentException("Bad enum");
+        }
+    }
+    private static boolean isNumberChar(char ch) {
+        return isNumberChar(ch, NUM_DECIMAL);
     }
 
 
@@ -129,25 +140,69 @@ public final class Lexer {
         throw new IllegalStateException("Unterminated string.");
     }
 
+    public static final int NUM_BINARY  = 1;
+    public static final int NUM_OCTAL   = 2;
+    public static final int NUM_DECIMAL = 3;
+    public static final int NUM_HEX     = 4;
     private static String readNumber(String s, Intptr idx) {
         StringBuilder sb = new StringBuilder();
-        boolean p = false;  // pointed.
         int i = idx.i;
+
+        boolean dot = false;  // pointed.
+        int numtype = NUM_DECIMAL;
+        if (s.charAt(i) == '0') {
+            char nx = atchar(s, i+1);
+            if (nx != '.') {
+                i++; sb.append('0');
+                if (nx=='x' || nx=='X') {  // Hex
+                    numtype = NUM_HEX;
+                    i++; sb.append(nx);
+                } else if (nx == 'b' || nx == 'B') {
+                    numtype = NUM_BINARY;
+                    i++; sb.append(nx);
+                } else if (isNumberChar(nx, NUM_OCTAL)) {
+                    numtype = NUM_OCTAL;
+                } else {
+                    throw new IllegalStateException("Illegal 0* number format.");
+                }
+                Validate.isTrue(isNumberChar(atchar(s,i), numtype), "Bad number heading.");
+            }
+        }
         while (i < s.length()) {
             char c = s.charAt(i);
-            if (isIntegerChar(c)) {
+            if (isNumberChar(c, numtype)) {
                 i++;
                 sb.append(c);
-            } else if (!p && c == '.') {
+            } else if (c == '.') {
+                Validate.isTrue(!dot, "Decimal point already set.");
+                Validate.isTrue(numtype == NUM_DECIMAL, "Hex number dosen't allowed decimal places.");
                 i++;
-                p = true;
+                dot = true;
                 sb.append(c);
-            } else if (i != 0 && c == '_') {
-                i++;
+            } else if (c == '_') {
+                Validate.isTrue(isNumberChar(atchar(s,i-1), numtype) &&
+                                     isNumberChar(atchar(s,i+1), numtype), "Neighber of _ must been nums.");
+                i++;  // jus jumpover.
             } else {
-                if (c == 'f' || c == 'd') {
-                    i++;
-                    sb.append(c);
+                if (numtype != NUM_BINARY) {
+                    if (c == 'e' || c == 'E') {  // fp exponent.
+                        i++;
+                        sb.append(c);
+                        if (atchar(s, i) == '-') {
+                            i++;
+                            sb.append('-');
+                        }
+                        while (isNumberChar(c = s.charAt(i))) {
+                            i++;
+                            sb.append(c);
+                        }
+                    }
+                    if (c == 'f' || c == 'F' ||
+                            c == 'd' || c == 'D' ||
+                            c == 'l' || c == 'L') {
+                        i++;
+                        sb.append(c);
+                    }
                 }
                 break;
             }
@@ -171,14 +226,27 @@ public final class Lexer {
         return sb.toString();
     }
 
+    public static final String[] BORDERS = {  // a.k.a. keywords.
+            "++", "--",
+            "&&", "||",
+            "<<", ">>", ">>>",
+            "<=", ">=",
+            "==", "!=",
+    };
+
     private static String readBorder(String s, Intptr idx) {
         int i = idx.i;
+        for (String bord : BORDERS) {
+            if (startsWith(bord,s,i)) {
+                int n = bord.length();
+                idx.i += n;
+                return s.substring(i, i+n);
+            }
+        }
         if (startsWith("||",s,i) || startsWith("&&",s,i) ||
             startsWith("<<",s,i) || startsWith(">>",s,i) ||
             startsWith("==",s,i) || startsWith("!=",s,i) ||
             startsWith("<=",s,i) || startsWith(">=",s,i)) {
-            idx.i += 2;
-            return s.substring(i, i+2);
         }
         if (isBorderChar(s.charAt(i))) {
             idx.i += 1;

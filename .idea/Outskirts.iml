@@ -9,6 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.idea/_schedu" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/_scheduitr" />
       <excludeFolder url="file://$MODULE_DIR$/src/ext/test" />
+      <excludeFolder url="file://$MODULE_DIR$/src/outskirts/lang/g1" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

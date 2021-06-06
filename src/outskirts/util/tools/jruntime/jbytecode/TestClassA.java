@@ -1,4 +1,4 @@
-package outskirts.util.jruntime.jbytecode;
+package outskirts.util.tools.jruntime.jbytecode;
 
 public class TestClassA implements Runnable {
 

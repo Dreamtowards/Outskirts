@@ -1,9 +1,6 @@
 package outskirts.lang.langdev.parser;
 
-import outskirts.lang.langdev.ast.AST;
-import outskirts.lang.langdev.ast.AST_Token;
-import outskirts.lang.langdev.ast.AST_Token_LiteralNumber;
-import outskirts.lang.langdev.ast.AST_Token_VariableName;
+import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.util.CollectionUtils;
@@ -64,8 +61,10 @@ public final class Parserls extends Parser {
 
     @Override
     public boolean match(Lexer lex) {
-        if (parsers.isEmpty())  // empty parsers is allowed and should been pass. e.g.  // Why???
-            return false;
+        // empty parsers should been pass.
+        // e.g. ornull.  pass().and(sth).or(suffix1, suffix2, pass() /*empty, no suffix*/).
+        if (parsers.isEmpty())
+            return true;
         if (!useLookaheadUntil)
             return parsers.get(0).match(lex);
 
@@ -89,11 +88,14 @@ public final class Parserls extends Parser {
 
     // passthrough
     public static Parserls pass() {
-        return struct(null);
+        Parserls p = struct(null);
+        p.dbg_name = new Throwable().getStackTrace()[1].toString();
+        return p;
     }
     public static Parserls struct(Function<List<AST>, AST> createfunc) {
         Parserls l = new Parserls();
         l.createfunc = createfunc;
+        l.dbg_name = new Throwable().getStackTrace()[1].toString();
         return l;
     }
 
@@ -138,12 +140,15 @@ public final class Parserls extends Parser {
             return null;
         }, true);
     }
-    public Parserls id(String id) {
+    public Parserls id(String id, boolean create) {
         return token(t -> {
             if (!t.isIdentifier() || !t.text().equals(id))
                 return "Expected identifier: \""+id+"\", actual: "+t.detailString() + ".";
             return null;
-        }, false);
+        }, create);
+    }
+    public Parserls id(String id) {
+        return id(id, false);
     }
     public Parserls iden(String... ids) {
         return token(t -> {
@@ -164,8 +169,22 @@ public final class Parserls extends Parser {
         return and(new ParserRepeat(p, true));
     }
 
+    public Parserls opnull(Parser p) {
+        return or(p, struct(ASTvoid::new));
+    }
+
     public Parserls composer(Consumer<ParserComposer.ProxyStack> composer) {
         return and(new ParserComposer(composer));
+    }
+    // Compose Stack Top's.
+    public Parserls composesp(int n, Function<List<AST>, AST> createfunc) {
+        return composer(stk -> {
+            List<AST> ls = new ArrayList<>(n);
+            for (int i = 0;i < n;i++) {
+                ls.add(0, stk.pop());
+            }
+            stk.push(createfunc.apply(ls));
+        });
     }
 
     @Override

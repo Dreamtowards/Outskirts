@@ -17,6 +17,6 @@ public final class ASTls extends AST {
 
     @Override
     public String toString() {
-        return "astlist"+ Arrays.toString(list);
+        return "astls"+ Arrays.toString(list);
     }
 }
