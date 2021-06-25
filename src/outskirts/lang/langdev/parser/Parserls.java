@@ -176,10 +176,10 @@ public final class Parserls extends Parser {
         return and(factor).op(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
     }
 
-    public Parserls opnull(Parser p) {
+    public final Parserls opnull(Parser p) {
         return or(p, struct(ASTvoid::new));
     }
-    public Parserls opempty(Parser p) {
+    public final Parserls opempty(Parser p) {
         return or(p, struct(ASTls::new));
     }
 

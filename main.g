@@ -18,6 +18,14 @@
         return a + b;
     }
 
+    function print_warn = (s) =>
+        prt("Print From Lambda: "+s);
+
+    function print_warn_ret = (s) {
+        prt("Print From Lambda RET: "+s);
+        return s;
+    };
+
     int j = i * 2;
 
     prt(j+i);
@@ -29,6 +37,9 @@
     prt(0 ? 2 ? 5 : 6 : 0 ? 8 : 9);
 
     prt("text");
+
+    print_warn(123);
+    prt(print_warn_ret(123));
 
     }
 

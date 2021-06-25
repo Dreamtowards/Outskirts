@@ -245,6 +245,7 @@ public final class Lexer {
             "<<", ">>", ">>>",
             "<=", ">=",
             "==", "!=",
+            "=>"
     };
 
     private static String readBorder(String s, Intptr idx) {

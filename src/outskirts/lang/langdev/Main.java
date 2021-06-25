@@ -30,6 +30,9 @@ public class Main {
         var typename = struct(AST_Token_VariableName::new).name().initname("TypeName");
         var varname = struct(AST_Token_VariableName::new).name().initname("VariableName");
 
+        var stmt = pass().initname("StatmentElection");
+        var stmt_block = struct(AST_Stmt_Block::new);
+
         var exprbase = pass().initname("expression");
         {
             var primary = pass().or(
@@ -38,7 +41,7 @@ public class Main {
                     varname
             ).initname("Primary");
 
-            var func_args = struct(ASTls::new).op(pass().and(exprbase).repeat(pass().id(",").and(exprbase))).initname("FuncArgs");
+            var func_args = struct(ASTls::new).repeatjoin(exprbase, ",").initname("FuncArgs");
 
             var expr0 = pass().or(
                     pass().id("(").and(exprbase).id(")").initname("ExprParentheses"),
@@ -79,20 +82,32 @@ public class Main {
             var expr15 = pass();
                 expr15.and(expr14).op(pass().iden("=").and(expr15).composesp(3, AST_Expr_OperBi::new)).initname("expr15_assignment");  // RL
 
-            exprbase.and(expr15);  // init.
+            var lambda_params = struct(ASTls::new).repeatjoin(varname, ",").initname("LambdaParams");
+            var expr_lambda = struct(AST_Expr_Lambda::new)
+                    .id("(").and(lambda_params).id(")")
+                    .or(pass().id("=>").and(exprbase), stmt_block).markLookahead().initname("ExprLambda");
+
+            var expr16 = pass().or(
+                    expr_lambda,
+                    expr15).initname("expr16_lambda");  // may should greater than typecast..
+
+            // define.
+            exprbase.and(expr16);
         }
 
-        var stmt = pass().initname("StatmentElection");
-        var stmt_block = struct(AST_Stmt_Block::new).id("{").repeat(stmt).id("}").initname("StmtBlock");
 
         var func_param = struct(ASTls::new).and(typename).and(varname);
         var func_params = struct(ASTls::new).repeatjoin(func_param, ",");
         var stmt_funcdef = struct(AST_Stmt_DefFunc::new).and(typename).and(varname)
                 .id("(").markLookahead().and(func_params).id(")").and(stmt_block).initname("StmtFuncDef");
 
-        var stmt_vardef = struct(AST_Stmt_DefVar::new).and(typename).and(varname)
-                .opnull(pass().id("=").and(exprbase)).id(";").markLookahead().initname("StmtVarDef");
+        var stmt_vardef = struct(AST_Stmt_DefVar::new).and(typename).and(varname).markLookahead()
+                .opnull(pass().id("=").and(exprbase)).id(";").initname("StmtVarDef");
 
+        // define.
+        stmt_block.id("{").repeat(stmt).id("}").initname("StmtBlock");
+
+        // define.
         stmt.or(
                 stmt_block,
                 struct(AST_Stmt_If::new).id("if").id("(").and(exprbase).id(")").and(stmt).opnull(pass().id("else").and(stmt)).initname("StmtIf"),
