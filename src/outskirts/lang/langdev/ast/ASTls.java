@@ -15,6 +15,13 @@ public final class ASTls extends AST {
         return list;
     }
 
+    public int size() {
+        return list.length;
+    }
+    public AST get(int i) {
+        return list[i];
+    }
+
     @Override
     public String toString() {
         return "astls"+ Arrays.toString(list);

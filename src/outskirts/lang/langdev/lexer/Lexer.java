@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.lexer;
 
+import outskirts.lang.langdev.parser.ParsingException;
 import outskirts.util.*;
 
 import java.util.ArrayList;
@@ -11,46 +12,53 @@ public final class Lexer {
     private final List<Token> tokens = new ArrayList<>();
 
     public void read(final String s) {
+
         Intptr idx = Intptr.zero();
-        while (skipBlanks(s, idx) != -1) {
-            final int i = idx.i;  // tmp local.
-            final char ch = s.charAt(idx.i);
+        Intptr nline = Intptr.zero(), nchar = Intptr.zero();
 
-            String text; int type;
+        try {
+            while (skipBlanks(s, idx) != -1) {
+                final int i = idx.i;  // tmp local.
+                final char ch = s.charAt(idx.i);
 
-            Intptr nline = Intptr.zero(), nchar = Intptr.zero();
-            StringUtils.locate(s, i, nline, nchar);
+                String text;
+                int type;
 
-            if (startsWith("//", s,i)) {   // Singleline Comment.
-                int end = s.indexOf("\n", i);
-                idx.i = end==-1 ? s.length() : end+1;  // +1: jump over the '\n'.
-                continue;
-            } else if (startsWith("/*", s,i)) {  // Multiline Comment.
-                int end = s.indexOf("*/", i);
-                Validate.isTrue(end != -1, "Unterminated Multiline Comment.");
-                idx.i= end +2;  // +2: jump over the "*/".
-                continue;
-            } else if (isNumberChar(ch) || (ch=='.' && isNumberChar(atchar(s,i+1)))) {  // Number Literal.
-                text = readNumber(s, idx);
-                type = Token.TYPE_NUMBER;
-            } else if (ch == '"') {  // String Literal.
-                text = readQuote(s, idx, '"');
-                type = Token.TYPE_STRING;
-            } else if (ch == '\'') {
-                text = readQuote(s, idx, '\'');
-                type = Token.TYPE_CHARACTER;
-                Validate.isTrue(text.length() == 1);
-            } else if (isNameChar(ch, true)) {  // Name.
-                text = readName(s, idx);
-                type = Token.TYPE_NAME;
-            } else if (isBorderChar(ch)) {  // Border.
-                text = readBorder(s, idx);
-                type = Token.TYPE_BORDER;
-            } else {
-                throw new IllegalStateException(String.format("Unexpected token: %s in [%s:%s]", ch, nline.i, nchar.i));
+                StringUtils.locate(s, i, nline, nchar);
+
+                if (startsWith("//", s, i)) {   // Singleline Comment.
+                    int end = s.indexOf("\n", i);
+                    idx.i = end == -1 ? s.length() : end + 1;  // +1: jump over the '\n'.
+                    continue;
+                } else if (startsWith("/*", s, i)) {  // Multiline Comment.
+                    int end = s.indexOf("*/", i);
+                    Validate.isTrue(end != -1, "Unterminated Multiline Comment.");
+                    idx.i = end + 2;  // +2: jump over the "*/".
+                    continue;
+                } else if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(s, i + 1)))) {  // Number Literal.
+                    text = readNumber(s, idx);
+                    type = Token.TYPE_NUMBER;
+                } else if (ch == '"') {  // String Literal.
+                    text = readQuote(s, idx, '"');
+                    type = Token.TYPE_STRING;
+                } else if (ch == '\'') {
+                    text = readQuote(s, idx, '\'');
+                    type = Token.TYPE_CHARACTER;
+                    Validate.isTrue(text.length() == 1);
+                } else if (isNameChar(ch, true)) {  // Name.
+                    text = readName(s, idx);
+                    type = Token.TYPE_NAME;
+                } else if (isBorderChar(ch)) {  // Border.
+                    text = readBorder(s, idx);
+                    type = Token.TYPE_BORDER;
+                } else {
+                    throw new IllegalStateException(String.format("Unexpected token: '%s' in [%s:%s]", ch, nline.i, nchar.i));
+                }
+
+                tokens.add(new Token(text, type, nline.i, nchar.i));
             }
-
-            tokens.add(new Token(text, type, nline.i, nchar.i));
+        } catch (Exception ex) {
+            throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i, nchar.i), ex);
         }
     }
 
@@ -150,22 +158,27 @@ public final class Lexer {
 
         boolean dot = false;  // pointed.
         int numtype = NUM_DECIMAL;
-        if (s.charAt(i) == '0') {
+        if (s.charAt(i) == '0') {  // Literal Num-Type Preditect
             char nx = atchar(s, i+1);
-            if (nx != '.') {
-                i++; sb.append('0');
-                if (nx=='x' || nx=='X') {  // Hex
-                    numtype = NUM_HEX;
-                    i++; sb.append(nx);
-                } else if (nx == 'b' || nx == 'B') {
-                    numtype = NUM_BINARY;
-                    i++; sb.append(nx);
-                } else if (isNumberChar(nx, NUM_OCTAL)) {
-                    numtype = NUM_OCTAL;
-                } else {
-                    throw new IllegalStateException("Illegal 0* number format.");
-                }
-                Validate.isTrue(isNumberChar(atchar(s,i), numtype), "Bad number heading.");
+
+            if (nx=='x' || nx=='X') {  // Hex
+                numtype = NUM_HEX;
+                i += 2;
+                sb.append('0');
+                sb.append(nx);
+            } else if (nx == 'b' || nx == 'B') {  // Binary
+                numtype = NUM_BINARY;
+                i += 2;
+                sb.append('0');
+                sb.append(nx);
+            } else if (isNumberChar(nx, NUM_OCTAL)) {
+                numtype = NUM_OCTAL;
+                i++;
+                sb.append('0');
+            }
+
+            if (numtype != NUM_DECIMAL) {
+                Validate.isTrue(isNumberChar(atchar(s, i), numtype), "Bad number heading.");
             }
         }
         while (i < s.length()) {

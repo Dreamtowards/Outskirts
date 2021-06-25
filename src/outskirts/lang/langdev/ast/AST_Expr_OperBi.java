@@ -37,27 +37,27 @@ public class AST_Expr_OperBi extends AST {
 
     @Override
     public GObject eval(Scope scope) {
+        GObject l = left.eval(scope);
+        GObject r = right.eval(scope);
         switch (operator) {
             case "+":
-            case "-":
-            case "*":
-            case "/": {
-                GObject l = left.eval(scope);
-                GObject r = right.eval(scope);
-                switch (operator) {
-                    case "+": return new GObject((float)l.value + (float)r.value);
-                    case "-": return new GObject((float)l.value - (float)r.value);
-                    case "*": return new GObject((float)l.value * (float)r.value);
-                    case "/": return new GObject((float)l.value / (float)r.value);
-                }
-            }
+                return l.value instanceof String ?
+                        new GObject((String)l.value + r.value) :
+                        new GObject((float)l.value + (float)r.value);
+            case "-": return new GObject((float)l.value - (float)r.value);
+            case "*": return new GObject((float)l.value * (float)r.value);
+            case "/": return new GObject((float)l.value / (float)r.value);
             case "=": {
-                GObject l = left.eval(scope);
-                l.value = right.eval(scope).value;  // TODO: Type Not Sync.
+                l.value = r.value;  // TODO: Type Not Sync.
                 return l;
             }
+            case "<": return  new GObject((float)l.value <  (float)r.value ? 1f : 0f);
+            case "<=": return new GObject((float)l.value <= (float)r.value ? 1f : 0f);
+            case ">": return  new GObject((float)l.value >  (float)r.value ? 1f : 0f);
+            case ">=": return new GObject((float)l.value >= (float)r.value ? 1f : 0f);
+            case "==": return new GObject((float)l.value == (float)r.value ? 1f : 0f);
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException("Unsupported Operator '"+operator+"'.");
         }
     }
 

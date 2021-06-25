@@ -7,6 +7,8 @@ import java.util.Map;
 
 public final class Scope {
 
+
+
     private final Map<String, GObject> variables = new HashMap<>();
     private final Scope parent;
 
@@ -15,7 +17,7 @@ public final class Scope {
     }
 
     public void declare(String name, GObject v) {
-        Validate.isTrue(!variables.containsKey(name), "The variable \""+name+"\" already been declarated.");
+        Validate.isTrue(!variables.containsKey(name), "The variable \""+name+"\" was already been declarated.");
         variables.put(name, v);
     }
 

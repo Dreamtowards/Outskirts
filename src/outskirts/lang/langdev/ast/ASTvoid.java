@@ -16,4 +16,9 @@ public class ASTvoid extends AST {
     public GObject eval(Scope scope) {
         return GObject.VOID;
     }
+
+    @Override
+    public String toString() {
+        return "ast_void";
+    }
 }

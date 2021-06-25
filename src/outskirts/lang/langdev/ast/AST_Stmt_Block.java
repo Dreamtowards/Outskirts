@@ -22,4 +22,9 @@ public class AST_Stmt_Block extends AST {
         }
         return GObject.VOID;
     }
+
+    @Override
+    public String toString() {
+        return "ast_stmt_block{"+stmts+'}';
+    }
 }

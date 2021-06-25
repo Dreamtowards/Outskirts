@@ -2,7 +2,7 @@
 
 # io
 
-    InputStream {
+    class InputStream {
     
         int read();
 

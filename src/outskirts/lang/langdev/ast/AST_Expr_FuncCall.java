@@ -27,25 +27,19 @@ public class AST_Expr_FuncCall extends AST {
 
     @Override
     public GObject eval(Scope scope) {
-        GObject func = expr.eval(scope);
+        GObject funcptr = expr.eval(scope);
 
         GObject[] argv = new GObject[args.length];
         for (int i = 0;i < args.length;i++) {
             argv[i] = args[i].eval(scope);
         }
 
-        return ((FuncInterf)func.value).call(argv);
+        return ((FuncPtr)funcptr.value).invoke(argv);
     }
 
     @Override
     public String toString() {
         return "fcall{"+expr+"("+Arrays.toString(args)+")}";
-    }
-
-    public interface FuncInterf {
-
-        GObject call(GObject[] args);
-
     }
 
 }

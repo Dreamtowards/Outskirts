@@ -169,8 +169,18 @@ public final class Parserls extends Parser {
         return and(new ParserRepeat(p, true));
     }
 
+    public final Parserls repeatjoin(Parser p, String delimiter) {
+        return op(pass().and(p).repeat(pass().id(delimiter).and(p)));
+    }
+    public final Parserls oper_bi_lr(Parser factor, String... opers) {
+        return and(factor).op(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
+    }
+
     public Parserls opnull(Parser p) {
         return or(p, struct(ASTvoid::new));
+    }
+    public Parserls opempty(Parser p) {
+        return or(p, struct(ASTls::new));
     }
 
     public Parserls composer(Consumer<ParserComposer.ProxyStack> composer) {
