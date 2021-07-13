@@ -169,9 +169,19 @@ public final class Parserls extends Parser {
         return and(new ParserRepeat(p, true));
     }
 
-    public final Parserls repeatjoin(Parser p, String delimiter) {
-        return op(pass().and(p).repeat(pass().id(delimiter).and(p)));
+    public final Parserls repeatjoin(Parser p, String delimiter, boolean onemore) {
+        var r = pass().and(p).repeat(pass().id(delimiter).and(p));
+        if (onemore) {
+            and(r);
+        } else {
+            op(r);
+        }
+        return this;
     }
+    public final Parserls repeatjoin(Parser p, String delimiter) {
+        return repeatjoin(p, delimiter, false);
+    }
+
     public final Parserls oper_bi_lr(Parser factor, String... opers) {
         return and(factor).repeat(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
     }
@@ -179,9 +189,9 @@ public final class Parserls extends Parser {
     public final Parserls opnull(Parser p) {  // how about op-RealNull, its more fast.
         return or(p, ParserPutNull.INST);
     }
-    public final Parserls opempty(Parser p) {
-        return or(p, struct(ASTls::new));
-    }
+//    public final Parserls opempty(Parser p) {
+//        return or(p, struct(ASTls::new));
+//    }
 
     public Parserls composer(Consumer<ParserComposer.ProxyStack> composer) {
         return and(new ParserComposer(composer));

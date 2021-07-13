@@ -31,7 +31,7 @@ public class Evaluator {
             // execution
             if (funcBody instanceof AST_Stmt_Block) {
                 try {
-                    evalStmtBlock((AST_Stmt_Block)funcBody, funcscope, false);
+                    evalStmtBlock((AST_Stmt_Block)funcBody, funcscope);
                     return GObject.VOID;
                 } catch (FuncReturnEx rv) {
                     return rv.retval;
@@ -155,7 +155,9 @@ public class Evaluator {
         AST_Stmt_DefClass c = (AST_Stmt_DefClass)scope.access(a.typename).value;
 
         Scope clsScope = new Scope(scope);
-        evalStmtBlock(c.members, clsScope, false);
+        for (AST_Stmt s : c.members) {
+            evalStmt(s, clsScope);
+        }
         return new GObject(clsScope);  // DANGER! uh... return a scope...
     }
 
@@ -190,8 +192,8 @@ public class Evaluator {
      * ============= AST_STMT =============
      */
 
-    public void evalStmtBlock(AST_Stmt_Block a, Scope scope, boolean newScope) {
-        Scope blscope = newScope ? new Scope(scope) : scope;
+    public void evalStmtBlock(AST_Stmt_Block a, Scope scope) {
+        Scope blscope = new Scope(scope);
 
         for (AST_Stmt s : a.stmts) {
             evalStmt(s, blscope);
@@ -247,7 +249,7 @@ public class Evaluator {
 
     public void evalStmt(AST_Stmt a, Scope scope) {
         if (a instanceof AST_Stmt_Block) {
-            evalStmtBlock((AST_Stmt_Block)a, scope, true);
+            evalStmtBlock((AST_Stmt_Block)a, scope);
         } else if (a instanceof AST_Stmt_DefFunc) {
             evalStmtDefFunc((AST_Stmt_DefFunc)a, scope);
         } else if (a instanceof AST_Stmt_DefVar) {

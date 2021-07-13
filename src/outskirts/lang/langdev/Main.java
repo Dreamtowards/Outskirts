@@ -6,17 +6,39 @@ import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
 import outskirts.lang.langdev.interpreter.Evaluator;
 import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.Scope;
+import outskirts.lang.langdev.interpreter.astprint.ASTPrinter;
 import outskirts.lang.langdev.lexer.Lexer;
+import outskirts.lang.langdev.parser.Parserls;
 import outskirts.util.IOUtils;
 
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Consumer;
 
 import static outskirts.lang.langdev.parser.Parserls.pass;
 import static outskirts.lang.langdev.parser.Parserls.struct;
 
 public class Main {
+
+    // defined.
+    static final Parserls typename     = struct(AST_Expr_PrimaryVariableName::new).name().initname("typename");
+    static final Parserls varname      = struct(AST_Expr_PrimaryVariableName::new).name().initname("varname");
+
+    // headers.
+    static final Parserls exprbase     = pass()                       .initname("expression");
+
+    static final Parserls stmt         = pass()                       .initname("StatementElect");
+    static final Parserls stmt_block   = struct(AST_Stmt_Block::new)  .initname("StmtBlock");
+    static final Parserls stmt_funcdef = struct(AST_Stmt_DefFunc::new).initname("StmtFuncDef");
+    static final Parserls stmt_vardef  = struct(AST_Stmt_DefVar::new) .initname("StmtVarDef");
+    static final Parserls stmt_if      = struct(AST_Stmt_Strm_If::new).initname("StmtIf");
+    static final Parserls stmt_while   = struct(AST_Stmt_Strm_While::new).initname("StmtWhile");
+    static final Parserls stmt_class   = struct(AST_Stmt_DefClass::new)  .initname("ClassDeclare");
+    static final Parserls stmt_return  = struct(AST_Stmt_FuncReturn::new).initname("StmtReturn");
+    static final Parserls stmt_expr    = struct(AST_Stmt_Expr::new)      .initname("StmtExpr");
+
 
 
 
@@ -28,31 +50,24 @@ public class Main {
         Lexer lex = new Lexer();
         lex.read(s);
 
-        var typename = struct(AST_Expr_PrimaryVariableName::new).name().initname("TypeName");
-        var varname = struct(AST_Expr_PrimaryVariableName::new).name().initname("VariableName");
 
-        var stmt = pass().initname("StatmentElection");
-        var stmt_block = struct(AST_Stmt_Block::new);
+        {   // EXPRESSION.
 
-        var exprbase = pass().initname("expression");
-        {
+            var func_args = struct(ASTls::new).repeatjoin(exprbase, ",").initname("func_args");
+
             var primary = pass().or(
                     struct(AST_Expr_PrimaryLiteralNumber::new).number().initname("NumberLiteral"),
                     struct(AST_Expr_PrimaryLiteralString::new).string().initname("StringLiteral"),
                     varname
             ).initname("Primary");
 
-            var func_args = struct(ASTls::new).repeatjoin(exprbase, ",").initname("FuncArgs");
-
             var expr0 = pass().or(
-                    pass().id("(").and(exprbase).id(")").initname("ExprParentheses"),
-                    primary
-            ).initname("expr0_1");
+                    pass().id("(").and(exprbase).id(")").initname("expr_parentheses"),
+                    primary);
 
             var expr0_1 = pass().or(
-                    struct(AST_Expr_OperNew::new).id("new").and(typename).id("(").and(func_args).id(")").initname("OperNew"),
-                    expr0
-            );
+                    struct(AST_Expr_OperNew::new).id("new").and(typename).id("(").and(func_args).id(")").initname("expr_oper_new"),
+                    expr0);
 
             var expr1 = pass().and(expr0_1).repeat(pass().or(
                     pass().iden(".").and(varname).composesp(3, AST_Expr_OperBi::new).initname("MemberAccess"),
@@ -60,13 +75,13 @@ public class Main {
             )).initname("expr1");
 
             var expr2 = pass().and(expr1).repeat(
-                    pass().iden("++", "--").composesp(2, AST_Expr_OperUnaryPost::new).initname("UnaryOperPost")
-            ).initname("expr2_unarypost");
+                    pass().iden("++", "--").composesp(2, AST_Expr_OperUnaryPost::new)
+            ).initname("expr2_oper_upost");
 
             var expr3 = pass();
                 expr3.or(
-                    struct(AST_Expr_OperUnaryPre::new).iden("++","--", "+","-", "!", "~").and(expr3).initname("UnaryOperPre"),
-                    expr2).initname("expr3_unarypre");
+                    struct(AST_Expr_OperUnaryPre::new).iden("++","--", "+","-", "!", "~").and(expr3).initname("expr3_oper_upre"),
+                    expr2);
 
             var expr4 = pass().oper_bi_lr(expr3, "*", "/").initname("expr4_mul");
             var expr5 = pass().oper_bi_lr(expr4, "+", "-").initname("expr5_add");
@@ -82,20 +97,18 @@ public class Main {
             var expr12 = pass().oper_bi_lr(expr11, "&&").initname("expr12_logical_and");
             var expr13 = pass().oper_bi_lr(expr12, "||").initname("expr13_logical_and");
 
-            var expr14 = pass();
-                expr14.and(expr13).op(pass().id("?").and(expr14).id(":").and(expr14).composesp(3, AST_Expr_OperTriCon::new)).initname("expr14_tricon");  // Ternary condition. RL.
-
-            var expr15 = pass();
-                expr15.and(expr14).op(pass().iden("=").and(expr15).composesp(3, AST_Expr_OperBi::new)).initname("expr15_assignment");  // RL
-
-            var lambda_params = struct(ASTls::new).repeatjoin(varname, ",").initname("LambdaParams");
+            var lambda_params = struct(ASTls::new).repeatjoin(varname, ",").initname("lambda_params");
             var expr_lambda = struct(AST_Expr_Lambda::new)
                     .id("(").and(lambda_params).id(")")
-                    .or(pass().id("=>").and(exprbase), stmt_block).markLookahead().initname("ExprLambda");
+                    .or(pass().id("=>").and(exprbase), stmt_block).markLookahead().initname("expr_lambda");
 
-            var expr16 = pass().or(
-                    expr_lambda,
-                    expr15).initname("expr16_lambda");  // may should greater than typecast..
+            var expr14 = pass().or(expr_lambda, expr13);
+
+            var expr15 = pass();
+                expr15.and(expr14).op(pass().id("?").and(expr15).id(":").and(expr15).composesp(3, AST_Expr_OperTriCon::new)).initname("expr14_tricon");  // Ternary condition. RL.
+
+            var expr16 = pass();
+                expr16.and(expr15).op(pass().iden("=").and(expr16).composesp(3, AST_Expr_OperBi::new)).initname("expr15_assignment");  // RL
 
             // define.
             exprbase.and(expr16);
@@ -104,26 +117,37 @@ public class Main {
 
         var func_param = struct(ASTls::new).and(typename).and(varname);
         var func_params = struct(ASTls::new).repeatjoin(func_param, ",");
-        var stmt_funcdef = struct(AST_Stmt_DefFunc::new).and(typename).and(varname)
-                .id("(").markLookahead().and(func_params).id(")").and(stmt_block).initname("StmtFuncDef");
+        stmt_funcdef.and(typename).and(varname)
+                .id("(").markLookahead().and(func_params).id(")").and(stmt_block);
 
-        var stmt_vardef = struct(AST_Stmt_DefVar::new).and(typename).and(varname).markLookahead()
-                .opnull(pass().id("=").and(exprbase)).id(";").initname("StmtVarDef");
+        stmt_vardef.and(typename).and(varname).markLookahead()
+                .opnull(pass().id("=").and(exprbase)).id(";");
 
-        // define.
         stmt_block.id("{").repeat(stmt).id("}").initname("StmtBlock");
+
+        stmt_if.id("if").id("(").and(exprbase).id(")").and(stmt).opnull(pass().id("else").and(stmt));
+
+        stmt_while.id("while").id("(").and(exprbase).id(")").and(stmt);
+
+        stmt_class.id("class")
+                .name()
+                .opnull(struct(ASTls::new).id(":").repeatjoin(typename, ",", true))
+                .id("{")
+                    .and(struct(ASTls::new).repeat(pass().or(stmt_block, stmt_class, stmt_funcdef, stmt_vardef)))
+                .id("}");
+
+        stmt_return.id("return").opnull(exprbase).id(";");
+
+        stmt_expr.and(exprbase).id(";").markLookahead();
 
         // define.
         stmt.or(
                 stmt_block,
-                struct(AST_Stmt_Strm_If::new).id("if").id("(").and(exprbase).id(")").and(stmt).opnull(pass().id("else").and(stmt)).initname("StmtIf"),
-                struct(AST_Stmt_Strm_While::new).id("while").id("(").and(exprbase).id(")").and(stmt).initname("StmtWhile"),
-                struct(AST_Stmt_DefClass::new).id("class").name().opempty(struct(ASTls::new).id(":").name().repeat(pass().id(",").name()))
-//                        .and(struct(ASTls::new).repeat(stmt_vardef))
-                        .and(stmt_block)
-                        .initname("ClassDeclare"),
-                struct(AST_Stmt_FuncReturn::new).id("return").opnull(exprbase).id(";").initname("StmtReturn"),
-                struct(AST_Stmt_Expr::new).and(exprbase).id(";").markLookahead().initname("StmtExpr"),
+                stmt_if,
+                stmt_while,
+                stmt_class,
+                stmt_return,
+                stmt_expr,
                 stmt_funcdef,
                 stmt_vardef
         );
@@ -145,10 +169,14 @@ public class Main {
         }));
 
 
-        AST ast = stmt.readone(lex);
+        AST ast = exprbase.readone(lex);
 //        System.out.println(ast);
 
-        new Evaluator().evalStmt((AST_Stmt)ast, sc);
+        ASTPrinter prtr = new ASTPrinter();
+        prtr.printExpr((AST_Expr)ast, 0);
+        System.out.println(prtr.buf.toString());
+
+//        new Evaluator().evalStmt((AST_Stmt)ast, sc);
 
 //        .eval(sc);
 
