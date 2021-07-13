@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.ast;
+package outskirts.lang.langdev.ast.ex;
 
 import outskirts.lang.langdev.interpreter.GObject;
 

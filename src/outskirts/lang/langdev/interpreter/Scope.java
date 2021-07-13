@@ -9,7 +9,7 @@ public final class Scope {
 
 
 
-    private final Map<String, GObject> variables = new HashMap<>();
+    public final Map<String, GObject> variables = new HashMap<>();
     private final Scope parent;
 
     public Scope(Scope parent) {
@@ -29,13 +29,13 @@ public final class Scope {
     }
 
     private Scope locateScope(String name) {
-        Scope scope = this;
-        while (scope.variables.get(name) == null) {
-            scope = scope.parent;
-            if (scope == null)
-                throw new IllegalStateException("Could not locate variable \""+name+"\".");
+        if (variables.containsKey(name)) {
+            return this;
+        } else if (parent != null) {
+            return parent.locateScope(name);
+        } else {
+            throw new IllegalStateException("Could not locate variable \""+name+"\".");
         }
-        return scope;
     }
 
 }

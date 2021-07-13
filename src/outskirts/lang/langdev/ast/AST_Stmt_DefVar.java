@@ -5,32 +5,24 @@ import outskirts.lang.langdev.interpreter.Scope;
 
 import java.util.List;
 
-public class AST_Stmt_DefVar extends AST {
+public class AST_Stmt_DefVar extends AST_Stmt {
 
-    private String type;
-    private String name;
-    private AST init;
+    public final String type;
+    public final String name;
+    public final AST_Expr initexpr;  // nullable.
 
-    public AST_Stmt_DefVar(String type, String name, AST init) {
+    public AST_Stmt_DefVar(String type, String name, AST_Expr initexpr) {
         this.type = type;
         this.name = name;
-        this.init = init;
+        this.initexpr = initexpr;
     }
 
     public AST_Stmt_DefVar(List<AST> ls) {
-        this(ls.get(0).tokentext(), ls.get(1).tokentext(), ls.get(2));
-    }
-
-    @Override
-    public GObject eval(Scope scope) {
-        GObject v = init.eval(scope);
-        // where member @type use for.?
-        scope.declare(name, v);
-        return GObject.VOID;
+        this(((AST_Expr_PrimaryVariableName)ls.get(0)).name, ((AST_Expr_PrimaryVariableName)ls.get(1)).name, (AST_Expr)ls.get(2));
     }
 
     @Override
     public String toString() {
-        return String.format("ast_vardef{%s %s = %s}", type, name, init);
+        return String.format("ast_vardef{%s %s = %s}", type, name, initexpr);
     }
 }

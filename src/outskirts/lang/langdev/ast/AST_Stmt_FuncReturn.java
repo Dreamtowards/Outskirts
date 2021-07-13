@@ -5,22 +5,16 @@ import outskirts.lang.langdev.interpreter.Scope;
 
 import java.util.List;
 
-public class AST_Stmt_FuncReturn extends AST {
+public class AST_Stmt_FuncReturn extends AST_Stmt {
 
-    private AST expr;
+    public final AST_Expr expr;
 
-    public AST_Stmt_FuncReturn(AST expr) {
+    public AST_Stmt_FuncReturn(AST_Expr expr) {
         this.expr = expr;
     }
 
     public AST_Stmt_FuncReturn(List<AST> ls) {
-        this(ls.get(0));
-    }
-
-    @Override
-    public GObject eval(Scope scope) {
-
-        throw new Return(expr);
+        this((AST_Expr)ls.get(0));
     }
 
     @Override
@@ -28,10 +22,4 @@ public class AST_Stmt_FuncReturn extends AST {
         return "ast_stmt_return{"+expr+"}";
     }
 
-    public static class Return extends RuntimeException {
-        public AST expr;
-        public Return(AST expr) {
-            this.expr = expr;
-        }
-    }
 }

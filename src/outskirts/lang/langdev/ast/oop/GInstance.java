@@ -6,8 +6,13 @@ import java.util.Map;
 
 public class GInstance {
 
-    public GRTTI rtti;
+    public RTTI rtti;
 
     public Map<String, GObject> fields;
 
+    private static class RTTI {
+
+
+
+    }
 }

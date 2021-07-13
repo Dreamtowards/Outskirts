@@ -4,27 +4,28 @@ import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.Scope;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class AST_Stmt_Block extends AST {
+public class AST_Stmt_Block extends AST_Stmt {
 
-    private final List<AST> stmts = new ArrayList<>();
+    public final AST_Stmt[] stmts;
 
-    public AST_Stmt_Block(List<AST> ls) {
-        stmts.addAll(ls);
+    public AST_Stmt_Block(AST_Stmt[] stmts) {
+        this.stmts = stmts;
     }
 
-    @Override
-    public GObject eval(Scope scope) {
-        Scope scblock = new Scope(scope);
-        for (AST stmt : stmts) {
-            stmt.eval(scblock);
+    public AST_Stmt_Block(List<AST> ls) {
+        for (AST a : ls) {
+            if (!(a instanceof AST_Stmt))
+                throw new RuntimeException("Bad Element, not Stmt: "+a);
         }
-        return GObject.VOID;
+        this.stmts = (Arrays.asList(ls.toArray()).toArray(new AST_Stmt[0]));
+//        this(Arrays.asList(ls.toArray()).toArray(new AST_Stmt[0]));
     }
 
     @Override
     public String toString() {
-        return "ast_stmt_block{"+stmts+'}';
+        return "ast_stmt_block{"+ Arrays.toString(stmts) +'}';
     }
 }

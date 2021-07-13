@@ -6,29 +6,19 @@ import outskirts.util.Validate;
 
 import java.util.List;
 
-public class AST_Expr_OperUnaryPost extends AST {
+public class AST_Expr_OperUnaryPost extends AST_Expr {
 
-    private AST expr;
-    private String operator;
+    public final AST_Expr expr;
+    public final String operator;
 
-    public AST_Expr_OperUnaryPost(AST expr, String operator) {
+    public AST_Expr_OperUnaryPost(AST_Expr expr, String operator) {
         this.expr = expr;
         this.operator = operator;
     }
 
     public AST_Expr_OperUnaryPost(List<AST> ls) {
-        this(ls.get(0), ((AST_Token)ls.get(1)).text());
+        this((AST_Expr)ls.get(0), ((AST_Token)ls.get(1)).text());
         Validate.isTrue(ls.size() == 2);
-    }
-
-    @Override
-    public GObject eval(Scope scope) {
-        GObject v = expr.eval(scope);
-
-        float tmp = (float)v.value;
-        v.value = tmp+1;
-
-        return new GObject(tmp);
     }
 
     @Override

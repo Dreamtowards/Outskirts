@@ -6,17 +6,20 @@ import outskirts.util.Validate;
 
 import java.util.List;
 
-public class AST_Stmt_If extends AST {
+public class AST_Stmt_Strm_If extends AST_Stmt {
 
-    private final AST condition;
-    private final AST thenb;
-    private final AST elseb;
+    public final AST_Expr condition;
+    public final AST_Stmt thenb;
+    public final AST_Stmt elseb;  // nullable.
 
-    public AST_Stmt_If(List<AST> ls) {
-        condition = ls.get(0);
-        thenb = ls.get(1);
-        elseb = ls.get(2);
-        Validate.isTrue(ls.size()==3);
+    public AST_Stmt_Strm_If(AST_Expr condition, AST_Stmt thenb, AST_Stmt elseb) {
+        this.condition = condition;
+        this.thenb = thenb;
+        this.elseb = elseb;
+    }
+
+    public AST_Stmt_Strm_If(List<AST> ls) {
+        this((AST_Expr)ls.get(0), (AST_Stmt)ls.get(1), (AST_Stmt)ls.get(2));
     }
 
     public static boolean isPass(Scope sc, AST condition) {

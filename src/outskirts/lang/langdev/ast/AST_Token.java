@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public class AST_Token extends AST {
 
-    private Token token;
+    private final Token token;
 
     public AST_Token(Token token) {
         this.token = token;
@@ -26,4 +26,5 @@ public class AST_Token extends AST {
     public String toString() {
         return "'"+token.text()+"'";
     }
+
 }

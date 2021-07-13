@@ -5,24 +5,27 @@ import outskirts.lang.langdev.interpreter.Scope;
 
 import java.util.List;
 
-public class AST_Expr_OperTriCon extends AST {
+/**
+ * condition ? then : else
+ */
+public class AST_Expr_OperTriCon extends AST_Expr {
 
-    private final AST condition;
-    private final AST exprthen;
-    private final AST exprelse;
+    public final AST_Expr condition;
+    public final AST_Expr exprthen;
+    public final AST_Expr exprelse;
 
-    public AST_Expr_OperTriCon(AST condition, AST exprthen, AST exprelse) {
+    public AST_Expr_OperTriCon(AST_Expr condition, AST_Expr exprthen, AST_Expr exprelse) {
         this.condition = condition;
         this.exprthen = exprthen;
         this.exprelse = exprelse;
     }
 
     public AST_Expr_OperTriCon(List<AST> ls) {
-        this(ls.get(0), ls.get(1), ls.get(2));
+        this((AST_Expr)ls.get(0), (AST_Expr)ls.get(1), (AST_Expr)ls.get(2));
     }
 
     @Override
     public GObject eval(Scope scope) {
-        return (AST_Stmt_If.isPass(scope,condition) ? exprthen : exprelse).eval(scope);
+        return (AST_Stmt_Strm_If.isPass(scope,condition) ? exprthen : exprelse).eval(scope);
     }
 }

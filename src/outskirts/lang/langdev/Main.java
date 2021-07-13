@@ -1,11 +1,12 @@
 package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Class;
+import outskirts.lang.langdev.ast.ex.FuncPtr;
+import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
+import outskirts.lang.langdev.interpreter.Evaluator;
 import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.lexer.Lexer;
-import outskirts.lang.langdev.parser.Parserls;
 import outskirts.util.IOUtils;
 
 import javax.swing.*;
@@ -27,8 +28,8 @@ public class Main {
         Lexer lex = new Lexer();
         lex.read(s);
 
-        var typename = struct(AST_Token_VariableName::new).name().initname("TypeName");
-        var varname = struct(AST_Token_VariableName::new).name().initname("VariableName");
+        var typename = struct(AST_Expr_PrimaryVariableName::new).name().initname("TypeName");
+        var varname = struct(AST_Expr_PrimaryVariableName::new).name().initname("VariableName");
 
         var stmt = pass().initname("StatmentElection");
         var stmt_block = struct(AST_Stmt_Block::new);
@@ -36,8 +37,8 @@ public class Main {
         var exprbase = pass().initname("expression");
         {
             var primary = pass().or(
-                    struct(AST_Token_LiteralNumber::new).number().initname("NumberLiteral"),
-                    struct(AST_Token_LiteralString::new).string().initname("StringLiteral"),
+                    struct(AST_Expr_PrimaryLiteralNumber::new).number().initname("NumberLiteral"),
+                    struct(AST_Expr_PrimaryLiteralString::new).string().initname("StringLiteral"),
                     varname
             ).initname("Primary");
 
@@ -48,7 +49,12 @@ public class Main {
                     primary
             ).initname("expr0_1");
 
-            var expr1 = pass().and(expr0).repeat(pass().or(
+            var expr0_1 = pass().or(
+                    struct(AST_Expr_OperNew::new).id("new").and(typename).id("(").and(func_args).id(")").initname("OperNew"),
+                    expr0
+            );
+
+            var expr1 = pass().and(expr0_1).repeat(pass().or(
                     pass().iden(".").and(varname).composesp(3, AST_Expr_OperBi::new).initname("MemberAccess"),
                     pass().id("(").and(func_args).id(")").composesp(2, AST_Expr_FuncCall::new).initname("FuncCall")
             )).initname("expr1");
@@ -71,7 +77,7 @@ public class Main {
 
             var expr9 = pass().oper_bi_lr(expr8, "&").initname("expr9_bitwise_and");  // why this prec not Greater than eqs.?
             var expr10 = pass().oper_bi_lr(expr9, "^").initname("expr10_bitwise_xor");
-            var expr11 = pass().oper_bi_lr(expr10, "^").initname("expr11_bitwise_or");
+            var expr11 = pass().oper_bi_lr(expr10, "|").initname("expr11_bitwise_or");
 
             var expr12 = pass().oper_bi_lr(expr11, "&&").initname("expr12_logical_and");
             var expr13 = pass().oper_bi_lr(expr12, "||").initname("expr13_logical_and");
@@ -110,15 +116,16 @@ public class Main {
         // define.
         stmt.or(
                 stmt_block,
-                struct(AST_Stmt_If::new).id("if").id("(").and(exprbase).id(")").and(stmt).opnull(pass().id("else").and(stmt)).initname("StmtIf"),
-                struct(AST_Stmt_While::new).id("while").id("(").and(exprbase).id(")").and(stmt).initname("StmtWhile"),
-                struct(AST_Class::new).id("class").name().opempty(struct(ASTls::new).id(":").name().repeat(pass().id(",").name())).id("{")
-                        .and(struct(ASTls::new).repeat(stmt_vardef))
-                        .id("}").initname("ClassDeclare"),
+                struct(AST_Stmt_Strm_If::new).id("if").id("(").and(exprbase).id(")").and(stmt).opnull(pass().id("else").and(stmt)).initname("StmtIf"),
+                struct(AST_Stmt_Strm_While::new).id("while").id("(").and(exprbase).id(")").and(stmt).initname("StmtWhile"),
+                struct(AST_Stmt_DefClass::new).id("class").name().opempty(struct(ASTls::new).id(":").name().repeat(pass().id(",").name()))
+//                        .and(struct(ASTls::new).repeat(stmt_vardef))
+                        .and(stmt_block)
+                        .initname("ClassDeclare"),
                 struct(AST_Stmt_FuncReturn::new).id("return").opnull(exprbase).id(";").initname("StmtReturn"),
+                struct(AST_Stmt_Expr::new).and(exprbase).id(";").markLookahead().initname("StmtExpr"),
                 stmt_funcdef,
-                stmt_vardef,
-                pass().and(exprbase).id(";").markLookahead().initname("StmtExpr")
+                stmt_vardef
         );
 
 
@@ -127,7 +134,7 @@ public class Main {
 
         Scope sc = new Scope(null);
 
-        sc.declare("prt", new GObject((FuncPtr)args1 -> {
+        sc.declare("prt", new GObject((FuncPtr) args1 -> {
             System.out.println(args1[0].value);
             return GObject.VOID;
         }));
@@ -138,7 +145,12 @@ public class Main {
         }));
 
 
-        stmt.readone(lex).eval(sc);
+        AST ast = stmt.readone(lex);
+//        System.out.println(ast);
+
+        new Evaluator().evalStmt((AST_Stmt)ast, sc);
+
+//        .eval(sc);
 
 //        System.out.println(stmt.readone(lex));
 

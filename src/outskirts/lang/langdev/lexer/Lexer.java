@@ -93,28 +93,23 @@ public final class Lexer {
         return -1;
     }
 
-    private static boolean isBorderChar(char ch) {
-        if (ch >= '!' && ch <= '/') return true;
-        if (ch >= ':' && ch <= '@') return true;
-        if (ch >= '[' && ch <= '`') return true;
-        if (ch >= '{' && ch <= '~') return true;
-        return false;
-    }
     private static boolean isNameChar(char ch, boolean first) {
         return (ch=='_' || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z'))
                 || (!first && isNumberChar(ch));
     }
-    private static boolean isNumberChar(char ch, int numtype) {
-        switch (numtype) {
-            case NUM_BINARY: return ch == '0' || ch == '1';
-            case NUM_OCTAL: return ch >= '0' && ch <= '7';
-            case NUM_DECIMAL: return ch >= '0' && ch <= '9';
-            case NUM_HEX: return (ch>='0' && ch<='9') || (ch>='a' && ch<='f') || (ch>='A' && ch<='F');
-            default: throw new IllegalArgumentException("Bad enum");
+    private static String readName(String s, Intptr idx) {
+        StringBuilder sb = new StringBuilder();
+        int begin = idx.i;
+        while (idx.i < s.length()) {
+            char ch = s.charAt(idx.i);
+            if (isNameChar(ch, idx.i==begin)) {
+                sb.append(ch);
+                idx.i++;
+            } else {
+                break;
+            }
         }
-    }
-    private static boolean isNumberChar(char ch) {
-        return isNumberChar(ch, NUM_DECIMAL);
+        return sb.toString();
     }
 
 
@@ -146,6 +141,19 @@ public final class Lexer {
             }
         }
         throw new IllegalStateException("Unterminated string.");
+    }
+
+    private static boolean isNumberChar(char ch, int numtype) {
+        switch (numtype) {
+            case NUM_BINARY: return ch == '0' || ch == '1';
+            case NUM_OCTAL: return ch >= '0' && ch <= '7';
+            case NUM_DECIMAL: return ch >= '0' && ch <= '9';
+            case NUM_HEX: return (ch>='0' && ch<='9') || (ch>='a' && ch<='f') || (ch>='A' && ch<='F');
+            default: throw new IllegalArgumentException("Bad enum");
+        }
+    }
+    private static boolean isNumberChar(char ch) {
+        return isNumberChar(ch, NUM_DECIMAL);
     }
 
     public static final int NUM_BINARY  = 1;
@@ -224,21 +232,14 @@ public final class Lexer {
         return sb.toString();
     }
 
-    private static String readName(String s, Intptr idx) {
-        StringBuilder sb = new StringBuilder();
-        int begin = idx.i;
-        while (idx.i < s.length()) {
-            char ch = s.charAt(idx.i);
-            if (isNameChar(ch, idx.i==begin)) {
-                sb.append(ch);
-                idx.i++;
-            } else {
-                break;
-            }
-        }
-        return sb.toString();
-    }
 
+    private static boolean isBorderChar(char ch) {
+        if (ch >= '!' && ch <= '/') return true;
+        if (ch >= ':' && ch <= '@') return true;
+        if (ch >= '[' && ch <= '`') return true;
+        if (ch >= '{' && ch <= '~') return true;
+        return false;
+    }
     public static final String[] BORDERS = {  // a.k.a. keywords.
             "++", "--",
             "&&", "||",
@@ -256,11 +257,6 @@ public final class Lexer {
                 idx.i += n;
                 return s.substring(i, i+n);
             }
-        }
-        if (startsWith("||",s,i) || startsWith("&&",s,i) ||
-            startsWith("<<",s,i) || startsWith(">>",s,i) ||
-            startsWith("==",s,i) || startsWith("!=",s,i) ||
-            startsWith("<=",s,i) || startsWith(">=",s,i)) {
         }
         if (isBorderChar(s.charAt(i))) {
             idx.i += 1;

@@ -6,18 +6,21 @@ import outskirts.util.Validate;
 import java.util.List;
 import java.util.Map;
 
-public class AST_Expr_OperUnaryPre extends AST {
+public class AST_Expr_OperUnaryPre extends AST_Expr {
 
-    private String operator;
-    private AST expr;
+    /**
+     *  ++, --, +, -, !, ~
+     */
+    public final String operator;
+    public final AST_Expr expr;
 
-    public AST_Expr_OperUnaryPre(String operator, AST expr) {
+    public AST_Expr_OperUnaryPre(String operator, AST_Expr expr) {
         this.operator = operator;
         this.expr = expr;
     }
 
     public AST_Expr_OperUnaryPre(List<AST> ls) {
-        this(((AST_Token)ls.get(0)).text(), ls.get(1));
+        this(((AST_Token)ls.get(0)).text(), (AST_Expr)ls.get(1));
         Validate.isTrue(ls.size() == 2);
     }
 
