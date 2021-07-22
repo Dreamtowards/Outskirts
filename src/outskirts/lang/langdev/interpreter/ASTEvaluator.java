@@ -3,10 +3,13 @@ package outskirts.lang.langdev.interpreter;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.ast.ex.FuncReturnEx;
+import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
 import outskirts.util.Validate;
 
-public class Evaluator {
+// ASTEvalutor instead of Evalutor: more specifica, more classifi, but may limited, and like an AST-subclass?.
+// however modify is available.
+public class ASTEvaluator {
 
     public boolean isConditionPass(AST_Expr cond, Scope scope) {
         return (float)evalExpr(cond, scope).value != 0;
@@ -84,9 +87,16 @@ public class Evaluator {
             case ">": return  new GObject((float)l.value >  (float)r.value ? 1f : 0f);
             case ">=": return new GObject((float)l.value >= (float)r.value ? 1f : 0f);
             case "==": return new GObject((float)l.value == (float)r.value ? 1f : 0f);
+            case ">>": return new GObject(toint(l.value) >> toint(r.value));
+            case ">>>": return new GObject(toint(l.value) >>> toint(r.value));
             default:
                 throw new IllegalStateException("Unsupported Operator '"+a.operator+"'.");
         }
+    }
+
+    private static int toint(Object o) {
+        return o instanceof Integer ? (int)o :
+                ((Float)o).intValue();
     }
 
     public GObject evalExprOperUnaryPre(AST_Expr_OperUnaryPre a, Scope scope) {
@@ -152,11 +162,11 @@ public class Evaluator {
     }
 
     public GObject evalExprOperNew(AST_Expr_OperNew a, Scope scope) {
-        AST_Stmt_DefClass c = (AST_Stmt_DefClass)scope.access(a.typename).value;
+        AST_Stmt_DefClass c = (AST_Stmt_DefClass)scope.access(a.type.name).value;
 
         Scope clsScope = new Scope(scope);
-        for (AST_Stmt s : c.members) {
-            evalStmt(s, clsScope);
+        for (AST_Class_Member s : c.members) {
+            evalStmt(s.member, clsScope);
         }
         return new GObject(clsScope);  // DANGER! uh... return a scope...
     }
@@ -244,7 +254,7 @@ public class Evaluator {
 
     public void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
 
-        scope.declare(a.name, new GObject(a));  // DANGER: really.? define an AST value...
+        scope.declare(a.typename.name, new GObject(a));  // DANGER: really.? define an AST value...
     }
 
     public void evalStmt(AST_Stmt a, Scope scope) {

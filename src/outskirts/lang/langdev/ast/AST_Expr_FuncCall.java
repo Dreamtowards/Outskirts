@@ -22,7 +22,7 @@ public class AST_Expr_FuncCall extends AST_Expr {
     }
 
     public AST_Expr_FuncCall(List<AST> ls) {
-        this((AST_Expr)ls.get(0), Arrays.asList(((ASTls)ls.get(1)).toArray()).toArray(new AST_Expr[0]));
+        this((AST_Expr)ls.get(0), ((ASTls)ls.get(1)).toArrayt(AST_Expr[]::new));
     }
 
 

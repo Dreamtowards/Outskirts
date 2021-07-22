@@ -14,14 +14,18 @@ public final class Token {
     private final String text;
     private final int type;
 
+    // connNext or connPrev .?
+    private final boolean isNextToTheNext;
+
     private final int lineNumber;
     private final int charNumber;
 
-    public Token(String s, int type, int linenum, int charnum) {
+    public Token(String s, int type, int linenum, int charnum, boolean isNextToTheNext) {
         this.text = s;
         this.type = type;
         this.lineNumber = linenum;
         this.charNumber = charnum;
+        this.isNextToTheNext = isNextToTheNext;
     }
 
     public String text() {
@@ -57,7 +61,7 @@ public final class Token {
 
     @Override
     public String toString() {
-        return text;
+        return text+(isNextToTheNext?"[Y]":"[N]");
     }
 
     public String detailString() {
@@ -65,5 +69,9 @@ public final class Token {
     }
     public String locationString() {
         return (lineNumber+1)+":"+(charNumber+1);
+    }
+
+    public boolean isNextToTheNext() {
+        return isNextToTheNext;
     }
 }

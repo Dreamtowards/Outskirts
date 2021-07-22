@@ -1,28 +1,33 @@
-5 + -10++ - sth + "ABC"
+
+
+{
+
+class TestClass<Pair<int, int>> {
+
+    void print(int i) {
+        prt(i);  // temporary system func.
+    }
+}
+
+new TestClass<>().print(16 >> 1 >>> 1);  // expected: 4
+
+}
+
 
 {
 
 
+// class vec3 : vec<3> {
+// }
 
-class vec3 : vec<3> {
+// @interface
+// class hashable {
+//    @virtual
+//    int hashcode();
+//}
+// class hash_map<K : hashable, V> : map<K, V> { }
+/*
 
-
-
-}
-
-@interface
-class hashable {
-
-    @virtual
-    int hashcode();
-
-}
-
-
-class hash_map<K : hashable, V> : map<K, V> {
-
-
-}
 
 @final
 class string : hashable {
@@ -112,8 +117,51 @@ class String : Hashable {
         return hash;
     }
 }
+*/
 
-class Entity {
+/*
+class array<T> {
+
+    ptr addr;
+    int length;
+    int typesize;
+
+    T get(int idx) {
+        return Memory.get(idxaddr(idx));
+    }
+
+    void set(int idx, T v) {
+        Memory.set(idxaddr(idx), v);
+    }
+
+    @private
+    int idxaddr(int idx) {
+        return idx;
+    }
+
+}
+*/
+
+class String {
+
+    @private
+    int hash;
+
+    @private
+    array<short> value;
+
+    @constructor
+    void init(array<short> vals) {
+    }
+
+    void char_at(int idx) {
+        return value.get(idx);
+    }
+
+}
+
+
+class Entity<pair<T, T2>> {
 
     int age = 100;
 
@@ -136,10 +184,9 @@ class Main {
 }
 
 
-int i = 10 * 2;
-
 Entity e = new Entity();
 
+int i = 10 >> 2;
 e.print(1);
 
 new Main().log(i);

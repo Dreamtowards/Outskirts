@@ -19,7 +19,7 @@ public class AST_Expr_OperBi extends AST_Expr {
         this.right = right;
     }
     public AST_Expr_OperBi(List<AST> ls) {
-        this((AST_Expr)ls.get(0), ((AST_Token)ls.get(1)).text(), (AST_Expr)ls.get(2));
+        this((AST_Expr)ls.get(0), ls.get(1).tokentext(), (AST_Expr)ls.get(2));
         Validate.isTrue(ls.size() == 3);
     }
 

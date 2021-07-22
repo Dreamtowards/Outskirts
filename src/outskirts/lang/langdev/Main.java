@@ -2,19 +2,22 @@ package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
+import outskirts.lang.langdev.ast.oop.AST_Annotation;
+import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.interpreter.Evaluator;
+import outskirts.lang.langdev.ast.oop.AST_Typename;
+import outskirts.lang.langdev.interpreter.ASTEvaluator;
 import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.interpreter.astprint.ASTPrinter;
 import outskirts.lang.langdev.lexer.Lexer;
+import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.parser.Parserls;
 import outskirts.util.IOUtils;
 
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static outskirts.lang.langdev.parser.Parserls.pass;
@@ -22,9 +25,9 @@ import static outskirts.lang.langdev.parser.Parserls.struct;
 
 public class Main {
 
-    // defined.
-    static final Parserls typename     = struct(AST_Expr_PrimaryVariableName::new).name().initname("typename");
-    static final Parserls varname      = struct(AST_Expr_PrimaryVariableName::new).name().initname("varname");
+
+    static final Parserls typename     = struct(AST_Typename::new)                       .initname("typename");
+    static final Parserls varname      = struct(AST_Expr_PrimaryVariableName::new).name().initname("varname");  // defined.
 
     // headers.
     static final Parserls exprbase     = pass()                       .initname("expression");
@@ -39,16 +42,30 @@ public class Main {
     static final Parserls stmt_return  = struct(AST_Stmt_FuncReturn::new).initname("StmtReturn");
     static final Parserls stmt_expr    = struct(AST_Stmt_Expr::new)      .initname("StmtExpr");
 
-
+    static final Parserls annotation   = struct(AST_Annotation::new)     .initname("annotation");
 
 
     public static void main(String[] args) throws IOException {
-
 
         String s = IOUtils.toString(new FileInputStream("main.g"));
 
         Lexer lex = new Lexer();
         lex.read(s);
+
+//        System.out.println(lex.tokens());
+//        System.exit(0);
+
+        {
+            var iden = pass().name();
+
+            var package_name = pass().oper_bi_lr(iden, ".");
+            var class_name = pass().op(pass().and(package_name).id(".")).oper_bi_lr(iden, ".");
+
+            // array<pair<foo, ele>> a = addr(5 >> 3)
+            var generic_params = struct(ASTls::new).id("<").repeatjoin(typename, ",").id(">");
+
+            typename.name().opnull(generic_params);
+        }
 
 
         {   // EXPRESSION.
@@ -83,9 +100,12 @@ public class Main {
                     struct(AST_Expr_OperUnaryPre::new).iden("++","--", "+","-", "!", "~").and(expr3).initname("expr3_oper_upre"),
                     expr2);
 
+            var _rsh2 = pass().iden_connected(">",">");
+            var _rsh3 = pass().iden_connected(">",">",">");
+
             var expr4 = pass().oper_bi_lr(expr3, "*", "/").initname("expr4_mul");
             var expr5 = pass().oper_bi_lr(expr4, "+", "-").initname("expr5_add");
-            var expr6 = pass().oper_bi_lr(expr5, "<<", ">>", ">>>").initname("expr6_shift");
+            var expr6 = pass().oper_bi_lr(expr5, "<<", _rsh3, _rsh2).initname("expr6_shift");
 
             var expr7 = pass().oper_bi_lr(expr6, "<", "<=", ">", ">=", "is").initname("expr7_relation");
             var expr8 = pass().oper_bi_lr(expr7, "==", "!=").initname("expr8_eq");
@@ -117,10 +137,10 @@ public class Main {
 
         var func_param = struct(ASTls::new).and(typename).and(varname);
         var func_params = struct(ASTls::new).repeatjoin(func_param, ",");
-        stmt_funcdef.and(typename).and(varname)
+        stmt_funcdef.and(typename).name()
                 .id("(").markLookahead().and(func_params).id(")").and(stmt_block);
 
-        stmt_vardef.and(typename).and(varname).markLookahead()
+        stmt_vardef.and(typename).name().markLookahead()
                 .opnull(pass().id("=").and(exprbase)).id(";");
 
         stmt_block.id("{").repeat(stmt).id("}").initname("StmtBlock");
@@ -130,10 +150,10 @@ public class Main {
         stmt_while.id("while").id("(").and(exprbase).id(")").and(stmt);
 
         stmt_class.id("class")
-                .name()
+                .and(typename)  // there not typename actually.
                 .opnull(struct(ASTls::new).id(":").repeatjoin(typename, ",", true))
                 .id("{")
-                    .and(struct(ASTls::new).repeat(pass().or(stmt_block, stmt_class, stmt_funcdef, stmt_vardef)))
+                    .and(struct(ASTls::new).repeat(struct(AST_Class_Member::new).opnull(struct(ASTls::new).repeat(annotation)).or(stmt_class, stmt_funcdef, stmt_vardef).markLookahead()))
                 .id("}");
 
         stmt_return.id("return").opnull(exprbase).id(";");
@@ -153,6 +173,8 @@ public class Main {
         );
 
 
+        annotation.id("@").and(typename);
+
 
 
 
@@ -169,18 +191,17 @@ public class Main {
         }));
 
 
-        AST ast = exprbase.readone(lex);
+        AST ast = stmt.readone(lex);
 //        System.out.println(ast);
 
-        ASTPrinter prtr = new ASTPrinter();
-        prtr.printExpr((AST_Expr)ast, 0);
-        System.out.println(prtr.buf.toString());
 
-//        new Evaluator().evalStmt((AST_Stmt)ast, sc);
+//        ASTPrinter prtr = new ASTPrinter();
+//        prtr.printExpr((AST_Expr)ast, 0);
+//        System.out.println(prtr.buf.toString());
 
-//        .eval(sc);
 
-//        System.out.println(stmt.readone(lex));
+        ASTEvaluator evlr = new ASTEvaluator();
+        evlr.evalStmt((AST_Stmt)ast, sc);
 
     }
 

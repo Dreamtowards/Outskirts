@@ -2,6 +2,7 @@ package outskirts.lang.langdev.ast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public final class ASTls extends AST {
 
@@ -13,6 +14,10 @@ public final class ASTls extends AST {
 
     public AST[] toArray() {
         return list;
+    }
+
+    public <T> T[] toArrayt(IntFunction<T[]> cf) {
+        return Arrays.asList(list).toArray(cf);
     }
 
     public int size() {

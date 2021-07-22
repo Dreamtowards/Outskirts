@@ -55,7 +55,8 @@ public final class Lexer {
                     throw new IllegalStateException(String.format("Unexpected token: '%s' in [%s:%s]", ch, nline.i, nchar.i));
                 }
 
-                tokens.add(new Token(text, type, nline.i, nchar.i));
+                boolean isNextToNext = !isBlankChar(atchar(s, idx.i));
+                tokens.add(new Token(text, type, nline.i, nchar.i, isNextToNext));
             }
         } catch (Exception ex) {
             throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i, nchar.i), ex);
@@ -86,11 +87,14 @@ public final class Lexer {
     public static int skipBlanks(String s, Intptr idx) {
         while (idx.i < s.length()) {
             char ch = s.charAt(idx.i);
-            if (ch > ' ')
+            if (!isBlankChar(ch))
                 return idx.i;
             idx.i++;
         }
         return -1;
+    }
+    private static boolean isBlankChar(char ch) {
+        return ch <= ' ';
     }
 
     private static boolean isNameChar(char ch, boolean first) {
@@ -243,7 +247,7 @@ public final class Lexer {
     public static final String[] BORDERS = {  // a.k.a. keywords.
             "++", "--",
             "&&", "||",
-            "<<", ">>", ">>>",
+            "<<",            // ">>", ">>>",  the multiple ">" are not a single token anymore. since Typename<A<B>> syntax publish.
             "<=", ">=",
             "==", "!=",
             "=>"

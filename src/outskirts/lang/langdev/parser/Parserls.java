@@ -78,6 +78,8 @@ public final class Parserls extends Parser {
             try {
                 p.read(lex, tmpls);
             } catch (Exception ex) {
+//                System.err.println("############## Bad Match "+ex);
+//                ex.printStackTrace();
                 pass = false;
                 break;
             }
@@ -140,22 +142,48 @@ public final class Parserls extends Parser {
             return null;
         }, true);
     }
-    public Parserls id(String id, boolean create) {
+
+    /**
+     * @param rqNx requiredNextToTheNext
+     */
+    public Parserls id(String id, boolean create, boolean rqNx) {
         return token(t -> {
+            if (rqNx && !t.isNextToTheNext())
+                return "Required Token NextToTheNext. actual: false.";
             if (!t.isIdentifier() || !t.text().equals(id))
                 return "Expected identifier: \""+id+"\", actual: \""+t.text() + "\".";
             return null;
         }, create);
     }
     public Parserls id(String id) {
-        return id(id, false);
+        return id(id, false, false);
     }
-    public Parserls iden(String... ids) {
-        return token(t -> {
-            if (!t.isIdentifier() || !CollectionUtils.contains(ids, t.text()))
-                return "Expected identifiers: "+Arrays.toString(ids)+", actual: "+t.detailString()+".";
-            return null;
-        }, true);
+
+    /**
+     * @param ids Parserls(rule) or String(id).
+     */
+    public Parserls iden(Object... ids) {
+        Parserls[] ps = new Parserls[ids.length];
+        for (int i = 0;i < ids.length;i++) {
+            Object e = ids[i];
+            if (e instanceof String) {
+                ps[i] = pass().id((String)e, true, false);
+            } else if (e instanceof Parserls) {
+                ps[i] = (Parserls)e;
+            } else
+                throw new IllegalArgumentException();
+        }
+        return or(ps);
+    }
+
+    public Parserls iden_connected(String... parts) {
+        Parserls p = struct(AST_Token::composeConnected);
+        for (int i = 0;i < parts.length;i++) {
+            boolean last = i == parts.length-1;
+            p.id(parts[i], true, !last);
+        }
+        p.markLookahead();  // important. FullCheck Required.
+        return and(p);
     }
 
     public Parserls or(Parser... ps) {
@@ -182,7 +210,7 @@ public final class Parserls extends Parser {
         return repeatjoin(p, delimiter, false);
     }
 
-    public final Parserls oper_bi_lr(Parser factor, String... opers) {
+    public final Parserls oper_bi_lr(Parser factor, Object... opers) {
         return and(factor).repeat(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
     }
 
