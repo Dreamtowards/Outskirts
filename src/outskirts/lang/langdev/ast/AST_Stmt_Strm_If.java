@@ -22,19 +22,4 @@ public class AST_Stmt_Strm_If extends AST_Stmt {
         this((AST_Expr)ls.get(0), (AST_Stmt)ls.get(1), (AST_Stmt)ls.get(2));
     }
 
-    public static boolean isPass(Scope sc, AST condition) {
-        return (float)condition.eval(sc).value != 0;
-    }
-
-    @Override
-    public GObject eval(Scope scope) {
-
-        if (isPass(scope, condition)) {
-            thenb.eval(scope);
-        } else {
-            elseb.eval(scope);
-        }
-
-        return GObject.VOID;
-    }
 }

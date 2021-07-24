@@ -5,6 +5,10 @@ import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.ast.ex.FuncReturnEx;
 import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.srcroot.AST_SR;
+import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Package;
+import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Using;
+import outskirts.lang.langdev.ast.srcroot.AST_SR_StmtLs;
 import outskirts.util.Validate;
 
 // ASTEvalutor instead of Evalutor: more specifica, more classifi, but may limited, and like an AST-subclass?.
@@ -46,6 +50,33 @@ public class ASTEvaluator {
         };
     }
 
+
+
+    public GObject eval(AST a, Scope scope)
+    {
+        if (a instanceof AST_Expr)
+        {
+            return evalExpr((AST_Expr)a, scope);
+        }
+        else if (a instanceof AST_Stmt)
+        {
+            evalStmt((AST_Stmt)a, scope);
+            return GObject.VOID;
+        }
+        else if (a instanceof AST_SR)
+        {
+            evalSourceRoot((AST_SR)a, scope);
+            return GObject.VOID;
+        }
+        else
+        {
+            throw new IllegalStateException();
+        }
+    }
+
+
+
+
     /**
      * ============= AST_EXPR =============
      */
@@ -66,7 +97,7 @@ public class ASTEvaluator {
         GObject l = evalExpr(a.left, scope);
         if (a.operator.equals(".")) {
             // System.out.println(((Scope) l.value).variables);
-            return ((Scope) l.value).access(((AST_Expr_PrimaryVariableName) a.right).name);
+            return ((Scope)l.value).access(a.right.varname());
         }
 
         GObject r = evalExpr(a.right, scope);
@@ -149,6 +180,7 @@ public class ASTEvaluator {
         return new GObject(defineFuncptr(scope, a.body, pnames));
     }
 
+    public static Scope currInvokeScope;
     public GObject evalExprFuncCall(AST_Expr_FuncCall a, Scope scope) {
         FuncPtr fnptr = (FuncPtr)evalExpr(a.funcptr, scope).value;
 
@@ -158,6 +190,7 @@ public class ASTEvaluator {
             args[i] = evalExpr(a.args[i], scope);
         }
 
+        currInvokeScope = scope;
         return fnptr.invoke(args);
     }
 
@@ -254,7 +287,12 @@ public class ASTEvaluator {
 
     public void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
 
-        scope.declare(a.typename.name, new GObject(a));  // DANGER: really.? define an AST value...
+        scope.setScopeCurrentClassnamePrefix(a.name);
+
+        GObject classdef = new GObject(a);   // DANGER: really.? define an AST value...
+        scope.declare(a.name, classdef);
+
+        Scope.globalClassDef.put(scope.currentClassnamePrefix(), classdef);
     }
 
     public void evalStmt(AST_Stmt a, Scope scope) {
@@ -277,5 +315,60 @@ public class ASTEvaluator {
         } else
             throw new IllegalStateException();
     }
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * ============= AST_SR =============
+     */
+
+    public void evalSrStmtLs(AST_SR_StmtLs a, Scope scope) {
+
+        for (AST stmt : a.elements) {
+
+            eval(stmt, scope);
+        }
+    }
+
+    private static String _ExpandPackageName(AST_Expr a) {
+        if (a instanceof AST_Expr_OperBi) {
+            return _ExpandPackageName(((AST_Expr_OperBi)a).left) + "." + _ExpandPackageName(((AST_Expr_OperBi)a).right);
+        } else if (a instanceof AST_Expr_PrimaryVariableName) {
+            return ((AST_Expr_PrimaryVariableName) a).name;
+        } else
+            throw new IllegalStateException();
+    }
+
+    public void evalSrStmtUsing(AST_SR_Stmt_Using a, Scope scope) {
+
+        scope.declare(((AST_Expr_PrimaryVariableName)a.used.right).name, new GObject(new UnsupportedOperationException()));
+
+    }
+
+    public void evalSrStmtPackage(AST_SR_Stmt_Package a, Scope scope) {
+
+        scope.setScopeCurrentClassnamePrefix(_ExpandPackageName(a.name));
+
+    }
+
+    public void evalSourceRoot(AST_SR a, Scope scope) {
+        if (a instanceof AST_SR_Stmt_Using)
+            evalSrStmtUsing((AST_SR_Stmt_Using)a, scope);
+        else if (a instanceof AST_SR_Stmt_Package)
+            evalSrStmtPackage((AST_SR_Stmt_Package)a, scope);
+        else if (a instanceof AST_SR_StmtLs)
+            evalSrStmtLs((AST_SR_StmtLs)a, scope);
+        else
+            throw new IllegalStateException();
+    }
+
 
 }

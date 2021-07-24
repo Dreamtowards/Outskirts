@@ -20,12 +20,4 @@ public class AST_Stmt_Strm_While extends AST_Stmt {
         this((AST_Expr)ls.get(0), (AST_Stmt)ls.get(1));
         Validate.isTrue(ls.size() == 2);
     }
-
-    @Override
-    public GObject eval(Scope scope) {
-        while (AST_Stmt_Strm_If.isPass(scope,condition)) {
-            then.eval(scope);
-        }
-        return GObject.VOID;
-    }
 }

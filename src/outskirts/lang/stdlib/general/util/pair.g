@@ -1,4 +1,4 @@
-package generalx.util;
+package general.util;
 
 class pair<A, B> {
 

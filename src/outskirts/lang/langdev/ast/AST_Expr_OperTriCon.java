@@ -24,8 +24,4 @@ public class AST_Expr_OperTriCon extends AST_Expr {
         this((AST_Expr)ls.get(0), (AST_Expr)ls.get(1), (AST_Expr)ls.get(2));
     }
 
-    @Override
-    public GObject eval(Scope scope) {
-        return (AST_Stmt_Strm_If.isPass(scope,condition) ? exprthen : exprelse).eval(scope);
-    }
 }
