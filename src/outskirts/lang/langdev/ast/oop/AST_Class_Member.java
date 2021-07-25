@@ -16,6 +16,17 @@ public class AST_Class_Member extends AST {
         this.member = member;
     }
 
+    public boolean isStatic() {
+        if (annotations != null) {
+            for (AST_Annotation mAnn : annotations) {
+                if (AST_Typename.expandPlainName(mAnn.type.nameptr).equals("static")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public AST_Class_Member(List<AST> ls) {
         this(ls.get(0) == null ? null : ((ASTls)ls.get(0)).toArrayt(AST_Annotation[]::new), (AST_Stmt)ls.get(1));
     }

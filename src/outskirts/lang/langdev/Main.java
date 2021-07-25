@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import static outskirts.lang.langdev.parser.Parserls.pass;
 import static outskirts.lang.langdev.parser.Parserls.struct;
@@ -35,6 +38,7 @@ public class Main {
 
     static final Parserls qualified_name  = pass()                                        .initname("qualified_name");
     static final Parserls generic_params  = struct(ASTls::new);
+    static final Parserls generic_args    = struct(ASTls::new);
 
     // FILE ROOT
     static final Parserls r_using         = struct(AST_SR_Stmt_Using::new);
@@ -158,10 +162,9 @@ public class Main {
 
 
         generic_params.id("<").repeatjoin(pass().name(), ",", true).id(">");
+        generic_args.id("<").repeatjoin(typename, ",").id(">");
 
-        var generic_args = struct(ASTls::new).id("<").repeatjoin(typename, ",").id(">");
-
-        typename.name().opnull(generic_args);
+        typename.and(qualified_name).opnull(generic_args);  // really.? seems syntax right, but while do semantic,
 
     }
 
@@ -222,11 +225,7 @@ public class Main {
                 pass().id("(").and(exprbase).id(")").initname("expr_parentheses"),
                 primary);
 
-        var expr0_1 = pass().or(
-                struct(AST_Expr_OperNew::new).id("new").and(typename).id("(").and(func_args).id(")").initname("expr_oper_new"),
-                expr0);
-
-        var expr1 = pass().and(expr0_1).repeat(pass().or(
+        var expr1 = pass().and(expr0).repeat(pass().or(
                 pass().iden(".").and(varname).composesp(3, AST_Expr_OperBi::new).initname("MemberAccess"),
                 pass().id("(").and(func_args).id(")").composesp(2, AST_Expr_FuncCall::new).initname("FuncCall")
         )).initname("expr1");
@@ -235,9 +234,10 @@ public class Main {
                 pass().iden("++", "--").composesp(2, AST_Expr_OperUnaryPost::new)
         ).initname("expr2_oper_upost");
 
-        var expr3 = pass();
+        var expr3 = pass();  // new Obj.InnObj.ActualObj().setupBuilder().color(c).text(t);
         expr3.or(
                 struct(AST_Expr_OperUnaryPre::new).iden("++","--", "+","-", "!", "~").and(expr3).initname("expr3_oper_upre"),
+                struct(AST_Expr_OperNew::new).id("new").and(typename).id("(").and(func_args).id(")").initname("expr_oper_new"),
                 expr2);
 
         var _rsh2 = pass().iden_connected(">",">");
@@ -285,11 +285,6 @@ public class Main {
 
         sc.declare("s_alert", new GObject((FuncPtr)args1 -> {
             JOptionPane.showMessageDialog(null, args1[0].value);
-            return GObject.VOID;
-        }));
-
-        sc.declare("s_debug", new GObject((FuncPtr) args1 -> {
-            System.out.println("Current scope: PRef: "+ASTEvaluator.currInvokeScope.currentClassnamePrefix());
             return GObject.VOID;
         }));
 

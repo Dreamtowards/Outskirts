@@ -6,11 +6,11 @@ import java.util.List;
 
 public class AST_Expr_OperNew extends AST_Expr {
 
-    public final AST_Typename type;
+    public final AST_Typename typeptr;
     public final ASTls args;
 
-    public AST_Expr_OperNew(AST_Typename type, ASTls args) {
-        this.type = type;
+    public AST_Expr_OperNew(AST_Typename typeptr, ASTls args) {
+        this.typeptr = typeptr;
         this.args = args;
     }
 
@@ -20,6 +20,6 @@ public class AST_Expr_OperNew extends AST_Expr {
 
     @Override
     public String toString() {
-        return "(new "+type+" ("+args.toString()+"))";
+        return "(new "+typeptr+" ("+args.toString()+"))";
     }
 }

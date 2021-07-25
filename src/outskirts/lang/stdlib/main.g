@@ -4,13 +4,50 @@ package test.uuuu.adsasjd.asdasd;
 
 // using general.lang.my.string;
 
+class TheSuperClass {
 
-string srx = s_readfile("myFil.g");
-var myValue = s_import("myFil.g");
+    int memberColorType = TheSuperClass.CT_GREEN;
 
-s_print(myValue);
+    @static
+    int CT_RED = 1;
+
+    @static
+    int CT_GREEN = 2;
+
+    @static
+    void doPrintCol(int c) {
+        s_print("STATIC PRINTX: "+c);
+    }
+
+    @static
+    class MyStaticInnerClass {
+
+        @static
+        int stVal = 9;
+
+        int memberVal = 1;
+
+    }
+
+    class TesInstInnClass {
+
+        int stVal = 2;
+
+    }
+
+}
 
 
+// var myValue = s_import("myFil.g");
+// s_print(myValue);
+
+int i = TheSuperClass.MyStaticInnerClass.stVal;
+
+auto inst = new TheSuperClass();
+
+auto inn = new inst.TesInstInnClass();
+
+s_print(inn.stVal);
 
 
 

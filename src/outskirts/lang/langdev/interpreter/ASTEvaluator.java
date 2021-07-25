@@ -3,8 +3,10 @@ package outskirts.lang.langdev.interpreter;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.ast.ex.FuncReturnEx;
+import outskirts.lang.langdev.ast.oop.AST_Annotation;
 import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.oop.AST_Typename;
 import outskirts.lang.langdev.ast.srcroot.AST_SR;
 import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Package;
 import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Using;
@@ -180,26 +182,27 @@ public class ASTEvaluator {
         return new GObject(defineFuncptr(scope, a.body, pnames));
     }
 
-    public static Scope currInvokeScope;
     public GObject evalExprFuncCall(AST_Expr_FuncCall a, Scope scope) {
         FuncPtr fnptr = (FuncPtr)evalExpr(a.funcptr, scope).value;
 
         // eval args.
         GObject[] args = new GObject[a.args.length];
         for (int i = 0;i < args.length;i++) {
-            args[i] = evalExpr(a.args[i], scope);
+            args[i] = evalExpr(a.args[i], scope);  // curr scope.?  not in-func scope.?
         }
 
-        currInvokeScope = scope;
         return fnptr.invoke(args);
     }
 
     public GObject evalExprOperNew(AST_Expr_OperNew a, Scope scope) {
-        AST_Stmt_DefClass c = (AST_Stmt_DefClass)scope.access(a.type.name).value;
+        AST_Stmt_DefClass c = ((Scope)evalExpr(a.typeptr.nameptr, scope).value).clxdef; // (AST_Stmt_DefClass)scope.access(a.type.name).value;
+        Validate.isTrue(c != null);
 
         Scope clsScope = new Scope(scope);
         for (AST_Class_Member s : c.members) {
-            evalStmt(s.member, clsScope);
+            if (!s.isStatic()) {
+                evalStmt(s.member, clsScope);
+            }
         }
         return new GObject(clsScope);  // DANGER! uh... return a scope...
     }
@@ -246,7 +249,7 @@ public class ASTEvaluator {
     public void evalStmtDefFunc(AST_Stmt_DefFunc a, Scope scope) {
         String[] pnames = new String[a.params.size()];
         for (int i = 0;i < pnames.length;i++) {
-             pnames[i] = ((AST_Expr_PrimaryVariableName)((ASTls)a.params.get(i)).get(1)).name;
+             pnames[i] = ((ASTls)a.params.get(i)).get(1).varname();
         }
 
         scope.declare(a.name, new GObject(defineFuncptr(scope, a.body, pnames)));
@@ -286,13 +289,18 @@ public class ASTEvaluator {
     }
 
     public void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
-
         scope.setScopeCurrentClassnamePrefix(a.name);
 
-        GObject classdef = new GObject(a);   // DANGER: really.? define an AST value...
-        scope.declare(a.name, classdef);
+        Scope clxdefScope = new Scope(scope);
+        clxdefScope.clxdef = a;
 
-        Scope.globalClassDef.put(scope.currentClassnamePrefix(), classdef);
+        for (AST_Class_Member m : a.members) {
+            if (m.isStatic()) {
+                evalStmt(m.member, clxdefScope);
+            }
+        }
+
+        scope.declare(a.name, new GObject(clxdefScope));
     }
 
     public void evalStmt(AST_Stmt a, Scope scope) {

@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.interpreter;
 
+import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
 import outskirts.util.Validate;
 
 import java.util.HashMap;
@@ -7,7 +8,7 @@ import java.util.Map;
 
 public final class Scope {
 
-    public static Map<String, GObject> globalClassDef = new HashMap<>();
+    public AST_Stmt_DefClass clxdef;  // only for ClassDef. scopes.
 
     private String _scopeCurrentClassnamePrefix = "";
 
