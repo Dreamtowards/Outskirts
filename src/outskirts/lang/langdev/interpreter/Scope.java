@@ -10,20 +10,20 @@ public final class Scope {
 
     public AST_Stmt_DefClass clxdef;  // only for ClassDef. scopes.
 
-    private String _scopeCurrentClassnamePrefix = "";
+//    private String _scopeCurrentClassnamePrefix = "";
+//
+//    public String currentClassnamePrefix() {
+//        if (parent == null)
+//            return _scopeCurrentClassnamePrefix;
+//
+//        return parent.currentClassnamePrefix()+_scopeCurrentClassnamePrefix;
+//    }
 
-    public String currentClassnamePrefix() {
-        if (parent == null)
-            return _scopeCurrentClassnamePrefix;
-
-        return parent.currentClassnamePrefix()+_scopeCurrentClassnamePrefix;
-    }
-
-    public void setScopeCurrentClassnamePrefix(String pref) {
+//    public void setScopeCurrentClassnamePrefix(String pref) {
 //        if (!_scopeCurrentClassnamePrefix.isEmpty())
 //            throw new IllegalStateException("Alread Setted.? prev:'"+_scopeCurrentClassnamePrefix+"', next: '"+pref+"'");
-        this._scopeCurrentClassnamePrefix = pref;
-    }
+//        this._scopeCurrentClassnamePrefix = pref;
+//    }
 
     public final Map<String, GObject> variables = new HashMap<>();
     private final Scope parent;
@@ -54,12 +54,12 @@ public final class Scope {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Scope{" +
-                "_scopeCurrentClassnamePrefix='" + _scopeCurrentClassnamePrefix + '\'' +
-                ", variables=" + variables +
-                ", parent=" + parent +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "Scope{" +
+//                "_scopeCurrentClassnamePrefix='" + _scopeCurrentClassnamePrefix + '\'' +
+//                ", variables=" + variables +
+//                ", parent=" + parent +
+//                '}';
+//    }
 }

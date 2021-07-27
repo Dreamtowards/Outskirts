@@ -18,7 +18,7 @@ import outskirts.util.Validate;
 public class ASTEvaluator {
 
     public boolean isConditionPass(AST_Expr cond, Scope scope) {
-        return (float)evalExpr(cond, scope).value != 0;
+        return toint(evalExpr(cond, scope).value) != 0;
     }
     /**
      * @param funcBody AST_Stmt_Block or AST_Expr.
@@ -127,7 +127,7 @@ public class ASTEvaluator {
         }
     }
 
-    private static int toint(Object o) {
+    public static int toint(Object o) {
         return o instanceof Integer ? (int)o :
                 ((Float)o).intValue();
     }
@@ -140,7 +140,7 @@ public class ASTEvaluator {
             case "--": o.value = (float)o.value-1f; return o;
             case "+": return o;
             case "-": return new GObject(-(float)o.value);
-            case "!": return new GObject((float)o.value == 0 ? 1 : 0);
+            case "!": return new GObject(toint(o.value) == 0 ? 1 : 0);
             default:
                 throw new IllegalStateException();
         }
@@ -289,7 +289,7 @@ public class ASTEvaluator {
     }
 
     public void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
-        scope.setScopeCurrentClassnamePrefix(a.name);
+//        scope.setScopeCurrentClassnamePrefix(a.name);
 
         Scope clxdefScope = new Scope(scope);
         clxdefScope.clxdef = a;
@@ -346,24 +346,24 @@ public class ASTEvaluator {
         }
     }
 
-    private static String _ExpandPackageName(AST_Expr a) {
-        if (a instanceof AST_Expr_OperBi) {
-            return _ExpandPackageName(((AST_Expr_OperBi)a).left) + "." + _ExpandPackageName(((AST_Expr_OperBi)a).right);
-        } else if (a instanceof AST_Expr_PrimaryVariableName) {
-            return ((AST_Expr_PrimaryVariableName) a).name;
-        } else
-            throw new IllegalStateException();
-    }
+//    private static String _ExpandPackageName(AST_Expr a) {
+//        if (a instanceof AST_Expr_OperBi) {
+//            return _ExpandPackageName(((AST_Expr_OperBi)a).left) + "." + _ExpandPackageName(((AST_Expr_OperBi)a).right);
+//        } else if (a instanceof AST_Expr_PrimaryVariableName) {
+//            return ((AST_Expr_PrimaryVariableName) a).name;
+//        } else
+//            throw new IllegalStateException();
+//    }
 
     public void evalSrStmtUsing(AST_SR_Stmt_Using a, Scope scope) {
 
-        scope.declare(((AST_Expr_PrimaryVariableName)a.used.right).name, new GObject(new UnsupportedOperationException()));
+//        scope.declare(((AST_Expr_PrimaryVariableName)a.used.right).name, new GObject(new UnsupportedOperationException()));
 
     }
 
     public void evalSrStmtPackage(AST_SR_Stmt_Package a, Scope scope) {
 
-        scope.setScopeCurrentClassnamePrefix(_ExpandPackageName(a.name));
+//        scope.setScopeCurrentClassnamePrefix(_ExpandPackageName(a.name));
 
     }
 

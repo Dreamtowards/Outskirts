@@ -19,7 +19,11 @@ public class AST_Typename extends AST {
         this((AST_Expr)ls.get(0), ls.get(1) == null ? null : ((ASTls)ls.get(1)).toArrayt(AST_Typename[]::new));
     }
 
-    public static String expandPlainName(AST_Expr ex) {
+    public String nameptrExpanded() {
+        return expandPlainName(nameptr);
+    }
+
+    private static String expandPlainName(AST_Expr ex) {
         if (ex instanceof AST_Expr_PrimaryVariableName)
             return ex.varname();
         else if (ex instanceof AST_Expr_OperBi && ((AST_Expr_OperBi) ex).operator.equals("."))

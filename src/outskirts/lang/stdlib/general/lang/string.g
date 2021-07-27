@@ -11,8 +11,17 @@ class string : hashable {
     @private
     array<ushort> value;
 
+    @constructor
+    void init() {
+
+    }
+
     string substring(int begin_idx, int end_idx) {
         return new string(arrays.subarray(value, begin_idx, end_idx));
+    }
+
+    ushort char_at(int i) {
+        return value.get(i);
     }
 
     @private

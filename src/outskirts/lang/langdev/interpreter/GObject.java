@@ -24,4 +24,9 @@ public class GObject {
     public String toString() {
         return "GObject{"+type+";"+value+"}";
     }
+
+
+    public static GObject ofBoolean(boolean b) {
+        return new GObject(b ? 1 : 0);
+    }
 }

@@ -19,7 +19,7 @@ public class AST_Class_Member extends AST {
     public boolean isStatic() {
         if (annotations != null) {
             for (AST_Annotation mAnn : annotations) {
-                if (AST_Typename.expandPlainName(mAnn.type.nameptr).equals("static")) {
+                if (mAnn.type.nameptrExpanded().equals("static")) {
                     return true;
                 }
             }
