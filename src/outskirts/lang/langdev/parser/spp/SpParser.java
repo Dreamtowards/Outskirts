@@ -60,6 +60,17 @@ public class SpParser {
         return ls;
     }
 
+
+    public static boolean _IsPass(Lexer lx, Function<Lexer, AST> psr) {
+        try {
+            psr.apply(lx);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+
     /*
      * =============== TYPENAME ===============
      */
@@ -222,6 +233,9 @@ public class SpParser {
 
 
 
+
+
+
     /*
      * =============== STATEMENT ===============
      */
@@ -240,13 +254,28 @@ public class SpParser {
             case "while":
                 return parseStmtWhile(lx);
             case "return":
+                return parseStmtReturn(lx);
             case "class":
                 throw new UnsupportedOperationException();
             default:
                 int mark = lx.index;
 
+                if (_IsPass(lx, SpParser::parse_Typename) && lx.next().isName()) {
+                    switch (lx.next().text()) {
+                        case "(":
+                            lx.index = mark;
+                            return parseStmtDefFunc(lx);
+                        case "=":
+                        case ";":
+                            lx.index = mark;
+                            return parseStmtDefVar(lx);
+                        default:
+                            throw new IllegalStateException();
+                    }
+                }
 
-                throw new UnsupportedOperationException(lx.peek().text());
+                lx.index = mark;
+                return parseStmtExpr(lx);
         }
     }
 
@@ -286,5 +315,59 @@ public class SpParser {
         AST_Stmt then = parseStmt(lx);
 
         return new AST_Stmt_Strm_While(cond, then);
+    }
+
+    public static AST_Stmt_FuncReturn parseStmtReturn(Lexer lx) {
+        lx.rqnext("return");
+        AST_Expr expr = null;
+        if (!lx.peeking(";")) {
+            expr = parseExpr(lx);
+        }
+        lx.rqnext(";");
+        return new AST_Stmt_FuncReturn(expr);
+    }
+
+
+    private static AST_Stmt_DefFunc.AST_Func_Param parseStmtDefFunc_FuncParam(Lexer lx) {
+        AST_Typename type = parse_Typename(lx);
+        String name = lx.next().validate(Token::isName).text();
+        return new AST_Stmt_DefFunc.AST_Func_Param(type, name);
+    }
+
+    public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
+
+        AST_Typename rettype = parse_Typename(lx);
+        String name = lx.next().validate(Token::isName).text();
+
+        lx.rqnext("(");
+        var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, SpParser::parseStmtDefFunc_FuncParam, null, ")");
+        lx.rqnext(")");
+
+        lx.rqnext("{");
+        var body = parseStmtBlockStmts(lx, "}");
+        lx.rqnext("}");
+
+        return new AST_Stmt_DefFunc(rettype, name, params, body);
+    }
+
+    public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
+
+        AST_Typename type = parse_Typename(lx);
+        String name = lx.next().validate(Token::isName).text();
+
+        AST_Expr init = null;
+        if (lx.peeking_skp("=")) {
+            init = parseExpr(lx);
+        }
+
+        lx.rqnext(";");
+
+        return new AST_Stmt_DefVar(type, name, init);
+    }
+
+    public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {
+        AST_Expr expr = parseExpr(lx);
+        lx.rqnext(";");
+        return new AST_Stmt_Expr(expr);
     }
 }

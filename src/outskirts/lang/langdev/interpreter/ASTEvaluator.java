@@ -249,7 +249,7 @@ public class ASTEvaluator {
     public void evalStmtDefFunc(AST_Stmt_DefFunc a, Scope scope) {
         String[] pnames = new String[a.params.size()];
         for (int i = 0;i < pnames.length;i++) {
-             pnames[i] = ((ASTls)a.params.get(i)).get(1).varname();
+             pnames[i] = a.params.get(i).name;
         }
 
         scope.declare(a.name, new GObject(defineFuncptr(scope, a.body, pnames)));

@@ -6,7 +6,7 @@ void _main() {
 
     s_print(s);
 
-    int ch = 'a';
+    int ch = "a";
     s_print(ch);
 
 }

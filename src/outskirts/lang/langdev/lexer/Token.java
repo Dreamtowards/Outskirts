@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.lexer;
 
+import java.util.function.Predicate;
+
 public final class Token {
 
     public static final String EOF_T = "\0";
@@ -75,5 +77,12 @@ public final class Token {
 
     public boolean isConnectedNext() {
         return isConnectedNext;
+    }
+
+
+    public Token validate(Predicate<Token> pred) {
+        if (!pred.test(this))
+            throw new IllegalStateException();
+        return this;
     }
 }

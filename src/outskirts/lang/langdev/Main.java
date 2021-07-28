@@ -15,14 +15,10 @@ public class Main {
         Lexer lex = new Lexer();
         lex.read("a = b = true ? then : else ? thn : el2 && a || sec");
 
-        System.out.println(
-                SpParser.parseExpr(lex)
-        );
 
+        RuntimeExec.init();
 
-//        RuntimeExec.init();
-//
-//        RuntimeExec.imports("main.g");
+        RuntimeExec.imports("main.g");
     }
 
 }
