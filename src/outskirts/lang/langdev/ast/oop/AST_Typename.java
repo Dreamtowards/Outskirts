@@ -8,16 +8,16 @@ import java.util.List;
 public class AST_Typename extends AST {
 
     public final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
-    public final AST_Typename[] genericTypes;
+    public final List<AST_Typename> genericArgs;
 
-    public AST_Typename(AST_Expr nameptr, AST_Typename[] genericTypes) {
+    public AST_Typename(AST_Expr nameptr, List<AST_Typename> genericArgs) {
         this.nameptr = nameptr;
-        this.genericTypes = genericTypes;
+        this.genericArgs = genericArgs;
     }
 
-    public AST_Typename(List<AST> ls) {
-        this((AST_Expr)ls.get(0), ls.get(1) == null ? null : ((ASTls)ls.get(1)).toArrayt(AST_Typename[]::new));
-    }
+//    public AST_Typename(List<AST> ls) {
+//        this((AST_Expr)ls.get(0), ls.get(1) == null ? null : ((ASTls)ls.get(1)).toArrayt(AST_Typename[]::new));
+//    }
 
     public String nameptrExpanded() {
         return expandPlainName(nameptr);
@@ -34,6 +34,6 @@ public class AST_Typename extends AST {
 
     @Override
     public String toString() {
-        return "T::"+nameptr+"<"+Arrays.toString(genericTypes)+">";
+        return "T::"+nameptr+"<"+genericArgs+">";
     }
 }

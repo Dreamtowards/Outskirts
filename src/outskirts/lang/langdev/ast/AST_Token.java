@@ -4,7 +4,6 @@ import outskirts.lang.langdev.lexer.Token;
 import outskirts.util.Validate;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class AST_Token extends AST {
 
@@ -22,10 +21,10 @@ public class AST_Token extends AST {
         for (AST a : ls) {
             Token t = ((AST_Token)a).token();
             if (t != sampL)
-                Validate.isTrue(t.isNextToTheNext());
+                Validate.isTrue(t.isConnectedNext());
             sb.append(t.text());
         }
-        return new AST_Token(new Token(sb.toString(), sampF.type(), sampF.getLineNumber(), sampF.getCharNumber(), sampL.isNextToTheNext()));
+        return new AST_Token(new Token(sb.toString(), sampF.type(), sampF.getLineNumber(), sampF.getCharNumber(), sampL.isConnectedNext()));
     }
 
     public String text() {

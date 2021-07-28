@@ -3,10 +3,10 @@ package outskirts.lang.langdev.parser;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
-import outskirts.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,7 +20,12 @@ public final class Parserls extends Parser {
      */
     private Function<List<AST>, AST> createfunc;
 
-    private boolean useLookaheadUntil = false;
+    private int lookaheadMode = LOOKAHEAD_INDEX;
+
+    private int lookaheadIndex = 1;
+
+    private static final int LOOKAHEAD_UNTIL = 1;
+    private static final int LOOKAHEAD_INDEX = 2;
 
     private String dbg_name = "UNNAMED";
 
@@ -59,22 +64,33 @@ public final class Parserls extends Parser {
         }
     }
 
+    private static LinkedList<String> callstack = new LinkedList<>();
+
     @Override
     public boolean match(Lexer lex) {
+        try {
+            callstack.push(dbg_name);
         // empty parsers should been pass.
         // e.g. ornull.  pass().and(sth).or(suffix1, suffix2, pass() /*empty, no suffix*/).
         if (parsers.isEmpty())
             return true;
-        if (!useLookaheadUntil)
+        // specialized. only checking first of first. not full of first.
+        if (lookaheadMode == LOOKAHEAD_INDEX && lookaheadIndex == 1) {
             return parsers.get(0).match(lex);
+        }
 
         // Lookahead.
         int mark = lex.index;
         boolean pass = true;
         List<AST> tmpls = new ArrayList<>();  // correct.?
+        int i = 0;
         for (Parser p : parsers) {
-            if (p == ParserLookaheadTag.LOOKAHEAD_TAG)
+            if (lookaheadMode == LOOKAHEAD_UNTIL && p == ParserLookaheadTag.LOOKAHEAD_TAG)
                 break;
+            if (lookaheadMode == LOOKAHEAD_INDEX && i == lookaheadIndex) {
+                System.out.println("Match "+callstack+" "+lex.peek().detailString());
+                break;
+            }
             try {
                 p.read(lex, tmpls);
             } catch (Exception ex) {
@@ -83,9 +99,17 @@ public final class Parserls extends Parser {
                 pass = false;
                 break;
             }
+            i++;
         }
         lex.index = mark;  // restore.
+        if (lookaheadMode==LOOKAHEAD_INDEX && lookaheadIndex==1) {
+            if (parsers.get(0).match(lex) != pass)
+                System.out.println("Diff "+dbg_name);
+        }
         return pass;
+        } finally {
+            callstack.pop();
+        }
     }
 
     // passthrough
@@ -112,8 +136,13 @@ public final class Parserls extends Parser {
     }
 
     public Parserls markLookahead() {
-        useLookaheadUntil = true;
+        lookaheadMode = LOOKAHEAD_UNTIL;
         return and(ParserLookaheadTag.LOOKAHEAD_TAG);
+    }
+    public Parserls lookaheadIndex(int i) {
+        lookaheadMode = LOOKAHEAD_INDEX;
+        lookaheadIndex = i;
+        return this;
     }
 
     private Parserls token(Function<Token, String> validator, boolean create) {
@@ -148,7 +177,7 @@ public final class Parserls extends Parser {
      */
     public Parserls id(String id, boolean create, boolean rqNx) {
         return token(t -> {
-            if (rqNx && !t.isNextToTheNext())
+            if (rqNx && !t.isConnectedNext())
                 return "Required Token NextToTheNext. actual: false.";
             if (!t.isIdentifier() || !t.text().equals(id))
                 return "Expected identifier: \""+id+"\", actual: \""+t.text() + "\".";

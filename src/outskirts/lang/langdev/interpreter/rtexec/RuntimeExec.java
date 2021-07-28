@@ -1,6 +1,5 @@
 package outskirts.lang.langdev.interpreter.rtexec;
 
-import outskirts.lang.langdev.SyntaX;
 import outskirts.lang.langdev.ast.AST;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.interpreter.ASTEvaluator;
@@ -8,6 +7,8 @@ import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
 import outskirts.lang.langdev.lexer.Lexer;
+import outskirts.lang.langdev.lexer.Token;
+import outskirts.lang.langdev.parser.spp.SpParser;
 import outskirts.util.IOUtils;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import java.util.Objects;
 
 public class RuntimeExec {
 
-    private static final String[] SourceBasePaths = {"src/outskirts/lang/stdlib/"};
+    private static final String[] SourceBasePaths = {"src/outskirts/lang/stlv2/"};
     private static final Scope RootScope = new Scope(null);
 
 
@@ -39,7 +40,7 @@ public class RuntimeExec {
 
         Scope sc = new Scope(RootScope);
 
-        AST ast = SyntaX.srcroot.readone(lex);
+        AST ast = SpParser.parseStmtBlockStmts(lex, Token.EOF_T);
 //        System.out.println("### Read Program: "+ast);
 
         if (!lex.eof())

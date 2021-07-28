@@ -1,6 +1,5 @@
 package outskirts.lang.langdev.lexer;
 
-import outskirts.lang.langdev.parser.ParsingException;
 import outskirts.util.*;
 
 import java.util.ArrayList;
@@ -58,6 +57,10 @@ public final class Lexer {
                 boolean isNextToNext = !isBlankChar(atchar(s, idx.i));
                 tokens.add(new Token(text, type, nline.i, nchar.i, isNextToNext));
             }
+
+
+//            StringUtils.locate(s, s.length(), nline, nchar);
+//            tokens.add(new Token(Token.EOF_T, Token.TYPE_EOF, nline.i, nchar.i, false));
         } catch (Exception ex) {
             throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i, nchar.i), ex);
         }
@@ -65,14 +68,23 @@ public final class Lexer {
 
     public Token peek() {
         if (eof())
-             throw new IllegalStateException("EOF");
+            return Token.EOF;
         return tokens.get(index);
     }
-
     public Token next() {
         if (eof())
-             throw new IllegalStateException("EOF");
+            return Token.EOF;
         return tokens.get(index++);
+    }
+
+    public void skip(int i) {
+        index += i;
+    }
+    public void skip() {
+        skip(1);
+    }
+    public void back() {
+        skip(-1);
     }
 
     public boolean eof() {
@@ -82,6 +94,66 @@ public final class Lexer {
     public List<Token> tokens() {
         return tokens;
     }
+
+
+
+
+    public final Lexer rqnext(String s) {
+        Validate.isTrue(next().text().equals(s));
+        return this;
+    }
+
+
+    public final boolean peeking(String connected) {
+        return peekingc(connected) > 0;
+    }
+
+    public final int peekingc(String connected) {  // "c" suffix, count of peeking connected
+
+        String ld = peek().text();
+        if (connected.equals(ld))       // quick optim
+            return 1;
+        if (!connected.startsWith(ld))  // quick optim
+            return 0;
+
+
+        int i = 1;              // token rel_idx offset
+        int off = ld.length();  // connected_str char offset.
+        while (off < connected.length()) {
+            Token t = tokens.get(index+(i++)); String c = t.text();
+            boolean leading = off + c.length() < connected.length();  // not last
+            if ((leading && !t.isConnectedNext()) ||
+                !connected.startsWith(c, off)) {
+                return 0;
+            }
+            off += c.length();
+        }
+        return i;
+    }
+
+
+    public final boolean peeking_skp(String s) {
+        int i;
+        if ((i= peekingc(s)) > 0) {
+            skip(i);
+            if (i > 1) {
+                System.out.println("Skipped "+i);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public final String peekingone_skp(String... ls) {
+        for (String s : ls) {
+            if (peeking_skp(s))
+                return s;
+        }
+        return null;
+    }
+
+
+
 
     // deprecated way: char nextUnblank(), the 'next' is writable mean even for Unblanked chars.
     public static int skipBlanks(String s, Intptr idx) {
@@ -269,8 +341,8 @@ public final class Lexer {
         throw new IllegalStateException("Illegal border token.");
     }
 
-    private static boolean startsWith(String search, String full, int fromIndex) {
-        return full.indexOf(search, fromIndex) == fromIndex;
+    private static boolean startsWith(String search, String full, int full_FromIndex) {
+        return full.indexOf(search, full_FromIndex) == full_FromIndex;
     }
     private static char atchar(String s, int i) {
         return i >= s.length() ? 0 : s.charAt(i);

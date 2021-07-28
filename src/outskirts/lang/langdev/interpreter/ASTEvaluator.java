@@ -186,9 +186,9 @@ public class ASTEvaluator {
         FuncPtr fnptr = (FuncPtr)evalExpr(a.funcptr, scope).value;
 
         // eval args.
-        GObject[] args = new GObject[a.args.length];
+        GObject[] args = new GObject[a.args.size()];
         for (int i = 0;i < args.length;i++) {
-            args[i] = evalExpr(a.args[i], scope);  // curr scope.?  not in-func scope.?
+            args[i] = evalExpr(a.args.get(i), scope);  // curr scope.?  not in-func scope.?
         }
 
         return fnptr.invoke(args);

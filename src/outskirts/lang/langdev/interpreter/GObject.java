@@ -6,7 +6,6 @@ public class GObject {
 
     /**
      * general.lang.int
-     *
      */
     public String type;
 

@@ -2,30 +2,32 @@ package outskirts.lang.langdev.lexer;
 
 public final class Token {
 
-//    public static Token EOF = new Token("", 0, 0, 0);
+    public static final String EOF_T = "\0";
+    public static final Token  EOF = new Token(EOF_T, 0, 0, 0, false);
 
+    public static final int TYPE_EOF = 0;
     public static final int TYPE_NAME = 1;
     public static final int TYPE_BORDER = 2;
     public static final int TYPE_NUMBER = 3;
     public static final int TYPE_STRING = 4;
     public static final int TYPE_CHARACTER = 5;
-    public static final String[] TYPES_NAME = {"NULL", "NAME", "BORDER", "NUMBER", "STRING", "CHARACTER"};
+    public static final String[] TYPES_NAME = {"EOF", "NAME", "BORDER", "NUMBER", "STRING", "CHARACTER"};
 
     private final String text;
     private final int type;
 
     // connNext or connPrev .?
-    private final boolean isNextToTheNext;
+    private final boolean isConnectedNext;
 
     private final int lineNumber;
     private final int charNumber;
 
-    public Token(String s, int type, int linenum, int charnum, boolean isNextToTheNext) {
+    public Token(String s, int type, int linenum, int charnum, boolean isConnectedNext) {
         this.text = s;
         this.type = type;
         this.lineNumber = linenum;
         this.charNumber = charnum;
-        this.isNextToTheNext = isNextToTheNext;
+        this.isConnectedNext = isConnectedNext;
     }
 
     public String text() {
@@ -61,7 +63,7 @@ public final class Token {
 
     @Override
     public String toString() {
-        return text+(isNextToTheNext?"[Y]":"[N]");
+        return text+(isConnectedNext ?"[Y]":"[N]");
     }
 
     public String detailString() {
@@ -71,7 +73,7 @@ public final class Token {
         return (lineNumber+1)+":"+(charNumber+1);
     }
 
-    public boolean isNextToTheNext() {
-        return isNextToTheNext;
+    public boolean isConnectedNext() {
+        return isConnectedNext;
     }
 }

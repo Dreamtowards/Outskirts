@@ -20,6 +20,10 @@ public final class ASTls extends AST {
         return Arrays.asList(list).toArray(cf);
     }
 
+    public List list() {
+        return Arrays.asList(list);
+    }
+
     public int size() {
         return list.length;
     }
