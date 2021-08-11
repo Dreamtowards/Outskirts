@@ -1,6 +1,6 @@
 package outskirts.lang.langdev.interpreter.rtexec;
 
-import outskirts.lang.langdev.ast.AST;
+import outskirts.lang.langdev.ast.AST_Stmt_Block;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.interpreter.ASTEvaluator;
 import outskirts.lang.langdev.interpreter.GObject;
@@ -8,7 +8,7 @@ import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
-import outskirts.lang.langdev.parser.spp.SpParser;
+import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.IOUtils;
 
 import javax.swing.*;
@@ -19,8 +19,8 @@ import java.util.Objects;
 
 public class RuntimeExec {
 
-    private static final String[] SourceBasePaths = {"src/outskirts/lang/stlv2/"};
-    private static final Scope RootScope = new Scope(null);
+    private static final String SourceBasePath = "src/outskirts/lang/stlv2/";
+    public static final Scope RootScope = new Scope(null);
 
 
     public static void init() {
@@ -33,14 +33,14 @@ public class RuntimeExec {
 
 
 
-    private static Scope exec(String code) {
+    public static Scope exec(String code) {
 //        System.out.println("ExecCode: "+code);
         Lexer lex = new Lexer();
         lex.read(code);
 
         Scope sc = new Scope(RootScope);
 
-        AST ast = SpParser.parseStmtBlockStmts(lex, Token.EOF_T);
+        AST_Stmt_Block ast = LxParser.parseStmtBlockStmts(lex, Token.EOF_T);
 //        System.out.println("### Read Program: "+ast);
 
         if (!lex.eof())
@@ -50,11 +50,13 @@ public class RuntimeExec {
 //        prtr.printExpr((AST_Expr)ast, 0);
 //        System.out.println(prtr.buf.toString());
 
-
-        ASTEvaluator evlr = new ASTEvaluator();
-        evlr.eval(ast, sc);
+        ASTEvaluator.evalStmtBlockStmts(ast, sc);
 
         return sc;
+    }
+
+    public static String classnameToFilename(String classname) {
+        return classname.replace(".", "/") + ".g";
     }
 
 
@@ -71,24 +73,9 @@ public class RuntimeExec {
     }
 
 
-    public static File locateSourceFile(String spath, boolean fullcheck) {
-        File dest = null;
-        for (String basepath : SourceBasePaths) {
-            File f = new File(basepath, spath);
-            if (f.exists()) {
-                if (fullcheck && dest != null)
-                    throw new IllegalStateException("Found Duplicated File in path "+spath);
-                dest = f;
-                if (!fullcheck)
-                    return f;
-            }
-        }
-        return dest;
-    }
-
-    private static String readfileInSrc(String path) {
+    public static String readfileInSrc(String path) {
         try {
-            return IOUtils.toString(new FileInputStream(locateSourceFile(path, true)));
+            return IOUtils.toString(new FileInputStream(new File(SourceBasePath, path)));
         } catch (IOException ex) {
             throw new RuntimeException("Failed read file", ex);
         }
@@ -136,6 +123,10 @@ public class RuntimeExec {
                 throw new IllegalStateException("Failed slp thread", ex);
             }
             return GObject.VOID;
+        }));
+
+        sc.declare("sac_get", new GObject((FuncPtr) args1 -> {
+            return new GObject(((char[])args1[0].value)[ASTEvaluator.toint(args1[1].value)]);
         }));
 
         sc.declare("false", new GObject(0));

@@ -100,7 +100,8 @@ public final class Lexer {
 
 
     public final Lexer rqnext(String s) {
-        Validate.isTrue(next().text().equals(s));
+        Token t = next();
+        Validate.isTrue(t.text().equals(s), "Bad token. expected: '"+s+"', actual: '"+t.text()+"'. at "+t.detailString());
         return this;
     }
 

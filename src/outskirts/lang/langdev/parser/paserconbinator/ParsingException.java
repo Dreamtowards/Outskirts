@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.parser;
+package outskirts.lang.langdev.parser.paserconbinator;
 
 import outskirts.lang.langdev.lexer.Token;
 

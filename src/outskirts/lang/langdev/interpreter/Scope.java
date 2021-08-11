@@ -10,23 +10,34 @@ public final class Scope {
 
     public AST_Stmt_DefClass clxdef;  // only for ClassDef. scopes.
 
-//    private String _scopeCurrentClassnamePrefix = "";
-//
-//    public String currentClassnamePrefix() {
-//        if (parent == null)
-//            return _scopeCurrentClassnamePrefix;
-//
-//        return parent.currentClassnamePrefix()+_scopeCurrentClassnamePrefix;
-//    }
 
-//    public void setScopeCurrentClassnamePrefix(String pref) {
-//        if (!_scopeCurrentClassnamePrefix.isEmpty())
-//            throw new IllegalStateException("Alread Setted.? prev:'"+_scopeCurrentClassnamePrefix+"', next: '"+pref+"'");
-//        this._scopeCurrentClassnamePrefix = pref;
-//    }
+
+    private String classnamePrefix;
+    public String currentClassnamePrefix() {
+        if (parent == null)
+            return classnamePrefix;
+
+        String p = parent.currentClassnamePrefix();
+        if (classnamePrefix != null && p != null) {
+            return p+"."+classnamePrefix;
+        } else if (classnamePrefix != null) {
+            return classnamePrefix;
+        } else if (p != null) {
+            return p;
+        } else {
+            return null;
+        }
+    }
+    public void setClassnamePrefix(String pref) {
+        Validate.isTrue(!pref.isEmpty());
+        if (classnamePrefix != null)
+            throw new IllegalStateException("Already set "+classnamePrefix);
+
+        classnamePrefix = pref;
+    }
 
     public final Map<String, GObject> variables = new HashMap<>();
-    private final Scope parent;
+    public final Scope parent;
 
     public Scope(Scope parent) {
         this.parent = parent;
@@ -35,6 +46,14 @@ public final class Scope {
     public void declare(String name, GObject v) {
         Validate.isTrue(!variables.containsKey(name), "The variable \""+name+"\" was already been declarated.");
         variables.put(name, v);
+    }
+
+    public GObject tryaccess(String name) {
+        try {
+            return access(name);
+        } catch (IllegalStateException ex) {
+            return null;  // not exists.
+        }
     }
 
     public GObject access(String name) {
@@ -54,12 +73,8 @@ public final class Scope {
         }
     }
 
-//    @Override
-//    public String toString() {
-//        return "Scope{" +
-//                "_scopeCurrentClassnamePrefix='" + _scopeCurrentClassnamePrefix + '\'' +
-//                ", variables=" + variables +
-//                ", parent=" + parent +
-//                '}';
-//    }
+    @Override
+    public String toString() {
+        return "Scope{" + variables +'}';
+    }
 }

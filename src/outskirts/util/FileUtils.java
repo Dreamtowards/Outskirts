@@ -1,28 +1,24 @@
 package outskirts.util;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class FileUtils {
 
-    public static final long ONE_KB = 1024L;
-    public static final long ONE_MB = 1048576L;
-    public static final long ONE_GB = 1073741824L;
-    public static final long ONE_TB = 1099511627776L;
-    public static final long ONE_PB = 1125899906842624L;
-    public static final long ONE_EB = 1152921504606846976L;
+    public static final int KB = 1024;
+    public static final int MB = 1024 * KB;  // 1048576L
+    public static final long GB = 1024L * MB;  // 1073741824L
+    public static final long TB = 1024 * GB;  // 1099511627776L
+    public static final long PB = 1024 * TB;  // 1125899906842624L
+    public static final long EB = 1024 * PB;  // 1152921504606846976L
 
-    private static final long FILE_COPY_BUFFER_SIZE = 31457280L;
+    private static final long FILE_COPY_BUFFER_SIZE = 30 * MB;
 
     public static File getTempDirectory() {
         return new File(System.getProperty("java.io.tmpdir"));
@@ -35,21 +31,20 @@ public final class FileUtils {
     private static final DecimalFormat DATSIZE_FORMAT = new DecimalFormat("#.##");
     public static String toDisplaySize(long byteCount) {
         float UP_THRESHOLD = 1.25f;
-        float fbytesCount = byteCount;
-        if (byteCount < ONE_KB*UP_THRESHOLD) {
+        if (byteCount < KB *UP_THRESHOLD) {
             return byteCount + " bytes";
-        } else if (byteCount < ONE_MB*UP_THRESHOLD) {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_KB) + " KB";
-        } else if (byteCount < ONE_GB*UP_THRESHOLD) {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_MB) + " MB";
-        } else if (byteCount < ONE_TB*UP_THRESHOLD) {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_GB) + " GB";
-        } else if (byteCount < ONE_PB*UP_THRESHOLD) {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_TB) + " TB";
-        } else if (byteCount < ONE_EB*UP_THRESHOLD) {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_PB) + " PB";
+        } else if (byteCount < MB *UP_THRESHOLD) {
+            return DATSIZE_FORMAT.format((float)byteCount / KB) + " KB";
+        } else if (byteCount < GB *UP_THRESHOLD) {
+            return DATSIZE_FORMAT.format((float)byteCount / MB) + " MB";
+        } else if (byteCount < TB *UP_THRESHOLD) {
+            return DATSIZE_FORMAT.format((float)byteCount / GB) + " GB";
+        } else if (byteCount < PB *UP_THRESHOLD) {
+            return DATSIZE_FORMAT.format((float)byteCount / TB) + " TB";
+        } else if (byteCount < EB *UP_THRESHOLD) {
+            return DATSIZE_FORMAT.format((float)byteCount / PB) + " PB";
         } else {
-            return DATSIZE_FORMAT.format(fbytesCount / ONE_EB) + " EB";
+            return DATSIZE_FORMAT.format((float)byteCount / EB) + " EB";
         }
     }
 

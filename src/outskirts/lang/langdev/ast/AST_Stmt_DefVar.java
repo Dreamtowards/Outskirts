@@ -18,10 +18,6 @@ public class AST_Stmt_DefVar extends AST_Stmt {
         this.initexpr = initexpr;
     }
 
-    public AST_Stmt_DefVar(List<AST> ls) {
-        this((AST_Typename)ls.get(0), ls.get(1).tokentext(), (AST_Expr)ls.get(2));
-    }
-
     @Override
     public String toString() {
         return String.format("ast_vardef{%s %s = %s}", type, name, initexpr);

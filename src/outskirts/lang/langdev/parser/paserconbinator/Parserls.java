@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.parser;
+package outskirts.lang.langdev.parser.paserconbinator;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.lexer.Lexer;
@@ -239,9 +239,9 @@ public final class Parserls extends Parser {
         return repeatjoin(p, delimiter, false);
     }
 
-    public final Parserls oper_bi_lr(Parser factor, Object... opers) {
-        return and(factor).repeat(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
-    }
+//    public final Parserls oper_bi_lr(Parser factor, Object... opers) {
+//        return and(factor).repeat(pass().iden(opers).and(factor).composesp(3, AST_Expr_OperBi::new));
+//    }
 
     public final Parserls opnull(Parser p) {  // how about op-RealNull, its more fast.
         return or(p, ParserPutNull.INST);

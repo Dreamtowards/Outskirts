@@ -1,16 +1,12 @@
-package outskirts.lang.langdev.parser;
+package outskirts.lang.langdev.parser.paserconbinator;
 
 import outskirts.lang.langdev.ast.AST;
 import outskirts.lang.langdev.ast.AST_Token;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 public class ParserToken extends Parser {
 

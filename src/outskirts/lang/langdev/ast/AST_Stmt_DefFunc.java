@@ -13,9 +13,9 @@ public class AST_Stmt_DefFunc extends AST_Stmt {
     public final AST_Typename type;
     public final String name;
     public final List<AST_Func_Param> params; // unclear
-    public final AST body;     // ?? block ??or expr?
+    public final AST_Stmt_Block body;     // ?? block ??or expr?
 
-    public AST_Stmt_DefFunc(AST_Typename type, String name, List<AST_Func_Param> params, AST body) {
+    public AST_Stmt_DefFunc(AST_Typename type, String name, List<AST_Func_Param> params, AST_Stmt_Block body) {
         this.type = type;
         this.name = name;
         this.params = params;

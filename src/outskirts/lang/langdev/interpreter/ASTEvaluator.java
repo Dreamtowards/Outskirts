@@ -3,27 +3,36 @@ package outskirts.lang.langdev.interpreter;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.ex.FuncPtr;
 import outskirts.lang.langdev.ast.ex.FuncReturnEx;
-import outskirts.lang.langdev.ast.oop.AST_Annotation;
 import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.ast.srcroot.AST_SR;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Package;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Using;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_StmtLs;
+import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
+import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
+import outskirts.lang.langdev.interpreter.rtexec.RuntimeExec;
+import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.Validate;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import static outskirts.util.FileUtils.MB;
 
 // ASTEvalutor instead of Evalutor: more specifica, more classifi, but may limited, and like an AST-subclass?.
 // however modify is available.
 public class ASTEvaluator {
 
-    public boolean isConditionPass(AST_Expr cond, Scope scope) {
+    public static byte[] HeapSpace = new byte[10 * MB];
+
+    private Scope currentScope;
+
+
+    public static boolean isConditionPass(AST_Expr cond, Scope scope) {
         return toint(evalExpr(cond, scope).value) != 0;
     }
     /**
      * @param funcBody AST_Stmt_Block or AST_Expr.
      */
-    public FuncPtr defineFuncptr(Scope funcOuterScope, AST funcBody, String[] paramsNames) {
+    public static FuncPtr defineFuncptr(Scope funcOuterScope, AST funcBody, String[] paramsNames) {
         // Validate.isTrue(funcBody instanceof AST_Stmt_Block || funcBody instanceof AST_Expr);  // will check.
 
         return args -> {
@@ -65,11 +74,6 @@ public class ASTEvaluator {
             evalStmt((AST_Stmt)a, scope);
             return GObject.VOID;
         }
-        else if (a instanceof AST_SR)
-        {
-            evalSourceRoot((AST_SR)a, scope);
-            return GObject.VOID;
-        }
         else
         {
             throw new IllegalStateException();
@@ -83,23 +87,22 @@ public class ASTEvaluator {
      * ============= AST_EXPR =============
      */
 
-    private GObject evalExprPrimaryLiteralString(AST_Expr_PrimaryLiteralString a) {
+    private static GObject evalExprPrimaryLiteralString(AST_Expr_PrimaryLiteralString a) {
         return a.str;
     }
 
-    public GObject evalExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a) {
+    public static GObject evalExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a) {
         return a.num;
     }
 
-    public GObject evalExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, Scope scope) {
+    public static GObject evalExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, Scope scope) {
         return scope.access(a.name);
     }
 
-    public GObject evalExprOperBi(AST_Expr_OperBi a, Scope scope) {
+    public static GObject evalExprOperBi(AST_Expr_OperBi a, Scope scope) {
         GObject l = evalExpr(a.left, scope);
         if (a.operator.equals(".")) {
-            // System.out.println(((Scope) l.value).variables);
-            return ((Scope)l.value).access(a.right.varname());
+            return Objects.requireNonNull((Scope)l.value).access(a.right.varname());
         }
 
         GObject r = evalExpr(a.right, scope);
@@ -132,7 +135,7 @@ public class ASTEvaluator {
                 ((Float)o).intValue();
     }
 
-    public GObject evalExprOperUnaryPre(AST_Expr_OperUnaryPre a, Scope scope) {
+    public static GObject evalExprOperUnaryPre(AST_Expr_OperUnaryPre a, Scope scope) {
         GObject o = evalExpr(a.expr, scope);
 
         switch (a.operator) {
@@ -146,7 +149,7 @@ public class ASTEvaluator {
         }
     }
 
-    public GObject evalExprOperUnaryPost(AST_Expr_OperUnaryPost a, Scope scope) {
+    public static GObject evalExprOperUnaryPost(AST_Expr_OperUnaryPost a, Scope scope) {
         GObject o = evalExpr(a.expr, scope);
 
         switch (a.operator) {
@@ -165,7 +168,7 @@ public class ASTEvaluator {
         }
     }
 
-    public GObject evalExprOperTriCon(AST_Expr_OperTriCon a, Scope scope) {
+    public static GObject evalExprOperTriCon(AST_Expr_OperTriCon a, Scope scope) {
         if (isConditionPass(a.condition, scope))
             return evalExpr(a.exprthen, scope);
         else
@@ -173,7 +176,7 @@ public class ASTEvaluator {
     }
 
 
-    public GObject evalExprLambda(AST_Expr_Lambda a, Scope scope) {
+    public static GObject evalExprLambda(AST_Expr_Lambda a, Scope scope) {
         String[] pnames = new String[a.params.size()];
         for (int i = 0;i < pnames.length;i++) {
             pnames[i] = ((AST_Expr_PrimaryVariableName)a.params.get(i)).name;
@@ -182,7 +185,7 @@ public class ASTEvaluator {
         return new GObject(defineFuncptr(scope, a.body, pnames));
     }
 
-    public GObject evalExprFuncCall(AST_Expr_FuncCall a, Scope scope) {
+    public static GObject evalExprFuncCall(AST_Expr_FuncCall a, Scope scope) {
         FuncPtr fnptr = (FuncPtr)evalExpr(a.funcptr, scope).value;
 
         // eval args.
@@ -194,11 +197,14 @@ public class ASTEvaluator {
         return fnptr.invoke(args);
     }
 
-    public GObject evalExprOperNew(AST_Expr_OperNew a, Scope scope) {
+    public static GObject evalExprOperNew(AST_Expr_OperNew a, Scope scope) {
         AST_Stmt_DefClass c = ((Scope)evalExpr(a.typeptr.nameptr, scope).value).clxdef; // (AST_Stmt_DefClass)scope.access(a.type.name).value;
         Validate.isTrue(c != null);
 
-        Scope clsScope = new Scope(scope);
+        return _NewInstance(c, scope);
+    }
+    public static GObject _NewInstance(AST_Stmt_DefClass c, Scope parentscope) {
+        Scope clsScope = new Scope(parentscope);
         for (AST_Class_Member s : c.members) {
             if (!s.isStatic()) {
                 evalStmt(s.member, clsScope);
@@ -207,7 +213,7 @@ public class ASTEvaluator {
         return new GObject(clsScope);  // DANGER! uh... return a scope...
     }
 
-    public GObject evalExpr(AST_Expr a, Scope scope) {
+    public static GObject evalExpr(AST_Expr a, Scope scope) {
         if (a instanceof AST_Expr_OperBi) {
             return evalExprOperBi((AST_Expr_OperBi)a, scope);
         } else if (a instanceof AST_Expr_OperUnaryPre) {
@@ -238,15 +244,18 @@ public class ASTEvaluator {
      * ============= AST_STMT =============
      */
 
-    public void evalStmtBlock(AST_Stmt_Block a, Scope scope) {
-        Scope blscope = new Scope(scope);
-
+    public static void evalStmtBlockStmts(AST_Stmt_Block a, Scope scope) {
         for (AST_Stmt s : a.stmts) {
-            evalStmt(s, blscope);
+            evalStmt(s, scope);
         }
     }
+    public static void evalStmtBlock(AST_Stmt_Block a, Scope scope) {
+        Scope blscope = new Scope(scope);
 
-    public void evalStmtDefFunc(AST_Stmt_DefFunc a, Scope scope) {
+        evalStmtBlockStmts(a, blscope);
+    }
+
+    public static void evalStmtDefFunc(AST_Stmt_DefFunc a, Scope scope) {
         String[] pnames = new String[a.params.size()];
         for (int i = 0;i < pnames.length;i++) {
              pnames[i] = a.params.get(i).name;
@@ -255,17 +264,17 @@ public class ASTEvaluator {
         scope.declare(a.name, new GObject(defineFuncptr(scope, a.body, pnames)));
     }
 
-    public void evalStmtDefVar(AST_Stmt_DefVar a, Scope scope) {
+    public static void evalStmtDefVar(AST_Stmt_DefVar a, Scope scope) {
 
         scope.declare(a.name, a.initexpr != null ? evalExpr(a.initexpr, scope) : new GObject(null));
     }
 
-    public void evalStmtFuncReturn(AST_Stmt_FuncReturn a, Scope scope) {
+    public static void evalStmtFuncReturn(AST_Stmt_FuncReturn a, Scope scope) {
 
         throw new FuncReturnEx(evalExpr(a.expr, scope));
     }
 
-    public void evalStmtStrmIf(AST_Stmt_Strm_If a, Scope scope) {
+    public static void evalStmtStrmIf(AST_Stmt_Strm_If a, Scope scope) {
 
         if (isConditionPass(a.condition, scope)) {
             evalStmt(a.thenb, scope);
@@ -274,7 +283,7 @@ public class ASTEvaluator {
         }
     }
 
-    public void evalStmtStrmWhile(AST_Stmt_Strm_While a, Scope scope) {
+    public static void evalStmtStrmWhile(AST_Stmt_Strm_While a, Scope scope) {
         while (true) {
             if (!isConditionPass(a.condition, scope))
                 break;
@@ -283,27 +292,33 @@ public class ASTEvaluator {
         }
     }
 
-    public void evalStmtExpr(AST_Stmt_Expr a, Scope scope) {
+    public static void evalStmtExpr(AST_Stmt_Expr a, Scope scope) {
 
         evalExpr(a.expr, scope);
     }
 
-    public void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
-//        scope.setScopeCurrentClassnamePrefix(a.name);
+    public static Map<String, GObject> loadedClasses = new HashMap<>();
 
+    public static void evalStmtDefClass(AST_Stmt_DefClass a, Scope scope) {
         Scope clxdefScope = new Scope(scope);
         clxdefScope.clxdef = a;
+
+        // Set Classname Prefix  (before member.
+        clxdefScope.setClassnamePrefix(a.name);
 
         for (AST_Class_Member m : a.members) {
             if (m.isStatic()) {
                 evalStmt(m.member, clxdefScope);
             }
         }
+        System.out.println("Define Class: "+scope.currentClassnamePrefix()+"."+a.name);
 
-        scope.declare(a.name, new GObject(clxdefScope));
+        GObject clx = new GObject(clxdefScope);
+        loadedClasses.put(scope.currentClassnamePrefix()+"."+a.name, clx);
+        scope.declare(a.name, clx);
     }
 
-    public void evalStmt(AST_Stmt a, Scope scope) {
+    public static void evalStmt(AST_Stmt a, Scope scope) {
         if (a instanceof AST_Stmt_Block) {
             evalStmtBlock((AST_Stmt_Block)a, scope);
         } else if (a instanceof AST_Stmt_DefFunc) {
@@ -320,31 +335,54 @@ public class ASTEvaluator {
             evalStmtExpr((AST_Stmt_Expr)a, scope);
         } else if (a instanceof AST_Stmt_DefClass) {
             evalStmtDefClass((AST_Stmt_DefClass)a, scope);
+        } else if (a instanceof AST_Stmt_Using) {
+            evalStmtUsing((AST_Stmt_Using) a, scope);
+        } else if (a instanceof AST_Stmt_Package) {
+            evalStmtPackage((AST_Stmt_Package)a, scope);
+        } else if (a instanceof AST_Stmt_Blank) {
+            // just ignored.
         } else
-            throw new IllegalStateException();
+            throw new IllegalStateException("Illegal Stmt Type: "+a);
     }
 
+    public static void evalStmtUsing(AST_Stmt_Using a, Scope scope) {
+        String rfname = LxParser._PeakQualifiedName(a.used, false);
+        String fullname = LxParser._ExpandQualifiedName(a.used);
 
+        scope.declare(rfname, _EnsureLoadClass(fullname));
+    }
 
+    public static void evalStmtPackage(AST_Stmt_Package a, Scope scope) {
+        Validate.isTrue(scope.parent == RuntimeExec.RootScope, "package stmt only allowed on -root scope.");
 
+        scope.setClassnamePrefix(LxParser._ExpandQualifiedName(a.name));
+    }
 
-
-
-
-
-
-
-    /**
-     * ============= AST_SR =============
-     */
-
-    public void evalSrStmtLs(AST_SR_StmtLs a, Scope scope) {
-
-        for (AST stmt : a.elements) {
-
-            eval(stmt, scope);
+    public static GObject _EnsureLoadClass(String fullname) {
+        if (!loadedClasses.containsKey(fullname)) {
+            RuntimeExec.imports(RuntimeExec.classnameToFilename(fullname));
         }
+        return Objects.requireNonNull(loadedClasses.get(fullname), "Not Found Class "+fullname);
     }
+
+
+
+
+
+
+
+
+//    /**
+//     * ============= AST_SR =============
+//     */
+//
+//    public void evalSrStmtLs(AST_SR_StmtLs a, Scope scope) {
+//
+//        for (AST stmt : a.elements) {
+//
+//            eval(stmt, scope);
+//        }
+//    }
 
 //    private static String _ExpandPackageName(AST_Expr a) {
 //        if (a instanceof AST_Expr_OperBi) {
@@ -355,28 +393,28 @@ public class ASTEvaluator {
 //            throw new IllegalStateException();
 //    }
 
-    public void evalSrStmtUsing(AST_SR_Stmt_Using a, Scope scope) {
+//    public void evalSrStmtUsing(AST_SR_Stmt_Using a, Scope scope) {
 
 //        scope.declare(((AST_Expr_PrimaryVariableName)a.used.right).name, new GObject(new UnsupportedOperationException()));
 
-    }
+//    }
 
-    public void evalSrStmtPackage(AST_SR_Stmt_Package a, Scope scope) {
+//    public void evalSrStmtPackage(AST_SR_Stmt_Package a, Scope scope) {
 
 //        scope.setScopeCurrentClassnamePrefix(_ExpandPackageName(a.name));
 
-    }
+//    }
 
-    public void evalSourceRoot(AST_SR a, Scope scope) {
-        if (a instanceof AST_SR_Stmt_Using)
-            evalSrStmtUsing((AST_SR_Stmt_Using)a, scope);
-        else if (a instanceof AST_SR_Stmt_Package)
-            evalSrStmtPackage((AST_SR_Stmt_Package)a, scope);
-        else if (a instanceof AST_SR_StmtLs)
-            evalSrStmtLs((AST_SR_StmtLs)a, scope);
-        else
-            throw new IllegalStateException();
-    }
+//    public void evalSourceRoot(AST_SR a, Scope scope) {
+//        if (a instanceof AST_SR_Stmt_Using)
+//            evalSrStmtUsing((AST_SR_Stmt_Using)a, scope);
+//        else if (a instanceof AST_SR_Stmt_Package)
+//            evalSrStmtPackage((AST_SR_Stmt_Package)a, scope);
+//        else if (a instanceof AST_SR_StmtLs)
+//            evalSrStmtLs((AST_SR_StmtLs)a, scope);
+//        else
+//            throw new IllegalStateException();
+//    }
 
 
 }

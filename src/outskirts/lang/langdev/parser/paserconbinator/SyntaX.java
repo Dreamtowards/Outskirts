@@ -1,17 +1,4 @@
-package outskirts.lang.langdev.parser;
-
-import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Annotation;
-import outskirts.lang.langdev.ast.oop.AST_Class_Member;
-import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_StmtLs;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Package;
-import outskirts.lang.langdev.ast.srcroot.AST_SR_Stmt_Using;
-import outskirts.lang.langdev.parser.Parserls;
-
-import static outskirts.lang.langdev.parser.Parserls.pass;
-import static outskirts.lang.langdev.parser.Parserls.struct;
+package outskirts.lang.langdev.parser.paserconbinator;
 
 public class SyntaX {
 
