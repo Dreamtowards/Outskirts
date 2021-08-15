@@ -1,5 +1,7 @@
-package outskirts.lang.langdev.compiler;
+package outskirts.lang.langdev.compiler.codegen;
 
+import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
@@ -13,45 +15,58 @@ public class CodeBuf {
             LDC = 2,
             INVOKEFUNC = 3;
 
-    List<String> localvars = new ArrayList<>();
-    List<Byte> buf = new ArrayList<>();
+    private final List<String> localvars = new ArrayList<>();
+    private final List<Byte> buf = new ArrayList<>();
 
-    ConstantPool constantpool;
+    public ConstantPool constantpool;
 
     public CodeBuf(ConstantPool constantpool) {
         this.constantpool = constantpool;
     }
 
-    int findvar(String name) {
+    public int findvar(String name) {
         int i = localvars.indexOf(name);
         if (i == -1) throw new IllegalStateException("Not found variable");
         return i;
     }
-    void defvar(String name) {
+    public void defvar(String name) {
         Validate.isTrue(!localvars.contains(name), "Already def variable.");
         localvars.add(name);
     }
 
-    void _store(String name) {
+    public void _store(String name) {
         _store(findvar(name));
     }
-    void _store(int i) {
+    public void _store(int i) {
         append(STORE);
         append((byte)i);
     }
 
-    void _ldc(short cpidx) {
+    public void _ldc(short cpidx) {
         append(LDC);
         append((byte)((cpidx >>> 8) & 0xFF));
         append((byte)(cpidx & 0xFF));
     }
 
     // funcptr, args...
-    void _invokefunc() {
+    public void _invokefunc() {
         append(INVOKEFUNC);
     }
 
     void append(byte b) {
         buf.add(b);
+    }
+
+    public byte[] toByteArray() {
+        return CollectionUtils.toArrayb(buf);
+    }
+
+    @Override
+    public String toString() {
+        return "CodeBuf{" +
+                "localvars=" + localvars +
+                ", buf=" + buf +
+                ", constantpool=" + constantpool +
+                '}';
     }
 }

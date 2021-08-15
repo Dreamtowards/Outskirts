@@ -1,27 +1,32 @@
-package outskirts.lang.langdev.compiler;
+package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.util.Validate;
 
-import java.util.ArrayList;
-import java.util.List;
+public class CodeGen {
 
-public class FuncCompiler {
 
+    /*
+     * ============ STMT ============
+     */
+
+    public static void compileStmt(AST_Stmt a, CodeBuf buf) {
+
+        if (a instanceof AST_Stmt_Block) {
+            compileStmtBlock((AST_Stmt_Block)a, buf);
+        } else if (a instanceof AST_Stmt_DefVar) {
+            compileStmtDefVar((AST_Stmt_DefVar)a, buf);
+        } else if (a instanceof AST_Stmt_Expr) {
+            compileExpr(((AST_Stmt_Expr)a).expr, buf);
+        } else if (a instanceof AST_Stmt_Return) {
+            compileStmtReturn((AST_Stmt_Return)a, buf);
+        } else
+            throw new IllegalStateException(a.toString());
+    }
 
     public static void compileStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
         for (AST_Stmt stmt : a.stmts) {
             compileStmt(stmt, buf);
         }
-    }
-
-    public static void compileStmt(AST_Stmt a, CodeBuf buf) {
-        if (a instanceof AST_Stmt_DefVar) {
-            compileStmtDefVar((AST_Stmt_DefVar)a, buf);
-        } else if (a instanceof AST_Stmt_Expr) {
-            compileExpr(((AST_Stmt_Expr)a).expr, buf);
-        } else
-            throw new IllegalStateException(a.toString());
     }
 
     public static void compileStmtDefVar(AST_Stmt_DefVar a, CodeBuf buf) {
@@ -31,6 +36,19 @@ public class FuncCompiler {
             buf._store(a.name);
         }
     }
+
+    public static void compileStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
+        throw new IllegalStateException();
+    }
+
+
+
+
+
+
+    /*
+     * ============ EXPR ============
+     */
 
     public static void compileExpr(AST_Expr a, CodeBuf buf) {
         if (a instanceof AST_Expr_PrimaryLiteralString) {

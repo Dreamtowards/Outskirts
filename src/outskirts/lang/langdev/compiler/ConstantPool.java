@@ -50,4 +50,9 @@ public class ConstantPool {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "ConstantPool"+constants;
+    }
 }

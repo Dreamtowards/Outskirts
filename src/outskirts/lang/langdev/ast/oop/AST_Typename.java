@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class AST_Typename extends AST {
 
+    // Type Symbol
     public SymbolClass sym;
 
     public final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.

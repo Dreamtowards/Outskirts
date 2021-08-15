@@ -7,13 +7,12 @@ import outskirts.lang.langdev.ast.oop.AST_Typename;
 import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
 import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.util.Ref;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
 import java.util.Arrays;
 
-public class ASTSymbolIden {
+public class ASTSymbol {
 
     public static final String
         BUILTIN_TYPE_STRING = "stl.lang.string",
@@ -24,13 +23,13 @@ public class ASTSymbolIden {
         if (a instanceof AST_Expr_PrimaryVariableName) {
             return a.sym= scope.resolveMAExpr(a);
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
-            return a.sym= scope.resolveMAStr(BUILTIN_TYPE_STRING);  // scope.resolve("")
+            return a.sym= scope.resolveMAStr(BUILTIN_TYPE_STRING);
         } else if (a instanceof AST_Expr_PrimaryLiteralNumber) {
             return a.sym= scope.resolveMAStr(BUILTIN_TYPE_INT);
         } else if (a instanceof AST_Expr_FuncCall) {
             AST_Expr_FuncCall c = (AST_Expr_FuncCall)a;
             idenExpr(c.funcptr, scope);
-            System.out.println("FuncRetType: "+((SymbolFunction)c.funcptr.sym).returntype);
+//            System.out.println("FuncRetType: "+((SymbolFunction)c.funcptr.sym).returntype);
             return a.sym= ((SymbolFunction)c.funcptr.sym).returntype;
         } else if (a instanceof AST_Expr_Lambda) {
             throw new UnsupportedOperationException();
@@ -38,7 +37,6 @@ public class ASTSymbolIden {
             AST_Expr_OperBi c = (AST_Expr_OperBi)a;
             if (c.operator.equals(".")) {
                 Symbol l = idenExpr(c.left, scope);
-
                 return a.sym= l.resolveMember(c.right.varname());
             } else {
                 Symbol  l = idenExpr(c.left, scope),
@@ -49,8 +47,8 @@ public class ASTSymbolIden {
         } else if (a instanceof AST_Expr_OperNew) {
             AST_Expr_OperNew c = (AST_Expr_OperNew)a;
             idenTypename(c.typeptr, scope);
-            System.out.println("New Instance: "+c.typeptr.sym.standardInstanced);
-            return a.sym= c.typeptr.sym.standardInstanced;
+//            System.out.println("New Instance: "+c.typeptr.sym);
+            return a.sym= c.typeptr.sym;
         } else if (a instanceof AST_Expr_OperTriCon) {
             AST_Expr_OperTriCon c = (AST_Expr_OperTriCon)a;
             Symbol e1 = idenExpr(c.exprthen, scope);
@@ -94,62 +92,6 @@ public class ASTSymbolIden {
         } else
             throw new IllegalStateException();
     }
-    public static void idenStmtUsing(AST_Stmt_Using a, Symtab scope) {
-        Symbol r = scope.resolveMAExpr(a.used);
-
-        if (a.isStatic) Validate.isTrue(r instanceof SymbolVariable || r instanceof SymbolFunction);
-        else            Validate.isTrue(r instanceof SymbolClass);
-
-//        if (r instanceof SymbolClass) {
-//            ((SymbolClass) r).isUsing = true;
-//        }
-
-        System.out.println("Using "+r.name);
-        scope.define(r);  // or "new SymbolUsing(name, r)" .?
-    }
-
-    public static void _Iden_Packages(AST_Stmt_Block a, Symtab glob) {
-        Symtab pkgScp = glob;
-        for (AST_Stmt stmt : a.stmts) {
-            if (stmt instanceof AST_Stmt_Package)
-                pkgScp = ASTSymbolIden._Heading_idenStmtPackage((AST_Stmt_Package)stmt, glob);
-            else
-                ASTSymbolIden.idenStmt(stmt, pkgScp);
-        }
-    }
-
-    // package, used at before root.
-    public static Symtab _Heading_idenStmtPackage(AST_Stmt_Package a, Symtab scope) {
-        Symtab sp = scope;
-
-        for (String pkg : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), "."))
-        {
-            sp.define((SymbolPackage)(sp=new SymbolPackage(pkg,sp)));  // chaos
-        }
-
-        return sp;
-    }
-    public static void idenStmtDefClass(AST_Stmt_DefClass a, Symtab scope) {
-        SymbolClass sclass = new SymbolClass(a.name, scope);
-        System.out.println("DefClas:"+sclass.name+" on "+scope);
-
-        scope.define(sclass);
-
-        for (AST_Class_Member mb : a.members) {
-            Symtab scp = mb.isStatic() ? sclass : sclass.standardInstanced;
-            AST_Stmt m = mb.member;
-
-            if (m instanceof AST_Stmt_DefVar) {
-                idenStmtDefVar((AST_Stmt_DefVar)m, scp);
-            } else if (m instanceof AST_Stmt_DefFunc) {
-                idenStmtDefFunc((AST_Stmt_DefFunc)m, scp);
-            } else if (m instanceof AST_Stmt_DefClass) {
-                idenStmtDefClass((AST_Stmt_DefClass)m, scp);
-            } else
-                throw new IllegalStateException("Illegal member type");
-        }
-    }
-
 
     public static void idenStmtBlock(AST_Stmt_Block a, Symtab scope) {
         Symtab bls = new Symtab(scope);
@@ -161,6 +103,24 @@ public class ASTSymbolIden {
         for (AST_Stmt stmt : a.stmts) {
             idenStmt(stmt, scope);
         }
+    }
+
+
+    public static void idenStmtReturn(AST_Stmt_Return a, Symtab scope) {
+        if (a.expr != null) {
+            idenExpr(a.expr, scope);
+        }
+    }
+    public static void idenStmtIf(AST_Stmt_If a, Symtab scope) {
+        idenExpr(a.condition, scope);
+        idenStmt(a.thenb, scope);
+        if (a.elseb != null) {
+            idenStmt(a.elseb, scope);
+        }
+    }
+    public static void idenStmtWhile(AST_Stmt_While a, Symtab scope) {
+        idenExpr(a.condition, scope);
+        idenStmt(a.then, scope);
     }
 
     public static void idenTypename(AST_Typename a, Symtab scope) {
@@ -195,20 +155,72 @@ public class ASTSymbolIden {
     }
 
 
-    public static void idenStmtReturn(AST_Stmt_Return a, Symtab scope) {
-        if (a.expr != null) {
-            idenExpr(a.expr, scope);
+    public static void idenStmtDefClass(AST_Stmt_DefClass a, Symtab scope) {
+        SymbolClass sclass = new SymbolClass(a.name, scope);
+        a.thisclass = sclass;
+
+        scope.define(sclass);
+
+//        System.out.println("DefClas:"+sclass.name+" on "+scope);
+
+        for (AST_Typename sup : a.superclasses) {
+            idenTypename(sup, scope);
+        }
+
+        for (AST_Class_Member mb : a.members) {
+            AST_Stmt m = mb.member;
+            mb.isStatic();
+            // isPrivate()
+
+            if (m instanceof AST_Stmt_DefVar) {
+                idenStmtDefVar((AST_Stmt_DefVar)m, sclass);
+            } else if (m instanceof AST_Stmt_DefFunc) {
+                idenStmtDefFunc((AST_Stmt_DefFunc)m, sclass);
+            } else if (m instanceof AST_Stmt_DefClass) {
+                idenStmtDefClass((AST_Stmt_DefClass)m, sclass);
+            } else
+                throw new IllegalStateException("Illegal member type");
         }
     }
-    public static void idenStmtIf(AST_Stmt_If a, Symtab scope) {
-        idenExpr(a.condition, scope);
-        idenStmt(a.thenb, scope);
-        if (a.elseb != null) {
-            idenStmt(a.elseb, scope);
+
+    public static void idenStmtUsing(AST_Stmt_Using a, Symtab scope) {
+        Symbol r = scope.resolveMAExpr(a.used);
+
+        if (a.isStatic) Validate.isTrue(r instanceof SymbolVariable || r instanceof SymbolFunction);
+        else            Validate.isTrue(r instanceof SymbolClass);
+
+//        if (r instanceof SymbolClass) {
+//            ((SymbolClass) r).isUsing = true;
+//        }
+
+//        System.out.println("Using "+r.name);
+        scope.define(r);  // or "new SymbolUsing(name, r)" .?
+    }
+    // package, used at before root.
+    public static Symtab _Heading_idenStmtPackage(AST_Stmt_Package a, Symtab scope) {
+        Symtab sp = scope;
+
+        for (String pkg : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), "."))
+        {
+            Symbol existedPkgNode =  sp.getSymbol(pkg);
+            if (existedPkgNode == null) {
+                sp.define((SymbolPackage)(sp=new SymbolPackage(pkg,sp)));  // chaos
+            } else {
+                sp = existedPkgNode;
+            }
+        }
+
+        return sp;
+    }
+
+    public static void _Iden_Packages(AST_Stmt_Block a, Symtab glob) {
+        Symtab pkgScp = glob;
+        for (AST_Stmt stmt : a.stmts) {
+            if (stmt instanceof AST_Stmt_Package)
+                pkgScp = ASTSymbol._Heading_idenStmtPackage((AST_Stmt_Package)stmt, glob);
+            else
+                ASTSymbol.idenStmt(stmt, pkgScp);
         }
     }
-    public static void idenStmtWhile(AST_Stmt_While a, Symtab scope) {
-        idenExpr(a.condition, scope);
-        idenStmt(a.then, scope);
-    }
+
 }

@@ -9,21 +9,25 @@ using bulletphysics.collision.narrowphase.Base b;
 using minecraft.client.Client;
 */
 
-
-
 package stl.lang;
 
+class object   { }
 class void     { }
 class int      { }
 class function { }
-class string   { int i; }
+class string : object  { int i; }
 class system   {
 
     @static
-    void s_print(string s) {
+    void s_print(string s, int i) {
 
     }
 }
+
+package stl.util;
+
+class linked_list { }
+
 
 package test.pkg;
 
@@ -51,9 +55,9 @@ class Base {
 
 class Sub2 : Base {
 
-    string printsth() {
+    string printsth(int i) {
 
-        s_print("abc"+Base.DEF_X);
+        // s_print("abc"+Base.DEF_X);
     }
 }
 

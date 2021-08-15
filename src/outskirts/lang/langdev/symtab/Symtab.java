@@ -24,7 +24,7 @@ public class Symtab {
         return parent;
     }
 
-    private Symbol getSymbol(String name) {
+    public Symbol getSymbol(String name) {
         for (Symbol s : symbols) {
             if (s.name.equals(name))
                 return s;

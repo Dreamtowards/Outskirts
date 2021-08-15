@@ -1,4 +1,4 @@
 package outskirts.lang.langdev.semantic;
 
-public class ASTSemanAnalytic {
+public class ASTSemantic {
 }

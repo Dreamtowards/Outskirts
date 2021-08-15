@@ -3,9 +3,11 @@ package outskirts.lang.langdev.compiler;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.util.*;
 
 public class ClassFile {
+
+    public static Map<String, ClassFile> _CLASSPATH = new LinkedHashMap<>();
 
     public final int version;
     public final ConstantPool constantpool;
