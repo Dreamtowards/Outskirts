@@ -1,9 +1,6 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.interpreter.ASTEvaluator;
 import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.Scope;
-import outskirts.lang.langdev.interpreter.rtexec.RuntimeExec;
 import outskirts.lang.langdev.lexer.Token;
 
 import java.util.List;

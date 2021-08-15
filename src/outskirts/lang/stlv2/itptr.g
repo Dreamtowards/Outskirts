@@ -1,7 +1,37 @@
+/*
+using static stlx.opengl.GL11.*;
+using std.lang.*;
+
+namespace bulletphysics.collision.narrowphase {
+    class Base { }
+}
+using bulletphysics.collision.narrowphase.Base b;
+using minecraft.client.Client;
+*/
+
+
+
+package stl.lang;
+
+class void     { }
+class int      { }
+class function { }
+class string   { int i; }
+class system   {
+
+    @static
+    void s_print(string s) {
+
+    }
+}
+
 package test.pkg;
 
 using stl.lang.string;
+using stl.lang.int;
+using stl.lang.void;
 
+using static stl.lang.system.s_print;
 
 class Base {
 
@@ -21,7 +51,7 @@ class Base {
 
 class Sub2 : Base {
 
-    void printsth() {
+    string printsth() {
 
         s_print("abc"+Base.DEF_X);
     }

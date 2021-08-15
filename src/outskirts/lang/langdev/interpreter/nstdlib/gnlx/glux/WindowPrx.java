@@ -5,7 +5,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import outskirts.lang.langdev.Main;
 import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
 import outskirts.util.SystemUtil;
 

@@ -6,38 +6,25 @@ import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
 import outskirts.lang.langdev.ast.oop.AST_Typename;
 import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
 import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
-import outskirts.lang.langdev.compiler.symtab.Symbol;
-import outskirts.lang.langdev.compiler.symtab.Symtab;
-import outskirts.lang.langdev.interpreter.ASTEvaluator;
+import outskirts.lang.langdev.symtab.Symbol;
+import outskirts.lang.langdev.symtab.Symtab;
 import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.Scope;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ASTCompiler {
 
-    private Symtab currentScope = null;
-
-    public void pushScope() {
-        currentScope = new Symtab(currentScope);
-    }
-    public void popScope() {
-        currentScope = currentScope.getParent();
-    }
-
     private static final int CLASS_VERSION = 1;
 
-    public static ClassFile compileClass(AST_Stmt_DefClass a, Scope scope) {
+    public static ClassFile compileClass(AST_Stmt_DefClass a, Symtab scope) {
         ConstantPool constantpool = new ConstantPool();
 
         String thisclass = scope.currentClassnamePrefix()+a.name;
 
-        Scope scpdefclass = new Scope(scope);
+        Symtab scpdefclass = new Symtab(scope);
         scpdefclass.setClassnamePrefix(a.name);
 
         List<String> superclasses = new ArrayList<>();
@@ -106,17 +93,17 @@ public class ASTCompiler {
         }
     }
 
-    private static Symbol evalSymbalQuery(AST_Expr a, Symtab scope) {
-        if (a instanceof AST_Expr_PrimaryVariableName) {
-            return scope.resolve(a.varname());
-        } else if (a instanceof AST_Expr_OperBi) {
-            AST_Expr_OperBi c = (AST_Expr_OperBi)a;
-            Validate.isTrue(c.operator.equals("."));
-            Symbol left = evalSymbalQuery(c.left, scope);
-            return left.subsymbols.get(c.right.varname());
-        } else
-            throw new IllegalStateException();
-    }
+//    private static Symbol evalSymbalQuery(AST_Expr a, Symtab scope) {
+//        if (a instanceof AST_Expr_PrimaryVariableName) {
+//            return scope.resolve(a.varname());
+//        } else if (a instanceof AST_Expr_OperBi) {
+//            AST_Expr_OperBi c = (AST_Expr_OperBi)a;
+//            Validate.isTrue(c.operator.equals("."));
+//            Symbol left = evalSymbalQuery(c.left, scope);
+//            return left.subsymbols.get(c.right.varname());
+//        } else
+//            throw new IllegalStateException();
+//    }
 
     public static void compilePkgStmt(AST_Stmt a) {
         if (a instanceof AST_Stmt_DefClass)

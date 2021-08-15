@@ -1,14 +1,14 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.Scope;
+import outskirts.lang.langdev.symtab.SymbolClass;
 
 import java.util.List;
 
 public class AST_Stmt_DefVar extends AST_Stmt {
 
     public final AST_Typename type;
+    public SymbolClass type_s;
     public final String name;
     public final AST_Expr initexpr;  // nullable.
 

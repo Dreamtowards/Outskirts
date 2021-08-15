@@ -1,8 +1,7 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.Scope;
+import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.util.Val;
 import outskirts.util.Validate;
 
@@ -10,13 +9,13 @@ import java.util.List;
 
 public class AST_Stmt_DefFunc extends AST_Stmt {
 
-    public final AST_Typename type;
+    public final AST_Typename returntype;
     public final String name;
     public final List<AST_Func_Param> params; // unclear
     public final AST_Stmt_Block body;     // ?? block ??or expr?
 
-    public AST_Stmt_DefFunc(AST_Typename type, String name, List<AST_Func_Param> params, AST_Stmt_Block body) {
-        this.type = type;
+    public AST_Stmt_DefFunc(AST_Typename returntype, String name, List<AST_Func_Param> params, AST_Stmt_Block body) {
+        this.returntype = returntype;
         this.name = name;
         this.params = params;
         this.body = body;
@@ -24,7 +23,7 @@ public class AST_Stmt_DefFunc extends AST_Stmt {
 
     @Override
     public String toString() {
-        return "ast_stmt_funcdef{"+type+" "+name+"("+params+")"+body+"}";
+        return "ast_stmt_funcdef{"+returntype+" "+name+"("+params+")"+body+"}";
     }
 
     public static class AST_Func_Param extends AST {

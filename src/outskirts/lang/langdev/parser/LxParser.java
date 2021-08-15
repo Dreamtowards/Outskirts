@@ -337,7 +337,7 @@ public class LxParser {
         );
     }
 
-    public static AST_Stmt_Strm_If parseStmtIf(Lexer lex) {
+    public static AST_Stmt_If parseStmtIf(Lexer lex) {
         lex.rqnext("if").rqnext("(");
         AST_Expr cond = parseExpr(lex);
         lex.rqnext(")");
@@ -349,27 +349,27 @@ public class LxParser {
             els = parseStmt(lex);
         }
 
-        return new AST_Stmt_Strm_If(cond, then, els);
+        return new AST_Stmt_If(cond, then, els);
     }
 
-    public static AST_Stmt_Strm_While parseStmtWhile(Lexer lx) {
+    public static AST_Stmt_While parseStmtWhile(Lexer lx) {
         lx.rqnext("while").rqnext("(");
         AST_Expr cond = parseExpr(lx);
         lx.rqnext(")");
 
         AST_Stmt then = parseStmt(lx);
 
-        return new AST_Stmt_Strm_While(cond, then);
+        return new AST_Stmt_While(cond, then);
     }
 
-    public static AST_Stmt_FuncReturn parseStmtReturn(Lexer lx) {
+    public static AST_Stmt_Return parseStmtReturn(Lexer lx) {
         lx.rqnext("return");
         AST_Expr expr = null;
         if (!lx.peeking(";")) {
             expr = parseExpr(lx);
         }
         lx.rqnext(";");
-        return new AST_Stmt_FuncReturn(expr);
+        return new AST_Stmt_Return(expr);
     }
 
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {
