@@ -23,7 +23,7 @@ public class CodeBuf {
 
     public int findvar(String name) {
         int i = localvars.indexOf(name);
-        if (i == -1) throw new IllegalStateException("Not found variable");
+        if (i == -1) throw new IllegalStateException("Not found variable "+name);
         return i;
     }
     public void defvar(String name) {

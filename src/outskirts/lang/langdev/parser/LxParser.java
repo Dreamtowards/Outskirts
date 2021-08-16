@@ -474,6 +474,12 @@ public class LxParser {
                 anns.add(parseAnnotation(lx));
             }
 
+            List<String> modifiers = new ArrayList<>();
+            String modf;
+            while ((modf=lx.peekingone_skp("static")) != null) {
+                modifiers.add(modf);
+            }
+
             int mark = lx.index;
             AST_Stmt m;
             if (lx.peeking("class")) {
@@ -492,7 +498,7 @@ public class LxParser {
                 throw new IllegalStateException("Bad member");
             }
 
-            members.add(new AST_Class_Member(anns, m));
+            members.add(new AST_Class_Member(anns, modifiers, m));
         }
         lx.rqnext("}");
 

@@ -52,7 +52,7 @@ public class Main {
 
 
 
-//        System.out.println(ClassFile._CLASSPATH.keySet());
+        System.out.println(ClassFile._CLASSPATH.keySet());
 
 
 
