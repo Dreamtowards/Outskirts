@@ -13,16 +13,26 @@ package stl.lang;
 
 class object   { }
 class void     { }
-class int      { }
-class function { }
-class string : object  { int i; }
 class system   {
 
     @static
     void s_print(string s, int i) {
         int n = 8;
 
-        n + n;
+        while (n < 100) {
+
+            n = n + n;
+        }
+        n = 10;
+        if (n == 2) {
+            n = n + n + n + n;
+        } else if (n == 3) {
+            n = 4;
+        } else if (n == 4) {
+            n = 5;
+        } else {
+            n = 6;
+        }
     }
 }
 
@@ -33,8 +43,6 @@ class linked_list { }
 
 package test.pkg;
 
-using stl.lang.string;
-using stl.lang.int;
 using stl.lang.void;
 
 using static stl.lang.system.s_print;

@@ -11,6 +11,7 @@ import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.ASTSymbol;
+import outskirts.lang.langdev.symtab.SymbolBuiltinType;
 import outskirts.lang.langdev.symtab.Symtab;
 //import outskirts.lang.langdev.java;
 
@@ -18,7 +19,6 @@ import outskirts.lang.langdev.symtab.Symtab;
 import java.io.IOException;
 
 public class Main {
-
 
 
     public static void main(String[] args) throws IOException {
@@ -32,6 +32,8 @@ public class Main {
 
         // IDEN, SCOPE.
         Symtab glob = new Symtab(null);
+        SymbolBuiltinType.init(glob);
+
         ASTSymbol._Iden_Packages(a, glob);
 
 

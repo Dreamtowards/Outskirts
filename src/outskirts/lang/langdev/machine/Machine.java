@@ -1,7 +1,10 @@
 package outskirts.lang.langdev.machine;
 
 import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.lang.langdev.compiler.Opcodes;
 import outskirts.util.IOUtils;
+import outskirts.util.Intptr;
+import outskirts.util.SystemUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,11 +16,17 @@ import static outskirts.lang.langdev.compiler.Opcodes.*;
 public class Machine {
 
     public static void exec(byte[] code, ConstantPool cpool, int localsize) {
+        Intptr t = Intptr.zero();
+        while (t.i < code.length) {
+            System.out.println(Opcodes._InstructionComment(code, t));
+        }
+
         int pc = 0;
         LinkedList<Object> opstack = new LinkedList<>();
         Object[] locals = new Object[localsize];
 
         while (pc < code.length) {
+//            System.out.println(" EXEC INST "+Opcodes._InstructionComment(code, Intptr.of(pc)));
             switch (code[pc++]) {
                 case STORE: {
                     Object o = opstack.pop();
@@ -51,27 +60,61 @@ public class Machine {
                     pc = IOUtils.readShort(code, pc);
                     break;
                 }
-                case JMP_IFN: {
+                case JMP_F: {
                     Object o = opstack.pop();
-                    if ((o instanceof Integer && (int)o == 0) ||
-                        (o instanceof Float   && (float)o == 0f) ||
-                         o == null) {
+                    if ((int)o == 0) {
                         pc = IOUtils.readShort(code, pc);
+                    } else {
+                        pc += 2;
                     }
                     break;
                 }
                 case I32ADD: {
-                    int i1 = (int)opstack.pop();
                     int i2 = (int)opstack.pop();
+                    int i1 = (int)opstack.pop();
                     opstack.push(i1+i2);
                     break;
                 }
+                case DUP: {
+                    opstack.push(opstack.peek());
+                    break;
+                }
+                case ICMP: {
+                    int i2 = (int)opstack.pop();
+                    int i1 = (int)opstack.pop();
+                    int r = i1 - i2;
+                    int cmpr;
+                    if (r < 0) cmpr = CMPR_LT;
+                    else if (r > 0) cmpr = CMPR_GT;
+                    else cmpr = CMPR_EQ;
+                    opstack.push(cmpr);
+                    break;
+                }
+                case CMP_LT: {
+                    opstack.push((int)opstack.pop() == CMPR_LT ? 1 : 0);
+                    break;
+                }
+                case CMP_GT: {
+                    opstack.push((int)opstack.pop() == CMPR_GT ? 1 : 0);
+                    break;
+                }
+                case CMP_EQ: {
+                    opstack.push((int)opstack.pop() == CMPR_EQ ? 1 : 0);
+                    break;
+                }
+                case POP: {
+                    opstack.pop();
+                    break;
+                }
                 default:
-                    throw new IllegalStateException("Illegal instruction.");
+                    throw new IllegalStateException("Illegal instruction. #"+pc);
             }
         }
 
         System.out.println("Done Exec. opstack: "+opstack);
     }
 
+    public static final int CMPR_LT = 0,
+                            CMPR_GT = 1,
+                            CMPR_EQ = 2;
 }

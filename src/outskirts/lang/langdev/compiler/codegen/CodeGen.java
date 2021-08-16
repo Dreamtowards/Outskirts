@@ -2,6 +2,8 @@ package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.lang.langdev.ast.*;
 
+import java.util.function.Consumer;
+
 public class CodeGen {
 
 
@@ -15,11 +17,13 @@ public class CodeGen {
         } else if (a instanceof AST_Stmt_DefVar) {
             compileStmtDefVar((AST_Stmt_DefVar)a, buf);
         } else if (a instanceof AST_Stmt_Expr) {
-            compileExpr(((AST_Stmt_Expr)a).expr, buf);
+            compileStmtExpr((AST_Stmt_Expr)a, buf);
         } else if (a instanceof AST_Stmt_Return) {
             compileStmtReturn((AST_Stmt_Return)a, buf);
         } else if (a instanceof AST_Stmt_While) {
             compileStmtWhile((AST_Stmt_While)a, buf);
+        } else if (a instanceof AST_Stmt_If) {
+            compileStmtIf((AST_Stmt_If)a, buf);
         } else if (!(a instanceof AST_Stmt_Blank))
             throw new IllegalStateException(a.toString());
     }
@@ -38,6 +42,11 @@ public class CodeGen {
         }
     }
 
+    public static void compileStmtExpr(AST_Stmt_Expr a, CodeBuf buf) {
+        compileExpr(a.expr, buf);
+//        buf._pop();  // do waste.
+    }
+
     public static void compileStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
         throw new IllegalStateException();
     }
@@ -52,6 +61,24 @@ public class CodeGen {
 
         int tail = buf.idx();
         c.accept(tail);
+    }
+
+    public static void compileStmtIf(AST_Stmt_If a, CodeBuf buf) {
+        compileExpr(a.condition, buf);
+        var ef = buf._jmpifn_delay();  // if not, goto else/endif
+
+        compileStmt(a.thenb, buf);
+        Consumer<Integer> efe = null;
+        if (a.elseb != null) {  // if has else, go endelse.
+            efe = buf._jmp_delay();
+        }
+
+        ef.accept(buf.idx());
+        if (a.elseb != null) {
+            compileStmt(a.elseb, buf);
+
+            efe.accept(buf.idx());
+        }
     }
 
 
@@ -95,16 +122,37 @@ public class CodeGen {
     }
 
     public static void compileExprOperBin(AST_Expr_OperBi a, CodeBuf buf) {
+        if (a.operator.equals("=")) {
+            if (a.left instanceof AST_Expr_PrimaryVariableName) {
+                compileExpr(a.right, buf);
+                buf._dup();
+                buf._store(a.left.varname());
+            } else {
+                throw new IllegalStateException();
+            }
+            return;
+        }
+
+        compileExpr(a.left, buf);
+        compileExpr(a.right, buf);
+
         switch (a.operator) {
             case "+": {
-                compileExpr(a.left, buf);
-                compileExpr(a.right, buf);
-//                a.sym.parNam()
                 buf._i32add();
                 break;
             }
+            case "<": {
+                buf._icmp();
+                buf._cmplt();
+                break;
+            }
+            case "==": {
+                buf._icmp();
+                buf._cmpeq();
+                break;
+            }
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException("Bad opr "+a.operator);
         }
     }
 

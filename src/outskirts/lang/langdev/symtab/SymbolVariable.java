@@ -1,12 +1,14 @@
 package outskirts.lang.langdev.symtab;
 
+import java.util.Objects;
+
 // Needs Scope? for Instance Member access.
 public class SymbolVariable extends Symbol {
 
-    public final SymbolClass classtype;
+    public final TypeSymbol type;
 
-    public SymbolVariable(String name, Symtab parent, SymbolClass classtype) {
-        super(name, parent);
-        this.classtype = classtype;
+    public SymbolVariable(String name, TypeSymbol type) {
+        super(name, null);
+        this.type = type;
     }
 }

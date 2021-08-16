@@ -24,7 +24,7 @@ public class ASTCompiler {
         List<String> superclasses = new ArrayList<>();
         for (AST_Typename sup : a.superclasses) {
             superclasses.add(
-                    sup.sym.parNam()
+                    sup.sym.getName()
             );
         }
 
@@ -49,16 +49,16 @@ public class ASTCompiler {
                 System.out.println("Compiled Function: "+codebuf);
                 _COMPILED.add(codebuf);
 
-                String typename = "function<"+c.returntype.sym.parNam();
+                String typename = "function<"+c.returntype.sym.getName();
                 for (AST_Stmt_DefFunc.AST_Func_Param param : c.params) {
-                    typename += ", "+param.type.sym.parNam();
+                    typename += ", "+param.type.sym.getName();
                 }
                 typename += ">";
                 fields.add(new ClassFile.Field(c.name, mod, typename));
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
-                fields.add(new ClassFile.Field(c.name, mod, c.type.sym.parNam()));
+                fields.add(new ClassFile.Field(c.name, mod, c.type.sym.getName()));
             } else
                 throw new IllegalStateException("Unsupported member: "+m);
         }

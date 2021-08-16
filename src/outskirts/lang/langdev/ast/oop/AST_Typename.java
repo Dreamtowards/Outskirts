@@ -4,6 +4,7 @@ import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.SymbolClass;
+import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class AST_Typename extends AST {
 
     // Type Symbol
-    public SymbolClass sym;
+    public TypeSymbol sym;
 
     public final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
     public final List<AST_Typename> genericArgs;

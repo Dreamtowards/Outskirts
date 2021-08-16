@@ -65,24 +65,51 @@ public class CodeBuf {
     }
 
     public void _jmpifn(int i) {
-        append(JMP_IFN);
+        append(JMP_F);
         appendShort((short)i);
     }
     public Consumer<Integer> _jmpifn_delay() {
         int mark = idx()+1;
         _jmpifn(0);
         return p -> {
-            set(mark, (byte)((p >>> 8) & 0xFF));
-            set(mark, (byte)( p        & 0xFF));
+            setShort(mark, (short)(int)p);
         };
     }
     public void _jmp(int i) {
         append(JMP);
         appendShort((short)i);
     }
+    public Consumer<Integer> _jmp_delay() {
+        int mark = idx()+1;
+        _jmp(0);
+        return p -> {
+            setShort(mark, (short)(int)p);
+        };
+    }
 
     public void _i32add() {
         append(I32ADD);
+    }
+
+    public void _icmp() {
+        append(ICMP);
+    }
+    public void _cmplt() {
+        append(CMP_LT);
+    }
+    public void _cmpeq() {
+        append(CMP_EQ);
+    }
+    public void _cmpgt() {
+        append(CMP_GT);
+    }
+
+    public void _dup() {
+        append(DUP);
+    }
+
+    public void _pop() {
+        append(POP);
     }
 
     void append(byte b) {
@@ -95,6 +122,10 @@ public class CodeBuf {
 
     void set(int i, byte b) {
         buf.set(i, b);
+    }
+    void setShort(int i, short s) {
+        set(i,   (byte)((s >>> 8) & 0xFF));
+        set(i+1, (byte)( s        & 0xFF));
     }
 
     public byte[] toByteArray() {

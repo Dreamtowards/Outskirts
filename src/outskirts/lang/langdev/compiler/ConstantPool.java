@@ -54,12 +54,14 @@ public class ConstantPool {
             public final String tx;
             public CUtf8(String tx) { this.tx = tx; }
             @Override public boolean equals(Object o) { return o instanceof CUtf8 && ((CUtf8) o).tx.equals(tx); }
+            @Override public String toString() { return "CUtf8{"+tx+"}"; }
         }
 
         public static class CInt32 extends Constant {
             public final int i;
             public CInt32(int i) { this.i = i; }
             @Override public boolean equals(Object o) { return o instanceof CInt32 && ((CInt32) o).i == i; }
+            @Override public String toString() { return "CInt32{"+i+"}"; }
         }
     }
 

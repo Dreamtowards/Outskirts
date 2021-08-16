@@ -8,7 +8,6 @@ import java.util.List;
 public class AST_Stmt_DefVar extends AST_Stmt {
 
     public final AST_Typename type;
-    public SymbolClass type_s;
     public final String name;
     public final AST_Expr initexpr;  // nullable.
 

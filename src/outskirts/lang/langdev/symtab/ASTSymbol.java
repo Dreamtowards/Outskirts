@@ -11,62 +11,81 @@ import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ASTSymbol {
 
-    public static final String
-        BUILTIN_TYPE_STRING = "stl.lang.string",
-        BUILTIN_TYPE_INT = "stl.lang.int",
-        BUILTIN_TYPE_FUNCTION = "stl.lang.function";  // Generic.?
-
-    public static Symbol idenExpr(AST_Expr a, Symtab scope) {
+    public static void idenExpr(AST_Expr a, Symtab scope) {
         if (a instanceof AST_Expr_PrimaryVariableName) {
-            return a.sym= scope.resolveMAExpr(a);
+            a.evaltype= ((SymbolVariable)scope.resolve(a.varname())).type;
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
-            return a.sym= scope.resolveMAStr(BUILTIN_TYPE_STRING);
+            a.evaltype= SymbolBuiltinType._string;
         } else if (a instanceof AST_Expr_PrimaryLiteralNumber) {
-            return a.sym= scope.resolveMAStr(BUILTIN_TYPE_INT);
+            a.evaltype= SymbolBuiltinType._int;
         } else if (a instanceof AST_Expr_FuncCall) {
-            AST_Expr_FuncCall c = (AST_Expr_FuncCall)a;
-            idenExpr(c.funcptr, scope);
-//            System.out.println("FuncRetType: "+((SymbolFunction)c.funcptr.sym).returntype);
-            return a.sym= ((SymbolFunction)c.funcptr.sym).returntype;
+            idenExprFuncCall((AST_Expr_FuncCall)a, scope);
         } else if (a instanceof AST_Expr_Lambda) {
             throw new UnsupportedOperationException();
         } else if (a instanceof AST_Expr_OperBi) {
-            AST_Expr_OperBi c = (AST_Expr_OperBi)a;
-            if (c.operator.equals(".")) {
-                Symbol l = idenExpr(c.left, scope);
-                return a.sym= l.resolveMember(c.right.varname());
-            } else {
-                Symbol  l = idenExpr(c.left, scope),
-                        r = idenExpr(c.right, scope);
-                if (l == r) return a.sym = l;
-                else throw new UnsupportedOperationException("Incpompactble OperBin "+l+", "+r);
-            }
+            idenExprOperBin((AST_Expr_OperBi)a, scope);
         } else if (a instanceof AST_Expr_OperNew) {
-            AST_Expr_OperNew c = (AST_Expr_OperNew)a;
-            idenTypename(c.typeptr, scope);
-//            System.out.println("New Instance: "+c.typeptr.sym);
-            return a.sym= c.typeptr.sym;
+            idenExprOperNew((AST_Expr_OperNew)a, scope);
         } else if (a instanceof AST_Expr_OperTriCon) {
-            AST_Expr_OperTriCon c = (AST_Expr_OperTriCon)a;
-            Symbol e1 = idenExpr(c.exprthen, scope);
-            Symbol e2 = idenExpr(c.exprelse, scope);
-            // return commonBaseType(e1, e2);
-            Validate.isTrue(e1 == e2);
-            return a.sym= e1;
+            idenExprOperTriCon((AST_Expr_OperTriCon)a, scope);
         } else if (a instanceof AST_Expr_OperUnaryPost) {
-            AST_Expr_OperUnaryPost c = (AST_Expr_OperUnaryPost)a;
-            Validate.isTrue(c.operator.equals("++") || c.operator.equals("--"));
-            return a.sym= idenExpr(c.expr, scope);
+            idenExprOperUnaryPost((AST_Expr_OperUnaryPost)a, scope);
         } else if (a instanceof AST_Expr_OperUnaryPre) {
-            AST_Expr_OperUnaryPre c = (AST_Expr_OperUnaryPre)a;
-            Validate.isTrue(Arrays.asList("++","--","+","-","!","~").contains(c.operator));
-            return a.sym= idenExpr(c.expr, scope);
+            idenExprOperUnaryPre((AST_Expr_OperUnaryPre)a, scope);
         } else
             throw new IllegalStateException();
     }
+
+    private static void idenExprFuncCall(AST_Expr_FuncCall a, Symtab scope) {
+        idenExpr(a.funcptr, scope);
+        SymbolFunction sf = (SymbolFunction)a.funcptr.evaltype;
+        a.evaltype = sf.returntype;
+    }
+
+    private static void idenExprOperBin(AST_Expr_OperBi a, Symtab scope) {
+        if (a.operator.equals(".")) {
+            idenExpr(a.left, scope);
+            Symbol l = scope.resolveMAStr(a.left.evaltype.getName());
+            a.evaltype = ((SymbolVariable)l.resolveMember(a.right.varname())).type;
+            a.right.evaltype = a.evaltype;
+        } else {
+            idenExpr(a.left, scope);
+            idenExpr(a.right, scope);
+            if (a.left.evaltype.getName().equals(a.right.evaltype.getName()))
+                a.evaltype = a.left.evaltype;  // return commonBaseType(e1, e2);
+            else throw new UnsupportedOperationException("Incpompactble OperBin "+a.left.evaltype.getName()+", "+a.right.evaltype.getName());
+        }
+    }
+
+    private static void idenExprOperNew(AST_Expr_OperNew a, Symtab scope) {
+        idenTypename(a.typeptr, scope);
+        a.evaltype = a.typeptr.sym;
+    }
+
+    private static void idenExprOperTriCon(AST_Expr_OperTriCon a, Symtab scope) {
+        idenExpr(a.exprthen, scope);
+        idenExpr(a.exprelse, scope);
+        Validate.isTrue(a.exprthen.evaltype.getName().equals(a.exprelse.evaltype.getName()));
+        a.evaltype = a.exprthen.evaltype;  // CommonBase.
+    }
+
+    private static void idenExprOperUnaryPost(AST_Expr_OperUnaryPost a, Symtab scope) {
+        Validate.isTrue(a.operator.equals("++") || a.operator.equals("--"));
+        idenExpr(a.expr, scope);
+        a.evaltype = a.expr.evaltype;
+    }
+    private static void idenExprOperUnaryPre(AST_Expr_OperUnaryPre a, Symtab scope) {
+        Validate.isTrue(Arrays.asList("++","--","+","-","!","~").contains(a.operator));
+        idenExpr(a.expr, scope);
+        a.evaltype = a.expr.evaltype;
+    }
+
+
+
 
     public static void idenStmt(AST_Stmt a, Symtab scope) {
         if (a instanceof AST_Stmt_Block) {
@@ -136,18 +155,18 @@ public class ASTSymbol {
         for (AST_Stmt_DefFunc.AST_Func_Param p : a.params) {
             idenTypename(p.type, scope);
 
-            fns.define(new SymbolVariable(p.name, null, p.type.sym));  // TODO: update AST_Func_Param -> AST_DefVar.
+            fns.define(new SymbolVariable(p.name, p.type.sym));  // TODO: update AST_Func_Param -> AST_DefVar.
         }
         // body.
         idenStmtBlockStmts(a.body, fns);
 
-        scope.define(new SymbolFunction(a.name, a.returntype.sym));  // TODO: Builtin-Type *function
+        scope.define(new SymbolVariable(a.name, new SymbolFunction(a.name, a.returntype.sym)));  // TODO: Builtin-Type *function
     }
 
     public static void idenStmtDefVar(AST_Stmt_DefVar a, Symtab scope) {
         idenTypename(a.type, scope);
 
-        scope.define(new SymbolVariable(a.name, null, a.type_s));
+        scope.define(new SymbolVariable(a.name, a.type.sym));
 
         if (a.initexpr != null) {
             idenExpr(a.initexpr, scope);

@@ -89,7 +89,7 @@ public class ASTPrinter {
     }
 
     public static void printExpr(AST_Expr a, int dp, StringBuffer buf) {
-        buf.append("{T: "+a.sym+"}");
+//        buf.append("{T: "+a.sym+"}");
         if (a instanceof AST_Expr_OperBi) {
             printExprOperBi((AST_Expr_OperBi)a, dp, buf);
         } else if (a instanceof AST_Expr_OperUnaryPre) {

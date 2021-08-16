@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.symtab.Symtab;
+
 /**
  * AST_Stmt
  * pkg
@@ -31,6 +33,8 @@ package outskirts.lang.langdev.ast;
  */
 
 public abstract class AST {
+
+    public Symtab scope;
 
     public String tokentext() {
         return ((AST_Token)this).text();
