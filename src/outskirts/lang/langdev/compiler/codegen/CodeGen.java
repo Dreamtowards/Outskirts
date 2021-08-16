@@ -10,7 +10,6 @@ public class CodeGen {
      */
 
     public static void compileStmt(AST_Stmt a, CodeBuf buf) {
-
         if (a instanceof AST_Stmt_Block) {
             compileStmtBlock((AST_Stmt_Block)a, buf);
         } else if (a instanceof AST_Stmt_DefVar) {
@@ -19,8 +18,14 @@ public class CodeGen {
             compileExpr(((AST_Stmt_Expr)a).expr, buf);
         } else if (a instanceof AST_Stmt_Return) {
             compileStmtReturn((AST_Stmt_Return)a, buf);
-        } else
+        } else if (a instanceof AST_Stmt_While) {
+            compileStmtWhile((AST_Stmt_While)a, buf);
+        } else if (!_shouldIgnore(a))
             throw new IllegalStateException(a.toString());
+    }
+
+    private static boolean _shouldIgnore(AST a) {
+        return a instanceof AST_Stmt_Blank;
     }
 
     public static void compileStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
@@ -41,6 +46,17 @@ public class CodeGen {
         throw new IllegalStateException();
     }
 
+    public static void compileStmtWhile(AST_Stmt_While a, CodeBuf buf) {
+        int begin = buf.idx();
+        compileExpr(a.condition, buf);
+        var c = buf._jmpifn_delay();  // if condition fail, jmp to tail.
+
+        compileStmt(a.then, buf);
+        buf._jmp(begin);  // jmp to begin.
+
+        int tail = buf.idx();
+        c.accept(tail);
+    }
 
 
 
@@ -51,7 +67,9 @@ public class CodeGen {
      */
 
     public static void compileExpr(AST_Expr a, CodeBuf buf) {
-        if (a instanceof AST_Expr_PrimaryLiteralString) {
+        if (a instanceof AST_Expr_PrimaryLiteralNumber) {
+            compileExprPrimaryLiteralNumber((AST_Expr_PrimaryLiteralNumber)a, buf);
+        } else if (a instanceof AST_Expr_PrimaryLiteralString) {
             compileExprPrimaryLiteralString((AST_Expr_PrimaryLiteralString)a, buf);
         } else if (a instanceof AST_Expr_FuncCall) {
             compileExprFuncCall((AST_Expr_FuncCall)a, buf);
@@ -60,7 +78,10 @@ public class CodeGen {
     }
 
     public static void compileExprPrimaryLiteralString(AST_Expr_PrimaryLiteralString a, CodeBuf buf) {
-        buf._ldc((short)buf.constantpool.ensureUtf8(a.strRaw));
+        buf._ldc(buf.constantpool.ensureUtf8(a.strRaw));
+    }
+    public static void compileExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a, CodeBuf buf) {
+        buf._ldc(buf.constantpool.ensureInt32((int)a.rawFl));
     }
     public static void compileExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
         compileExpr(a.funcptr, buf);

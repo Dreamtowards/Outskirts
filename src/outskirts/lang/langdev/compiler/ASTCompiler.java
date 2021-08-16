@@ -12,6 +12,8 @@ import java.util.List;
 
 public class ASTCompiler {
 
+    public static List<CodeBuf> _COMPILED = new ArrayList<>();
+
     private static final int CLASS_VERSION = 1;
 
     public static void compileClass(AST_Stmt_DefClass a) {
@@ -45,6 +47,7 @@ public class ASTCompiler {
                     codebuf.defvar(param.name);
                 CodeGen.compileStmtBlock(c.body, codebuf);
                 System.out.println("Compiled Function: "+codebuf);
+                _COMPILED.add(codebuf);
 
                 String typename = "function<"+c.returntype.sym.parNam();
                 for (AST_Stmt_DefFunc.AST_Func_Param param : c.params) {

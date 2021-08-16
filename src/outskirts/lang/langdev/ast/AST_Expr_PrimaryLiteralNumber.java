@@ -8,17 +8,14 @@ import java.util.List;
 
 public class AST_Expr_PrimaryLiteralNumber extends AST_Expr {
 
+    public final float rawFl;
     public final GObject num;
 
     public AST_Expr_PrimaryLiteralNumber(Token token) {
         Validate.isTrue(token.isNumber());
 
-        num = new GObject(Float.parseFloat(token.text()));
-    }
-
-    public AST_Expr_PrimaryLiteralNumber(List<AST> ls) {
-        this(((AST_Token)ls.get(0)).token());
-        Validate.isTrue(ls.size() == 1);
+        rawFl = Float.parseFloat(token.text());
+        num = new GObject(rawFl);
     }
 
     @Override

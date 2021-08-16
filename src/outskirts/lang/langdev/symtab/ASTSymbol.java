@@ -89,7 +89,7 @@ public class ASTSymbol {
             throw new IllegalStateException();
         } else if (a instanceof AST_Stmt_DefClass) {
             idenStmtDefClass((AST_Stmt_DefClass)a, scope);
-        } else
+        } else if (!(a instanceof AST_Stmt_Blank))
             throw new IllegalStateException();
     }
 

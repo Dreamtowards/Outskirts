@@ -6,14 +6,11 @@ import outskirts.util.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+
+import static outskirts.lang.langdev.compiler.Opcodes.*;
 
 public class CodeBuf {
-
-    public static final byte
-            NULL = 0,
-            STORE = 1,
-            LDC = 2,
-            INVOKEFUNC = 3;
 
     private final List<String> localvars = new ArrayList<>();
     private final List<Byte> buf = new ArrayList<>();
@@ -34,6 +31,10 @@ public class CodeBuf {
         localvars.add(name);
     }
 
+    public int idx() {
+        return buf.size();
+    }
+
     public void _store(String name) {
         _store(findvar(name));
     }
@@ -44,8 +45,7 @@ public class CodeBuf {
 
     public void _ldc(short cpidx) {
         append(LDC);
-        append((byte)((cpidx >>> 8) & 0xFF));
-        append((byte)(cpidx & 0xFF));
+        appendShort(cpidx);
     }
 
     // funcptr, args...
@@ -53,8 +53,33 @@ public class CodeBuf {
         append(INVOKEFUNC);
     }
 
+    public void _jmpifn(int i) {
+        append(JMP_IFN);
+        appendShort((short)i);
+    }
+    public Consumer<Integer> _jmpifn_delay() {
+        int mark = idx()+1;
+        _jmpifn(0);
+        return p -> {
+            set(mark, (byte)((p >>> 8) & 0xFF));
+            set(mark, (byte)( p        & 0xFF));
+        };
+    }
+    public void _jmp(int i) {
+        append(JMP);
+        appendShort((short)i);
+    }
+
     void append(byte b) {
         buf.add(b);
+    }
+    void appendShort(short s) {
+        append((byte)((s >>> 8) & 0xFF));
+        append((byte)( s        & 0xFF));
+    }
+
+    void set(int i, byte b) {
+        buf.set(i, b);
     }
 
     public byte[] toByteArray() {

@@ -20,7 +20,7 @@ class system   {
 
     @static
     void s_print(string s, int i) {
-
+        ;
     }
 }
 

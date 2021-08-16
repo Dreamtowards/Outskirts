@@ -2,6 +2,7 @@ package outskirts.lang.langdev.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ConstantPool {
 
@@ -18,18 +19,24 @@ public class ConstantPool {
         return constants;
     }
 
-    public int ensureUtf8(String tx) {
-        for (int i = 0;i < constants.size();i++) {
-            Constant c = constants.get(i);
-            if (c instanceof Constant.CUtf8) {
-                if (((Constant.CUtf8)c).tx.equals(tx)) {
-                    return i;
-                }
-            }
-        }
+    public short ensureUtf8(String tx) {
+        return ensureConstant(new Constant.CUtf8(tx));
+    }
+    public short ensureInt32(int i) {
+        return ensureConstant(new Constant.CInt32(i));
+    }
 
-        constants.add(new Constant.CUtf8(tx));
-        return constants.size()-1;
+    private short ensureConstant(Constant c) {
+        for (int i = 0;i < constants.size();i++) {
+            if (constants.get(i).equals(c))
+                return (short)i;
+        }
+        constants.add(c);
+        return (short)(constants.size()-1);
+    }
+
+    public Constant get(short i) {
+        return constants.get(i);
     }
 
 
@@ -44,10 +51,15 @@ public class ConstantPool {
         }
 
         public static class CUtf8 extends Constant {
-            private String tx;
-            public CUtf8(String tx) {
-                this.tx = tx;
-            }
+            public final String tx;
+            public CUtf8(String tx) { this.tx = tx; }
+            @Override public boolean equals(Object o) { return o instanceof CUtf8 && ((CUtf8) o).tx.equals(tx); }
+        }
+
+        public static class CInt32 extends Constant {
+            public final int i;
+            public CInt32(int i) { this.i = i; }
+            @Override public boolean equals(Object o) { return o instanceof CInt32 && ((CInt32) o).i == i; }
         }
     }
 
