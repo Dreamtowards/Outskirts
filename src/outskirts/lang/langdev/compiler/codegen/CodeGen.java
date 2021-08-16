@@ -20,12 +20,8 @@ public class CodeGen {
             compileStmtReturn((AST_Stmt_Return)a, buf);
         } else if (a instanceof AST_Stmt_While) {
             compileStmtWhile((AST_Stmt_While)a, buf);
-        } else if (!_shouldIgnore(a))
+        } else if (!(a instanceof AST_Stmt_Blank))
             throw new IllegalStateException(a.toString());
-    }
-
-    private static boolean _shouldIgnore(AST a) {
-        return a instanceof AST_Stmt_Blank;
     }
 
     public static void compileStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
@@ -71,8 +67,12 @@ public class CodeGen {
             compileExprPrimaryLiteralNumber((AST_Expr_PrimaryLiteralNumber)a, buf);
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
             compileExprPrimaryLiteralString((AST_Expr_PrimaryLiteralString)a, buf);
+        } else if (a instanceof AST_Expr_PrimaryVariableName) {
+            compileExprPrimaryVariableName((AST_Expr_PrimaryVariableName)a, buf);
         } else if (a instanceof AST_Expr_FuncCall) {
             compileExprFuncCall((AST_Expr_FuncCall)a, buf);
+        } else if (a instanceof AST_Expr_OperBi) {
+            compileExprOperBin((AST_Expr_OperBi)a, buf);
         } else
             throw new IllegalStateException(a.toString());
     }
@@ -83,12 +83,29 @@ public class CodeGen {
     public static void compileExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a, CodeBuf buf) {
         buf._ldc(buf.constantpool.ensureInt32((int)a.rawFl));
     }
+    public static void compileExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, CodeBuf buf) {
+        buf._load(a.name);
+    }
     public static void compileExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
         compileExpr(a.funcptr, buf);
         for (AST_Expr arg : a.args) {
             compileExpr(arg, buf);
         }
         buf._invokefunc();  // instance to static ? auto put 'this'?
+    }
+
+    public static void compileExprOperBin(AST_Expr_OperBi a, CodeBuf buf) {
+        switch (a.operator) {
+            case "+": {
+                compileExpr(a.left, buf);
+                compileExpr(a.right, buf);
+//                a.sym.parNam()
+                buf._i32add();
+                break;
+            }
+            default:
+                throw new IllegalStateException();
+        }
     }
 
 }

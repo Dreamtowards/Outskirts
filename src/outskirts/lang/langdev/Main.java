@@ -43,7 +43,7 @@ public class Main {
 
 
         CodeBuf cbuf = ASTCompiler._COMPILED.get(0);
-        Machine.exec(cbuf.toByteArray(), cbuf.constantpool);
+        Machine.exec(cbuf.toByteArray(), cbuf.constantpool, cbuf.localsize());
 
 
 

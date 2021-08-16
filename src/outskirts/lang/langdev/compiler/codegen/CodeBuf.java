@@ -30,6 +30,9 @@ public class CodeBuf {
         Validate.isTrue(!localvars.contains(name), "Already def variable.");
         localvars.add(name);
     }
+    public int localsize() {
+        return localvars.size();
+    }
 
     public int idx() {
         return buf.size();
@@ -40,6 +43,14 @@ public class CodeBuf {
     }
     public void _store(int i) {
         append(STORE);
+        append((byte)i);
+    }
+
+    public void _load(String name) {
+        _load(findvar(name));
+    }
+    public void _load(int i) {
+        append(LOAD);
         append((byte)i);
     }
 
@@ -68,6 +79,10 @@ public class CodeBuf {
     public void _jmp(int i) {
         append(JMP);
         appendShort((short)i);
+    }
+
+    public void _i32add() {
+        append(I32ADD);
     }
 
     void append(byte b) {

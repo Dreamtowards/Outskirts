@@ -12,10 +12,10 @@ import static outskirts.lang.langdev.compiler.Opcodes.*;
 
 public class Machine {
 
-    public static void exec(byte[] code, ConstantPool cpool) {
+    public static void exec(byte[] code, ConstantPool cpool, int localsize) {
         int pc = 0;
         LinkedList<Object> opstack = new LinkedList<>();
-        List<Object> locals = new ArrayList<>();
+        Object[] locals = new Object[localsize];
 
         while (pc < code.length) {
             switch (code[pc++]) {
@@ -23,7 +23,13 @@ public class Machine {
                     Object o = opstack.pop();
                     byte i = code[pc++];
 
-                    locals.set(i, o);
+                    locals[i] = o;
+                    break;
+                }
+                case LOAD: {
+                    byte i = code[pc++];
+                    opstack.push(locals[i]);
+
                     break;
                 }
                 case LDC: {
@@ -54,10 +60,18 @@ public class Machine {
                     }
                     break;
                 }
+                case I32ADD: {
+                    int i1 = (int)opstack.pop();
+                    int i2 = (int)opstack.pop();
+                    opstack.push(i1+i2);
+                    break;
+                }
                 default:
                     throw new IllegalStateException("Illegal instruction.");
             }
         }
+
+        System.out.println("Done Exec. opstack: "+opstack);
     }
 
 }

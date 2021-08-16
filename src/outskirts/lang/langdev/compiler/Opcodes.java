@@ -8,6 +8,8 @@ public final class Opcodes {
             LDC = 2,
             INVOKEFUNC = 3,
             JMP = 4,
-            JMP_IFN = 5;
+            JMP_IFN = 5,
+            I32ADD = 6,
+            LOAD = 7;
 
 }

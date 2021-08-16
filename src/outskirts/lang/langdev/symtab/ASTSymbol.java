@@ -42,7 +42,7 @@ public class ASTSymbol {
                 Symbol  l = idenExpr(c.left, scope),
                         r = idenExpr(c.right, scope);
                 if (l == r) return a.sym = l;
-                else throw new UnsupportedOperationException();
+                else throw new UnsupportedOperationException("Incpompactble OperBin "+l+", "+r);
             }
         } else if (a instanceof AST_Expr_OperNew) {
             AST_Expr_OperNew c = (AST_Expr_OperNew)a;
