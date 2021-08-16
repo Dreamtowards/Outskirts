@@ -15,7 +15,7 @@ public class AST_Expr_OperUnaryPost extends AST_Expr {
     }
 
     public AST_Expr_OperUnaryPost(List<AST> ls) {
-        this((AST_Expr)ls.get(0), ((AST_Token)ls.get(1)).text());
+        this((AST_Expr)ls.get(0), ((AST__Token)ls.get(1)).text());
         Validate.isTrue(ls.size() == 2);
     }
 

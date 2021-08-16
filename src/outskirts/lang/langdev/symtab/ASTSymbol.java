@@ -1,17 +1,14 @@
 package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Class_Member;
-import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
+import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.AST__Typename;
+import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class ASTSymbol {
 
@@ -104,8 +101,8 @@ public class ASTSymbol {
             idenStmtWhile((AST_Stmt_While)a, scope);
         } else if (a instanceof AST_Stmt_Using) {
             idenStmtUsing((AST_Stmt_Using)a, scope);
-        } else if (a instanceof AST_Stmt_Package) {
-            throw new IllegalStateException();
+        } else if (a instanceof AST_Stmt_Namespace) {
+            idenStmtNamespace((AST_Stmt_Namespace)a, scope);
         } else if (a instanceof AST_Stmt_DefClass) {
             idenStmtDefClass((AST_Stmt_DefClass)a, scope);
         } else if (!(a instanceof AST_Stmt_Blank))
@@ -142,7 +139,7 @@ public class ASTSymbol {
         idenStmt(a.then, scope);
     }
 
-    public static void idenTypename(AST_Typename a, Symtab scope) {
+    public static void idenTypename(AST__Typename a, Symtab scope) {
         a.sym = scope.resolveMAExpr(a.nameptr);
     }
 
@@ -182,11 +179,11 @@ public class ASTSymbol {
 
 //        System.out.println("DefClas:"+sclass.name+" on "+scope);
 
-        for (AST_Typename sup : a.superclasses) {
+        for (AST__Typename sup : a.superclasses) {
             idenTypename(sup, scope);
         }
 
-        for (AST_Class_Member mb : a.members) {
+        for (AST_Stmt_DefClass.AST_Class_Member mb : a.members) {
             AST_Stmt m = mb.member;
             mb.isStatic();
             // isPrivate()
@@ -215,31 +212,53 @@ public class ASTSymbol {
 //        System.out.println("Using "+r.name);
         scope.define(r);  // or "new SymbolUsing(name, r)" .?
     }
-    // package, used at before root.
-    public static Symtab _Heading_idenStmtPackage(AST_Stmt_Package a, Symtab scope) {
-        Symtab sp = scope;
 
-        for (String pkg : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), "."))
+    public static void idenStmtNamespace(AST_Stmt_Namespace a, Symtab enclosingscope) {
+        Symtab sp = enclosingscope;
+
+        for (String ns : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), "."))
         {
-            Symbol existedPkgNode =  sp.getSymbol(pkg);
-            if (existedPkgNode == null) {
-                sp.define((SymbolPackage)(sp=new SymbolPackage(pkg,sp)));  // chaos
+            Symbol nsExixted = sp.getSymbol(ns);
+            if (nsExixted != null) {
+                sp = nsExixted;
             } else {
-                sp = existedPkgNode;
+                SymbolNamespace nw = new SymbolNamespace(ns, sp);
+                sp.define(nw);
+                sp = nw;
             }
         }
 
-        return sp;
-    }
-
-    public static void _Iden_Packages(AST_Stmt_Block a, Symtab glob) {
-        Symtab pkgScp = glob;
-        for (AST_Stmt stmt : a.stmts) {
-            if (stmt instanceof AST_Stmt_Package)
-                pkgScp = ASTSymbol._Heading_idenStmtPackage((AST_Stmt_Package)stmt, glob);
-            else
-                ASTSymbol.idenStmt(stmt, pkgScp);
+        for (AST_Stmt stmt : a.stmts)
+        {
+            idenStmt(stmt, sp);
         }
     }
+
+//    // package, used at before root.
+//    public static Symtab _Heading_idenStmtPackage(AST_Stmt_Package a, Symtab scope) {
+//        Symtab sp = scope;
+//
+//        for (String pkg : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), "."))
+//        {
+//            Symbol existedPkgNode =  sp.getSymbol(pkg);
+//            if (existedPkgNode == null) {
+//                sp.define((SymbolPackage)(sp=new SymbolPackage(pkg,sp)));  // chaos
+//            } else {
+//                sp = existedPkgNode;
+//            }
+//        }
+//
+//        return sp;
+//    }
+//
+//    public static void _Iden_Packages(AST_Stmt_Block a, Symtab glob) {
+//        Symtab pkgScp = glob;
+//        for (AST_Stmt stmt : a.stmts) {
+//            if (stmt instanceof AST_Stmt_Package)
+//                pkgScp = ASTSymbol._Heading_idenStmtPackage((AST_Stmt_Package)stmt, glob);
+//            else
+//                ASTSymbol.idenStmt(stmt, pkgScp);
+//        }
+//    }
 
 }

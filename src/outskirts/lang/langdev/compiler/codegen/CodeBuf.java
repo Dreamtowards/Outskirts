@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static outskirts.lang.langdev.compiler.Opcodes.*;
+import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class CodeBuf {
 

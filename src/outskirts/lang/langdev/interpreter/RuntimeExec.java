@@ -1,19 +1,11 @@
-package outskirts.lang.langdev.interpreter.rtexec;
+package outskirts.lang.langdev.interpreter;
 
-import outskirts.lang.langdev.ast.AST_Stmt_Block;
-import outskirts.lang.langdev.ast.ex.FuncPtr;
-import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
-import outskirts.lang.langdev.lexer.Lexer;
-import outskirts.lang.langdev.lexer.Token;
-import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.IOUtils;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Objects;
 
 public class RuntimeExec {
 

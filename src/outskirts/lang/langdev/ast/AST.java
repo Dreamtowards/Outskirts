@@ -37,7 +37,7 @@ public abstract class AST {
     public Symtab scope;
 
     public String tokentext() {
-        return ((AST_Token)this).text();
+        return ((AST__Token)this).text();
     }
 
     public String varname() {

@@ -1,11 +1,5 @@
-package outskirts.lang.langdev.ast.srcroot;
+package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.ast.AST;
-import outskirts.lang.langdev.ast.AST_Expr;
-import outskirts.lang.langdev.ast.AST_Expr_OperBi;
-import outskirts.lang.langdev.ast.AST_Stmt;
-
-import java.util.List;
 
 public class AST_Stmt_Using extends AST_Stmt {
 

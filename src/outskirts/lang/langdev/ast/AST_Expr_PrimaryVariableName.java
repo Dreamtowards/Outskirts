@@ -15,7 +15,7 @@ public class AST_Expr_PrimaryVariableName extends AST_Expr {
     }
 
     public AST_Expr_PrimaryVariableName(List<AST> ls) {
-        this(((AST_Token)ls.get(0)).token());
+        this(((AST__Token)ls.get(0)).token());
         Validate.isTrue(ls.size() == 1);
     }
 

@@ -1,12 +1,10 @@
 package outskirts.lang.langdev.parser;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Annotation;
-import outskirts.lang.langdev.ast.oop.AST_Class_Member;
-import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
+import outskirts.lang.langdev.ast.AST__Annotation;
+import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.AST__Typename;
+import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.util.Validate;
@@ -114,15 +112,15 @@ public class LxParser {
         return _Parse_OperBin_LR(lx, LxParser::parseExprPrimaryVariableName, ".");
     }
 
-    public static AST_Typename parse_Typename(Lexer lx) {
+    public static AST__Typename parse_Typename(Lexer lx) {
         AST_Expr nameptr = parse_QualifiedName(lx);
 
-        List<AST_Typename> genericArgs = Collections.emptyList();
+        List<AST__Typename> genericArgs = Collections.emptyList();
         if (lx.peeking_skp("<")) {
             genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, ",", ">");
             lx.rqnext(">");
         }
-        return new AST_Typename(nameptr, genericArgs);
+        return new AST__Typename(nameptr, genericArgs);
     }
 
 
@@ -160,7 +158,7 @@ public class LxParser {
         }
         else if (lx.peeking_skp("new"))
         {   // new Instance.
-            AST_Typename type = parse_Typename(lx);
+            AST__Typename type = parse_Typename(lx);
             lx.rqnext("(");
             List<AST_Expr> args = _Parse_FuncArgs(lx);
             return new AST_Expr_OperNew(type, args);
@@ -291,8 +289,8 @@ public class LxParser {
                 return AST_Stmt_Blank.INST;
             case "using":
                 return parseStmtUsing(lx);
-            case "package":
-                return parseStmtPackage(lx);
+            case "namespace":
+                return parseStmtNamespace(lx);
             case "if":
                 return parseStmtIf(lx);
             case "while":
@@ -385,25 +383,30 @@ public class LxParser {
 
         return new AST_Stmt_Using(ustatic, name);
     }
-    public static AST_Stmt_Package parseStmtPackage(Lexer lx) {
-        lx.rqnext("package");
+
+    public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
+        lx.rqnext("namespace");
 
         AST_Expr name = parse_QualifiedName(lx);
-        lx.rqnext(";");
+        lx.rqnext("{");
 
-        return new AST_Stmt_Package(name);
+        List<AST_Stmt> stmts = parseStmtBlockStmts(lx, "}").stmts;
+
+        lx.rqnext("}");
+
+        return new AST_Stmt_Namespace(name, stmts);
     }
 
 
     private static AST_Stmt_DefFunc.AST_Func_Param parseStmtDefFunc_FuncParam(Lexer lx) {
-        AST_Typename type = parse_Typename(lx);
+        AST__Typename type = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
         return new AST_Stmt_DefFunc.AST_Func_Param(type, name);
     }
 
     public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
 
-        AST_Typename rettype = parse_Typename(lx);
+        AST__Typename rettype = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
 
         lx.rqnext("(");
@@ -419,7 +422,7 @@ public class LxParser {
 
     public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
 
-        AST_Typename type = parse_Typename(lx);
+        AST__Typename type = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
 
         AST_Expr init = null;
@@ -438,7 +441,7 @@ public class LxParser {
         return new AST_Stmt_Expr(expr);
     }
 
-    public static AST_Annotation parseAnnotation(Lexer lx) {
+    public static AST__Annotation parseAnnotation(Lexer lx) {
         lx.rqnext("@");
         AST_Expr name = parse_QualifiedName(lx);
 
@@ -447,7 +450,7 @@ public class LxParser {
             args = _Parse_FuncArgs(lx);
         }
 
-        return new AST_Annotation(name, args);
+        return new AST__Annotation(name, args);
     }
 
     public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
@@ -460,16 +463,16 @@ public class LxParser {
             lx.rqnext(">");
         }
 
-        List<AST_Typename> supers = Collections.emptyList();
+        List<AST__Typename> supers = Collections.emptyList();
         if (lx.peeking_skp(":")) {
             supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, ",");
         }
 
-        List<AST_Class_Member> members = new ArrayList<>();
+        List<AST_Stmt_DefClass.AST_Class_Member> members = new ArrayList<>();
         lx.rqnext("{");
         while (!lx.peeking("}")) {
 
-            List<AST_Annotation> anns = new ArrayList<>();
+            List<AST__Annotation> anns = new ArrayList<>();
             while (lx.peeking("@")) {
                 anns.add(parseAnnotation(lx));
             }
@@ -498,7 +501,7 @@ public class LxParser {
                 throw new IllegalStateException("Bad member");
             }
 
-            members.add(new AST_Class_Member(anns, modifiers, m));
+            members.add(new AST_Stmt_DefClass.AST_Class_Member(anns, modifiers, m));
         }
         lx.rqnext("}");
 

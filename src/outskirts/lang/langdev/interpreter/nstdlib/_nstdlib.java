@@ -1,6 +1,6 @@
 package outskirts.lang.langdev.interpreter.nstdlib;
 
-import outskirts.lang.langdev.ast.ex.FuncPtr;
+import outskirts.lang.langdev.interpreter.ex.FuncPtr;
 import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.interpreter.nstdlib.gnlx.glux.WindowPrx;
 

@@ -1,9 +1,8 @@
 package outskirts.lang.langdev.compiler;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Class_Member;
-import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
+import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.AST__Typename;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
 
@@ -22,14 +21,14 @@ public class ASTCompiler {
         String thisclass = a.thisclass.parNam();
 
         List<String> superclasses = new ArrayList<>();
-        for (AST_Typename sup : a.superclasses) {
+        for (AST__Typename sup : a.superclasses) {
             superclasses.add(
                     sup.sym.getName()
             );
         }
 
         List<ClassFile.Field> fields = new ArrayList<>();
-        for (AST_Class_Member mb : a.members) {
+        for (AST_Stmt_DefClass.AST_Class_Member mb : a.members) {
             short mod = 0;
             if (mb.isStatic()) mod |= ClassFile.Field.MASK_STATIC;
 
@@ -75,19 +74,23 @@ public class ASTCompiler {
         ClassFile._CLASSPATH.put(thisclass, f);
     }
 
-    public static void compilePkgStmtBlock(AST_Stmt_Block a) {
+    public static void compileStmtBlockStmts(List<AST_Stmt> stmts) {
         // no sub scope.
 
-        for (AST_Stmt stmt : a.stmts) {
-            compilePkgClassStmt(stmt);
+        for (AST_Stmt stmt : stmts) {
+            compileStmt(stmt);
         }
     }
 
-    public static void compilePkgClassStmt(AST_Stmt a)
+    public static void compileStmt(AST_Stmt a)
     {
         if (a instanceof AST_Stmt_DefClass)
         {
             compileClass((AST_Stmt_DefClass)a);
+        }
+        else if (a instanceof AST_Stmt_Namespace)
+        {
+            compileStmtBlockStmts(((AST_Stmt_Namespace) a).stmts);
         }
     }
 

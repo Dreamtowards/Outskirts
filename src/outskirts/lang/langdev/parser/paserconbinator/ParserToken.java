@@ -1,7 +1,7 @@
 package outskirts.lang.langdev.parser.paserconbinator;
 
 import outskirts.lang.langdev.ast.AST;
-import outskirts.lang.langdev.ast.AST_Token;
+import outskirts.lang.langdev.ast.AST__Token;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 
@@ -43,7 +43,7 @@ public class ParserToken extends Parser {
         if (err != null) throw new ParsingException("Bad token: "+err, t);
 
         if (create) {
-            out.add(new AST_Token(t));
+            out.add(new AST__Token(t));
         }
     }
 

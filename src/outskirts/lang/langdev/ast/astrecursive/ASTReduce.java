@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.ast.itr;
+package outskirts.lang.langdev.ast.astrecursive;
 
 public final class ASTReduce {
 

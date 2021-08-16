@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.ast.itr;
+package outskirts.lang.langdev.ast.astrecursive;
 
 import outskirts.lang.langdev.ast.AST;
 import outskirts.lang.langdev.ast.AST_Stmt;

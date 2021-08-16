@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.compiler;
+package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;

@@ -1,14 +1,10 @@
-package outskirts.lang.langdev.interpreter.astprint;
+package outskirts.lang.langdev.ast.astprint;
 
 import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.ast.oop.AST_Class_Member;
-import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.oop.AST_Typename;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
-import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Using;
+import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
+import outskirts.lang.langdev.ast.AST__Typename;
+import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.lang.langdev.symtab.Symtab;
-import outskirts.util.StringUtils;
 
 import java.util.stream.Collectors;
 
@@ -79,7 +75,7 @@ public class ASTPrinter {
     }
     public static void printExprOperNew(AST_Expr_OperNew a, int dp, StringBuffer buf) {
         appendln(buf, dp, "ExprOperNew {");
-            appendln(buf, dp+1, "type: "+ AST_Typename.SimpleExpand(a.typeptr));
+            appendln(buf, dp+1, "type: "+ AST__Typename.SimpleExpand(a.typeptr));
             appendln(buf, dp+1, "args: [");
             for (AST_Expr e : a.args) {
                 printExpr(e, dp+2, buf);
@@ -118,8 +114,8 @@ public class ASTPrinter {
             appendln(buf, dp, ";");
         } else if (a instanceof AST_Stmt_Expr) {
             printStmtExpr((AST_Stmt_Expr)a, dp, buf);
-        } else if (a instanceof AST_Stmt_Package) {
-            printStmtPacakge((AST_Stmt_Package)a, dp, buf);
+        } else if (a instanceof AST_Stmt_Namespace) {
+            printStmtNamespace((AST_Stmt_Namespace)a, dp, buf);
         } else if (a instanceof AST_Stmt_Using) {
             printStmtUsing((AST_Stmt_Using)a, dp, buf);
         } else if (a instanceof AST_Stmt_DefClass) {
@@ -128,6 +124,10 @@ public class ASTPrinter {
             printStmtDefVar((AST_Stmt_DefVar)a, dp, buf);
         } else if (a instanceof AST_Stmt_DefFunc) {
             printStmtDefFunc((AST_Stmt_DefFunc)a, dp, buf);
+        } else if (a instanceof AST_Stmt_While) {
+            printStmtWhile((AST_Stmt_While)a, dp, buf);
+        } else if (a instanceof AST_Stmt_If) {
+            printStmtIf((AST_Stmt_If)a, dp, buf);
         } else
             throw new IllegalStateException(a.toString());
     }
@@ -146,9 +146,17 @@ public class ASTPrinter {
         appendln(buf, dp, "}");
     }
 
-    public static void printStmtPacakge(AST_Stmt_Package a, int dp, StringBuffer buf) {
-        appendln(buf, dp, "StmtPackage { "+ LxParser._ExpandQualifiedName(a.name) +" }");
+    public static void printStmtNamespace(AST_Stmt_Namespace a, int dp, StringBuffer buf) {
+        appendln(buf, dp, "StmtNamespace {");
+            appendln(buf, dp+1, "name: "+LxParser._ExpandQualifiedName(a.name));
+            appendln(buf, dp+1, "stmt: [");
+                for (AST_Stmt stmt : a.stmts) {
+                    printStmt(stmt, dp+2, buf);
+                }
+            appendln(buf, dp+1, "]");
+        appendln(buf, dp, "}");
     }
+
     public static void printStmtUsing(AST_Stmt_Using a, int dp, StringBuffer buf) {
         appendln(buf, dp, "StmtUsing { "+(a.isStatic?"static ":"")+ LxParser._ExpandQualifiedName(a.used) +" }");
     }
@@ -156,9 +164,9 @@ public class ASTPrinter {
     public static void printStmtDefClass(AST_Stmt_DefClass a, int dp, StringBuffer buf) {
         appendln(buf, dp, "StmtDefClass {");
             appendln(buf, dp+1, "name: "+a.name);
-            appendln(buf, dp+1, "superclasses: "+a.superclasses.stream().map(AST_Typename::SimpleExpand).collect(Collectors.toList()));
+            appendln(buf, dp+1, "superclasses: "+a.superclasses.stream().map(AST__Typename::SimpleExpand).collect(Collectors.toList()));
             appendln(buf, dp+1, "members: [");
-            for (AST_Class_Member mb : a.members) {
+            for (AST_Stmt_DefClass.AST_Class_Member mb : a.members) {
                 appendln(buf, dp+2, "M {");
                     appendln(buf, dp+3, "annotations: "+mb.annotations.stream().map(e -> LxParser._ExpandQualifiedName(e.type)).collect(Collectors.toList()));
                     appendln(buf, dp+3, "is_static: "+mb.isStatic());
@@ -171,7 +179,7 @@ public class ASTPrinter {
 
     public static void printStmtDefVar(AST_Stmt_DefVar a, int dp, StringBuffer buf) {
         appendln(buf, dp, "StmtDefVar {");
-            appendln(buf, dp+1, "type: "+AST_Typename.SimpleExpand(a.type));
+            appendln(buf, dp+1, "type: "+ AST__Typename.SimpleExpand(a.type));
             appendln(buf, dp+1, "name: "+a.name);
             if (a.initexpr != null) {
                 appendln(buf, dp+1, "initexpr:");
@@ -182,11 +190,33 @@ public class ASTPrinter {
 
     public static void printStmtDefFunc(AST_Stmt_DefFunc a, int dp, StringBuffer buf) {
         appendln(buf, dp, "StmtDefFunc {");
-            appendln(buf, dp+1, "type: "+AST_Typename.SimpleExpand(a.returntype));
+            appendln(buf, dp+1, "type: "+ AST__Typename.SimpleExpand(a.returntype));
             appendln(buf, dp+1, "name: "+a.name);
-            appendln(buf, dp+1, "params: "+a.params.stream().map(p -> AST_Typename.SimpleExpand(p.type) + " " + p.name).collect(Collectors.toList()));
+            appendln(buf, dp+1, "params: "+a.params.stream().map(p -> AST__Typename.SimpleExpand(p.type) + " " + p.name).collect(Collectors.toList()));
             appendln(buf, dp+1, "body:");
-            printStmtBlock((AST_Stmt_Block)a.body, dp+2, buf);
+                printStmtBlock(a.body, dp+2, buf);
+        appendln(buf, dp, "}");
+    }
+
+    public static void printStmtWhile(AST_Stmt_While a, int dp, StringBuffer buf) {
+        appendln(buf, dp, "StmtWhile {");
+            appendln(buf, dp+1, "cond:");
+                printExpr(a.condition, dp+2, buf);
+            appendln(buf, dp+1, "then:");
+                printStmt(a.then, dp+2, buf);
+        appendln(buf, dp, "}");
+    }
+
+    public static void printStmtIf(AST_Stmt_If a, int dp, StringBuffer buf) {
+        appendln(buf, dp, "StmtIf {");
+            appendln(buf, dp+1, "cond:");
+                printExpr(a.condition, dp+2, buf);
+            appendln(buf, dp+1, "then:");
+                printStmt(a.thenb, dp+2, buf);
+            if (a.elseb != null) {
+            appendln(buf, dp + 1, "else:");
+                printStmt(a.elseb, dp + 2, buf);
+            }
         appendln(buf, dp, "}");
     }
 }

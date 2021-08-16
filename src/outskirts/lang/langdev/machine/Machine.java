@@ -1,17 +1,13 @@
 package outskirts.lang.langdev.machine;
 
 import outskirts.lang.langdev.compiler.ConstantPool;
-import outskirts.lang.langdev.compiler.Opcodes;
+import outskirts.lang.langdev.compiler.codegen.Opcodes;
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
-import outskirts.util.SystemUtil;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
 
-import static outskirts.lang.langdev.compiler.Opcodes.*;
+import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class Machine {
 

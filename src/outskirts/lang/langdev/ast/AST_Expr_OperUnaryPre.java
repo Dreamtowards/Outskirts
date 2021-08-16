@@ -1,10 +1,8 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 
 import java.util.List;
-import java.util.Map;
 
 public class AST_Expr_OperUnaryPre extends AST_Expr {
 
@@ -20,7 +18,7 @@ public class AST_Expr_OperUnaryPre extends AST_Expr {
     }
 
     public AST_Expr_OperUnaryPre(List<AST> ls) {
-        this(((AST_Token)ls.get(0)).text(), (AST_Expr)ls.get(1));
+        this(((AST__Token)ls.get(0)).text(), (AST_Expr)ls.get(1));
         Validate.isTrue(ls.size() == 2);
     }
 

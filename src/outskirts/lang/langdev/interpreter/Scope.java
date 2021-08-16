@@ -1,6 +1,6 @@
 //package outskirts.lang.langdev.interpreter;
 //
-//import outskirts.lang.langdev.ast.oop.AST_Stmt_DefClass;
+//import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 //import outskirts.util.Validate;
 //
 //import java.util.HashMap;

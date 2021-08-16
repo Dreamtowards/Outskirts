@@ -206,7 +206,7 @@ public final class Parserls extends Parser {
     }
 
     public Parserls iden_connected(String... parts) {
-        Parserls p = struct(AST_Token::composeConnected);
+        Parserls p = struct(AST__Token::composeConnected);
         for (int i = 0;i < parts.length;i++) {
             boolean last = i == parts.length-1;
             p.id(parts[i], true, !last);

@@ -1,33 +1,27 @@
-package outskirts.lang.langdev.ast.oop;
+package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.ast.*;
-import outskirts.lang.langdev.interpreter.GObject;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.lang.langdev.symtab.TypeSymbol;
-import outskirts.util.Validate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AST_Typename extends AST {
+public class AST__Typename extends AST {
 
     // Type Symbol
     public TypeSymbol sym;
 
     public final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
-    public final List<AST_Typename> genericArgs;
+    public final List<AST__Typename> genericArgs;
 
-    public AST_Typename(AST_Expr nameptr, List<AST_Typename> genericArgs) {
+    public AST__Typename(AST_Expr nameptr, List<AST__Typename> genericArgs) {
         this.nameptr = nameptr;
         this.genericArgs = genericArgs;
 
     }
 
-    public static String SimpleExpand(AST_Typename a) {
-        return LxParser._ExpandQualifiedName(a.nameptr) + (a.genericArgs.isEmpty() ? "" : "<"+ a.genericArgs.stream().map(AST_Typename::SimpleExpand).collect(Collectors.joining(", ")) +">");
+    public static String SimpleExpand(AST__Typename a) {
+        return LxParser._ExpandQualifiedName(a.nameptr) + (a.genericArgs.isEmpty() ? "" : "<"+ a.genericArgs.stream().map(AST__Typename::SimpleExpand).collect(Collectors.joining(", ")) +">");
     }
 
 //    public static String EvalTypename(AST_Typename a, Scope scope) {
