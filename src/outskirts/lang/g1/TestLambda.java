@@ -3,7 +3,7 @@ package outskirts.lang.langdev;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public class Test {
+public class TestLambda {
 
     interface Func {
         void ivk(int arg);

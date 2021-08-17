@@ -11,6 +11,8 @@ import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class Machine {
 
+    public static byte[] MemSpace = new byte[1024 * 1024 * 4];
+
     public static void exec(byte[] code, ConstantPool cpool, int localsize) {
         Intptr t = Intptr.zero();
         while (t.i < code.length) {

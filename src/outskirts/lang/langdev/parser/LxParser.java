@@ -70,7 +70,7 @@ public class LxParser {
     // for expr_funccall, annotation.
     public static List<AST_Expr> _Parse_FuncArgs(Lexer lx) {
         var l = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseExpr, ",", ")");
-        lx.rqnext(")");
+        lx.match(")");
         return l;
     }
 
@@ -118,7 +118,7 @@ public class LxParser {
         List<AST__Typename> genericArgs = Collections.emptyList();
         if (lx.peeking_skp("<")) {
             genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, ",", ">");
-            lx.rqnext(">");
+            lx.match(">");
         }
         return new AST__Typename(nameptr, genericArgs);
     }
@@ -159,14 +159,14 @@ public class LxParser {
         else if (lx.peeking_skp("new"))
         {   // new Instance.
             AST__Typename type = parse_Typename(lx);
-            lx.rqnext("(");
+            lx.match("(");
             List<AST_Expr> args = _Parse_FuncArgs(lx);
             return new AST_Expr_OperNew(type, args);
         }
         else if (lx.peeking_skp("("))
         {       // Bracks
             var r = parseExpr(lx);
-            lx.rqnext(")");
+            lx.match(")");
             return r;
         }
         else if (t.isName()) {
@@ -259,7 +259,7 @@ public class LxParser {
         AST_Expr l_cond = parseExpr13LogicalOr(lx);
         if (lx.peeking_skp("?")) {
             AST_Expr then = parseExpr14TernaryConditional(lx);
-            lx.rqnext(":");
+            lx.match(":");
             AST_Expr els = parseExpr14TernaryConditional(lx);
             return new AST_Expr_OperTriCon(l_cond, then, els);
         } else {
@@ -323,9 +323,9 @@ public class LxParser {
     }
 
     public static AST_Stmt_Block parseStmtBlock(Lexer lx) {
-        lx.rqnext("{");
+        lx.match("{");
         var s = parseStmtBlockStmts(lx, "}");
-        lx.rqnext("}");
+        lx.match("}");
         return s;
     }
 
@@ -336,9 +336,9 @@ public class LxParser {
     }
 
     public static AST_Stmt_If parseStmtIf(Lexer lex) {
-        lex.rqnext("if").rqnext("(");
+        lex.match("if").match("(");
         AST_Expr cond = parseExpr(lex);
-        lex.rqnext(")");
+        lex.match(")");
 
         AST_Stmt then = parseStmt(lex);
 
@@ -351,9 +351,9 @@ public class LxParser {
     }
 
     public static AST_Stmt_While parseStmtWhile(Lexer lx) {
-        lx.rqnext("while").rqnext("(");
+        lx.match("while").match("(");
         AST_Expr cond = parseExpr(lx);
-        lx.rqnext(")");
+        lx.match(")");
 
         AST_Stmt then = parseStmt(lx);
 
@@ -361,17 +361,17 @@ public class LxParser {
     }
 
     public static AST_Stmt_Return parseStmtReturn(Lexer lx) {
-        lx.rqnext("return");
+        lx.match("return");
         AST_Expr expr = null;
         if (!lx.peeking(";")) {
             expr = parseExpr(lx);
         }
-        lx.rqnext(";");
+        lx.match(";");
         return new AST_Stmt_Return(expr);
     }
 
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {
-        lx.rqnext("using");
+        lx.match("using");
 
         boolean ustatic = false;
         if (lx.peeking_skp("static")) {
@@ -379,20 +379,32 @@ public class LxParser {
         }
 
         AST_Expr name = parse_QualifiedName(lx);
-        lx.rqnext(";");
+        lx.match(";");
 
         return new AST_Stmt_Using(ustatic, name);
     }
 
     public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
-        lx.rqnext("namespace");
+        lx.match("namespace");
 
         AST_Expr name = parse_QualifiedName(lx);
-        lx.rqnext("{");
 
-        List<AST_Stmt> stmts = parseStmtBlockStmts(lx, "}").stmts;
+        List<AST_Stmt> stmts = new ArrayList<>();
+        if (lx.peeking_skp(";"))   // the single scope namespace. until next namespace(same-level) or EOF.
+        {
+            while (!lx.peekingone("namespace", Token.EOF_T))
+            {
+                stmts.add(parseStmt(lx));
+            }
+        }
+        else
+        {
+            lx.match("{");
 
-        lx.rqnext("}");
+            stmts = parseStmtBlockStmts(lx, "}").stmts;
+
+            lx.match("}");
+        }
 
         return new AST_Stmt_Namespace(name, stmts);
     }
@@ -409,13 +421,13 @@ public class LxParser {
         AST__Typename rettype = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
 
-        lx.rqnext("(");
+        lx.match("(");
         var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseStmtDefFunc_FuncParam, ",", ")");
-        lx.rqnext(")");
+        lx.match(")");
 
-        lx.rqnext("{");
+        lx.match("{");
         var body = parseStmtBlockStmts(lx, "}");
-        lx.rqnext("}");
+        lx.match("}");
 
         return new AST_Stmt_DefFunc(rettype, name, params, body);
     }
@@ -430,19 +442,19 @@ public class LxParser {
             init = parseExpr(lx);
         }
 
-        lx.rqnext(";");
+        lx.match(";");
 
         return new AST_Stmt_DefVar(type, name, init);
     }
 
     public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {
         AST_Expr expr = parseExpr(lx);
-        lx.rqnext(";");
+        lx.match(";");
         return new AST_Stmt_Expr(expr);
     }
 
     public static AST__Annotation parseAnnotation(Lexer lx) {
-        lx.rqnext("@");
+        lx.match("@");
         AST_Expr name = parse_QualifiedName(lx);
 
         List<AST_Expr> args = Collections.emptyList();
@@ -454,13 +466,13 @@ public class LxParser {
     }
 
     public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
-        lx.rqnext("class");
+        lx.match("class");
         String name = lx.next().validate(Token::isName).text();
 
         List<AST_Expr_PrimaryVariableName> genericParams = Collections.emptyList();
         if (lx.peeking_skp("<")) {
             genericParams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryVariableName, ",");
-            lx.rqnext(">");
+            lx.match(">");
         }
 
         List<AST__Typename> supers = Collections.emptyList();
@@ -469,7 +481,7 @@ public class LxParser {
         }
 
         List<AST_Stmt_DefClass.AST_Class_Member> members = new ArrayList<>();
-        lx.rqnext("{");
+        lx.match("{");
         while (!lx.peeking("}")) {
 
             List<AST__Annotation> anns = new ArrayList<>();
@@ -503,7 +515,7 @@ public class LxParser {
 
             members.add(new AST_Stmt_DefClass.AST_Class_Member(anns, modifiers, m));
         }
-        lx.rqnext("}");
+        lx.match("}");
 
         return new AST_Stmt_DefClass(null, name, genericParams, supers, members);
     }

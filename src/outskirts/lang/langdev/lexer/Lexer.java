@@ -99,7 +99,7 @@ public final class Lexer {
 
 
 
-    public final Lexer rqnext(String s) {
+    public final Lexer match(String s) {
         Token t = next();
         Validate.isTrue(t.text().equals(s), "Bad token. expected: '"+s+"', actual: '"+t.text()+"'. at "+t.detailString());
         return this;
@@ -108,6 +108,14 @@ public final class Lexer {
 
     public final boolean peeking(String connected) {
         return peekingc(connected) > 0;
+    }
+
+    public final boolean peekingone(String... ors) {
+        for (String s : ors) {
+            if (peeking(s))
+                return true;
+        }
+        return false;
     }
 
     public final int peekingc(String connected) {  // "c" suffix, count of peeking connected

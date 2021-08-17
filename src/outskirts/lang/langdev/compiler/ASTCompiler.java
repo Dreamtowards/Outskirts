@@ -69,7 +69,7 @@ public class ASTCompiler {
                 thisclass, superclasses.toArray(new String[0]),
                 fields.toArray(new ClassFile.Field[0])
                 );
-        // System.out.println("Compiled ClassFile: "+f);
+        System.out.println("Compiled ClassFile: "+f);
 
         ClassFile._CLASSPATH.put(thisclass, f);
     }

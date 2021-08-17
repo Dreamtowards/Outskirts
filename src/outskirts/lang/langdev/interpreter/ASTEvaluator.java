@@ -23,8 +23,6 @@
 //// however modify is available.
 //public class ASTEvaluator {
 //
-//    public static byte[] HeapSpace = new byte[10 * MB];
-//
 //
 //    public static boolean isConditionPass(AST_Expr cond, Symtab scope) {
 //        return toint(evalExpr(cond, scope).value) != 0;

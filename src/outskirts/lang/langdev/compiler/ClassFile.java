@@ -50,8 +50,7 @@ public class ClassFile {
     @Override
     public String toString() {
         return "ClassFile{" +
-                "version=" + version +
-                ", constantpool=" + constantpool +
+                "constantpool=" + constantpool +
                 ", thisclass='" + thisclass + '\'' +
                 ", superclasses=" + Arrays.toString(superclasses) +
                 ", fields=" + Arrays.toString(fields) +
