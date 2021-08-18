@@ -17,11 +17,6 @@ public class AST_Expr_OperUnaryPre extends AST_Expr {
         this.expr = expr;
     }
 
-    public AST_Expr_OperUnaryPre(List<AST> ls) {
-        this(((AST__Token)ls.get(0)).text(), (AST_Expr)ls.get(1));
-        Validate.isTrue(ls.size() == 2);
-    }
-
     @Override
     public String toString() {
         return "{"+operator+expr+"}";

@@ -51,9 +51,9 @@ public class Main {
         System.out.println(ClassFile._CLASSPATH.keySet());
 
 
-        StringBuffer sb = new StringBuffer();
-        ASTPrinter.printStmt(a, 0, sb);
-        System.out.println(sb.toString());
+//        StringBuffer sb = new StringBuffer();
+//        ASTPrinter.printStmt(a, 0, sb);
+//        System.out.println(sb.toString());
 
 
 //        RuntimeExec.init();

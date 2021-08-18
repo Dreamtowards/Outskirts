@@ -14,11 +14,6 @@ public class AST_Expr_OperUnaryPost extends AST_Expr {
         this.operator = operator;
     }
 
-    public AST_Expr_OperUnaryPost(List<AST> ls) {
-        this((AST_Expr)ls.get(0), ((AST__Token)ls.get(1)).text());
-        Validate.isTrue(ls.size() == 2);
-    }
-
     @Override
     public String toString() {
         return "{"+expr+operator+"}";

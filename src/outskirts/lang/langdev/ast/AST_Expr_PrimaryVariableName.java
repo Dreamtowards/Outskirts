@@ -14,11 +14,6 @@ public class AST_Expr_PrimaryVariableName extends AST_Expr {
         name = token.text();
     }
 
-    public AST_Expr_PrimaryVariableName(List<AST> ls) {
-        this(((AST__Token)ls.get(0)).token());
-        Validate.isTrue(ls.size() == 1);
-    }
-
     @Override
     public String toString() {
         return "`"+name;

@@ -36,10 +36,6 @@ public abstract class AST {
 
     public Symtab scope;
 
-    public String tokentext() {
-        return ((AST__Token)this).text();
-    }
-
     public String varname() {
         return ((AST_Expr_PrimaryVariableName)this).name;
     }

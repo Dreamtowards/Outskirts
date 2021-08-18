@@ -4,8 +4,6 @@ namespace stl.lang;
 
 class ptr {}
 
-    new ptr();
-
 class string
 {
     ptr base;
