@@ -31,14 +31,9 @@ public class Main {
 
 
         // IDEN, SCOPE.
-        Symtab glob = new Symtab(null);
-        SymbolBuiltinType.init(glob);
-
+        Symtab glob = new Symtab(null);  SymbolBuiltinType.init(glob);
         ASTSymbol.idenStmtBlockStmts(a, glob);
 
-
-        // SEMANTIC
-//        ASTSemantic.
 
         // COMPILE
         ASTCompiler.compileStmtBlockStmts(a.stmts);
@@ -56,9 +51,9 @@ public class Main {
         System.out.println(ClassFile._CLASSPATH.keySet());
 
 
-//        StringBuffer sb = new StringBuffer();
-//        ASTPrinter.printStmt(a, 0, sb);
-//        System.out.println(sb.toString());
+        StringBuffer sb = new StringBuffer();
+        ASTPrinter.printStmt(a, 0, sb);
+        System.out.println(sb.toString());
 
 
 //        RuntimeExec.init();

@@ -1,104 +1,34 @@
 
+
 namespace stl.lang;
 
-class a {}
-/*
-class memory {
+class ptr {}
 
-    native T get<T>(long addr);
+    new ptr();
 
-    native void set<T>(long addr, T v);
+class string
+{
+    ptr base;
 
+    int len()
+    {
+        int i = 0;
+        // while ((base + i++) != 0);
+        // return i;
+    }
 }
 
-class array<T> {
+/*
+struct string
+{
+    char* base;
 
-    ptr base_ptr;
-    uint length;
-
-    T get(uint idx) {
-
+    int len()
+    {
+        int i = 0;
+        while (*(base+i++) != 0);
+        return i;
     }
-
 }*/
 
-class ushort { }
 
-
-namespace stl.lang {
-
-
-    /*class string1 {
-
-        array<ushort> value;
-
-        ushort char_at(int i) {
-            value.get(i);
-
-            //return *(base_ptr+i);
-        }
-    }*/
-
-    class system {
-
-        static int get_int() {
-            // return 9;
-        }
-
-        static void s_print(string s, int i) {
-
-            int n = 8;
-
-            while (n < 100) {
-                n = n + n;
-            }
-
-            n = 10;
-            if (n == 2) {
-                n = n + n + n + n;
-            } else {
-                n = 6;
-            }
-
-            // n = get_int();
-            // new system().print("sth");
-        }
-    }
-
-}
-
-
-
-namespace stl.util
-{
-    class linked_list { }
-}
-
-namespace test.ns
-{
-    using static stl.lang.system.s_print;
-
-    class Base
-    {
-
-        int x;
-        int y;
-
-        static int DEF_X = 4;
-
-        static class Sub : Base
-        {
-
-            int z;
-
-        }
-    }
-
-    class Sub2 : Base
-    {
-        string printsth(int i)
-        {
-            // s_print("abc"+Base.DEF_X);
-        }
-    }
-}

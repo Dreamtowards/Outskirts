@@ -32,12 +32,6 @@ public class ASTPrinter {
         return "'" + s + "'";
     }
 
-    public static void printExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a, int dp, StringBuffer buf) {
-        appendln(buf, dp, "NUM{ "+a.num.value+" }");
-    }
-    public static void printExprPrimaryLiteralString(AST_Expr_PrimaryLiteralString a, int dp, StringBuffer buf) {
-        appendln(buf, dp, "STR{\""+a.str.value+"\"}");
-    }
     public static void printExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, int dp, StringBuffer buf) {
         appendln(buf, dp, "VAR{ "+a.name+" }");
     }
@@ -92,10 +86,15 @@ public class ASTPrinter {
             printExprOperUnaryPre((AST_Expr_OperUnaryPre)a, dp, buf);
         } else if (a instanceof AST_Expr_OperUnaryPost) {
             printExprOperUnaryPost((AST_Expr_OperUnaryPost)a, dp, buf);
-        } else if (a instanceof AST_Expr_PrimaryLiteralNumber) {
-            printExprPrimaryLiteralNumber((AST_Expr_PrimaryLiteralNumber)a, dp, buf);
+        } else if (a instanceof AST_Expr_PrimaryLiteralInt) {
+            appendln(buf, dp, "INT{ "+((AST_Expr_PrimaryLiteralInt)a).numInt+" }");
+        } else if (a instanceof AST_Expr_PrimaryLiteralFloat) {
+            appendln(buf, dp, "FLOAT{ "+((AST_Expr_PrimaryLiteralFloat)a).numFloat+" }");
+        } else if (a instanceof AST_Expr_PrimaryLiteralChar) {
+            char c = ((AST_Expr_PrimaryLiteralChar)a).numUInt16;
+            appendln(buf, dp, "CHAR{ "+(int)c+" '"+c+"' }");
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
-            printExprPrimaryLiteralString((AST_Expr_PrimaryLiteralString)a, dp, buf);
+            appendln(buf, dp, "STR{ "+((AST_Expr_PrimaryLiteralString)a).strRaw+" }");
         } else if (a instanceof AST_Expr_PrimaryVariableName) {
             printExprPrimaryVariableName((AST_Expr_PrimaryVariableName)a, dp, buf);
         } else if (a instanceof AST_Expr_FuncCall) {

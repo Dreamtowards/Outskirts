@@ -90,8 +90,8 @@ public class CodeGen {
      */
 
     public static void compileExpr(AST_Expr a, CodeBuf buf) {
-        if (a instanceof AST_Expr_PrimaryLiteralNumber) {
-            compileExprPrimaryLiteralNumber((AST_Expr_PrimaryLiteralNumber)a, buf);
+        if (a instanceof AST_Expr_PrimaryLiteralInt) {
+            compileExprPrimaryLiteralInt((AST_Expr_PrimaryLiteralInt)a, buf);
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
             compileExprPrimaryLiteralString((AST_Expr_PrimaryLiteralString)a, buf);
         } else if (a instanceof AST_Expr_PrimaryVariableName) {
@@ -107,8 +107,8 @@ public class CodeGen {
     public static void compileExprPrimaryLiteralString(AST_Expr_PrimaryLiteralString a, CodeBuf buf) {
         buf._ldc(buf.constantpool.ensureUtf8(a.strRaw));
     }
-    public static void compileExprPrimaryLiteralNumber(AST_Expr_PrimaryLiteralNumber a, CodeBuf buf) {
-        buf._ldc(buf.constantpool.ensureInt32((int)a.rawFl));
+    public static void compileExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, CodeBuf buf) {
+        buf._ldc(buf.constantpool.ensureInt32((int)a.numInt));
     }
     public static void compileExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, CodeBuf buf) {
         buf._load(a.name);

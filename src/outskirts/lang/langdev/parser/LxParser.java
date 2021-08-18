@@ -133,44 +133,44 @@ public class LxParser {
         return parseExpr15Assignment(lx);
     }
 
-    public static AST_Expr_PrimaryLiteralNumber parseExprPrimaryLiteralNumber(Lexer lx) {
-        Token t = lx.next();  Validate.isTrue(t.isNumber());
-        return new AST_Expr_PrimaryLiteralNumber(t);
-    }
-    public static AST_Expr_PrimaryLiteralString parseExprPrimaryLiteralString(Lexer lx) {
-        Token t = lx.next();  Validate.isTrue(t.isString());
-        return new AST_Expr_PrimaryLiteralString(t);
-    }
     public static AST_Expr_PrimaryVariableName parseExprPrimaryVariableName(Lexer lx) {
-        Token t = lx.next();  Validate.isTrue(t.isName());
+        Token t = lx.next();
+        Validate.isTrue(t.isName());
         return new AST_Expr_PrimaryVariableName(t);
     }
 
     public static AST_Expr parseExprPrimary(Lexer lx) {
         Token t = lx.peek();
-        if (t.isNumber())
-        {
-            return parseExprPrimaryLiteralNumber(lx);
+        if (t.isInt()) {
+            lx.skip();
+            return new AST_Expr_PrimaryLiteralInt(Integer.parseInt(t.text()));
+        } else if (t.isFloat()) {
+            lx.skip();
+            return new AST_Expr_PrimaryLiteralFloat(Float.parseFloat(t.text()));
+        } else if (t.isChar()) {
+            lx.skip();
+            String ct = t.text(); Validate.isTrue(ct.length() == 1);
+            return new AST_Expr_PrimaryLiteralChar(ct.charAt(0));
+        } else if (t.isString()) {
+            lx.skip();
+            return new AST_Expr_PrimaryLiteralString(t);
         }
-        else if (t.isString())
+        else if (t.isName())
         {
-            return parseExprPrimaryLiteralString(lx);
+            return parseExprPrimaryVariableName(lx);
         }
-        else if (lx.peeking_skp("new"))
-        {   // new Instance.
+        else if (lx.peeking_skp("new"))  // new Instance Expr.
+        {
             AST__Typename type = parse_Typename(lx);
             lx.match("(");
             List<AST_Expr> args = _Parse_FuncArgs(lx);
             return new AST_Expr_OperNew(type, args);
         }
-        else if (lx.peeking_skp("("))
-        {       // Bracks
+        else if (lx.peeking_skp("("))   // Bracks
+        {
             var r = parseExpr(lx);
             lx.match(")");
             return r;
-        }
-        else if (t.isName()) {
-            return parseExprPrimaryVariableName(lx);
         }
         else throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
     }
@@ -303,7 +303,7 @@ public class LxParser {
                 int mark = lx.index;
 
                 // is: Typename name
-                if (!lx.peeking("new") && _IsPass(lx, LxParser::parse_Typename) && lx.next().isName()) {
+                if (_IsPass(lx, LxParser::parse_Typename) && lx.next().isName()) {
                     switch (lx.next().text()) {
                         case "(":
                             lx.index = mark;

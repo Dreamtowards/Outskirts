@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.lexer;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class Token {
@@ -9,11 +10,14 @@ public final class Token {
 
     public static final int TYPE_EOF = 0;
     public static final int TYPE_NAME = 1;
-    public static final int TYPE_BORDER = 2;
-    public static final int TYPE_NUMBER = 3;
-    public static final int TYPE_STRING = 4;
-    public static final int TYPE_CHARACTER = 5;
-    public static final String[] TYPES_NAME = {"EOF", "NAME", "BORDER", "NUMBER", "STRING", "CHARACTER"};
+    public static final int TYPE_KEYWORD = 2;
+    public static final int TYPE_INT = 3;
+    public static final int TYPE_INT_LONG = 4;
+    public static final int TYPE_FLOAT = 5;
+    public static final int TYPE_FLOAT_DOUBLE = 6;
+    public static final int TYPE_CHAR = 7;
+    public static final int TYPE_STRING = 8;
+    public static final String[] TYPES_NAME = {"EOF", "NAME", "KEYWORD", "INT", "INT_LONG", "FLOAT", "FLOAT_DOUBLE", "CHAR", "STRING"};
 
     private final String text;
     private final int type;
@@ -25,7 +29,7 @@ public final class Token {
     private final int charNumber;
 
     public Token(String s, int type, int linenum, int charnum, boolean isConnectedNext) {
-        this.text = s;
+        this.text = Objects.requireNonNull(s);
         this.type = type;
         this.lineNumber = linenum;
         this.charNumber = charnum;
@@ -47,25 +51,19 @@ public final class Token {
         return charNumber;
     }
 
-    public final boolean isName() {
-        return type == TYPE_NAME;
-    }
-    public final boolean isBorder() {
-        return type == TYPE_BORDER;
-    }
-    public final boolean isIdentifier() {
-        return isName() || isBorder();
-    }
-    public final boolean isNumber() {
-        return type == TYPE_NUMBER;
-    }
-    public final boolean isString() {
-        return type == TYPE_STRING;
-    }
+    public final boolean isName() { return type == TYPE_NAME; }
+    public final boolean isKeyword() { return type == TYPE_KEYWORD; }
+    public final boolean isInt() { return type == TYPE_INT; }
+    public final boolean isIntLong() { return type == TYPE_INT_LONG; }
+    public final boolean isFloat() { return type == TYPE_FLOAT; }
+    public final boolean isFloatDouble() { return type == TYPE_FLOAT_DOUBLE; }
+    public final boolean isString() { return type == TYPE_STRING; }
+    public final boolean isChar()   { return type == TYPE_CHAR; }
+
 
     @Override
     public String toString() {
-        return text+(isConnectedNext ?"[Y]":"[N]");
+        return "'"+text+"'";
     }
 
     public String detailString() {

@@ -17,7 +17,7 @@ public class ASTSymbol {
             a.evaltype= ((SymbolVariable)scope.resolve(a.varname())).type;
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
             a.evaltype= SymbolBuiltinType._string;
-        } else if (a instanceof AST_Expr_PrimaryLiteralNumber) {
+        } else if (a instanceof AST_Expr_PrimaryLiteralInt) {
             a.evaltype= SymbolBuiltinType._int;
         } else if (a instanceof AST_Expr_FuncCall) {
             idenExprFuncCall((AST_Expr_FuncCall)a, scope);
