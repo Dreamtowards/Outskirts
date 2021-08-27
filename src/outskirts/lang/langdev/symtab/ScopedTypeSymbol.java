@@ -5,11 +5,17 @@ public interface ScopedTypeSymbol extends TypeSymbol {
 
     Scope getTable();
 
-    // ?ScopedTypeSymbol
-
 
     @Override
     default String getQualifiedName() {
+        Scope tab = getTable();
+        StringBuilder sb = new StringBuilder(tab.symbolAssociated.name);
 
+        while ((tab = tab.getParent()) != null) {
+            if (tab.symbolAssociated != null) {
+                sb.insert(0, tab.symbolAssociated.name+".");
+            }
+        }
+        return sb.toString();
     }
 }

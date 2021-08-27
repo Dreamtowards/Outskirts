@@ -1,6 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
-public class SymbolNamespace extends Symbol implements TypeSymbol, ScopedTypeSymbol {
+public class SymbolNamespace extends Symbol implements ScopedTypeSymbol {
 
     public Scope symtab;
 
@@ -8,11 +8,6 @@ public class SymbolNamespace extends Symbol implements TypeSymbol, ScopedTypeSym
         super(name);
         this.symtab = symtab;
         symtab.symbolAssociated = this;
-    }
-
-    @Override
-    public String getQualifiedName() {
-        return SymbolClass.composeFullName(symtab);
     }
 
     @Override

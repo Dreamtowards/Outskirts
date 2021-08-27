@@ -9,6 +9,6 @@ public interface TypeSymbol {
         int i = fullname.lastIndexOf('.');
         return i==-1 ? fullname : fullname.substring(i+1);
     }
-    // int getBaseType();
 
+    // int getBaseType();
 }
