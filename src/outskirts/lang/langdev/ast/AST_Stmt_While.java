@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.util.Validate;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public class AST_Stmt_While extends AST_Stmt {
         this.then = then;
     }
 
-    public AST_Stmt_While(List<AST> ls) {
-        this((AST_Expr)ls.get(0), (AST_Stmt)ls.get(1));
-        Validate.isTrue(ls.size() == 2);
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitStmtWhile(this, p);
     }
 }

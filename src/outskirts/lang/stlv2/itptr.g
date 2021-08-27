@@ -1,20 +1,40 @@
 
 
+namespace test;
+
+@private
+class myint {
+
+
+}
+
 namespace stl.lang;
 
-class ptr {}
+using test.myint as someint;
 
-class string
-{
-    ptr base;
 
-    int len()
-    {
-        int i = 0;
-        // while ((base + i++) != 0);
-        // return i;
+const class _main {
+
+    @permits
+    @private
+    const static void main(int i) {
+
+        someint m;
+
+        i = 2;
+
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 /*
 struct string

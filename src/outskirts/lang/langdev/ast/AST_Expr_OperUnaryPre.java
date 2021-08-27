@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.util.Validate;
 
 import java.util.List;
@@ -15,6 +16,11 @@ public class AST_Expr_OperUnaryPre extends AST_Expr {
     public AST_Expr_OperUnaryPre(String operator, AST_Expr expr) {
         this.operator = operator;
         this.expr = expr;
+    }
+
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitExprOperUPre(this, p);
     }
 
     @Override

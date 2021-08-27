@@ -18,21 +18,22 @@ public class ASTCompiler {
     public static void compileClass(AST_Stmt_DefClass a) {
         ConstantPool constantpool = new ConstantPool();
 
-        String thisclass = a.thisclass.parNam();
+        String thisclass = a.sym.getQualifiedName();
 
         List<String> superclasses = new ArrayList<>();
         for (AST__Typename sup : a.superclasses) {
             superclasses.add(
-                    sup.sym.getName()
+                    sup.sym.getQualifiedName()
             );
         }
 
         List<ClassFile.Field> fields = new ArrayList<>();
-        for (AST_Stmt_DefClass.AST_Class_Member mb : a.members) {
+        for (AST_Stmt m : a.members) {
             short mod = 0;
-            if (mb.isStatic()) mod |= ClassFile.Field.MASK_STATIC;
+            boolean isStatic = ((AST.Modifierable)m).getModifiers().isStatic();
+            if (isStatic)
+                mod |= ClassFile.Field.MASK_STATIC;
 
-            AST_Stmt m = mb.member;
             if (m instanceof AST_Stmt_DefClass) {
                 compileClass((AST_Stmt_DefClass)m);
 //                throw new UnsupportedOperationException("Inner Class Not Supported yet.");
@@ -40,24 +41,24 @@ public class ASTCompiler {
                 AST_Stmt_DefFunc c = (AST_Stmt_DefFunc)m;
 
                 CodeBuf codebuf = new CodeBuf(constantpool);
-                if (!mb.isStatic())
+                if (!isStatic)
                     codebuf.defvar("this");
-                for (AST_Stmt_DefFunc.AST_Func_Param param : c.params)
+                for (AST_Stmt_DefVar param : c.params)
                     codebuf.defvar(param.name);
                 CodeGen.compileStmtBlock(c.body, codebuf);
                 System.out.println("Compiled Function: "+codebuf);
                 _COMPILED.add(codebuf);
 
-                String typename = "function<"+c.returntype.sym.getName();
-                for (AST_Stmt_DefFunc.AST_Func_Param param : c.params) {
-                    typename += ", "+param.type.sym.getName();
+                String typename = "function<"+c.returntype.sym.getQualifiedName();
+                for (AST_Stmt_DefVar param : c.params) {
+                    typename += ", "+param.type.sym.getQualifiedName();
                 }
                 typename += ">";
                 fields.add(new ClassFile.Field(c.name, mod, typename));
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
-                fields.add(new ClassFile.Field(c.name, mod, c.type.sym.getName()));
+                fields.add(new ClassFile.Field(c.name, mod, c.type.sym.getQualifiedName()));
             } else
                 throw new IllegalStateException("Unsupported member: "+m);
         }

@@ -94,8 +94,8 @@ public class CodeGen {
             compileExprPrimaryLiteralInt((AST_Expr_PrimaryLiteralInt)a, buf);
         } else if (a instanceof AST_Expr_PrimaryLiteralString) {
             compileExprPrimaryLiteralString((AST_Expr_PrimaryLiteralString)a, buf);
-        } else if (a instanceof AST_Expr_PrimaryVariableName) {
-            compileExprPrimaryVariableName((AST_Expr_PrimaryVariableName)a, buf);
+        } else if (a instanceof AST_Expr_PrimaryIdentifier) {
+            compileExprPrimaryVariableName((AST_Expr_PrimaryIdentifier)a, buf);
         } else if (a instanceof AST_Expr_FuncCall) {
             compileExprFuncCall((AST_Expr_FuncCall)a, buf);
         } else if (a instanceof AST_Expr_OperBi) {
@@ -110,7 +110,7 @@ public class CodeGen {
     public static void compileExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, CodeBuf buf) {
         buf._ldc(buf.constantpool.ensureInt32((int)a.numInt));
     }
-    public static void compileExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, CodeBuf buf) {
+    public static void compileExprPrimaryVariableName(AST_Expr_PrimaryIdentifier a, CodeBuf buf) {
         buf._load(a.name);
     }
     public static void compileExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
@@ -123,7 +123,7 @@ public class CodeGen {
 
     public static void compileExprOperBin(AST_Expr_OperBi a, CodeBuf buf) {
         if (a.operator.equals("=")) {
-            if (a.left instanceof AST_Expr_PrimaryVariableName) {
+            if (a.left instanceof AST_Expr_PrimaryIdentifier) {
                 compileExpr(a.right, buf);
                 buf._dup();
                 buf._store(a.left.varname());

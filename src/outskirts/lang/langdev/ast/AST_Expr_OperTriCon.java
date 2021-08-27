@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 /**
  * condition ? then : else
  */
@@ -13,6 +15,11 @@ public class AST_Expr_OperTriCon extends AST_Expr {
         this.condition = condition;
         this.exprthen = exprthen;
         this.exprelse = exprelse;
+    }
+
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitExprOperTriCon(this, p);
     }
 
     @Override

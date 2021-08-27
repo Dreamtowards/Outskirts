@@ -1,6 +1,7 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.symtab.Symtab;
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.symtab.Scope;
 
 /**
  * AST_Stmt
@@ -34,15 +35,29 @@ import outskirts.lang.langdev.symtab.Symtab;
 
 public abstract class AST {
 
-    public Symtab scope;
+    // public Scope scope;
+
+//    private String sourcefile;
+//    private int sourcefile_pos; startpos, endpos.
 
     public String varname() {
-        return ((AST_Expr_PrimaryVariableName)this).name;
+        return ((AST_Expr_PrimaryIdentifier)this).name;
     }
 
     @Override
     public String toString() {
         return "base_ast"+getClass();
+    }
+
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        throw new UnsupportedOperationException(getClass().getName());
+    }
+
+
+    public interface Modifierable {
+
+        AST__Modifiers getModifiers();
+
     }
 
 }

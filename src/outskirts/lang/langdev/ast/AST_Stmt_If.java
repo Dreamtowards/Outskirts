@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 import java.util.List;
 
 public class AST_Stmt_If extends AST_Stmt {
@@ -14,4 +16,8 @@ public class AST_Stmt_If extends AST_Stmt {
         this.elseb = elseb;
     }
 
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitStmtIf(this, p);
+    }
 }

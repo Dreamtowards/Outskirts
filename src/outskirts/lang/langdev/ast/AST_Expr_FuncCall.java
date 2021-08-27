@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 import java.util.List;
 
 public class AST_Expr_FuncCall extends AST_Expr {
@@ -10,6 +12,11 @@ public class AST_Expr_FuncCall extends AST_Expr {
     public AST_Expr_FuncCall(AST_Expr expr, List<AST_Expr> args) {
         this.funcptr = expr;
         this.args = args;
+    }
+
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitExprFuncCall(this, p);
     }
 
     @Override

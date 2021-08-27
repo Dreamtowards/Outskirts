@@ -340,7 +340,8 @@ public final class Lexer {
             "==", "!=",
             "=>",
             "new",
-            ";", "!", "=", ".", "+", "-", "*", "/", "{", "}", "(", ")"
+            ";", "!", "=", ".", "+", "-", "*", "/", "{", "}", "(", ")",
+            "@"
     };
     private static String lookupKeyword(String s, int i) {
         for (String k : KEYWORDS) {

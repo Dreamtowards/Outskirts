@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 public class AST_Expr_OperBi extends AST_Expr {
 
     public final AST_Expr left;
@@ -10,6 +12,11 @@ public class AST_Expr_OperBi extends AST_Expr {
         this.left = left;
         this.operator = operator;
         this.right = right;
+    }
+
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitExprOperBin(this, p);
     }
 
     @Override

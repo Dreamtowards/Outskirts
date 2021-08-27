@@ -16,6 +16,9 @@ import java.util.function.Function;
 
 public class LxParser {
 
+    public static String[] _MODIFIERS = {"static", "const"};
+
+
     /*
      * =============== PARSER UTILITY ===============
      */
@@ -74,6 +77,25 @@ public class LxParser {
         return l;
     }
 
+    public static boolean _Is_Peeking_Modifiers(Lexer lx) {
+        return lx.peeking("@") || lx.peekingone(_MODIFIERS);
+    }
+    public static AST__Modifiers _Parse_Modifiers(Lexer lx) {
+        List<AST__Annotation> annos = new ArrayList<>();
+        while (lx.peeking("@")) {
+            annos.add(parseAnnotation(lx));
+        }
+
+        List<String> modifiers = new ArrayList<>();
+        String kwm;
+        while ((kwm=lx.peekingone_skp(_MODIFIERS)) != null) {
+            Validate.isTrue(!modifiers.contains(kwm), "modifier '"+kwm+"' duplicated.");
+            modifiers.add(kwm);
+        }
+
+        return new AST__Modifiers(annos, modifiers);
+    }
+
     public static boolean _IsPass(Lexer lx, Function<Lexer, AST> psr) {
         try {
             psr.apply(lx);
@@ -88,21 +110,21 @@ public class LxParser {
             AST_Expr_OperBi o = (AST_Expr_OperBi)e;
             Validate.isTrue(o.operator.equals("."));
             return _ExpandQualifiedName(o.left) + "." + _ExpandQualifiedName(o.right);
-        } else if (e instanceof AST_Expr_PrimaryVariableName) {
-            return ((AST_Expr_PrimaryVariableName) e).name;
+        } else if (e instanceof AST_Expr_PrimaryIdentifier) {
+            return ((AST_Expr_PrimaryIdentifier) e).name;
         } else {
             throw new IllegalStateException();
         }
     }
-    public static String _PeakQualifiedName(AST_Expr e, boolean left) {
-        if (e instanceof AST_Expr_PrimaryVariableName) {
-            return ((AST_Expr_PrimaryVariableName) e).name;
-        } else if (e instanceof AST_Expr_OperBi) {
-            return ((AST_Expr_PrimaryVariableName)(left ? ((AST_Expr_OperBi)e).left : ((AST_Expr_OperBi)e).right)).name;
-        } else {
-            throw new IllegalStateException();
-        }
-    }
+//    public static String _PeakQualifiedName(AST_Expr e, boolean left) {
+//        if (e instanceof AST_Expr_PrimaryIdentifier) {
+//            return ((AST_Expr_PrimaryIdentifier) e).name;
+//        } else if (e instanceof AST_Expr_OperBi) {
+//            return ((AST_Expr_PrimaryIdentifier)(left ? ((AST_Expr_OperBi)e).left : ((AST_Expr_OperBi)e).right)).name;
+//        } else {
+//            throw new IllegalStateException();
+//        }
+//    }
 
     /*
      * =============== TYPENAME ===============
@@ -133,10 +155,10 @@ public class LxParser {
         return parseExpr15Assignment(lx);
     }
 
-    public static AST_Expr_PrimaryVariableName parseExprPrimaryVariableName(Lexer lx) {
+    public static AST_Expr_PrimaryIdentifier parseExprPrimaryVariableName(Lexer lx) {
         Token t = lx.next();
         Validate.isTrue(t.isName());
-        return new AST_Expr_PrimaryVariableName(t);
+        return new AST_Expr_PrimaryIdentifier(t);
     }
 
     public static AST_Expr parseExprPrimary(Lexer lx) {
@@ -297,42 +319,51 @@ public class LxParser {
                 return parseStmtWhile(lx);
             case "return":
                 return parseStmtReturn(lx);
-            case "class":
-                return parseStmtDefClass(lx);
             default:
-                int mark = lx.index;
-
-                // is: Typename name
-                if (_IsPass(lx, LxParser::parse_Typename) && lx.next().isName()) {
-                    switch (lx.next().text()) {
-                        case "(":
-                            lx.index = mark;
-                            return parseStmtDefFunc(lx);
-                        case "=":
-                        case ";":
-                            lx.index = mark;
-                            return parseStmtDefVar(lx);
-                        default:
-                            throw new IllegalStateException();
-                    }
+                AST__Modifiers modifiers = null;
+                if (_Is_Peeking_Modifiers(lx)) {
+                    modifiers = _Parse_Modifiers(lx);
                 }
 
-                lx.index = mark;
-                return parseStmtExpr(lx);
+                int mark = lx.index;
+
+                if (lx.peeking("class"))
+                {
+                    AST_Stmt_DefClass a = parseStmtDefClass(lx); a.modifiers = modifiers; return a;
+                }
+                else if (_IsPass(lx, LxParser::parse_Typename) && _IsPass(lx, LxParser::parseExprPrimaryVariableName))  // is: Typename id
+                {
+                    String s = lx.next().text();
+                    lx.index = mark;  // setback.
+                    if (s.equals("("))
+                    {
+                        AST_Stmt_DefFunc a = parseStmtDefFunc(lx); a.modifiers = modifiers; return a;
+                    }
+                    else if (s.equals("=") || s.equals(";"))
+                    {
+                        AST_Stmt_DefVar a = parseStmtDefVar(lx); a.modifiers = modifiers; return a;
+                    }
+                    else throw new IllegalStateException();
+                }
+                else
+                {
+                    Validate.isTrue(modifiers == null, "illegal modifiers exists.");
+
+                    lx.index = mark;  // setback.
+                    return parseStmtExpr(lx);
+                }
         }
     }
 
     public static AST_Stmt_Block parseStmtBlock(Lexer lx) {
         lx.match("{");
-        var s = parseStmtBlockStmts(lx, "}");
+        var s = new AST_Stmt_Block(parseStmtBlockStmts(lx, "}"));
         lx.match("}");
         return s;
     }
 
-    public static AST_Stmt_Block parseStmtBlockStmts(Lexer lx, String until) {
-        return new AST_Stmt_Block(
-                _Parse_RepeatUntil(lx, LxParser::parseStmt, until)
-        );
+    public static List<AST_Stmt> parseStmtBlockStmts(Lexer lx, String until) {
+        return _Parse_RepeatUntil(lx, LxParser::parseStmt, until);
     }
 
     public static AST_Stmt_If parseStmtIf(Lexer lex) {
@@ -378,10 +409,15 @@ public class LxParser {
             ustatic = true;
         }
 
-        AST_Expr name = parse_QualifiedName(lx);
+        AST_Expr used = parse_QualifiedName(lx);
+
+        String asname = (used instanceof AST_Expr_OperBi ? ((AST_Expr_OperBi)used).right : used).varname();
+        if (lx.peeking_skp("as")) {
+            asname = parseExprPrimaryVariableName(lx).name;
+        }
         lx.match(";");
 
-        return new AST_Stmt_Using(ustatic, name);
+        return new AST_Stmt_Using(ustatic, used, asname);
     }
 
     public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
@@ -390,8 +426,7 @@ public class LxParser {
         AST_Expr name = parse_QualifiedName(lx);
 
         List<AST_Stmt> stmts = new ArrayList<>();
-        if (lx.peeking_skp(";"))   // the single scope namespace. until next namespace(same-level) or EOF.
-        {
+        if (lx.peeking_skp(";")) {   // the single scope namespace. until next namespace(same-level) or EOF.
             while (!lx.peekingone("namespace", Token.EOF_T))
             {
                 stmts.add(parseStmt(lx));
@@ -400,9 +435,7 @@ public class LxParser {
         else
         {
             lx.match("{");
-
-            stmts = parseStmtBlockStmts(lx, "}").stmts;
-
+            stmts = parseStmtBlockStmts(lx, "}");
             lx.match("}");
         }
 
@@ -410,30 +443,28 @@ public class LxParser {
     }
 
 
-    private static AST_Stmt_DefFunc.AST_Func_Param parseStmtDefFunc_FuncParam(Lexer lx) {
-        AST__Typename type = parse_Typename(lx);
-        String name = lx.next().validate(Token::isName).text();
-        return new AST_Stmt_DefFunc.AST_Func_Param(type, name);
-    }
-
     public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
 
         AST__Typename rettype = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
 
         lx.match("(");
-        var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseStmtDefFunc_FuncParam, ",", ")");
+        var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseStmtDefVar_Def, ",", ")");
         lx.match(")");
 
-        lx.match("{");
-        var body = parseStmtBlockStmts(lx, "}");
-        lx.match("}");
+        var body = parseStmtBlock(lx);
 
         return new AST_Stmt_DefFunc(rettype, name, params, body);
     }
 
     public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
+        AST_Stmt_DefVar a = parseStmtDefVar_Def(lx);
+        lx.match(";");
+        return a;
+    }
 
+    // not the ';'. for support of FuncParams.
+    public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {
         AST__Typename type = parse_Typename(lx);
         String name = lx.next().validate(Token::isName).text();
 
@@ -441,8 +472,6 @@ public class LxParser {
         if (lx.peeking_skp("=")) {
             init = parseExpr(lx);
         }
-
-        lx.match(";");
 
         return new AST_Stmt_DefVar(type, name, init);
     }
@@ -469,7 +498,7 @@ public class LxParser {
         lx.match("class");
         String name = lx.next().validate(Token::isName).text();
 
-        List<AST_Expr_PrimaryVariableName> genericParams = Collections.emptyList();
+        List<AST_Expr_PrimaryIdentifier> genericParams = Collections.emptyList();
         if (lx.peeking_skp("<")) {
             genericParams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryVariableName, ",");
             lx.match(">");
@@ -480,43 +509,13 @@ public class LxParser {
             supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, ",");
         }
 
-        List<AST_Stmt_DefClass.AST_Class_Member> members = new ArrayList<>();
         lx.match("{");
-        while (!lx.peeking("}")) {
-
-            List<AST__Annotation> anns = new ArrayList<>();
-            while (lx.peeking("@")) {
-                anns.add(parseAnnotation(lx));
-            }
-
-            List<String> modifiers = new ArrayList<>();
-            String modf;
-            while ((modf=lx.peekingone_skp("static")) != null) {
-                modifiers.add(modf);
-            }
-
-            int mark = lx.index;
-            AST_Stmt m;
-            if (lx.peeking("class")) {
-                m = parseStmtDefClass(lx);
-            } else if (_IsPass(lx, LxParser::parse_Typename) && _IsPass(lx, LxParser::parseExprPrimaryVariableName)) {
-                String s = lx.peek().text();
-                lx.index = mark;
-                if (s.equals("(")) {
-                    m = parseStmtDefFunc(lx);
-                } else if (s.equals("=") || s.equals(";")){
-                    m = parseStmtDefVar(lx);
-                } else {
-                    throw new IllegalStateException("Bad stmt");
-                }
-            } else {
-                throw new IllegalStateException("Bad member");
-            }
-
-            members.add(new AST_Stmt_DefClass.AST_Class_Member(anns, modifiers, m));
-        }
+        List<AST_Stmt> stmts_members = parseStmtBlockStmts(lx, "}");
         lx.match("}");
 
-        return new AST_Stmt_DefClass(null, name, genericParams, supers, members);
+        // validate member type.
+        stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
+
+        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members);
     }
 }

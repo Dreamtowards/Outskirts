@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 
@@ -17,12 +18,16 @@ public class AST__Typename extends AST {
     public AST__Typename(AST_Expr nameptr, List<AST__Typename> genericArgs) {
         this.nameptr = nameptr;
         this.genericArgs = genericArgs;
-
     }
 
-    public static String SimpleExpand(AST__Typename a) {
-        return LxParser._ExpandQualifiedName(a.nameptr) + (a.genericArgs.isEmpty() ? "" : "<"+ a.genericArgs.stream().map(AST__Typename::SimpleExpand).collect(Collectors.joining(", ")) +">");
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visit_Typename(this, p);
     }
+
+    //    public static String SimpleExpand(AST__Typename a) {
+//        return LxParser._ExpandQualifiedName(a.nameptr) + (a.genericArgs.isEmpty() ? "" : "<"+ a.genericArgs.stream().map(AST__Typename::SimpleExpand).collect(Collectors.joining(", ")) +">");
+//    }
 
 //    public static String EvalTypename(AST_Typename a, Scope scope) {
 //        Scope t = evalTypename_Name(a.nameptr, scope);

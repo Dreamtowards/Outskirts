@@ -1,6 +1,5 @@
 package outskirts.lang.langdev;
 
-import outskirts.lang.langdev.ast.astprint.ASTPrinter;
 import outskirts.lang.langdev.ast.AST_Stmt_Block;
 import outskirts.lang.langdev.compiler.ASTCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
@@ -10,9 +9,9 @@ import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.lang.langdev.symtab.ASTSymbol;
+import outskirts.lang.langdev.symtab.ASTVSym;
 import outskirts.lang.langdev.symtab.SymbolBuiltinType;
-import outskirts.lang.langdev.symtab.Symtab;
+import outskirts.lang.langdev.symtab.Scope;
 
 
 import java.io.IOException;
@@ -27,12 +26,14 @@ public class Main {
         lx.read(RuntimeExec.readfileInSrc("itptr.g"));
 
         // PARSE
-        AST_Stmt_Block a = LxParser.parseStmtBlockStmts(lx, Token.EOF_T);
+        AST_Stmt_Block a = new AST_Stmt_Block(LxParser.parseStmtBlockStmts(lx, Token.EOF_T));
 
 
         // IDEN, SCOPE.
-        Symtab glob = new Symtab(null);  SymbolBuiltinType.init(glob);
-        ASTSymbol.idenStmtBlockStmts(a, glob);
+        Scope glob = new Scope(null);  SymbolBuiltinType.init(glob);
+//        ASTSymbol.idenStmtBlockStmts(a, glob);
+        ASTVSym symbolEnteringVisitor = new ASTVSym();
+        a.accept(symbolEnteringVisitor, glob);
 
 
         // COMPILE
@@ -41,7 +42,6 @@ public class Main {
 
         CodeBuf cbuf = ASTCompiler._COMPILED.get(0);
         Machine.exec(cbuf.toByteArray(), cbuf.constantpool, cbuf.localsize());
-
 
 
 

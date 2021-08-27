@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 import java.util.List;
 
 public class AST_Stmt_Expr extends AST_Stmt {
@@ -10,8 +12,9 @@ public class AST_Stmt_Expr extends AST_Stmt {
         this.expr = expr;
     }
 
-    public AST_Stmt_Expr(List<AST> ls) {
-        this((AST_Expr)ls.get(0));
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitStmtExpr(this, p);
     }
 
     @Override

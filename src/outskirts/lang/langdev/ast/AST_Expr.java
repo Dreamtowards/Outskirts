@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.symtab.Symbol;
 import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.lang.langdev.symtab.TypeSymbol;

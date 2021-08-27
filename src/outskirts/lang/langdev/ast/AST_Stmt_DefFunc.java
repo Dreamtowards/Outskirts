@@ -1,15 +1,23 @@
 package outskirts.lang.langdev.ast;
 
+import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+
 import java.util.List;
 
-public class AST_Stmt_DefFunc extends AST_Stmt {
+/**
+ * the function, can't been simply a variable (tho the beginning(annotations, modifiers, typename, iden) is same),
+ * but function still can been a SyntaxSugar. the VariableType is function<ret_type, param_types..>
+ */
+public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
 
     public final AST__Typename returntype;
     public final String name;
-    public final List<AST_Func_Param> params; // unclear
+    public final List<AST_Stmt_DefVar> params; // unclear
     public final AST_Stmt_Block body;     // ?? block ??or expr?
 
-    public AST_Stmt_DefFunc(AST__Typename returntype, String name, List<AST_Func_Param> params, AST_Stmt_Block body) {
+    public AST__Modifiers modifiers;
+
+    public AST_Stmt_DefFunc(AST__Typename returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body) {
         this.returntype = returntype;
         this.name = name;
         this.params = params;
@@ -17,18 +25,18 @@ public class AST_Stmt_DefFunc extends AST_Stmt {
     }
 
     @Override
+    public AST__Modifiers getModifiers() {
+        return modifiers;
+    }
+
+    @Override
+    public <P> void accept(ASTVisitor<P> visitor, P p) {
+        visitor.visitStmtDefFunc(this, p);
+    }
+
+    @Override
     public String toString() {
         return "ast_stmt_funcdef{"+returntype+" "+name+"("+params+")"+body+"}";
     }
 
-    public static class AST_Func_Param extends AST {
-
-        public final AST__Typename type;
-        public final String name;
-
-        public AST_Func_Param(AST__Typename type, String name) {
-            this.type = type;
-            this.name = name;
-        }
-    }
 }

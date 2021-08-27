@@ -3,7 +3,7 @@ package outskirts.lang.langdev.symtab;
 public class SymbolBuiltinType extends Symbol implements TypeSymbol {
 
     public SymbolBuiltinType(String name) {
-        super(name, null);
+        super(name);
     }
 
     public static final SymbolBuiltinType
@@ -12,7 +12,7 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
             _void = new SymbolBuiltinType("void"),
             _function = new SymbolBuiltinType("function");   // Generic.?
 
-    public static void init(Symtab glob) {
+    public static void init(Scope glob) {
         glob.define(_string);
         glob.define(_int);
         glob.define(_void);
@@ -20,7 +20,8 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
     }
 
     @Override
-    public String getName() {
+    public String getQualifiedName() {
         return name;
     }
+
 }

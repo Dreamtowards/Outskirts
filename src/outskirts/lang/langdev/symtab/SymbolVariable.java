@@ -8,7 +8,7 @@ public class SymbolVariable extends Symbol {
     public final TypeSymbol type;
 
     public SymbolVariable(String name, TypeSymbol type) {
-        super(name, null);
+        super(name);
         this.type = type;
     }
 }
