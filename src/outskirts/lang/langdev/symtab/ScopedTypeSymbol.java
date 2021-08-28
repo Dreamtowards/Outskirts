@@ -5,7 +5,6 @@ public interface ScopedTypeSymbol extends TypeSymbol {
 
     Scope getTable();
 
-
     @Override
     default String getQualifiedName() {
         Scope tab = getTable();

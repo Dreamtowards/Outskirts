@@ -9,7 +9,7 @@ import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.lang.langdev.symtab.ASTVSym;
+import outskirts.lang.langdev.symtab.ASTSymolEnter;
 import outskirts.lang.langdev.symtab.SymbolBuiltinType;
 import outskirts.lang.langdev.symtab.Scope;
 
@@ -21,27 +21,26 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        // LEX
+        // Lex
         Lexer lx = new Lexer();
         lx.read(RuntimeExec.readfileInSrc("itptr.g"));
-
-        // PARSE
+        // Parse
         AST_Stmt_Block a = new AST_Stmt_Block(LxParser.parseStmtBlockStmts(lx, Token.EOF_T));
 
 
-        // IDEN, SCOPE.
-        Scope glob = new Scope(null);  SymbolBuiltinType.init(glob);
-//        ASTSymbol.idenStmtBlockStmts(a, glob);
-        ASTVSym symbolEnteringVisitor = new ASTVSym();
-        a.accept(symbolEnteringVisitor, glob);
+        // Type Entering.
+        // Attr. Identity
+        Scope glob = new Scope(null);  SymbolBuiltinType.init(glob);  //  ASTSymbol.idenStmtBlockStmts(a, glob);
+        a.accept(new ASTSymolEnter(), glob);
 
 
-        // COMPILE
+        // Compile.
         ASTCompiler.compileStmtBlockStmts(a.stmts);
 
 
+        // Exec
         CodeBuf cbuf = ASTCompiler._COMPILED.get(0);
-        Machine.exec(cbuf.toByteArray(), cbuf.constantpool, cbuf.localsize());
+        Machine.exec(cbuf);
 
 
 

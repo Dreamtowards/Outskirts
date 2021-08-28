@@ -27,7 +27,7 @@ public class CodeBuf {
         return i;
     }
     public void defvar(String name) {
-        Validate.isTrue(!localvars.contains(name), "Already def variable.");
+        Validate.isTrue(!localvars.contains(name), "Already def variable '"+name+"'.");
         localvars.add(name);
     }
     public int localsize() {

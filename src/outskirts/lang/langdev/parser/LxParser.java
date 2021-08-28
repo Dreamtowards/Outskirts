@@ -88,7 +88,7 @@ public class LxParser {
 
         List<String> modifiers = new ArrayList<>();
         String kwm;
-        while ((kwm=lx.peekingone_skp(_MODIFIERS)) != null) {
+        while (lx.peek().isKeyword() && (kwm=lx.peekingone_skp(_MODIFIERS)) != null) {
             Validate.isTrue(!modifiers.contains(kwm), "modifier '"+kwm+"' duplicated.");
             modifiers.add(kwm);
         }
@@ -181,18 +181,25 @@ public class LxParser {
         {
             return parseExprPrimaryVariableName(lx);
         }
-        else if (lx.peeking_skp("new"))  // new Instance Expr.
+        else if (lx.peeking_skp("("))   // Bracks
+        {
+            var r = parseExpr(lx);
+            lx.match(")");
+            return r;
+        }
+        else if (t.isKeyword() && lx.peeking_skp("new"))  // new Instance Expr.
         {
             AST__Typename type = parse_Typename(lx);
             lx.match("(");
             List<AST_Expr> args = _Parse_FuncArgs(lx);
             return new AST_Expr_OperNew(type, args);
         }
-        else if (lx.peeking_skp("("))   // Bracks
+        else if (t.isKeyword() && lx.peeking_skp("sizeof"))
         {
-            var r = parseExpr(lx);
+            lx.match("(");
+            AST__Typename typename = parse_Typename(lx);
             lx.match(")");
-            return r;
+            return new AST_Expr_OperSizeOf(typename);
         }
         else throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
     }
@@ -320,7 +327,7 @@ public class LxParser {
             case "return":
                 return parseStmtReturn(lx);
             default:
-                AST__Modifiers modifiers = null;
+                AST__Modifiers modifiers = AST__Modifiers.DEFAULT;
                 if (_Is_Peeking_Modifiers(lx)) {
                     modifiers = _Parse_Modifiers(lx);
                 }
@@ -347,7 +354,7 @@ public class LxParser {
                 }
                 else
                 {
-                    Validate.isTrue(modifiers == null, "illegal modifiers exists.");
+                    Validate.isTrue(modifiers == AST__Modifiers.DEFAULT, "illegal modifiers exists.");
 
                     lx.index = mark;  // setback.
                     return parseStmtExpr(lx);
@@ -402,6 +409,7 @@ public class LxParser {
     }
 
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {
+        Validate.isTrue(lx.peek().isKeyword());
         lx.match("using");
 
         boolean ustatic = false;
@@ -421,6 +429,7 @@ public class LxParser {
     }
 
     public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
+        Validate.isTrue(lx.peek().isKeyword());
         lx.match("namespace");
 
         AST_Expr name = parse_QualifiedName(lx);
@@ -495,6 +504,7 @@ public class LxParser {
     }
 
     public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
+        Validate.isTrue(lx.peek().isKeyword());
         lx.match("class");
         String name = lx.next().validate(Token::isName).text();
 

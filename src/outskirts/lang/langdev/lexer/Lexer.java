@@ -79,7 +79,7 @@ public final class Lexer {
 //            StringUtils.locate(s, s.length(), nline, nchar);
 //            tokens.add(new Token(Token.EOF_T, Token.TYPE_EOF, nline.i, nchar.i, false));
         } catch (Exception ex) {
-            throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i, nchar.i), ex);
+            throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i+1, nchar.i+1), ex);
         }
     }
 
@@ -339,9 +339,11 @@ public final class Lexer {
             "<=", ">=",
             "==", "!=",
             "=>",
-            "new",
-            ";", "!", "=", ".", "+", "-", "*", "/", "{", "}", "(", ")",
-            "@"
+            "new", "sizeof",
+            "class", "namespace", "using", "as",
+            "static", "const",
+            "!", "=", ".", "+", "-", "*", "/", "{", "}", "(", ")", "<", ">",
+            "@", ",", ";"
     };
     private static String lookupKeyword(String s, int i) {
         for (String k : KEYWORDS) {

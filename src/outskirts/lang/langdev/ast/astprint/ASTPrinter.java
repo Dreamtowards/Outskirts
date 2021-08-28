@@ -82,6 +82,11 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     }
 
     @Override
+    public void visitExprSizeOf(AST_Expr_OperSizeOf a, PrintStat printStat) {
+
+    }
+
+    @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, PrintStat printStat) {
 
     }

@@ -42,13 +42,19 @@ public final class Opcodes {
     };
 
 
-    public static String _InstructionComment(byte[] code, Intptr idx) {
+    public static String _InstructionComment(CodeBuf buf, Intptr idx) {
+        byte[] code = buf.toByteArray();
+
         String head = String.format("#%-3s %-8s", idx.i, _NAMES[code[idx.i]].toLowerCase());
         String comm = ""; //"unsupported.";
         switch (code[idx.i++]) {
             case STORE:
             case LOAD: comm = "slot: "+ code[idx.i++]; break;
-            case LDC: comm = "cidx: "+IOUtils.readShort(code, idx.i); idx.i+=2; break;
+            case LDC: {
+                short i = IOUtils.readShort(code, idx.i);
+                comm = "cidx: "+i+ " // "+buf.constantpool.get(i);
+                idx.i+=2; break;
+            }
             case JMP:
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;
         }

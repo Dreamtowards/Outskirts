@@ -39,7 +39,11 @@ public final class Scope {
         return enclosing;
     }
 
-    private Symbol findLocalSymbol(String name) {
+    public final Collection<Symbol> getMemberSymbols() {
+        return Collections.unmodifiableCollection(_symbols.values());
+    }
+
+    public Symbol findLocalSymbol(String name) {
         return _symbols.get(name);
     }
     private void internalDefineLocalSymbol(String name, Symbol symbol) {

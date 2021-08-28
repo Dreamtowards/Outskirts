@@ -100,6 +100,10 @@ public class CodeGen {
             compileExprFuncCall((AST_Expr_FuncCall)a, buf);
         } else if (a instanceof AST_Expr_OperBi) {
             compileExprOperBin((AST_Expr_OperBi)a, buf);
+        } else if (a instanceof AST_Expr_OperSizeOf) {
+            AST_Expr_OperSizeOf c = (AST_Expr_OperSizeOf)a;
+            int size = c.type.sym.typesize();
+            buf._ldc(buf.constantpool.ensureInt32(size));
         } else
             throw new IllegalStateException(a.toString());
     }

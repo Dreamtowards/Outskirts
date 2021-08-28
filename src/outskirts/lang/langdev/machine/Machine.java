@@ -1,6 +1,7 @@
 package outskirts.lang.langdev.machine;
 
 import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.Opcodes;
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
@@ -13,15 +14,17 @@ public class Machine {
 
     public static byte[] MemSpace = new byte[1024 * 1024 * 4];
 
-    public static void exec(byte[] code, ConstantPool cpool, int localsize) {
+    public static void exec(CodeBuf codebuf) {
+        byte[] code = codebuf.toByteArray();
+
         Intptr t = Intptr.zero();
         while (t.i < code.length) {
-            System.out.println(Opcodes._InstructionComment(code, t));
+            System.out.println(Opcodes._InstructionComment(codebuf, t));
         }
 
         int pc = 0;
         LinkedList<Object> opstack = new LinkedList<>();
-        Object[] locals = new Object[localsize];
+        Object[] locals = new Object[codebuf.localsize()];
 
         while (pc < code.length) {
 //            System.out.println(" EXEC INST "+Opcodes._InstructionComment(code, Intptr.of(pc)));
@@ -42,7 +45,7 @@ public class Machine {
                 case LDC: {
                     short i = IOUtils.readShort(code, pc);
                     pc += 2;
-                    ConstantPool.Constant c = cpool.get(i);
+                    ConstantPool.Constant c = codebuf.constantpool.get(i);
 
                     if (c instanceof ConstantPool.Constant.CUtf8) opstack.push(((ConstantPool.Constant.CUtf8) c).tx);
                     else if (c instanceof ConstantPool.Constant.CInt32) opstack.push(((ConstantPool.Constant.CInt32) c).i);

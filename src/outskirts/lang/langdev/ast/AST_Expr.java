@@ -5,6 +5,9 @@ import outskirts.lang.langdev.symtab.Symbol;
 import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 
+/**
+ * for AST_Expr, the 'Oper' might can be reduced. (AST_Expr_OperNew -> AST_Expr_New)
+ */
 public abstract class AST_Expr extends AST {
 
     // Return-Type Symbol.

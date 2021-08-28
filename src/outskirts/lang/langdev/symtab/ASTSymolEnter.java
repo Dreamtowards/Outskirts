@@ -6,7 +6,7 @@ import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
-public class ASTVSym implements ASTVisitor<Scope> {
+public class ASTSymolEnter implements ASTVisitor<Scope> {
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, Scope p) {
@@ -65,6 +65,12 @@ public class ASTVSym implements ASTVisitor<Scope> {
     public void visitExprOperUPre(AST_Expr_OperUnaryPre a, Scope p) {
         a.expr.accept(this, p);
         a.evaltype = a.expr.evaltype;
+    }
+
+    @Override
+    public void visitExprSizeOf(AST_Expr_OperSizeOf a, Scope p) {
+        a.type.accept(this, p);
+        a.evaltype = SymbolBuiltinType._int;
     }
 
     @Override
@@ -141,6 +147,8 @@ public class ASTVSym implements ASTVisitor<Scope> {
 
         if (a.initexpr != null) {
             a.initexpr.accept(this, p);
+
+            Validate.isTrue(a.type.sym == a.initexpr.evaltype, "bad init type");  // might should let Semantic do.
         }
     }
 
@@ -165,10 +173,15 @@ public class ASTVSym implements ASTVisitor<Scope> {
         Scope lp = _p;
 
         for (String nm : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), ".")) {
-            Scope np = new Scope(lp);
-            SymbolNamespace nssym = new SymbolNamespace(nm, np);
-            lp.define(nssym);
-            lp = np;
+            SymbolNamespace ns = (SymbolNamespace)lp.findLocalSymbol(nm);
+            if (ns != null) {
+                lp = ns.getTable();
+            } else {
+                Scope np = new Scope(lp);
+                ns = new SymbolNamespace(nm, np);
+                lp.define(ns);
+                lp = np;
+            }
         }
 
         for (AST_Stmt stmt : a.stmts) {

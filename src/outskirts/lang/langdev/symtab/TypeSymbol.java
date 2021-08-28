@@ -10,5 +10,8 @@ public interface TypeSymbol {
         return i==-1 ? fullname : fullname.substring(i+1);
     }
 
+    int typesize();
+
     // int getBaseType();
+
 }

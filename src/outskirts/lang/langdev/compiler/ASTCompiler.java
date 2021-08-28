@@ -29,10 +29,13 @@ public class ASTCompiler {
 
         List<ClassFile.Field> fields = new ArrayList<>();
         for (AST_Stmt m : a.members) {
-            short mod = 0;
-            boolean isStatic = ((AST.Modifierable)m).getModifiers().isStatic();
+            AST__Modifiers modif = ((AST.Modifierable)m).getModifiers();
+
+            boolean isStatic = modif.isStatic();
+
+            short modc = 0;
             if (isStatic)
-                mod |= ClassFile.Field.MASK_STATIC;
+                modc |= ClassFile.Field.MASK_STATIC;
 
             if (m instanceof AST_Stmt_DefClass) {
                 compileClass((AST_Stmt_DefClass)m);
@@ -54,11 +57,11 @@ public class ASTCompiler {
                     typename += ", "+param.type.sym.getQualifiedName();
                 }
                 typename += ">";
-                fields.add(new ClassFile.Field(c.name, mod, typename));
+                fields.add(new ClassFile.Field(c.name, modc, typename));
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
-                fields.add(new ClassFile.Field(c.name, mod, c.type.sym.getQualifiedName()));
+                fields.add(new ClassFile.Field(c.name, modc, c.type.sym.getQualifiedName()));
             } else
                 throw new IllegalStateException("Unsupported member: "+m);
         }

@@ -7,16 +7,12 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
     }
 
     public static final SymbolBuiltinType
-            _string = new SymbolBuiltinType("string"),
             _int = new SymbolBuiltinType("int"),
-            _void = new SymbolBuiltinType("void"),
-            _function = new SymbolBuiltinType("function");   // Generic.?
+            _void = new SymbolBuiltinType("void");   // Generic.?
 
     public static void init(Scope glob) {
-        glob.define(_string);
         glob.define(_int);
         glob.define(_void);
-        glob.define(_function);
     }
 
     @Override
@@ -24,4 +20,11 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
         return name;
     }
 
+    @Override
+    public int typesize() {
+        if (this == _int) return 4;
+        if (this == _void) throw new IllegalStateException();
+
+        throw new IllegalStateException();
+    }
 }

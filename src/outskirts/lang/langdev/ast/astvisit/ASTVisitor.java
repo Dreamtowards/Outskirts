@@ -12,6 +12,7 @@ public interface ASTVisitor<P> {
     void visitExprOperTriCon(AST_Expr_OperTriCon a, P p);
     void visitExprOperUPost(AST_Expr_OperUnaryPost a, P p);
     void visitExprOperUPre(AST_Expr_OperUnaryPre a, P p);
+    void visitExprSizeOf(AST_Expr_OperSizeOf a, P p);
     // Float, String
     void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, P p);
     void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, P p);

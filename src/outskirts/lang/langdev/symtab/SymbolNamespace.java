@@ -14,4 +14,9 @@ public class SymbolNamespace extends Symbol implements ScopedTypeSymbol {
     public Scope getTable() {
         return symtab;
     }
+
+    @Override
+    public int typesize() {
+        throw new UnsupportedOperationException();
+    }
 }

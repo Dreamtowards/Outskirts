@@ -14,4 +14,9 @@ public class SymbolFunction extends Symbol implements TypeSymbol {
     public String getQualifiedName() {
         return "function<"+returntype.getQualifiedName()+", ..>";
     }
+
+    @Override
+    public int typesize() {
+        return 8;  // ptrsize
+    }
 }

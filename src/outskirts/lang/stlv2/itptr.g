@@ -1,11 +1,33 @@
 
+namespace prims {
 
-namespace test;
+    class u16 {}
 
-@private
-class myint {
+}
 
+namespace stl.lang {
 
+    class u64 { }
+    class u32 { }
+
+    class string {
+
+        u64 base;
+
+        static int char_at(u32 i) {
+
+            int j = sizeof(prims.u16);
+
+            //int i = 1;
+            //int i = 2;
+
+            // return dereference<u64>(base + i*sizeof(u32));
+        }
+    }
+}
+
+namespace test {
+    class myint {}
 }
 
 namespace stl.lang;
@@ -13,16 +35,15 @@ namespace stl.lang;
 using test.myint as someint;
 
 
-const class _main {
+class _main {
 
     @permits
     @private
-    const static void main(int i) {
+    static void main(int i) {
 
         someint m;
 
         i = 2;
-
     }
 }
 

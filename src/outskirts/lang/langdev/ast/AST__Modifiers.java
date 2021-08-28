@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AST__Modifiers extends AST {
@@ -15,5 +16,7 @@ public class AST__Modifiers extends AST {
     public final boolean isStatic() {
         return modifiers.contains("static");
     }
+
+    public static AST__Modifiers DEFAULT = new AST__Modifiers(Collections.emptyList(), Collections.emptyList());
 
 }
