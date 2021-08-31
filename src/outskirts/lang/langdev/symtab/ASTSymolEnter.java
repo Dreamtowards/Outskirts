@@ -29,7 +29,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visitExprOperBin(AST_Expr_OperBinary a, Scope p) {
+    public void visitExprOperBinary(AST_Expr_OperBinary a, Scope p) {
         a.getLeftOperand().accept(this, p);
         a.getRightOperand().accept(this, p);
         if (a.getLeftOperand().getEvalTypeSymbol() == a.getRightOperand().getEvalTypeSymbol())
@@ -46,7 +46,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visitExprOperTriCon(AST_Expr_OperConditional a, Scope p) {
+    public void visitExprOperConditional(AST_Expr_OperConditional a, Scope p) {
         a.getCondition().accept(this, p);
         a.getTrueExpression().accept(this, p);
         a.getFalseExpression().accept(this, p);
@@ -71,6 +71,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitExprTmpDereference(AST_Expr_TemporaryDereference a, Scope p) {
         a.getTypename().accept(this, p);
         a.getExpression().accept(this, p);
+        Validate.isTrue(a.getExpression().getEvalTypeSymbol() == SymbolBuiltinType._int);
 
         a.setEvalTypeSymbol(a.getTypename().sym);
     }

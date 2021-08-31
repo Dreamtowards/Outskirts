@@ -10,9 +10,9 @@ public class AST_Expr_PrimaryLiteralInt extends AST_Expr {
         this.numInt = numInt;
     }
 
-//    public int getInt32() {
-//        return numInt;
-//    }
+    public int getInt32() {
+        return numInt;
+    }
 
     @Override
     public <P> void accept(ASTVisitor<P> visitor, P p) {

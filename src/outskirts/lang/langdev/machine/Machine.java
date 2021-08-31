@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.machine;
 
+import org.lwjgl.Sys;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.Opcodes;
@@ -27,9 +28,8 @@ public class Machine {
     }
 
     private static void memcpy(int src, int dest, int len) {
-        for (int i = 0;i < len;i++) {
-            MemSpace[dest+i] = MemSpace[src+i];
-        }
+
+        System.arraycopy(MemSpace, src, MemSpace, dest, len);
     }
 
     private static void pushn(int destptr, int n) {
@@ -70,7 +70,7 @@ public class Machine {
         int pc = 0;
 //        LinkedList<Object> opstack = new LinkedList<>();
 //        Object[] locals = new Object[codebuf.localsize()];
-        int baseptr = 1;
+        int baseptr = 8;  // rand.
         int[] localsizes = new int[codebuf.localsize()];  // locals type-size.
         int tmpi = 0;
         for (TypeSymbol typ : codebuf.localmap().values()) {
@@ -114,6 +114,15 @@ public class Machine {
 //                    else throw new IllegalStateException("Unsupported Constant Type.");
 
 //                    System.out.println("Load Constant: "+opstack.peek());
+                    break;
+                }
+                case LDPTR: {
+                    byte sz = code[pc++];
+
+                    int ptr = popi();
+                    pushn(ptr, sz);
+                    System.out.println("Ldptr["+ptr+"]: "+IOUtils.readInt(MemSpace, ptr));
+
                     break;
                 }
                 case INVOKEFUNC: {

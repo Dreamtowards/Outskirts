@@ -25,7 +25,8 @@ public final class Opcodes {
             CMP_LE = 14,
             CMP_GE = 15,
             POP = 16,
-            I32MUL = 17;
+            I32MUL = 17,
+            LDPTR = 18;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -40,7 +41,8 @@ public final class Opcodes {
             "ICMP",
             "CMP_EQ", "CMP_NE", "CMP_LT", "CMP_GT", "CMP_LE", "CMP_GE",
             "POP",
-            "I32MUL"
+            "I32MUL",
+            "LDPTR"
     };
 
 
@@ -61,7 +63,8 @@ public final class Opcodes {
             case JMP:
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;
             case DUP:
-            case POP:  comm = "n="+code[idx.i++]; break;
+            case POP:   comm = "n="+code[idx.i++]; break;
+            case LDPTR: comm = "sz="+code[idx.i++]; break;
         }
         return head + (comm.isEmpty() ? "" : "// "+comm);
     }

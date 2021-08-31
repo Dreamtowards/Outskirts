@@ -4,7 +4,7 @@ namespace stl.lang {
 
     class string {
 
-        int base;
+        int base ;
 
         int char_at(int i) {
 
@@ -12,7 +12,7 @@ namespace stl.lang {
             int off = sizeof(int)*i;
             int p = 1 + off;
 
-            int c = dereference<int>(p);
+            int c = dereference<int>(8+4*3);
 
 
             // i = 2;

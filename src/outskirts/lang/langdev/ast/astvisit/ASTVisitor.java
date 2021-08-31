@@ -6,30 +6,31 @@ import java.util.List;
 
 public interface ASTVisitor<P> {
 
-    default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
-    default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
-    // Lambda
-    default void visitExprOperBin(AST_Expr_OperBinary a, P p)                  { visitDefault(a, p); }
-    default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }
-    default void visitExprOperTriCon(AST_Expr_OperConditional a, P p)          { visitDefault(a, p); }
-    default void visitExprOperUnary(AST_Expr_OperUnary a, P p)                 { visitDefault(a, p); }
-    default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }
-    default void visitExprTmpDereference(AST_Expr_TemporaryDereference a, P p) { visitDefault(a, p); }
-    // Float, String
+    // Float, String  Double, Long
     default void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, P p)   { visitDefault(a, p); }
     default void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, P p)   { visitDefault(a, p); }
     default void visitExprPrimaryLiteralChar(AST_Expr_PrimaryLiteralChar a, P p) { visitDefault(a, p); }
 
+    default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
+    default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }
+    default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
+    default void visitExprOperConditional(AST_Expr_OperConditional a, P p)     { visitDefault(a, p); }
+    default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }
+    default void visitExprTmpDereference(AST_Expr_TemporaryDereference a, P p) { visitDefault(a, p); }
+    default void visitExprOperUnary(AST_Expr_OperUnary a, P p)                 { visitDefault(a, p); }
+    default void visitExprOperBinary(AST_Expr_OperBinary a, P p)               { visitDefault(a, p); }
+    // Lambda
+
     default void visitStmtBlock(AST_Stmt_Block a, P p)          { visitDefault(a, p); }
-    default void visitStmtDefClass(AST_Stmt_DefClass a, P p)    { visitDefault(a, p); }  // ClassMember?
-    default void visitStmtDefFunc(AST_Stmt_DefFunc a, P p)      { visitDefault(a, p); }  // FuncParam?
-    default void visitStmtDefVar(AST_Stmt_DefVar a, P p)        { visitDefault(a, p); }
-    default void visitStmtExpr(AST_Stmt_Expr a, P p)            { visitDefault(a, p); }
-    default void visitStmtIf(AST_Stmt_If a, P p)                { visitDefault(a, p); }
     default void visitStmtNamespace(AST_Stmt_Namespace a, P p)  { visitDefault(a, p); }
-    default void visitStmtReturn(AST_Stmt_Return a, P p)        { visitDefault(a, p); }
     default void visitStmtUsing(AST_Stmt_Using a, P p)          { visitDefault(a, p); }
+    default void visitStmtExpr(AST_Stmt_Expr a, P p)            { visitDefault(a, p); }
+    default void visitStmtReturn(AST_Stmt_Return a, P p)        { visitDefault(a, p); }
+    default void visitStmtIf(AST_Stmt_If a, P p)                { visitDefault(a, p); }
     default void visitStmtWhile(AST_Stmt_While a, P p)          { visitDefault(a, p); }
+    default void visitStmtDefVar(AST_Stmt_DefVar a, P p)        { visitDefault(a, p); }
+    default void visitStmtDefFunc(AST_Stmt_DefFunc a, P p)      { visitDefault(a, p); }
+    default void visitStmtDefClass(AST_Stmt_DefClass a, P p)    { visitDefault(a, p); }
 
     default void visit_Annotation(AST__Annotation a, P p)       { visitDefault(a, p); }
     default void visit_Typename(AST__Typename a, P p)           { visitDefault(a, p); }

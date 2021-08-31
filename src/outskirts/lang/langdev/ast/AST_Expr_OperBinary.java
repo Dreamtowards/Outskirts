@@ -66,7 +66,7 @@ public class AST_Expr_OperBinary extends AST_Expr {
 
     @Override
     public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprOperBin(this, p);
+        visitor.visitExprOperBinary(this, p);
     }
 
     @Override

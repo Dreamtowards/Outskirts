@@ -26,7 +26,13 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
     public int typesize() {
         if (this == _int) return 4;
         if (this == _void) throw new IllegalStateException();
+//        if (this == _ptr) return 4;
 
-        throw new IllegalStateException();
+        throw new IllegalStateException(name);
+    }
+
+    @Override
+    public String toString() {
+        return "SymbolBuiltinType{"+name+"}";
     }
 }

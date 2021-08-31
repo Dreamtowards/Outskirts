@@ -7,6 +7,7 @@ import outskirts.util.Validate;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
@@ -75,22 +76,22 @@ public class CodeBuf {
         append(JMP_F);
         appendShort((short)i);
     }
-    public Consumer<Integer> _jmpifn_delay() {
+    public IntConsumer _jmpifn_delay() {
         int mark = idx()+1;
         _jmpifn(0);
         return p -> {
-            setShort(mark, (short)(int)p);
+            setShort(mark, (short)p);
         };
     }
     public void _jmp(int i) {
         append(JMP);
         appendShort((short)i);
     }
-    public Consumer<Integer> _jmp_delay() {
+    public IntConsumer _jmp_delay() {
         int mark = idx()+1;
         _jmp(0);
         return p -> {
-            setShort(mark, (short)(int)p);
+            setShort(mark, (short)p);
         };
     }
 
@@ -122,6 +123,11 @@ public class CodeBuf {
     public void _pop(int n) {
         append(POP);
         append((byte)n);
+    }
+
+    public void _ldptr(int sz) {
+        append(LDPTR);
+        append((byte)sz);
     }
 
     void append(byte b) {

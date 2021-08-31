@@ -43,14 +43,14 @@ public final class ClassCompiler {
                 AST_Stmt_DefFunc c = (AST_Stmt_DefFunc)m;
 
                 CodeBuf codebuf = new CodeBuf(constantpool);
-                if (!isStatic) {
-                    codebuf.defvar("this", SymbolBuiltinType._ptr);
-                }
+//                if (!isStatic) {
+//                    codebuf.defvar("this", SymbolBuiltinType._ptr);
+//                }
                 for (AST_Stmt_DefVar param : c.getParameters()) {
                     codebuf.defvar(param.getName(), param.getTypename().sym);
                 }
 
-                c.accept(new CodeGen(), codebuf);
+                c.getBody().accept(new CodeGen(), codebuf);
 
                 System.out.println("Compiled Function: "+codebuf);
                 _COMPILED.add(codebuf);
