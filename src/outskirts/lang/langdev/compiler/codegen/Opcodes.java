@@ -53,7 +53,8 @@ public final class Opcodes {
             case LDC: {
                 short i = IOUtils.readShort(code, idx.i);
                 comm = "cidx: "+i+ " // "+buf.constantpool.get(i);
-                idx.i+=2; break;
+                idx.i+=2;
+                break;
             }
             case JMP:
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;

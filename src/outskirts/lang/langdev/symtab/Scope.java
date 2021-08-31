@@ -1,9 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
-import outskirts.lang.langdev.ast.AST;
-import outskirts.lang.langdev.ast.AST_Expr;
-import outskirts.lang.langdev.ast.AST_Expr_OperBi;
-import outskirts.lang.langdev.ast.AST_Expr_PrimaryIdentifier;
+import outskirts.lang.langdev.ast.*;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
@@ -85,14 +82,13 @@ public final class Scope {
     }
 
     public <T extends Symbol> T resolveQualifiedExpr(AST_Expr a) {  // resolveMAExpr
-        if (a instanceof AST_Expr_PrimaryIdentifier) {
-            return (T)this.resolve(a.varname());
-        } else if (a instanceof AST_Expr_OperBi) {
-            AST_Expr_OperBi c = (AST_Expr_OperBi)a; Validate.isTrue(c.operator.equals("."));
-            Symbol l = this.resolveQualifiedExpr(c.left);
-            return (T)((ScopedTypeSymbol)l).getTable().resolveMember(c.right.varname());
-        } else
-            throw new IllegalStateException(a.toString());
+        if (a instanceof AST_Expr_MemberAccess) {
+            AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)a;
+            ScopedTypeSymbol l = resolveQualifiedExpr(c.getExpression());
+            return (T)l.getTable().resolveMember(c.getIdentifier());
+        } else {
+            return (T)resolve(((AST_Expr_PrimaryIdentifier)a).getName());
+        }
     }
 
     public Symbol resolveMember(String name) {

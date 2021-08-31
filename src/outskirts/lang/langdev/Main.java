@@ -1,12 +1,13 @@
 package outskirts.lang.langdev;
 
-import outskirts.lang.langdev.ast.AST_Stmt_Block;
+import outskirts.lang.langdev.ast.AST__CompilationUnit;
 import outskirts.lang.langdev.compiler.ASTCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.interpreter.RuntimeExec;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
+import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.ASTSymolEnter;
@@ -23,10 +24,10 @@ public class Main {
 
         // Lex
         Lexer lx = new Lexer();
-        lx.read(RuntimeExec.readfileInSrc("itptr.g"));
-        // Parse
-        AST_Stmt_Block a = new AST_Stmt_Block(LxParser.parseStmtBlockStmts(lx, Token.EOF_T));
+        lx.appendsource(RuntimeExec.readfileInSrc("itptr.g"));
 
+        // Parse
+        AST__CompilationUnit a = LxParser.parse_CompilationUnit(lx);
 
         // Type Entering.
         // Attr. Identity
@@ -35,7 +36,7 @@ public class Main {
 
 
         // Compile.
-        ASTCompiler.compileStmtBlockStmts(a.stmts);
+        ASTCompiler.compileStmtBlockStmts(a.getDeclrations());
 
 
         // Exec

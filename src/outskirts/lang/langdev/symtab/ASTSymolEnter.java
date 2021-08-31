@@ -14,68 +14,62 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 //        SymbolFunction sf = (SymbolFunction)a.funcptr.evaltype;
 //        a.evaltype = sf.returntype;
 
-        a.funcptr.accept(this, p);
-        SymbolFunction sf = (SymbolFunction)a.funcptr.evaltype;
-        a.evaltype = sf.returntype;
+        a.getExpression().accept(this, p);
+        SymbolFunction sf = (SymbolFunction)a.getExpression().getEvalTypeSymbol();
+        a.setEvalTypeSymbol(sf.returntype);
     }
 
     @Override
     public void visitExprMemberAccess(AST_Expr_MemberAccess a, Scope p) {
-        a.expr.accept(this, p);
+        a.getExpression().accept(this, p);
 
-        TypeSymbol l = a.expr.evaltype;
-        Scope tab = ((ScopedTypeSymbol)l).getTable();
-
-        a.evaltype = ((SymbolVariable)tab.resolveMember(a.identifier)).type;
+        ScopedTypeSymbol l = (ScopedTypeSymbol)a.getExpression().getEvalTypeSymbol();
+        SymbolVariable v = (SymbolVariable)l.getTable().resolveMember(a.getIdentifier());
+        a.setEvalTypeSymbol(v.type);
     }
 
     @Override
     public void visitExprOperBin(AST_Expr_OperBi a, Scope p) {
-        a.left.accept(this, p);
-        a.right.accept(this, p);
-        if (a.left.evaltype == a.right.evaltype)
-            a.evaltype = a.left.evaltype;  // return commonBaseType(e1, e2);
+        a.getLeftOperand().accept(this, p);
+        a.getRightOperand().accept(this, p);
+        if (a.getLeftOperand().getEvalTypeSymbol() == a.getRightOperand().getEvalTypeSymbol())
+            a.setEvalTypeSymbol(a.getLeftOperand().getEvalTypeSymbol());  // return commonBaseType(e1, e2);
         else
-            throw new UnsupportedOperationException("Incpompactble OperBin "+a.left.evaltype.getQualifiedName()+", "+a.right.evaltype.getQualifiedName());
+            throw new UnsupportedOperationException("Incpompactble OperBin "+a.getLeftOperand().getEvalTypeSymbol().getQualifiedName()+", "+a.getRightOperand().getEvalTypeSymbol().getQualifiedName());
 
     }
 
     @Override
     public void visitExprOperNew(AST_Expr_OperNew a, Scope p) {
-        a.typeptr.accept(this, p);
-        a.evaltype = a.typeptr.sym;
+        a.getTypename().accept(this, p);
+        a.setEvalTypeSymbol(a.getTypename().sym);
     }
 
     @Override
-    public void visitExprOperTriCon(AST_Expr_OperTriCon a, Scope p) {
-        a.condition.accept(this, p);
-        a.exprthen.accept(this, p);
-        a.exprelse.accept(this, p);
+    public void visitExprOperTriCon(AST_Expr_OperConditional a, Scope p) {
+        a.getCondition().accept(this, p);
+        a.getTrueExpression().accept(this, p);
+        a.getFalseExpression().accept(this, p);
 
-        Validate.isTrue(a.exprthen.evaltype == a.exprelse.evaltype);
+        Validate.isTrue(a.getTrueExpression().getEvalTypeSymbol() == a.getFalseExpression().getEvalTypeSymbol());
     }
 
     @Override
-    public void visitExprOperUPost(AST_Expr_OperUnaryPost a, Scope p) {
-        a.expr.accept(this, p);
-        a.evaltype = a.expr.evaltype;
-    }
+    public void visitExprOperUnary(AST_Expr_OperUnary a, Scope p) {
+        a.getExpression().accept(this, p);
 
-    @Override
-    public void visitExprOperUPre(AST_Expr_OperUnaryPre a, Scope p) {
-        a.expr.accept(this, p);
-        a.evaltype = a.expr.evaltype;
+        a.setEvalTypeSymbol(a.getExpression().getEvalTypeSymbol());
     }
 
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, Scope p) {
-        a.type.accept(this, p);
-        a.evaltype = SymbolBuiltinType._int;
+        a.getTypename().accept(this, p);
+        a.setEvalTypeSymbol(SymbolBuiltinType._int);
     }
 
     @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, Scope p) {
-        Symbol s = p.resolve(a.name);
+        Symbol s = p.resolve(a.getName());
 
         if (s instanceof SymbolVariable)
             a.evaltype = ((SymbolVariable)s).type;
@@ -202,10 +196,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
         Validate.isTrue(a.isStatic ? (used instanceof SymbolVariable) : (used instanceof SymbolClass));
 
-//        String asname = a.asname;
-
-        System.out.println("using as "+a.asname);
-        p.defineAsCustomName(a.asname, used);//new SymbolUsingAliasProxy(asname, used));
+        p.defineAsCustomName(a.asname, used);
     }
 
     @Override
@@ -216,12 +207,19 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visit_Annotation(AST__Annotation a, Scope symbolTable) {
+    public void visit_Annotation(AST__Annotation a, Scope p) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void visit_Typename(AST__Typename a, Scope p) {
-        a.sym = p.resolveQualifiedExpr(a.nameptr);  // GenericVariable
+        a.sym = p.resolveQualifiedExpr(a.getType());  // GenericVariable
+    }
+
+    @Override
+    public void visit_CompilationUnit(AST__CompilationUnit a, Scope p) {
+
+        ASTVisitor._VisitStmts(this, a.getDeclrations(), p);
+
     }
 }

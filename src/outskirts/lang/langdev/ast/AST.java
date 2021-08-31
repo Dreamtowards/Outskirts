@@ -40,9 +40,6 @@ public abstract class AST {
 //    private String sourcefile;
 //    private int sourcefile_pos; startpos, endpos.
 
-    public String varname() {
-        return ((AST_Expr_PrimaryIdentifier)this).name;
-    }
 
     @Override
     public String toString() {
@@ -53,11 +50,24 @@ public abstract class AST {
         throw new UnsupportedOperationException(getClass().getName());
     }
 
+//    public Kind getKind() {
+//        throw new UnsupportedOperationException();
+//    }
+
 
     public interface Modifierable {
 
         AST__Modifiers getModifiers();
 
     }
+
+//    public enum Kind {
+//
+//        Annotation,
+//        CompilationUnit,
+//        Modifiers,
+//
+//
+//    }
 
 }

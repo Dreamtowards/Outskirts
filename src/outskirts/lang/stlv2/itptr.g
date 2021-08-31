@@ -7,7 +7,7 @@ namespace prims {
 
 namespace stl.lang {
 
-    class u64 { }
+    class u64 { int j; }
     class u32 { }
 
     class string {
@@ -16,7 +16,7 @@ namespace stl.lang {
 
         static int char_at(u32 i) {
 
-            int j = sizeof(prims.u16);
+            int j = sizeof(prims.u16) + u64.j;
 
             //int i = 1;
             //int i = 2;

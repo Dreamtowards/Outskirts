@@ -102,7 +102,7 @@ public class CodeGen {
             compileExprOperBin((AST_Expr_OperBi)a, buf);
         } else if (a instanceof AST_Expr_OperSizeOf) {
             AST_Expr_OperSizeOf c = (AST_Expr_OperSizeOf)a;
-            int size = c.type.sym.typesize();
+            int size = c.getTypename().sym.typesize();
             buf._ldc(buf.constantpool.ensureInt32(size));
         } else
             throw new IllegalStateException(a.toString());
@@ -115,48 +115,48 @@ public class CodeGen {
         buf._ldc(buf.constantpool.ensureInt32((int)a.numInt));
     }
     public static void compileExprPrimaryVariableName(AST_Expr_PrimaryIdentifier a, CodeBuf buf) {
-        buf._load(a.name);
+        buf._load(a.getName());
     }
     public static void compileExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
-        compileExpr(a.funcptr, buf);
-        for (AST_Expr arg : a.args) {
+        compileExpr(a.getExpression(), buf);
+        for (AST_Expr arg : a.getArguments()) {
             compileExpr(arg, buf);
         }
         buf._invokefunc();  // instance to static ? auto put 'this'?
     }
 
     public static void compileExprOperBin(AST_Expr_OperBi a, CodeBuf buf) {
-        if (a.operator.equals("=")) {
-            if (a.left instanceof AST_Expr_PrimaryIdentifier) {
-                compileExpr(a.right, buf);
+        if (a.getBinaryKind() == AST_Expr_OperBi.BinaryKind.ASSIGN) {
+            if (a.getLeftOperand() instanceof AST_Expr_PrimaryIdentifier) {
+                compileExpr(a.getRightOperand(), buf);
                 buf._dup();
-                buf._store(a.left.varname());
+                buf._store(((AST_Expr_PrimaryIdentifier)a.getLeftOperand()).getName());
             } else {
                 throw new IllegalStateException();
             }
             return;
         }
 
-        compileExpr(a.left, buf);
-        compileExpr(a.right, buf);
+        compileExpr(a.getLeftOperand(), buf);
+        compileExpr(a.getRightOperand(), buf);
 
-        switch (a.operator) {
-            case "+": {
+        switch (a.getBinaryKind()) {
+            case ADD: {
                 buf._i32add();
                 break;
             }
-            case "<": {
+            case LT: {
                 buf._icmp();
                 buf._cmplt();
                 break;
             }
-            case "==": {
+            case EQ: {
                 buf._icmp();
                 buf._cmpeq();
                 break;
             }
             default:
-                throw new IllegalStateException("Bad opr "+a.operator);
+                throw new UnsupportedOperationException();
         }
     }
 

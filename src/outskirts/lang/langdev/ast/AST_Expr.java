@@ -15,4 +15,14 @@ public abstract class AST_Expr extends AST {
 
     public TypeSymbol evaltype;
 
+    /**
+     * Evaluated TypeSymbol
+     */
+    public TypeSymbol getEvalTypeSymbol() {
+        return evaltype;
+    }
+    public void setEvalTypeSymbol(TypeSymbol evalTypeSymbol) {
+        evaltype = evalTypeSymbol;
+    }
+
 }

@@ -2,6 +2,8 @@ package outskirts.lang.langdev.ast.astvisit;
 
 import outskirts.lang.langdev.ast.*;
 
+import java.util.List;
+
 public interface ASTVisitor<P> {
 
     void visitExprFuncCall(AST_Expr_FuncCall a, P p);
@@ -9,9 +11,8 @@ public interface ASTVisitor<P> {
     // Lambda
     void visitExprOperBin(AST_Expr_OperBi a, P p);
     void visitExprOperNew(AST_Expr_OperNew a, P p);
-    void visitExprOperTriCon(AST_Expr_OperTriCon a, P p);
-    void visitExprOperUPost(AST_Expr_OperUnaryPost a, P p);
-    void visitExprOperUPre(AST_Expr_OperUnaryPre a, P p);
+    void visitExprOperTriCon(AST_Expr_OperConditional a, P p);
+    void visitExprOperUnary(AST_Expr_OperUnary a, P p);
     void visitExprSizeOf(AST_Expr_OperSizeOf a, P p);
     // Float, String
     void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, P p);
@@ -31,5 +32,17 @@ public interface ASTVisitor<P> {
 
     void visit_Annotation(AST__Annotation a, P p);
     void visit_Typename(AST__Typename a, P p);
+    void visit_CompilationUnit(AST__CompilationUnit a, P p);
 
+
+
+    static <P> void _VisitStmts(ASTVisitor<P> visitor, List<AST_Stmt> stmts, P p) {
+        for (AST_Stmt stmt : stmts) {
+            stmt.accept(visitor, p);
+        }
+    }
+
+//    static <P> void visit(AST a, ASTVisitor<P> visitor, P p) {
+//        a.accept(visitor, p);
+//    }
 }

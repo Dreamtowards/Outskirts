@@ -38,9 +38,9 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     public void visitExprFuncCall(AST_Expr_FuncCall a, PrintStat p) {
         appendln(p, "ExprFuncCall {");          p.dp++;
             appendln(p, "funcptr:");            p.dp++;
-                a.funcptr.accept(this, p);    p.dp--;
+                a.getExpression().accept(this, p);    p.dp--;
             appendln(p, "args: [");             p.dp++;
-            for (AST_Expr e : a.args) {
+            for (AST_Expr e : a.getArguments()) {
                 e.accept(this, p);
             }                                      p.dp--;
             appendln(p, "]");                   p.dp--;
@@ -54,10 +54,10 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
 
     @Override
     public void visitExprOperBin(AST_Expr_OperBi a, PrintStat ps) {
-        appendln(ps, "ExprOperBin {"); ps.dp++;
-            a.left.accept(this, ps);
-            appendln(ps, quote(a.operator));
-            a.right.accept(this, ps); ps.dp--;
+        appendln(ps, "ExprBinary {"); ps.dp++;
+            a.getLeftOperand().accept(this, ps);
+            appendln(ps, quote(a.getBinaryKind().name()));
+            a.getRightOperand().accept(this, ps);  ps.dp--;
         appendln(ps, "}");
     }
 
@@ -67,17 +67,12 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     }
 
     @Override
-    public void visitExprOperTriCon(AST_Expr_OperTriCon a, PrintStat printStat) {
+    public void visitExprOperTriCon(AST_Expr_OperConditional a, PrintStat printStat) {
 
     }
 
     @Override
-    public void visitExprOperUPost(AST_Expr_OperUnaryPost a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprOperUPre(AST_Expr_OperUnaryPre a, PrintStat printStat) {
+    public void visitExprOperUnary(AST_Expr_OperUnary a, PrintStat printStat) {
 
     }
 
@@ -158,6 +153,11 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
 
     @Override
     public void visit_Typename(AST__Typename a, PrintStat printStat) {
+
+    }
+
+    @Override
+    public void visit_CompilationUnit(AST__CompilationUnit a, PrintStat printStat) {
 
     }
 

@@ -7,6 +7,7 @@ import outskirts.lang.langdev.ast.AST__Typename;
 import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
+import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
@@ -16,27 +17,25 @@ import java.util.function.Function;
 
 public class LxParser {
 
-    public static String[] _MODIFIERS = {"static", "const"};
-
 
     /*
      * =============== PARSER UTILITY ===============
      */
 
-    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> fac, String... opers) {
-        AST_Expr l = fac.apply(lx);
-        String opr;
-        while ((opr=lx.peekingone_skp(opers)) != null) {
-            AST_Expr r = fac.apply(lx);
-            l = new AST_Expr_OperBi(l, opr, r);
+    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, TokenType... opers) {
+        AST_Expr l = factorpsr.apply(lx);
+        Token opr;
+        while ((opr=lx.selnext(opers)) != null) {
+            AST_Expr r = factorpsr.apply(lx);
+            l = new AST_Expr_OperBi(l, r, AST_Expr_OperBi.BinaryKind.of(opr.type()));
         }
         return l;
     }
-    public static AST_Expr _Parse_OperBin_RL(Lexer lx, Function<Lexer, AST_Expr> fac, String oper) {
+    public static AST_Expr _Parse_OperBin_RL(Lexer lx, Function<Lexer, AST_Expr> fac, TokenType oper) {
         AST_Expr l = fac.apply(lx);
-        if (lx.peeking_skp(oper)) {
+        if (lx.nexting(oper)) {
             AST_Expr r = _Parse_OperBin_RL(lx, fac, oper);
-            return new AST_Expr_OperBi(l, oper, r);
+            return new AST_Expr_OperBi(l, r, AST_Expr_OperBi.BinaryKind.of(oper));
         } else {
             return l;
         }
@@ -45,26 +44,29 @@ public class LxParser {
     /**
      * @param zeromoreUntil nullable. null: zero not allowed.
      */
-    public static <T extends AST> List<T> _Parse_RepeatJoin_ZeroMoreUntil(Lexer lx, Function<Lexer, T> fac, String delimiter, String zeromoreUntil) {
-        if (zeromoreUntil != null && lx.peeking(zeromoreUntil))
+    public static <T extends AST> List<T> _Parse_RepeatJoin_ZeroMoreUntil(Lexer lx, Function<Lexer, T> factorpsr, TokenType delimiter, TokenType zeromoreUntil) {
+        if (zeromoreUntil != null && lx.peeking(zeromoreUntil))  // Reach Zero Terminal.
             return Collections.emptyList();
+
         List<T> ls = new ArrayList<>();
-        ls.add(fac.apply(lx));
-        while (lx.peeking_skp(delimiter)) {
-            ls.add(fac.apply(lx));
+        ls.add(factorpsr.apply(lx));
+
+        while (lx.nexting(delimiter)) {
+            ls.add(factorpsr.apply(lx));
         }
-        if (zeromoreUntil != null && !lx.peeking(zeromoreUntil))
+
+        if (zeromoreUntil != null && !lx.peeking(zeromoreUntil))  // not terminated as expected.
             throw new IllegalStateException();
         return ls;
     }
-    public static <T extends AST> List<T> _Parse_RepeatJoin_OneMore(Lexer lx, Function<Lexer, T> fac, String delimiter) {
+    public static <T extends AST> List<T> _Parse_RepeatJoin_OneMore(Lexer lx, Function<Lexer, T> fac, TokenType delimiter) {
         return _Parse_RepeatJoin_ZeroMoreUntil(lx, fac, delimiter, null);
     }
 
-    public static <T> List<T> _Parse_RepeatUntil(Lexer lx, Function<Lexer, T> fac, String until) {
+    public static <T> List<T> _Parse_RepeatUntil(Lexer lx, Function<Lexer, T> psr, TokenType until) {
         List<T> ls = new ArrayList<>();
         while (!lx.peeking(until)) {
-            ls.add(fac.apply(lx));
+            ls.add(psr.apply(lx));
         }
         return ls;
     }
@@ -72,29 +74,12 @@ public class LxParser {
 
     // for expr_funccall, annotation.
     public static List<AST_Expr> _Parse_FuncArgs(Lexer lx) {
-        var l = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseExpr, ",", ")");
-        lx.match(")");
+        lx.next(TokenType.LPAREN);
+        var l = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseExpr, TokenType.COMMA, TokenType.RPAREN);
+        lx.next(TokenType.RPAREN);
         return l;
     }
 
-    public static boolean _Is_Peeking_Modifiers(Lexer lx) {
-        return lx.peeking("@") || lx.peekingone(_MODIFIERS);
-    }
-    public static AST__Modifiers _Parse_Modifiers(Lexer lx) {
-        List<AST__Annotation> annos = new ArrayList<>();
-        while (lx.peeking("@")) {
-            annos.add(parseAnnotation(lx));
-        }
-
-        List<String> modifiers = new ArrayList<>();
-        String kwm;
-        while (lx.peek().isKeyword() && (kwm=lx.peekingone_skp(_MODIFIERS)) != null) {
-            Validate.isTrue(!modifiers.contains(kwm), "modifier '"+kwm+"' duplicated.");
-            modifiers.add(kwm);
-        }
-
-        return new AST__Modifiers(annos, modifiers);
-    }
 
     public static boolean _IsPass(Lexer lx, Function<Lexer, AST> psr) {
         try {
@@ -106,44 +91,14 @@ public class LxParser {
     }
 
     public static String _ExpandQualifiedName(AST_Expr e) {
-        if (e instanceof AST_Expr_OperBi) {
-            AST_Expr_OperBi o = (AST_Expr_OperBi)e;
-            Validate.isTrue(o.operator.equals("."));
-            return _ExpandQualifiedName(o.left) + "." + _ExpandQualifiedName(o.right);
-        } else if (e instanceof AST_Expr_PrimaryIdentifier) {
-            return ((AST_Expr_PrimaryIdentifier) e).name;
+        if (e instanceof AST_Expr_MemberAccess) {
+            AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)e;
+            return _ExpandQualifiedName(c.getExpression()) + "." + c.getIdentifier();
         } else {
-            throw new IllegalStateException();
+            return ((AST_Expr_PrimaryIdentifier)e).getName();
         }
     }
-//    public static String _PeakQualifiedName(AST_Expr e, boolean left) {
-//        if (e instanceof AST_Expr_PrimaryIdentifier) {
-//            return ((AST_Expr_PrimaryIdentifier) e).name;
-//        } else if (e instanceof AST_Expr_OperBi) {
-//            return ((AST_Expr_PrimaryIdentifier)(left ? ((AST_Expr_OperBi)e).left : ((AST_Expr_OperBi)e).right)).name;
-//        } else {
-//            throw new IllegalStateException();
-//        }
-//    }
 
-    /*
-     * =============== TYPENAME ===============
-     */
-
-    public static AST_Expr parse_QualifiedName(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExprPrimaryVariableName, ".");
-    }
-
-    public static AST__Typename parse_Typename(Lexer lx) {
-        AST_Expr nameptr = parse_QualifiedName(lx);
-
-        List<AST__Typename> genericArgs = Collections.emptyList();
-        if (lx.peeking_skp("<")) {
-            genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, ",", ">");
-            lx.match(">");
-        }
-        return new AST__Typename(nameptr, genericArgs);
-    }
 
 
 
@@ -155,149 +110,146 @@ public class LxParser {
         return parseExpr15Assignment(lx);
     }
 
-    public static AST_Expr_PrimaryIdentifier parseExprPrimaryVariableName(Lexer lx) {
-        Token t = lx.next();
-        Validate.isTrue(t.isName());
-        return new AST_Expr_PrimaryIdentifier(t);
+    public static AST_Expr_PrimaryIdentifier parseExprPrimaryIdentifier(Lexer lx) {
+        return new AST_Expr_PrimaryIdentifier(lx.next(TokenType.IDENTIFIER));
     }
 
     public static AST_Expr parseExprPrimary(Lexer lx) {
         Token t = lx.peek();
-        if (t.isInt()) {
-            lx.skip();
-            return new AST_Expr_PrimaryLiteralInt(Integer.parseInt(t.text()));
-        } else if (t.isFloat()) {
-            lx.skip();
-            return new AST_Expr_PrimaryLiteralFloat(Float.parseFloat(t.text()));
-        } else if (t.isChar()) {
-            lx.skip();
-            String ct = t.text(); Validate.isTrue(ct.length() == 1);
-            return new AST_Expr_PrimaryLiteralChar(ct.charAt(0));
-        } else if (t.isString()) {
-            lx.skip();
-            return new AST_Expr_PrimaryLiteralString(t);
+        switch (t.type()) {
+            case LITERAL_INT:
+                lx.next();
+                return new AST_Expr_PrimaryLiteralInt(Integer.parseInt(t.content()));
+            case LITERAL_FLOAT:
+                lx.next();
+                return new AST_Expr_PrimaryLiteralFloat(Float.parseFloat(t.content()));
+            case LITERAL_CHAR:
+                lx.next();
+                return new AST_Expr_PrimaryLiteralChar(t.content().charAt(0));
+            case LITERAL_STRING:
+                lx.next();
+                return new AST_Expr_PrimaryLiteralString(t);
+            case IDENTIFIER:
+                return parseExprPrimaryIdentifier(lx);
+            case LPAREN: {
+                lx.next();
+                AST_Expr r = parseExpr(lx);
+                lx.next(TokenType.RPAREN);
+                return r;
+            }
+            case NEW: {
+                lx.next();
+                AST__Typename typename = parse_Typename(lx);
+                List<AST_Expr> args = _Parse_FuncArgs(lx);
+                return new AST_Expr_OperNew(typename, args);
+            }
+            case SIZEOF: {
+                lx.next();
+                lx.next(TokenType.LPAREN);
+                AST__Typename typename = parse_Typename(lx);
+                lx.next(TokenType.RPAREN);
+                return new AST_Expr_OperSizeOf(typename);
+            }
+            default:
+                throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
         }
-        else if (t.isName())
-        {
-            return parseExprPrimaryVariableName(lx);
-        }
-        else if (lx.peeking_skp("("))   // Bracks
-        {
-            var r = parseExpr(lx);
-            lx.match(")");
-            return r;
-        }
-        else if (t.isKeyword() && lx.peeking_skp("new"))  // new Instance Expr.
-        {
-            AST__Typename type = parse_Typename(lx);
-            lx.match("(");
-            List<AST_Expr> args = _Parse_FuncArgs(lx);
-            return new AST_Expr_OperNew(type, args);
-        }
-        else if (t.isKeyword() && lx.peeking_skp("sizeof"))
-        {
-            lx.match("(");
-            AST__Typename typename = parse_Typename(lx);
-            lx.match(")");
-            return new AST_Expr_OperSizeOf(typename);
-        }
-        else throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
     }
 
     public static AST_Expr parseExpr1AccessCall(Lexer lx) {
         AST_Expr l = parseExprPrimary(lx);
         while (true) {
-            switch (lx.next().text()) {
-                case ".": {
-                    var r = parseExprPrimaryVariableName(lx);
-                    l = new AST_Expr_OperBi(l, ".", r);
-                    break;
-                }
-                case "(": {
-                    List<AST_Expr> args = _Parse_FuncArgs(lx);
-                    l = new AST_Expr_FuncCall(l, args);
-                    break;
-                }
-                default:
-                    lx.back();
-                    return l;
+            TokenType typ = lx.peek().type();
+            if (typ == TokenType.DOT)
+            {
+                lx.next();
+                String memb = parseExprPrimaryIdentifier(lx).getName();
+                l = new AST_Expr_MemberAccess(l, memb);
+            }
+            else if (typ == TokenType.LPAREN)
+            {
+                List<AST_Expr> args = _Parse_FuncArgs(lx);
+                l = new AST_Expr_FuncCall(l, args);
+            }
+            else
+            {
+                return l;
             }
         }
     }
 
     public static AST_Expr parseExpr2UnaryPost(Lexer lx) {
         AST_Expr l = parseExpr1AccessCall(lx);
-        String opr;
-        while ((opr=lx.peekingone_skp("++", "--")) != null) {
-            l = new AST_Expr_OperUnaryPost(l, opr);
+        Token opr;
+        while ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB)) != null) {
+            l = new AST_Expr_OperUnary(l, AST_Expr_OperUnary.UnaryKind.of(opr.type(), true));
         }
         return l;
     }
 
     public static AST_Expr parseExpr3UnaryPre(Lexer lx) {
-        String opr;
-        if ((opr=lx.peekingone_skp("++", "--", "+", "-", "!", "~")) != null) {
+        Token opr;
+        if ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB, TokenType.PLUS, TokenType.SUB, TokenType.BANG, TokenType.TILDE)) != null) {
             AST_Expr r = parseExpr3UnaryPre(lx);
-            return new AST_Expr_OperUnaryPre(opr, r);
+            return new AST_Expr_OperUnary(r, AST_Expr_OperUnary.UnaryKind.of(opr.type(), false));
         } else {
             return parseExpr2UnaryPost(lx);
         }
     }
 
     public static AST_Expr parseExpr4Multiplecation(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr3UnaryPre, "*", "/");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr3UnaryPre, TokenType.STAR, TokenType.SLASH);
     }
 
     public static AST_Expr parseExpr5Addition(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr4Multiplecation, "+", "-");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr4Multiplecation, TokenType.PLUS, TokenType.SUB);
     }
 
     public static AST_Expr parseExpr6BitwiseShifts(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr5Addition, "<<", ">>>", ">>");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr5Addition, TokenType.LTLT, TokenType.GTGTGT, TokenType.GTGT);
     }
 
     public static AST_Expr parseExpr7Relations(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr6BitwiseShifts, "<", "<=", ">", ">=", "is");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr6BitwiseShifts, TokenType.LTEQ, TokenType.LT, TokenType.GT, TokenType.GTEQ, TokenType.IS);
     }
 
     public static AST_Expr parseExpr8Equals(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr7Relations, "==", "!=");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr7Relations, TokenType.EQEQ, TokenType.BANGEQ);
     }
 
     public static AST_Expr parseExpr9BitwiseAnd(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr8Equals, "&");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr8Equals, TokenType.AMP);
     }
 
     public static AST_Expr parseExpr10BitwiseXor(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr9BitwiseAnd, "^");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr9BitwiseAnd, TokenType.CARET);
     }
 
     public static AST_Expr parseExpr11BitwiseOr(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr10BitwiseXor, "|");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr10BitwiseXor, TokenType.BAR);
     }
 
     public static AST_Expr parseExpr12LogicalAnd(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr11BitwiseOr, "&&");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr11BitwiseOr, TokenType.AMPAMP);
     }
 
     public static AST_Expr parseExpr13LogicalOr(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr12LogicalAnd, "||");
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr12LogicalAnd, TokenType.BARBAR);
     }
 
     public static AST_Expr parseExpr14TernaryConditional(Lexer lx) {
         AST_Expr l_cond = parseExpr13LogicalOr(lx);
-        if (lx.peeking_skp("?")) {
+        if (lx.nexting(TokenType.QUES)) {
             AST_Expr then = parseExpr14TernaryConditional(lx);
-            lx.match(":");
+            lx.next(TokenType.COLON);
             AST_Expr els = parseExpr14TernaryConditional(lx);
-            return new AST_Expr_OperTriCon(l_cond, then, els);
+            return new AST_Expr_OperConditional(l_cond, then, els);
         } else {
             return l_cond;
         }
     }
 
     public static AST_Expr parseExpr15Assignment(Lexer lx) {
-        return _Parse_OperBin_RL(lx, LxParser::parseExpr14TernaryConditional, "=");
+        return _Parse_OperBin_RL(lx, LxParser::parseExpr14TernaryConditional, TokenType.EQ);
     }
 
 
@@ -310,43 +262,39 @@ public class LxParser {
      */
 
     public static AST_Stmt parseStmt(Lexer lx) {
-        switch (lx.peek().text()) {
-            case "{":
+        switch (lx.peek().type()) {
+            case LBRACE:
                 return parseStmtBlock(lx);
-            case ";":
-                lx.skip();
+            case SEMI:
+                lx.next();
                 return AST_Stmt_Blank.INST;
-            case "using":
+            case USING:
                 return parseStmtUsing(lx);
-            case "namespace":
+            case NAMESPACE:
                 return parseStmtNamespace(lx);
-            case "if":
+            case IF:
                 return parseStmtIf(lx);
-            case "while":
+            case WHILE:
                 return parseStmtWhile(lx);
-            case "return":
+            case RETURN:
                 return parseStmtReturn(lx);
             default:
-                AST__Modifiers modifiers = AST__Modifiers.DEFAULT;
-                if (_Is_Peeking_Modifiers(lx)) {
-                    modifiers = _Parse_Modifiers(lx);
-                }
+                AST__Modifiers modifiers = parse_Modifiers(lx);
+                lx.mark();
 
-                int mark = lx.index;
-
-                if (lx.peeking("class"))
+                if (lx.peeking(TokenType.CLASS))
                 {
                     AST_Stmt_DefClass a = parseStmtDefClass(lx); a.modifiers = modifiers; return a;
                 }
-                else if (_IsPass(lx, LxParser::parse_Typename) && _IsPass(lx, LxParser::parseExprPrimaryVariableName))  // is: Typename id
+                else if (_IsPass(lx, LxParser::parse_Typename) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
                 {
-                    String s = lx.next().text();
-                    lx.index = mark;  // setback.
-                    if (s.equals("("))
+                    TokenType t = lx.peek().type();
+                    lx.unmark();
+                    if (t == TokenType.LPAREN)
                     {
                         AST_Stmt_DefFunc a = parseStmtDefFunc(lx); a.modifiers = modifiers; return a;
                     }
-                    else if (s.equals("=") || s.equals(";"))
+                    else if (t == TokenType.EQ || t == TokenType.SEMI)
                     {
                         AST_Stmt_DefVar a = parseStmtDefVar(lx); a.modifiers = modifiers; return a;
                     }
@@ -356,42 +304,40 @@ public class LxParser {
                 {
                     Validate.isTrue(modifiers == AST__Modifiers.DEFAULT, "illegal modifiers exists.");
 
-                    lx.index = mark;  // setback.
+                    lx.unmark();
                     return parseStmtExpr(lx);
                 }
         }
     }
 
     public static AST_Stmt_Block parseStmtBlock(Lexer lx) {
-        lx.match("{");
-        var s = new AST_Stmt_Block(parseStmtBlockStmts(lx, "}"));
-        lx.match("}");
+        lx.next(TokenType.LBRACE);
+        AST_Stmt_Block s = new AST_Stmt_Block(_Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.RBRACE));
+        lx.next(TokenType.RBRACE);
         return s;
     }
 
-    public static List<AST_Stmt> parseStmtBlockStmts(Lexer lx, String until) {
-        return _Parse_RepeatUntil(lx, LxParser::parseStmt, until);
-    }
+    public static AST_Stmt_If parseStmtIf(Lexer lx) {
+        lx.next(TokenType.IF);
+        lx.next(TokenType.LPAREN);
+        AST_Expr cond = parseExpr(lx);
+        lx.next(TokenType.RPAREN);
 
-    public static AST_Stmt_If parseStmtIf(Lexer lex) {
-        lex.match("if").match("(");
-        AST_Expr cond = parseExpr(lex);
-        lex.match(")");
-
-        AST_Stmt then = parseStmt(lex);
+        AST_Stmt then = parseStmt(lx);
 
         AST_Stmt els = null;
-        if (lex.peeking_skp("else")) {
-            els = parseStmt(lex);
+        if (lx.nexting(TokenType.ELSE)) {
+            els = parseStmt(lx);
         }
 
         return new AST_Stmt_If(cond, then, els);
     }
 
     public static AST_Stmt_While parseStmtWhile(Lexer lx) {
-        lx.match("while").match("(");
+        lx.next(TokenType.WHILE);
+        lx.next(TokenType.LPAREN);
         AST_Expr cond = parseExpr(lx);
-        lx.match(")");
+        lx.next(TokenType.RPAREN);
 
         AST_Stmt then = parseStmt(lx);
 
@@ -399,67 +345,69 @@ public class LxParser {
     }
 
     public static AST_Stmt_Return parseStmtReturn(Lexer lx) {
-        lx.match("return");
+        lx.next(TokenType.RETURN);
         AST_Expr expr = null;
-        if (!lx.peeking(";")) {
+        if (!lx.peeking(TokenType.SEMI)) {
             expr = parseExpr(lx);
         }
-        lx.match(";");
+        lx.next(TokenType.SEMI);
         return new AST_Stmt_Return(expr);
     }
 
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {
-        Validate.isTrue(lx.peek().isKeyword());
-        lx.match("using");
+        lx.next(TokenType.USING);
 
-        boolean ustatic = false;
-        if (lx.peeking_skp("static")) {
-            ustatic = true;
+        boolean isStatic = false;
+        if (lx.nexting(TokenType.STATIC)) {
+            isStatic = true;
         }
 
-        AST_Expr used = parse_QualifiedName(lx);
+        AST_Expr addr = parse_QualifiedName(lx);
 
-        String asname = (used instanceof AST_Expr_OperBi ? ((AST_Expr_OperBi)used).right : used).varname();
-        if (lx.peeking_skp("as")) {
-            asname = parseExprPrimaryVariableName(lx).name;
+        String name = addr instanceof AST_Expr_MemberAccess ? ((AST_Expr_MemberAccess)addr).getIdentifier() : ((AST_Expr_PrimaryIdentifier)addr).getName();
+        if (lx.nexting(TokenType.AS)) {
+            name = parseExprPrimaryIdentifier(lx).getName();
         }
-        lx.match(";");
+        lx.next(TokenType.SEMI);
 
-        return new AST_Stmt_Using(ustatic, used, asname);
+        return new AST_Stmt_Using(isStatic, addr, name);
     }
 
     public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
-        Validate.isTrue(lx.peek().isKeyword());
-        lx.match("namespace");
+        lx.next(TokenType.NAMESPACE);
 
         AST_Expr name = parse_QualifiedName(lx);
 
         List<AST_Stmt> stmts = new ArrayList<>();
-        if (lx.peeking_skp(";")) {   // the single scope namespace. until next namespace(same-level) or EOF.
-            while (!lx.peekingone("namespace", Token.EOF_T))
+        if (lx.nexting(TokenType.SEMI)) {   // the single scope namespace. until next namespace(same-level) or EOF.
+            while (!lx.selpeeking(TokenType.NAMESPACE, TokenType.EOF))
             {
                 stmts.add(parseStmt(lx));
             }
         }
         else
         {
-            lx.match("{");
-            stmts = parseStmtBlockStmts(lx, "}");
-            lx.match("}");
+            stmts = parseStmtBlock(lx).stmts;
         }
 
         return new AST_Stmt_Namespace(name, stmts);
+    }
+
+    public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {
+        AST_Expr expr = parseExpr(lx);
+        lx.next(TokenType.SEMI);
+        return new AST_Stmt_Expr(expr);
     }
 
 
     public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
 
         AST__Typename rettype = parse_Typename(lx);
-        String name = lx.next().validate(Token::isName).text();
+        String name = lx.next(TokenType.IDENTIFIER).content();
 
-        lx.match("(");
-        var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseStmtDefVar_Def, ",", ")");
-        lx.match(")");
+        lx.next(TokenType.LPAREN);
+        var params = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parseStmtDefVar_Def, TokenType.COMMA, TokenType.RPAREN);
+        lx.next(TokenType.RPAREN);
 
         var body = parseStmtBlock(lx);
 
@@ -468,64 +416,107 @@ public class LxParser {
 
     public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
         AST_Stmt_DefVar a = parseStmtDefVar_Def(lx);
-        lx.match(";");
+        lx.next(TokenType.SEMI);
         return a;
     }
 
     // not the ';'. for support of FuncParams.
     public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {
         AST__Typename type = parse_Typename(lx);
-        String name = lx.next().validate(Token::isName).text();
+        String name = lx.next(TokenType.IDENTIFIER).content();
 
         AST_Expr init = null;
-        if (lx.peeking_skp("=")) {
+        if (lx.nexting(TokenType.EQ)) {
             init = parseExpr(lx);
         }
 
         return new AST_Stmt_DefVar(type, name, init);
     }
 
-    public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {
-        AST_Expr expr = parseExpr(lx);
-        lx.match(";");
-        return new AST_Stmt_Expr(expr);
+    public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
+        lx.next(TokenType.CLASS);
+        String name = lx.next(TokenType.IDENTIFIER).content();
+
+        List<AST_Expr_PrimaryIdentifier> genericParams = Collections.emptyList();
+        if (lx.nexting(TokenType.LT)) {
+            genericParams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryIdentifier, TokenType.COMMA);
+            lx.next(TokenType.GT);
+        }
+
+        List<AST__Typename> supers = Collections.emptyList();
+        if (lx.nexting(TokenType.COLON)) {
+            supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, TokenType.COMMA);
+        }
+
+        List<AST_Stmt> stmts_members = parseStmtBlock(lx).stmts;
+
+        // validate member type.
+        stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
+
+        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members);
     }
 
-    public static AST__Annotation parseAnnotation(Lexer lx) {
-        lx.match("@");
+
+
+
+
+
+    public static AST_Expr parse_QualifiedName(Lexer lx) {
+        AST_Expr l = parseExprPrimaryIdentifier(lx);
+        while (lx.nexting(TokenType.DOT)) {
+            l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName());
+        }
+        return l;
+    }
+
+    public static AST__Typename parse_Typename(Lexer lx) {
+        AST_Expr nameptr = parse_QualifiedName(lx);
+
+        List<AST__Typename> genericArgs = Collections.emptyList();
+        if (lx.nexting(TokenType.LT)) {
+            // TODO: There have a big problem: A<B<C>>  vs.  a >> b,  the ">>" token are overlapped.
+            // sol1. In-Time-Reading. (Rejected. big testing cost, every test need a read.)
+            // sol2. Token.ConnNext property. >>> and >> store as multi single ">", when test ">>", just take two ">" and check is cnnectedNext.  or use CharPosition instead of ConnectedNext
+            // sol3. jdk7, lex read as longest, and modify at runtime, e.g. when parsing A<B<C>> at ">>" just modify to ">" and continue.
+            genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, TokenType.COMMA, TokenType.GT);
+            lx.next(TokenType.GT);
+        }
+        return new AST__Typename(nameptr, genericArgs);
+    }
+
+    public static AST__Annotation parse_Annotation(Lexer lx) {
+        lx.next(TokenType.AT);
         AST_Expr name = parse_QualifiedName(lx);
 
         List<AST_Expr> args = Collections.emptyList();
-        if (lx.peeking_skp("(")) {
+        if (lx.peeking(TokenType.LPAREN)) {
             args = _Parse_FuncArgs(lx);
         }
 
         return new AST__Annotation(name, args);
     }
 
-    public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
-        Validate.isTrue(lx.peek().isKeyword());
-        lx.match("class");
-        String name = lx.next().validate(Token::isName).text();
-
-        List<AST_Expr_PrimaryIdentifier> genericParams = Collections.emptyList();
-        if (lx.peeking_skp("<")) {
-            genericParams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryVariableName, ",");
-            lx.match(">");
+    public static AST__Modifiers parse_Modifiers(Lexer lx) {
+        List<AST__Annotation> annos = new ArrayList<>();
+        while (lx.peeking(TokenType.AT)) {
+            annos.add(parse_Annotation(lx));
         }
 
-        List<AST__Typename> supers = Collections.emptyList();
-        if (lx.peeking_skp(":")) {
-            supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, ",");
+        List<TokenType> modifiers = new ArrayList<>();
+        Token t;
+        while ((t=lx.selnext(TokenType.MODIFIERS)) != null) {
+            Validate.isTrue(!modifiers.contains(t.type()), "modifier '"+t+"' duplicated.");
+            modifiers.add(t.type());
         }
 
-        lx.match("{");
-        List<AST_Stmt> stmts_members = parseStmtBlockStmts(lx, "}");
-        lx.match("}");
+        if (annos.isEmpty() && modifiers.isEmpty())
+            return AST__Modifiers.DEFAULT;
 
-        // validate member type.
-        stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
+        return new AST__Modifiers(annos, modifiers);
+    }
 
-        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members);
+    public static AST__CompilationUnit parse_CompilationUnit(Lexer lx) {
+        return new AST__CompilationUnit(
+                _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF));
     }
 }

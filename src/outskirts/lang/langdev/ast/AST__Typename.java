@@ -12,13 +12,18 @@ public class AST__Typename extends AST {
     // Type Symbol
     public TypeSymbol sym;
 
-    public final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
-    public final List<AST__Typename> genericArgs;
+    private final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
+    private final List<AST__Typename> genericArgs;  // List<GenericArgument : Typename | Const Int | Wildcast> TypeArguments
 
-    public AST__Typename(AST_Expr nameptr, List<AST__Typename> genericArgs) {
-        this.nameptr = nameptr;
+    public AST__Typename(AST_Expr type, List<AST__Typename> genericArgs) {
+        this.nameptr = type;
         this.genericArgs = genericArgs;
     }
+
+    public AST_Expr getType() {
+        return nameptr;
+    }
+
 
     @Override
     public <P> void accept(ASTVisitor<P> visitor, P p) {

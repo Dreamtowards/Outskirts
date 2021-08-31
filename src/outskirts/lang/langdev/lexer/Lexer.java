@@ -2,177 +2,177 @@ package outskirts.lang.langdev.lexer;
 
 import outskirts.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.Objects;
 
+/**
+ * In-time Lexer.
+ * reading token at in-time. not predict/parse all tokens at 'beginning'.
+ * because some token may context-related, cant been predict at lexical-time.
+ * and its not cost so much space-cost since not need holds all tokens.
+ */
 public final class Lexer {
 
-    public int index;
-    private final List<Token> tokens = new ArrayList<>();
+//    private int index;
+//    private final List<TokenItem> tokens = new ArrayList<>();
+//    private final LinkedList<Integer> markers = new LinkedList<>();
 
-    public void read(final String s) {
+//    private Token curr;
 
-        Intptr idx = Intptr.zero();
-        Intptr nline = Intptr.zero(), nchar = Intptr.zero();
+    private String srx = "";  // Source
+    private int rdi;     // ReadIndex.
+    private final LinkedList<Integer> rdimarkers = new LinkedList<>();
 
-        try {
-            while (skipBlanks(s, idx) != -1) {
-                final int i = idx.i;  // tmp local.
-                final char ch = s.charAt(idx.i);
+    // read/next/peek
 
-                String text;
-                int type;
+    private Token read(TokenType expctedtype, boolean steppin) {
 
-                StringUtils.locate(s, i, nline, nchar);
+        Intptr idx = Intptr.of(rdi);
+        _skipBlankAndComments(srx, idx);
+        if (idx.i >= srx.length())
+            return new Token(TokenType.EOF, null, new SourceLocation(null, srx, srx.length(), srx.length()));
+        final int beg = idx.i;
+        TokenType type = null;
+        String content = null;  // only available for TType.fixed==null Types.
 
-                if (s.startsWith("//", i))
-                {   // Singleline Comment.
-                    int end = s.indexOf("\n", i);
-                    idx.i = end == -1 ? s.length() : end + 1;  // +1: jump over the '\n'.
-                    continue;
-                }
-                else if (s.startsWith("/*", i))
-                {  // Multiline Comment.
-                    int end = s.indexOf("*/", i);
-                    Validate.isTrue(end != -1, "Unterminated Multiline Comment.");
-                    idx.i = end + 2;  // +2: jump over the "*/".
-                    continue;
-                }
-                else if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(s, i + 1))))    // Number Literal.
-                {
-                    Ref<Integer> numtype_out = Ref.wrap();
+        if (expctedtype != null) {  // as expected.
+            type = expctedtype;
 
-                    text = readNumber(s, idx, numtype_out);
-                    type = numtype_out.value;
-                }
-                else if (ch == '"')   // String Literal.
-                {
-                    text = readQuote(s, idx, '"');
-                    type = Token.TYPE_STRING;
-                }
-                else if (ch == '\'')   // Char Literal.
-                {
-                    text = readQuote(s, idx, '\'');
-                    type = Token.TYPE_CHAR;
-                    Validate.isTrue(text.length() == 1);
-                }
-                else if ((text = lookupKeyword(s, i)) != null)   // Keyword. Border.
-                {
-                    idx.i += text.length();
-                    type = Token.TYPE_KEYWORD;
-                }
-                else if (isNameChar(ch, true))
-                {  // Name.
-                    text = readName(s, idx);
-                    type = Token.TYPE_NAME;
-                }
-                else
-                {
-                    throw new IllegalStateException(String.format("Unexpected token: '%s' in [%s:%s]", ch, nline.i, nchar.i));
-                }
+            if (expctedtype == TokenType.IDENTIFIER) {
+                content = readName(srx, idx);
 
-                boolean isConnectedNext = isUnblankChar(atchar(s, idx.i));
-                tokens.add(new Token(text, type, nline.i, nchar.i, isConnectedNext));
+                if (content == null)  // not a identifier
+                    return null;
+                if (TokenType.lookup(content) != null)  // overlapped with keyword.
+                    return null;
+            } else {  // keywords.
+                String keyw = expctedtype.fixed();
+                Validate.isTrue(keyw != null, "Unsupported dynmaic type.");
+
+                if (!srx.startsWith(keyw, beg))  // not match.
+                    return null;
+
+                idx.i += keyw.length();
             }
 
+        } else {  // as predicted.
+            char ch = srx.charAt(beg);
 
-//            StringUtils.locate(s, s.length(), nline, nchar);
-//            tokens.add(new Token(Token.EOF_T, Token.TYPE_EOF, nline.i, nchar.i, false));
-        } catch (Exception ex) {
-            throw new IllegalStateException(String.format("Lexer reading error. at '%s' in [%s:%s]", s.charAt(idx.i), nline.i+1, nchar.i+1), ex);
+            if (isNumberChar(ch) || (ch == '.' && beg + 1 < srx.length() && isNumberChar(srx.charAt(beg + 1)))) {
+                Ref<TokenType> tmp = Ref.wrap();
+                content = readNumber(srx, idx, tmp);
+                type = tmp.value;
+            } else if (ch == '\"') {
+                content = readQuote(srx, idx, '\"');
+                type = TokenType.LITERAL_STRING;
+            } else if (ch == '\'') {
+                content = readQuote(srx, idx, '\'');
+                type = TokenType.LITERAL_CHAR;
+            } else if (isNameChar(ch, true)) {  // before keywords. because a valid name may startsWith (but not equals) a keyword.
+                content = readName(srx, idx);
+
+                TokenType keywtyp = TokenType.lookup(content);
+                if (keywtyp != null) {  // Overlapped with Keywords.
+                    content = null;
+                    type = keywtyp;
+                } else {
+                    type = TokenType.IDENTIFIER;
+                }
+            } else {
+                for (TokenType e : TokenType.values()) {
+                    String fixed = e.fixed();
+                    if (fixed != null && srx.startsWith(fixed, beg)) {
+                        type = e;
+                        idx.i += fixed.length();
+                        break;
+                    }
+                }
+                Validate.isTrue(type != null, "Not found keyword at '"+ srx.substring(beg, beg+10)+"'");
+            }
+        }
+
+        if (steppin) {
+            rdi = idx.i;
+        }
+        Validate.isTrue(type != null);
+//        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
+        return new Token(type, content, new SourceLocation(null, srx, beg, rdi));
+    }
+
+    private static void _skipBlankAndComments(String s, Intptr idx) {
+        while (idx.i < s.length()) {
+            int i = idx.i;
+
+            i = skipBlanks(s, i);
+
+            if (s.startsWith("//", i)) {
+                int end = s.indexOf("\n", i+2);
+                i = end==-1 ? s.length() : end+1;
+            } else if (s.startsWith("/*", i)) {
+                int end = s.indexOf("*/", i+2);
+                Validate.isTrue(end!=-1, "Unterminated multiline comment.");
+                i = end+2;
+            }
+
+            // no change anymore
+            if (i == idx.i) {
+                break;
+            } else {
+                idx.i = i;
+            }
         }
     }
 
+    public void appendsource(String src) {
+        this.srx += src;
+    }
+
+
+
+
     public Token peek() {
-        if (eof())
-            return Token.EOF;
-        return tokens.get(index);
+        return read(null, false);
     }
-    public Token next() {
-        if (eof())
-            return Token.EOF;
-        return tokens.get(index++);
+    public boolean peeking(TokenType expected) {
+        Objects.requireNonNull(expected);
+        return read(expected, false) != null;
     }
-
-    public void skip(int i) {
-        index += i;
-    }
-    public void skip() {
-        skip(1);
-    }
-    public void back() {
-        skip(-1);
-    }
-
-    public boolean eof() {
-        return index == tokens.size();
-    }
-
-    public List<Token> tokens() {
-        return tokens;
-    }
-
-
-
-
-    public final Lexer match(String s) {
-        Token t = next();
-        Validate.isTrue(t.text().equals(s), "Bad token. expected: '"+s+"', actual: '"+t.text()+"'. at "+t.detailString());
-        return this;
-    }
-
-
-    public final boolean peeking(String connected) {
-        return peekingc(connected) > 0;
-    }
-    public final boolean peekingone(String... ors) {
-        for (String s : ors) {
-            if (peeking(s))
+    public final boolean selpeeking(TokenType... expecteds) {
+        for (TokenType e : expecteds) {
+            if (peeking(e))
                 return true;
         }
         return false;
     }
 
-    public final int peekingc(String connected) {  // "c" suffix, count of peeking connected
-
-        String ld = peek().text();
-        if (connected.equals(ld))       // quick optim
-            return 1;
-        if (!connected.startsWith(ld))  // quick optim
-            return 0;
-
-
-        int i = 1;              // token rel_idx offset
-        int off = ld.length();  // connected_str char offset.
-        while (off < connected.length()) {
-            Token t = tokens.get(index+(i++)); String c = t.text();
-            boolean leading = off + c.length() < connected.length();  // not last
-            if ((leading && !t.isConnectedNext()) ||
-                !connected.startsWith(c, off)) {
-                return 0;
-            }
-            off += c.length();
-        }
-        return i;
+    @Nonnull
+    public Token next(TokenType expected) {
+        Token t = read(expected, true);
+        if (t == null)
+            throw new IllegalStateException("Expect token "+expected+", auto_detected: "+peek());
+        return t;
+    }
+    public final Token next() {
+        return next(null);
     }
 
-
-    public final boolean peeking_skp(String s) {
-        int i;
-        if ((i= peekingc(s)) > 0) {
-            skip(i);
-            if (i > 1) {
-                System.out.println("Skipped "+i);
-            }
-            return true;
-        } else {
-            return false;
-        }
+    @Nullable
+    public final Token trynext(TokenType expected) {
+        Objects.requireNonNull(expected);
+        return read(expected, true);
     }
-    public final String peekingone_skp(String... ls) {
-        for (String s : ls) {
-            if (peeking_skp(s))
-                return s;
+    public final boolean nexting(TokenType expected) {
+        return trynext(expected) != null;
+    }
+
+    @Nullable
+    public final Token selnext(TokenType... expecteds) {
+        Token t;
+        for (TokenType e : expecteds) {
+            if ((t = trynext(e)) != null)
+                return t;
         }
         return null;
     }
@@ -180,15 +180,96 @@ public final class Lexer {
 
 
 
+
+
+
+    public void mark() {
+        rdimarkers.push(rdi);
+    }
+    public void unmark() {
+        rdi = rdimarkers.pop();
+//        curr = null;  // curr is invalid since rdi changed.
+    }
+    public boolean isSpeculating() {
+        return rdimarkers.size() > 0;
+    }
+
+
+
+
+//    public boolean peeking(TokenType t) {
+//
+//    }
+//    public final Lexer match(String s) {
+//        Token t = next();
+//        Validate.isTrue(t.text().equals(s), "Bad token. expected: '"+s+"', actual: '"+t.text()+"'. at "+t.detailString());
+//        return this;
+//    }
+//    public final boolean peeking(String connected) {
+//        return peekingc(connected) > 0;
+//    }
+//    public final boolean peekingone(String... ors) {
+//        for (String s : ors) {
+//            if (peeking(s))
+//                return true;
+//        }
+//        return false;
+//    }
+//
+//    public final int peekingc(String connected) {  // "c" suffix, count of peeking connected
+//
+//        String ld = peek().text();
+//        if (connected.equals(ld))       // quick optim
+//            return 1;
+//        if (!connected.startsWith(ld))  // quick optim
+//            return 0;
+//
+//
+//        int i = 1;              // token rel_idx offset
+//        int off = ld.length();  // connected_str char offset.
+//        while (off < connected.length()) {
+//            Token t = tokens.get(index+(i++)); String c = t.text();
+//            boolean leading = off + c.length() < connected.length();  // not last
+//            if ((leading && !t.isConnectedNext()) ||
+//                !connected.startsWith(c, off)) {
+//                return 0;
+//            }
+//            off += c.length();
+//        }
+//        return i;
+//    }
+//    public final boolean peeking_skp(String s) {
+//        int i;
+//        if ((i= peekingc(s)) > 0) {
+//            skip(i);
+//            if (i > 1) {
+//                System.out.println("Skipped "+i);
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+//    public final String peekingone_skp(String... ls) {
+//        for (String s : ls) {
+//            if (peeking_skp(s))
+//                return s;
+//        }
+//        return null;
+//    }
+
+
+
+
     // deprecated way: char nextUnblank(), the 'next' is writable mean even for Unblanked chars.
-    public static int skipBlanks(String s, Intptr idx) {
-        while (idx.i < s.length()) {
-            char ch = s.charAt(idx.i);
+    public static int skipBlanks(String s, int idx) {
+        while (idx < s.length()) {
+            char ch = s.charAt(idx);
             if (isUnblankChar(ch))
-                return idx.i;
-            idx.i++;
+                return idx;
+            idx++;
         }
-        return -1;
+        return idx;
     }
     private static boolean isUnblankChar(char ch) {
         return ch > ' ';
@@ -198,19 +279,19 @@ public final class Lexer {
         return (ch=='_' || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z'))
                 || (!first && isNumberChar(ch));
     }
-    private static String readName(String s, Intptr idx) {
-        StringBuilder sb = new StringBuilder();
-        int begin = idx.i;
-        while (idx.i < s.length()) {
-            char ch = s.charAt(idx.i);
-            if (isNameChar(ch, idx.i==begin)) {
-                sb.append(ch);
-                idx.i++;
-            } else {
+    private static String readName(String s, Intptr idxptr) {
+        int i = idxptr.i;
+        int begin = i;
+        while (i < s.length()) {
+            if (isNameChar(s.charAt(i), i==begin))
+                i++;
+            else
                 break;
-            }
         }
-        return sb.toString();
+        if (i == idxptr.i)
+            return null;  // invalid name.
+        idxptr.i = i;
+        return s.substring(begin, i);
     }
 
 
@@ -256,28 +337,28 @@ public final class Lexer {
         return isNumberChar(ch, NUML_DECIMAL);
     }
 
-    public static final int NUML_BINARY = 1;
+    public static final int NUML_BINARY = 1;  // Integer Number Literal Type. INLT.
     public static final int NUML_DECIMAL = 2;
     public static final int NUML_HEX = 3;
-    private static String readNumber(String s, Intptr idx, Ref<Integer> numtype_out) {
-        int begin = idx.i;
+    private static String readNumber(String s, Intptr idx, Ref<TokenType> numtype_out) {
         int i = idx.i;
+        int beg = i;
 
         boolean dot = false;  // fp. decimal point.
         int literaltype = NUML_DECIMAL;
-        int numtype = Token.TYPE_INT;
+        TokenType numtype = null;
 
-        // Number Literal Type Define.
-        if (s.charAt(begin) == '0') {
-            char nx = atchar(s, begin+1);
+        if (s.charAt(beg) == '0') {  // IntNumber LiteralType.
+            char nx = atchar(s, beg+1);
+
             if (nx=='x' || nx=='X') {  // Hex
                 literaltype = NUML_HEX;
                 i += 2;
             } else if (nx == 'b' || nx == 'B') {  // Binary
                 literaltype = NUML_BINARY;
                 i += 2;
-            } else {  // Decimal validate.
-                Validate.isTrue(!isNumberChar(nx), "0-leading decimal integer is not allowed.");  // 0123 is not allowed. confuse with some octal form.
+            } else {  // Decimal validate no 0 leading.
+                Validate.isTrue(!isNumberChar(nx), "decimal integer 0-leading is not allowed.");  // 0123 is not allowed. confuse with some octal form.
             }
 
             if (literaltype != NUML_DECIMAL) {
@@ -287,6 +368,7 @@ public final class Lexer {
 
         while (i < s.length()) {
             char c = s.charAt(i);
+
             if (isNumberChar(c, literaltype)) {
                 i++;
             } else if (c == '.') {
@@ -294,7 +376,7 @@ public final class Lexer {
                 Validate.isTrue(literaltype == NUML_DECIMAL, "Decimal places only allowed for Decimals.");
                 i++;
                 dot = true;
-                numtype = Token.TYPE_FLOAT_DOUBLE;
+                numtype = TokenType.LITERAL_DOUBLE;
             } else if (c == '_') {
                 Validate.isTrue(isNumberChar(atchar(s,i-1), literaltype) &&
                                      isNumberChar(atchar(s,i+1), literaltype), "Neighber of _ must be nums.");
@@ -309,49 +391,29 @@ public final class Lexer {
                         while (isNumberChar(s.charAt(i))) {
                             i++;
                         }
-                        numtype = Token.TYPE_FLOAT_DOUBLE;
+                        numtype = TokenType.LITERAL_DOUBLE;
                     }
                     // Suffixes.
                     if (c == 'f' || c == 'F') {
                         i++;
-                        numtype = Token.TYPE_FLOAT;
+                        numtype = TokenType.LITERAL_FLOAT;
                     } else if (c == 'd' || c == 'D') {
                         i++;
-                        numtype = Token.TYPE_FLOAT_DOUBLE;
+                        numtype = TokenType.LITERAL_DOUBLE;
                     } else if (c == 'l' || c == 'L') {
+                        Validate.isTrue(numtype == null);
                         i++;
-                        numtype = Token.TYPE_INT_LONG;
+                        numtype = TokenType.LITERAL_LONG;
+                    } else {
+                        numtype = TokenType.LITERAL_INT;
                     }
                 }
                 break;
             }
         }
         idx.i = i;
-        numtype_out.value = numtype;
-        return s.substring(begin, i);
-    }
-
-
-    public static final String[] KEYWORDS = {  // a.k.a. keywords.
-            "++", "--",
-            "&&", "||",
-            "<<",            // ">>", ">>>",  the multiple ">" are not a single token anymore. since Typename<A<B>> syntax publish.
-            "<=", ">=",
-            "==", "!=",
-            "=>",
-            "new", "sizeof",
-            "class", "namespace", "using", "as",
-            "static", "const",
-            "!", "=", ".", "+", "-", "*", "/", "{", "}", "(", ")", "<", ">",
-            "@", ",", ";"
-    };
-    private static String lookupKeyword(String s, int i) {
-        for (String k : KEYWORDS) {
-            if (s.startsWith(k, i)) {
-                return k;
-            }
-        }
-        return null;
+        numtype_out.value = Objects.requireNonNull(numtype);
+        return s.substring(beg, i);
     }
 
     private static char atchar(String s, int i) {

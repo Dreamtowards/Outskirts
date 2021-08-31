@@ -4,10 +4,14 @@ import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 
 public class AST_Expr_OperSizeOf extends AST_Expr {
 
-    public final AST__Typename type;
+    private final AST__Typename type;
 
     public AST_Expr_OperSizeOf(AST__Typename type) {
         this.type = type;
+    }
+
+    public AST__Typename getTypename() {
+        return type;
     }
 
     @Override
