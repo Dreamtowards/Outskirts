@@ -1,5 +1,8 @@
 package outskirts.lang.langdev.lexer;
 
+/**
+ * Order still required at Predicting-Keyword. ("++" should before "+", or all "++" will be two "+")
+ */
 public enum TokenType {
 
     EOF("\0"),
@@ -13,6 +16,8 @@ public enum TokenType {
     NEW("new"),
     SIZEOF("sizeof"),
     IS("is"),
+    DEREFERENCE("dereference"),
+
     CLASS("class"),
     NAMESPACE("namespace"),
     USING("using"),

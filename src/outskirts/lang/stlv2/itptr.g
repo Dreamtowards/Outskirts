@@ -1,47 +1,36 @@
 
-namespace prims {
-
-    class u16 {}
-
-}
 
 namespace stl.lang {
 
-    class u64 { int j; }
-    class u32 { }
-
     class string {
 
-        u64 base;
+        int base;
 
-        static int char_at(u32 i) {
+        int char_at(int i) {
 
-            int j = sizeof(prims.u16) + u64.j;
+            i = 2;
+            int off = sizeof(int)*i;
+            int p = 1 + off;
 
-            //int i = 1;
-            //int i = 2;
+            int c = dereference<int>(p);
 
-            // return dereference<u64>(base + i*sizeof(u32));
+
+            // i = 2;
+            // int off = sizeof(int)*i;
+            // return dereference<u64>(base + off);
         }
     }
 }
 
-namespace test {
-    class myint {}
-}
-
 namespace stl.lang;
 
-using test.myint as someint;
-
+// using test.myint as someint;
 
 class _main {
 
     @permits
     @private
     static void main(int i) {
-
-        someint m;
 
         i = 2;
     }

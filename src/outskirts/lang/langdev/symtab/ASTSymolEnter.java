@@ -29,7 +29,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visitExprOperBin(AST_Expr_OperBi a, Scope p) {
+    public void visitExprOperBin(AST_Expr_OperBinary a, Scope p) {
         a.getLeftOperand().accept(this, p);
         a.getRightOperand().accept(this, p);
         if (a.getLeftOperand().getEvalTypeSymbol() == a.getRightOperand().getEvalTypeSymbol())
@@ -68,18 +68,26 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
+    public void visitExprTmpDereference(AST_Expr_TemporaryDereference a, Scope p) {
+        a.getTypename().accept(this, p);
+        a.getExpression().accept(this, p);
+
+        a.setEvalTypeSymbol(a.getTypename().sym);
+    }
+
+    @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, Scope p) {
         Symbol s = p.resolve(a.getName());
 
         if (s instanceof SymbolVariable)
-            a.evaltype = ((SymbolVariable)s).type;
+            a.setEvalTypeSymbol(((SymbolVariable)s).type);
         else
-            a.evaltype = (TypeSymbol)s;  // SymbolClass or SymbolNamespace.
+            a.setEvalTypeSymbol((TypeSymbol)s);  // SymbolClass or SymbolNamespace.
     }
 
     @Override
     public void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, Scope scope) {
-        a.evaltype = SymbolBuiltinType._int;
+        a.setEvalTypeSymbol(SymbolBuiltinType._int);
     }
 
     @Override
@@ -91,7 +99,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitStmtBlock(AST_Stmt_Block a, Scope _p) {
         Scope blp = new Scope(_p);
 
-        for (AST_Stmt stmt : a.stmts) {
+        for (AST_Stmt stmt : a.getStatements()) {
             stmt.accept(this, blp);
         }
     }
@@ -100,16 +108,16 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitStmtDefClass(AST_Stmt_DefClass a, Scope _p) {
         Scope clp = new Scope(_p);
 
-        for (AST__Typename sup : a.superclasses) {
+        for (AST__Typename sup : a.getSuperTypenames()) {
             sup.accept(this, _p);
         }
 
-        for (AST_Stmt clstmt : a.members) {
+        for (AST_Stmt clstmt : a.getMembers()) {
 
             clstmt.accept(this, clp);
         }
 
-        SymbolClass clsym = new SymbolClass(a.name, clp);
+        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);
         a.sym = clsym;
 
         _p.define(clsym);
@@ -119,46 +127,46 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitStmtDefFunc(AST_Stmt_DefFunc a, Scope _p) {
         Scope fnp = new Scope(_p);
 
-        a.returntype.accept(this, _p);
+        a.getReturnTypename().accept(this, _p);
 
-        for (AST_Stmt_DefVar param : a.params) {
+        for (AST_Stmt_DefVar param : a.getParameters()) {
 
             param.accept(this, fnp);
 
         }
-        a.body.accept(this, fnp);
+        a.getBody().accept(this, fnp);
 
-        SymbolVariable sym = new SymbolVariable(a.name, new SymbolFunction(a.name, a.returntype.sym));
+        SymbolVariable sym = new SymbolVariable(a.getName(), new SymbolFunction(a.getName(), a.getReturnTypename().sym));
         _p.define(sym);
     }
 
     @Override
     public void visitStmtDefVar(AST_Stmt_DefVar a, Scope p) {
-        a.type.accept(this, p);
+        a.getTypename().accept(this, p);
 
-        SymbolVariable sym = new SymbolVariable(a.name, a.type.sym);
+        SymbolVariable sym = new SymbolVariable(a.getName(), a.getTypename().sym);
         p.define(sym);
 
-        if (a.initexpr != null) {
-            a.initexpr.accept(this, p);
+        if (a.getInitializer() != null) {
+            a.getInitializer().accept(this, p);
 
-            Validate.isTrue(a.type.sym == a.initexpr.evaltype, "bad init type");  // might should let Semantic do.
+            Validate.isTrue(a.getTypename().sym == a.getInitializer().getEvalTypeSymbol(), "bad init type");  // might should let Semantic do.
         }
     }
 
     @Override
     public void visitStmtExpr(AST_Stmt_Expr a, Scope p) {
-        a.expr.accept(this, p);
+        a.getExpression().accept(this, p);
     }
 
     @Override
     public void visitStmtIf(AST_Stmt_If a, Scope p) {
-        a.condition.accept(this, p);
+        a.getCondition().accept(this, p);
 
-        a.thenb.accept(this, p);
+        a.getThenStatement().accept(this, p);
 
-        if (a.elseb != null) {
-            a.elseb.accept(this, p);
+        if (a.getElseStatement() != null) {
+            a.getElseStatement().accept(this, p);
         }
     }
 
@@ -166,7 +174,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitStmtNamespace(AST_Stmt_Namespace a, Scope _p) {
         Scope lp = _p;
 
-        for (String nm : StringUtils.explode(LxParser._ExpandQualifiedName(a.name), ".")) {
+        for (String nm : StringUtils.explode(LxParser._ExpandQualifiedName(a.getNameExpression()), ".")) {
             SymbolNamespace ns = (SymbolNamespace)lp.findLocalSymbol(nm);
             if (ns != null) {
                 lp = ns.getTable();
@@ -178,32 +186,32 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
             }
         }
 
-        for (AST_Stmt stmt : a.stmts) {
+        for (AST_Stmt stmt : a.getStatements()) {
             stmt.accept(this, lp);
         }
     }
 
     @Override
     public void visitStmtReturn(AST_Stmt_Return a, Scope p) {
-        if (a.expr != null) {
-            a.expr.accept(this, p);
+        if (a.getReturnExpression() != null) {
+            a.getReturnExpression().accept(this, p);
         }
     }
 
     @Override
     public void visitStmtUsing(AST_Stmt_Using a, Scope p) {
-        Symbol used = p.resolveQualifiedExpr(a.used);
+        Symbol used = p.resolveQualifiedExpr(a.getQualifiedExpression());
 
-        Validate.isTrue(a.isStatic ? (used instanceof SymbolVariable) : (used instanceof SymbolClass));
+        Validate.isTrue(a.isStatic() ? (used instanceof SymbolVariable) : (used instanceof SymbolClass));
 
-        p.defineAsCustomName(a.asname, used);
+        p.defineAsCustomName(a.getDeclaredName(), used);
     }
 
     @Override
     public void visitStmtWhile(AST_Stmt_While a, Scope p) {
-        a.condition.accept(this, p);
+        a.getCondition().accept(this, p);
 
-        a.then.accept(this, p);
+        a.getStatement().accept(this, p);
     }
 
     @Override

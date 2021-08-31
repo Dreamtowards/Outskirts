@@ -6,10 +6,14 @@ import java.util.List;
 
 public class AST_Stmt_Block extends AST_Stmt {
 
-    public final List<AST_Stmt> stmts;
+    private final List<AST_Stmt> stmts;
 
     public AST_Stmt_Block(List<AST_Stmt> stmts) {
         this.stmts = stmts;
+    }
+
+    public List<AST_Stmt> getStatements() {
+        return stmts;
     }
 
     @Override

@@ -32,7 +32,8 @@ public final class Lexer {
         Intptr idx = Intptr.of(rdi);
         _skipBlankAndComments(srx, idx);
         if (idx.i >= srx.length())
-            return new Token(TokenType.EOF, null, new SourceLocation(null, srx, srx.length(), srx.length()));
+            return new Token(TokenType.EOF, null, new SourceLoc(null, srx, srx.length(), srx.length()));
+
         final int beg = idx.i;
         TokenType type = null;
         String content = null;  // only available for TType.fixed==null Types.
@@ -97,8 +98,8 @@ public final class Lexer {
             rdi = idx.i;
         }
         Validate.isTrue(type != null);
-//        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
-        return new Token(type, content, new SourceLocation(null, srx, beg, rdi));
+        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
+        return new Token(type, content, new SourceLoc(null, srx, beg, rdi));
     }
 
     private static void _skipBlankAndComments(String s, Intptr idx) {

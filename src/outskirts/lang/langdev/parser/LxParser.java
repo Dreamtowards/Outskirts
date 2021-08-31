@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-public class LxParser {
+public final class LxParser {
 
 
     /*
@@ -27,7 +27,7 @@ public class LxParser {
         Token opr;
         while ((opr=lx.selnext(opers)) != null) {
             AST_Expr r = factorpsr.apply(lx);
-            l = new AST_Expr_OperBi(l, r, AST_Expr_OperBi.BinaryKind.of(opr.type()));
+            l = new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(opr.type()));
         }
         return l;
     }
@@ -35,7 +35,7 @@ public class LxParser {
         AST_Expr l = fac.apply(lx);
         if (lx.nexting(oper)) {
             AST_Expr r = _Parse_OperBin_RL(lx, fac, oper);
-            return new AST_Expr_OperBi(l, r, AST_Expr_OperBi.BinaryKind.of(oper));
+            return new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(oper));
         } else {
             return l;
         }
@@ -149,6 +149,16 @@ public class LxParser {
                 AST__Typename typename = parse_Typename(lx);
                 lx.next(TokenType.RPAREN);
                 return new AST_Expr_OperSizeOf(typename);
+            }
+            case DEREFERENCE: {
+                lx.next();
+                lx.next(TokenType.LT);
+                AST__Typename typename = parse_Typename(lx);
+                lx.next(TokenType.GT);
+                lx.next(TokenType.LPAREN);
+                AST_Expr expr = parseExpr(lx);
+                lx.next(TokenType.RPAREN);
+                return new AST_Expr_TemporaryDereference(typename, expr);
             }
             default:
                 throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
@@ -387,7 +397,7 @@ public class LxParser {
         }
         else
         {
-            stmts = parseStmtBlock(lx).stmts;
+            stmts = parseStmtBlock(lx).getStatements();
         }
 
         return new AST_Stmt_Namespace(name, stmts);
@@ -448,7 +458,7 @@ public class LxParser {
             supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, TokenType.COMMA);
         }
 
-        List<AST_Stmt> stmts_members = parseStmtBlock(lx).stmts;
+        List<AST_Stmt> stmts_members = parseStmtBlock(lx).getStatements();
 
         // validate member type.
         stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
@@ -474,10 +484,7 @@ public class LxParser {
 
         List<AST__Typename> genericArgs = Collections.emptyList();
         if (lx.nexting(TokenType.LT)) {
-            // TODO: There have a big problem: A<B<C>>  vs.  a >> b,  the ">>" token are overlapped.
-            // sol1. In-Time-Reading. (Rejected. big testing cost, every test need a read.)
-            // sol2. Token.ConnNext property. >>> and >> store as multi single ">", when test ">>", just take two ">" and check is cnnectedNext.  or use CharPosition instead of ConnectedNext
-            // sol3. jdk7, lex read as longest, and modify at runtime, e.g. when parsing A<B<C>> at ">>" just modify to ">" and continue.
+            // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
             genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, TokenType.COMMA, TokenType.GT);
             lx.next(TokenType.GT);
         }

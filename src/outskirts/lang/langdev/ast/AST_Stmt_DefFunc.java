@@ -10,10 +10,10 @@ import java.util.List;
  */
 public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
 
-    public final AST__Typename returntype;
-    public final String name;
-    public final List<AST_Stmt_DefVar> params; // unclear
-    public final AST_Stmt_Block body;     // ?? block ??or expr?
+    private final AST__Typename returntype;
+    private final String name;
+    private final List<AST_Stmt_DefVar> params; // unclear
+    private final AST_Stmt_Block body;     // ?? block ??or expr?
 
     public AST__Modifiers modifiers;
 
@@ -22,6 +22,22 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
         this.name = name;
         this.params = params;
         this.body = body;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public AST__Typename getReturnTypename() {
+        return returntype;
+    }
+
+    public List<AST_Stmt_DefVar> getParameters() {
+        return params;
+    }
+
+    public AST_Stmt_Block getBody() {
+        return body;
     }
 
     @Override

@@ -4,9 +4,9 @@ import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 
 public class AST_Stmt_DefVar extends AST_Stmt implements AST.Modifierable {
 
-    public final AST__Typename type;
-    public final String name;
-    public final AST_Expr initexpr;  // nullable.
+    private final AST__Typename type;
+    private final String name;
+    private final AST_Expr initexpr;  // nullable.
 
     public AST__Modifiers modifiers;
 
@@ -14,6 +14,18 @@ public class AST_Stmt_DefVar extends AST_Stmt implements AST.Modifierable {
         this.type = type;
         this.name = name;
         this.initexpr = initexpr;
+    }
+
+    public AST__Typename getTypename() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public AST_Expr getInitializer() {
+        return initexpr;
     }
 
     @Override

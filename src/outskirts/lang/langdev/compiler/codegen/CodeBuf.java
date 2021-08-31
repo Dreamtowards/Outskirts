@@ -1,18 +1,18 @@
 package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class CodeBuf {
 
-    private final List<String> localvars = new ArrayList<>();
+    private final LinkedHashMap<String, TypeSymbol> localvars = new LinkedHashMap<>();
     private final List<Byte> buf = new ArrayList<>();
 
     public ConstantPool constantpool;
@@ -22,16 +22,23 @@ public class CodeBuf {
     }
 
     public int findvar(String name) {
-        int i = localvars.indexOf(name);
-        if (i == -1) throw new IllegalStateException("Not found variable "+name);
-        return i;
+        int i = 0;
+        for (String s : localvars.keySet()) {
+            if (s.equals(name))
+                return i;
+            i++;
+        }
+        throw new IllegalStateException("Not found variable "+name);
     }
-    public void defvar(String name) {
-        Validate.isTrue(!localvars.contains(name), "Already def variable '"+name+"'.");
-        localvars.add(name);
+    public void defvar(String name, TypeSymbol ts) {
+        Validate.isTrue(!localvars.containsKey(name), "Already def variable '"+name+"'.");
+        localvars.put(name, ts);
     }
     public int localsize() {
         return localvars.size();
+    }
+    public LinkedHashMap<String, TypeSymbol> localmap() {
+        return localvars;
     }
 
     public int idx() {
@@ -90,6 +97,9 @@ public class CodeBuf {
     public void _i32add() {
         append(I32ADD);
     }
+    public void _i32mul() {
+        append(I32MUL);
+    }
 
     public void _icmp() {
         append(ICMP);
@@ -104,12 +114,14 @@ public class CodeBuf {
         append(CMP_GT);
     }
 
-    public void _dup() {
+    public void _dup(int n) {
         append(DUP);
+        append((byte)n);
     }
 
-    public void _pop() {
+    public void _pop(int n) {
         append(POP);
+        append((byte)n);
     }
 
     void append(byte b) {

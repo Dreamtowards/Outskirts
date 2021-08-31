@@ -22,7 +22,7 @@ public class AST__Typename extends AST {
 
     public AST_Expr getType() {
         return nameptr;
-    }
+    }  // getQualifit..or?
 
 
     @Override

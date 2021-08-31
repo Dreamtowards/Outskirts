@@ -3,9 +3,12 @@ package outskirts.lang.langdev.machine;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.Opcodes;
+import outskirts.lang.langdev.symtab.TypeSymbol;
+import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
@@ -13,6 +16,48 @@ import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 public class Machine {
 
     public static byte[] MemSpace = new byte[1024 * 1024 * 4];
+    private static int esp;
+
+    private static int sum(int[] a) {
+        int s = 0;
+        for (int i : a) {
+            s += i;
+        }
+        return s;
+    }
+
+    private static void memcpy(int src, int dest, int len) {
+        for (int i = 0;i < len;i++) {
+            MemSpace[dest+i] = MemSpace[src+i];
+        }
+    }
+
+    private static void pushn(int destptr, int n) {
+        memcpy(destptr, esp, n);
+        esp += n;
+    }
+    private static void pushi(int i) {
+        IOUtils.writeInt(MemSpace, esp, i);
+        esp += 4;
+    }
+    private static void pushi8(byte i) {
+        MemSpace[esp] = i;
+        esp += 1;
+    }
+
+    private static int popi() {
+        esp -= 4;
+        return IOUtils.readInt(MemSpace, esp);
+    }
+    private static int popi8() {
+        esp -= 1;
+        return MemSpace[esp];
+    }
+
+    private static void popn(int destptr, int n) {
+        esp -= n;
+        memcpy(esp, destptr, n);
+    }
 
     public static void exec(CodeBuf codebuf) {
         byte[] code = codebuf.toByteArray();
@@ -23,23 +68,35 @@ public class Machine {
         }
 
         int pc = 0;
-        LinkedList<Object> opstack = new LinkedList<>();
-        Object[] locals = new Object[codebuf.localsize()];
+//        LinkedList<Object> opstack = new LinkedList<>();
+//        Object[] locals = new Object[codebuf.localsize()];
+        int baseptr = 1;
+        int[] localsizes = new int[codebuf.localsize()];  // locals type-size.
+        int tmpi = 0;
+        for (TypeSymbol typ : codebuf.localmap().values()) {
+            localsizes[tmpi++] = typ.typesize();
+        }
+
+        int[] localptrs = new int[codebuf.localsize()];
+        tmpi = baseptr;
+        for (int i = 0;i < localptrs.length;i++) {
+            localptrs[i] = tmpi;
+            tmpi += localsizes[i];
+        }
+        esp = tmpi;  // rvalues baseptr.  baseptr+sum(localsizes)
+        final int rvp = esp;
 
         while (pc < code.length) {
 //            System.out.println(" EXEC INST "+Opcodes._InstructionComment(code, Intptr.of(pc)));
             switch (code[pc++]) {
                 case STORE: {
-                    Object o = opstack.pop();
                     byte i = code[pc++];
-
-                    locals[i] = o;
+                    popn(localptrs[i], localsizes[i]);
                     break;
                 }
                 case LOAD: {
                     byte i = code[pc++];
-                    opstack.push(locals[i]);
-
+                    pushn(localptrs[i], localsizes[i]);
                     break;
                 }
                 case LDC: {
@@ -47,11 +104,16 @@ public class Machine {
                     pc += 2;
                     ConstantPool.Constant c = codebuf.constantpool.get(i);
 
-                    if (c instanceof ConstantPool.Constant.CUtf8) opstack.push(((ConstantPool.Constant.CUtf8) c).tx);
-                    else if (c instanceof ConstantPool.Constant.CInt32) opstack.push(((ConstantPool.Constant.CInt32) c).i);
-                    else throw new IllegalStateException("Unsupported Constant Type.");
+                    if (c instanceof ConstantPool.Constant.CInt32) {
+                        int v = ((ConstantPool.Constant.CInt32)c).i;
+                        pushi(v);
+                    }
 
-                    System.out.println("Load Constant: "+opstack.peek());
+//                    if (c instanceof ConstantPool.Constant.CUtf8) opstack.push(((ConstantPool.Constant.CUtf8) c).tx);
+//                    else if (c instanceof ConstantPool.Constant.CInt32) opstack.push(((ConstantPool.Constant.CInt32) c).i);
+//                    else throw new IllegalStateException("Unsupported Constant Type.");
+
+//                    System.out.println("Load Constant: "+opstack.peek());
                     break;
                 }
                 case INVOKEFUNC: {
@@ -62,8 +124,8 @@ public class Machine {
                     break;
                 }
                 case JMP_F: {
-                    Object o = opstack.pop();
-                    if ((int)o == 0) {
+                    int b = popi8();
+                    if (b == 0) {
                         pc = IOUtils.readShort(code, pc);
                     } else {
                         pc += 2;
@@ -71,40 +133,53 @@ public class Machine {
                     break;
                 }
                 case I32ADD: {
-                    int i2 = (int)opstack.pop();
-                    int i1 = (int)opstack.pop();
-                    opstack.push(i1+i2);
+                    int i2 = popi();
+                    int i1 = popi();
+                    pushi(i1+i2);
+                    break;
+                }
+                case I32MUL: {
+                    int i2 = popi();
+                    int i1 = popi();
+                    pushi(i1*i2);
                     break;
                 }
                 case DUP: {
-                    opstack.push(opstack.peek());
-                    break;
-                }
-                case ICMP: {
-                    int i2 = (int)opstack.pop();
-                    int i1 = (int)opstack.pop();
-                    int r = i1 - i2;
-                    int cmpr;
-                    if (r < 0) cmpr = CMPR_LT;
-                    else if (r > 0) cmpr = CMPR_GT;
-                    else cmpr = CMPR_EQ;
-                    opstack.push(cmpr);
-                    break;
-                }
-                case CMP_LT: {
-                    opstack.push((int)opstack.pop() == CMPR_LT ? 1 : 0);
-                    break;
-                }
-                case CMP_GT: {
-                    opstack.push((int)opstack.pop() == CMPR_GT ? 1 : 0);
-                    break;
-                }
-                case CMP_EQ: {
-                    opstack.push((int)opstack.pop() == CMPR_EQ ? 1 : 0);
+                    byte n = code[pc++];
+
+                    memcpy(esp-n, esp, n);
+                    esp += n;
+
                     break;
                 }
                 case POP: {
-                    opstack.pop();
+                    byte n = code[pc++];
+
+                    esp -= n;
+
+                    break;
+                }
+                case ICMP: {
+                    int i2 = popi();
+                    int i1 = popi();
+                    int r = i1 - i2;
+                    byte cmpr;
+                    if (r < 0) cmpr = CMPR_LT;
+                    else if (r > 0) cmpr = CMPR_GT;
+                    else cmpr = CMPR_EQ;
+                    pushi8(cmpr);
+                    break;
+                }
+                case CMP_LT: {
+                    pushi8((byte)(popi8() == CMPR_LT ? 1 : 0));
+                    break;
+                }
+                case CMP_GT: {
+                    pushi8((byte)(popi8() == CMPR_GT ? 1 : 0));
+                    break;
+                }
+                case CMP_EQ: {
+                    pushi8((byte)(popi8() == CMPR_EQ ? 1 : 0));
                     break;
                 }
                 default:
@@ -112,10 +187,10 @@ public class Machine {
             }
         }
 
-        System.out.println("Done Exec. opstack: "+opstack);
+        System.out.println("Done Exec. opstack: rvp="+rvp+", esp="+esp+", locals: "+ Arrays.toString(CollectionUtils.subarray(MemSpace, baseptr, rvp)));
     }
 
-    public static final int CMPR_LT = 0,
-                            CMPR_GT = 1,
-                            CMPR_EQ = 2;
+    public static final byte CMPR_LT = 0,
+                             CMPR_GT = 1,
+                             CMPR_EQ = 2;
 }

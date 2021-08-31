@@ -180,6 +180,12 @@ public final class CollectionUtils {
         return subarray(array, beginIndex, array.length);
     }
 
+    public static byte[] subarray(byte[] arr, int begin, int end) {
+        byte[] a = new byte[end - begin];
+        System.arraycopy(arr, begin, a, 0, a.length);
+        return a;
+    }
+
     //this custom should be in library..? RAND is too high level
     public static <T> T[] shuffle(T[] arr, Random rnd) {
         for (int i = arr.length;i > 1;i--) {

@@ -5,7 +5,7 @@ import outskirts.lang.langdev.lexer.Token;
 public class AST_Expr_PrimaryLiteralString extends AST_Expr {
 
 //    public final GObject str;
-    public final String strRaw;
+    private final String strRaw;
 
     public AST_Expr_PrimaryLiteralString(Token token) {
 //        var c = ((Scope)ASTEvaluator._EnsureLoadClass("stl.lang.string").value).clxdef;

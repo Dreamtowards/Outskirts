@@ -1,13 +1,11 @@
 package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.AST__CompilationUnit;
-import outskirts.lang.langdev.compiler.ASTCompiler;
+import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.interpreter.RuntimeExec;
 import outskirts.lang.langdev.lexer.Lexer;
-import outskirts.lang.langdev.lexer.Token;
-import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.ASTSymolEnter;
@@ -36,11 +34,11 @@ public class Main {
 
 
         // Compile.
-        ASTCompiler.compileStmtBlockStmts(a.getDeclrations());
+        ClassCompiler.compileStmtBlockStmts(a.getDeclrations());
 
 
         // Exec
-        CodeBuf cbuf = ASTCompiler._COMPILED.get(0);
+        CodeBuf cbuf = ClassCompiler._COMPILED.get(0);
         Machine.exec(cbuf);
 
 

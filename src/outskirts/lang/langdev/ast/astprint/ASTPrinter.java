@@ -53,7 +53,7 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     }
 
     @Override
-    public void visitExprOperBin(AST_Expr_OperBi a, PrintStat ps) {
+    public void visitExprOperBin(AST_Expr_OperBinary a, PrintStat ps) {
         appendln(ps, "ExprBinary {"); ps.dp++;
             a.getLeftOperand().accept(this, ps);
             appendln(ps, quote(a.getBinaryKind().name()));
@@ -78,6 +78,11 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
 
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, PrintStat printStat) {
+
+    }
+
+    @Override
+    public void visitExprTmpDereference(AST_Expr_TemporaryDereference a, PrintStat printStat) {
 
     }
 

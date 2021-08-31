@@ -3,7 +3,7 @@ package outskirts.lang.langdev.lexer;
 import outskirts.util.Intptr;
 import outskirts.util.StringUtils;
 
-public class SourceLocation {
+public final class SourceLoc {
 
     private String sourceLocation;
     private String source;
@@ -14,7 +14,7 @@ public class SourceLocation {
     private int _lineNumber;
     private int _charNumber;
 
-    public SourceLocation(String sourceLocation, String source, int beginIndex, int endIndex) {
+    public SourceLoc(String sourceLocation, String source, int beginIndex, int endIndex) {
         this.sourceLocation = sourceLocation;
         this.source = source;
         this.beginIndex = beginIndex;

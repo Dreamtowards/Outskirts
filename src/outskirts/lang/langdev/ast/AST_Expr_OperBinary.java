@@ -3,13 +3,13 @@ package outskirts.lang.langdev.ast;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.lexer.TokenType;
 
-public class AST_Expr_OperBi extends AST_Expr {
+public class AST_Expr_OperBinary extends AST_Expr {
 
     private final AST_Expr left;
     private final AST_Expr right;
     private final BinaryKind binarykind;
 
-    public AST_Expr_OperBi(AST_Expr left, AST_Expr right, BinaryKind binarykind) {
+    public AST_Expr_OperBinary(AST_Expr left, AST_Expr right, BinaryKind binarykind) {
         this.left = left;
         this.right = right;
         this.binarykind = binarykind;

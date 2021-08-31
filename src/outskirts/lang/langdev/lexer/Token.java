@@ -26,9 +26,9 @@ public final class Token {
     // connNext or connPrev .?
 //    private final boolean isConnectedNext;
 
-    private SourceLocation sloc;  // sourcelocation.
+    private SourceLoc sloc;  // sourcelocation.
 
-    public Token(TokenType type, String content, SourceLocation sloc) {
+    public Token(TokenType type, String content, SourceLoc sloc) {
         if (type.fixed() == null)
             Validate.isTrue(content != null);
         this.content = content;

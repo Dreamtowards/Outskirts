@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
-public class ClassFile {
+public final class ClassFile {
 
     public static Map<String, ClassFile> _CLASSPATH = new LinkedHashMap<>();
 

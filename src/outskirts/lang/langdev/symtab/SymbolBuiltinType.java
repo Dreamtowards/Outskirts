@@ -8,11 +8,13 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
 
     public static final SymbolBuiltinType
             _int = new SymbolBuiltinType("int"),
-            _void = new SymbolBuiltinType("void");   // Generic.?
+            _void = new SymbolBuiltinType("void"),
+            _ptr = new SymbolBuiltinType("ptr");
 
     public static void init(Scope glob) {
         glob.define(_int);
         glob.define(_void);
+        glob.define(_ptr);
     }
 
     @Override

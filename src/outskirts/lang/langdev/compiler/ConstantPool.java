@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ConstantPool {
+public final class ConstantPool {
 
     private final List<Constant> constants = new ArrayList<>();
 
