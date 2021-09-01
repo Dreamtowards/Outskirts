@@ -41,17 +41,6 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visitExprOperBinary(AST_Expr_OperBinary a, Scope p) {
-        a.getLeftOperand().accept(this, p);
-        a.getRightOperand().accept(this, p);
-
-        if (a.getLeftOperand().getEvalTypeSymbol() == a.getRightOperand().getEvalTypeSymbol())
-            a.setEvalTypeSymbol(a.getLeftOperand().getEvalTypeSymbol());  // return commonBaseType(e1, e2);
-        else
-            throw new UnsupportedOperationException("Incpompactble OperBin "+a.getLeftOperand().getEvalTypeSymbol().getQualifiedName()+", "+a.getRightOperand().getEvalTypeSymbol().getQualifiedName());
-    }
-
-    @Override
     public void visitExprOperNew(AST_Expr_OperNew a, Scope p) {
         a.getTypename().accept(this, p);
         a.setEvalTypeSymbol(a.getTypename().sym);
@@ -70,7 +59,30 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     public void visitExprOperUnary(AST_Expr_OperUnary a, Scope p) {
         a.getExpression().accept(this, p);
 
-        a.setEvalTypeSymbol(a.getExpression().getEvalTypeSymbol());
+        if (a.getUnaryKind() == AST_Expr_OperUnary.UnaryKind.NOT) {
+            a.setEvalTypeSymbol(SymbolBuiltinType._bool);
+        } else {
+            a.setEvalTypeSymbol(a.getExpression().getEvalTypeSymbol());
+        }
+    }
+
+    @Override
+    public void visitExprOperBinary(AST_Expr_OperBinary a, Scope p) {
+        a.getLeftOperand().accept(this, p);
+        a.getRightOperand().accept(this, p);
+
+        if (a.getLeftOperand().getEvalTypeSymbol() != a.getRightOperand().getEvalTypeSymbol())
+            throw new UnsupportedOperationException("Incpompactble OperBin "+a.getLeftOperand().getEvalTypeSymbol().getQualifiedName()+", "+a.getRightOperand().getEvalTypeSymbol().getQualifiedName());
+
+        switch (a.getBinaryKind()) {
+            case LT: case LTEQ: case GT: case GTEQ: case IS:
+            case EQ: case NEQ:
+                a.setEvalTypeSymbol(SymbolBuiltinType._bool);
+                break;
+            default:
+                a.setEvalTypeSymbol(a.getLeftOperand().getEvalTypeSymbol());  // return commonBaseType(e1, e2);
+                break;
+        }
     }
 
     @Override
@@ -128,7 +140,8 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
         }
 
         Scope clp = new Scope(_p);
-        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);  // before member. init Scope.associatedsymbol.
+        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);
+        clp.symbolAssociated = clsym;   // before member.
 
         for (AST_Stmt clstmt : a.getMembers()) {
 
@@ -144,10 +157,14 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
         a.getReturnTypename().accept(this, _p);
 
+        SymbolFunction sf = new SymbolFunction(a.getName(), a.getReturnTypename().sym, (SymbolClass)_p.symbolAssociated);
+        sf.isStaticFunction = a.getModifiers().isStatic();
+        a.symf = sf;
+
         Scope fnp = new Scope(_p);
+        fnp.symbolAssociated = sf;  // before body.
 
         for (AST_Stmt_DefVar param : a.getParameters()) {
-
             param.accept(this, fnp);
         }
 
@@ -155,10 +172,6 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
 //        SymbolVariable sym = new SymbolVariable(a.getName(), sf);
 //        _p.define(sym);
-        SymbolFunction sf = new SymbolFunction(a.getName(), a.getReturnTypename().sym, (SymbolClass)_p.symbolAssociated);
-        sf.isStaticFunction = a.getModifiers().isStatic();
-
-        a.symf = sf;
         _p.define(sf);
     }
 
@@ -184,6 +197,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     @Override
     public void visitStmtIf(AST_Stmt_If a, Scope p) {
         a.getCondition().accept(this, p);
+        Validate.isTrue(a.getCondition().getEvalTypeSymbol() == SymbolBuiltinType._bool);  // early.
 
         a.getThenStatement().accept(this, p);
 
@@ -215,8 +229,15 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
     @Override
     public void visitStmtReturn(AST_Stmt_Return a, Scope p) {
-        if (a.getReturnExpression() != null) {
-            a.getReturnExpression().accept(this, p);
+        SymbolFunction sf = p.lookupEnclosingFuncction();
+
+        AST_Expr retexpr = a.getReturnExpression();
+        if (retexpr != null) {
+            retexpr.accept(this, p);
+
+            Validate.isTrue(sf.returntype == retexpr.getEvalTypeSymbol(), "Expected returning type: "+sf.returntype+", actual returning: "+retexpr.getEvalTypeSymbol());
+        } else {
+            Validate.isTrue(sf.returntype == SymbolBuiltinType._void, "function return-type is not void, required returning: "+sf.returntype);
         }
     }
 

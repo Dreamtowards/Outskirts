@@ -10,7 +10,6 @@ public class SymbolClass extends Symbol implements ScopedTypeSymbol {
     public SymbolClass(String name, Scope symtab) {
         super(name);
         this.symtab = symtab;
-        symtab.symbolAssociated = this;
     }
 
     @Override

@@ -34,6 +34,7 @@ class _main {
 
 
         stl.lang.string.test();
+
     }
 }
 

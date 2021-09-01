@@ -95,6 +95,17 @@ public final class Scope {
         return Objects.requireNonNull(findLocalSymbol(name), "Could not resolve member-symbol '"+name+"'");
     }
 
+    public SymbolFunction lookupEnclosingFuncction() {
+        System.out.println("Lookup -> "+symbolAssociated);
+        if (symbolAssociated instanceof SymbolFunction) {
+            return (SymbolFunction)symbolAssociated;
+        } else if (getParent() != null) {
+            return getParent().lookupEnclosingFuncction();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
     @Override
     public String toString() {
         return "Symtab{" +
