@@ -3,6 +3,7 @@ package outskirts.lang.langdev.compiler.codegen;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
+import outskirts.util.Intptr;
 import outskirts.util.Validate;
 
 import java.util.*;
@@ -68,8 +69,8 @@ public class CodeBuf {
     }
 
     // funcptr, args...
-    public void _invokefunc() {
-        append(INVOKEFUNC);
+    public void _invokestatic() {
+        append(INVOKESTATIC);
     }
 
     public void _jmpifn(int i) {
@@ -130,6 +131,11 @@ public class CodeBuf {
         append((byte)sz);
     }
 
+    public void _stptr(int sz) {
+        append(STPTR);
+        append((byte)sz);
+    }
+
     void append(byte b) {
         buf.add(b);
     }
@@ -152,10 +158,16 @@ public class CodeBuf {
 
     @Override
     public String toString() {
-        return "CodeBuf{" +
-                "localvars=" + localvars +
-                ", buf=" + buf +
-                ", constantpool=" + constantpool +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Constants:\n  ").append(constantpool).append("\n");
+        sb.append("Locals:\n  ").append(localvars).append("\n");
+        sb.append("Code:\n");
+        Intptr t = Intptr.zero();
+        while (t.i < buf.size()) {
+            sb.append("  ").append(Opcodes._InstructionComment(this, t)).append("\n");
+        }
+
+        return sb.toString();
     }
 }

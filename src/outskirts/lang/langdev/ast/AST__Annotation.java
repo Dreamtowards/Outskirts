@@ -15,6 +15,10 @@ public class AST__Annotation extends AST {
         this.args = args;
     }
 
+    public AST_Expr getNameExpression() {
+        return type;
+    }
+
     @Override
     public <P> void accept(ASTVisitor<P> visitor, P p) {
         visitor.visit_Annotation(this, p);

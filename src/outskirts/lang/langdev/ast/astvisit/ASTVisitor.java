@@ -8,8 +8,7 @@ public interface ASTVisitor<P> {
 
     // Float, String  Double, Long
     default void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, P p)   { visitDefault(a, p); }
-    default void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, P p)   { visitDefault(a, p); }
-    default void visitExprPrimaryLiteralChar(AST_Expr_PrimaryLiteralChar a, P p) { visitDefault(a, p); }
+    default void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, P p)   { visitDefault(a, p); }
 
     default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
     default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }

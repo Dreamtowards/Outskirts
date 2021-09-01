@@ -1,6 +1,8 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.lang.langdev.symtab.SymbolFunction;
 
 import java.util.List;
 
@@ -16,6 +18,8 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
     private final AST_Stmt_Block body;     // ?? block ??or expr?
 
     public AST__Modifiers modifiers;
+
+    public SymbolFunction symf;
 
     public AST_Stmt_DefFunc(AST__Typename returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body) {
         this.returntype = returntype;

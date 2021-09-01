@@ -15,6 +15,10 @@ public class AST__Modifiers extends AST {
         this.modifiers = modifiers;
     }
 
+    public List<AST__Annotation> getAnnotations() {
+        return annotations;
+    }
+
     public final boolean isStatic() {
         return modifiers.contains(TokenType.STATIC);
     }

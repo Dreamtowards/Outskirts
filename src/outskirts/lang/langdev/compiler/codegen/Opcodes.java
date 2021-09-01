@@ -13,7 +13,7 @@ public final class Opcodes {
             LOAD = 2,
             LDC = 3,
             DUP = 4,
-            INVOKEFUNC = 5,
+            INVOKESTATIC = 5,
             JMP = 6,
             JMP_F = 7,
             I32ADD = 8,
@@ -26,15 +26,16 @@ public final class Opcodes {
             CMP_GE = 15,
             POP = 16,
             I32MUL = 17,
-            LDPTR = 18;
+            LDPTR = 18,
+            STPTR = 19;
 
     public static final String[] _NAMES = {
             "_NULL",
-            "STORE",
-            "LOAD",
+            "STLOC",
+            "LDLOC",
             "LDC",
             "DUP",
-            "INVOKEFUNC",
+            "INVOKESTATIC",
             "JMP",
             "JMP_F",
             "I32ADD",
@@ -42,7 +43,8 @@ public final class Opcodes {
             "CMP_EQ", "CMP_NE", "CMP_LT", "CMP_GT", "CMP_LE", "CMP_GE",
             "POP",
             "I32MUL",
-            "LDPTR"
+            "LDPTR",
+            "STPTR"
     };
 
 
@@ -50,13 +52,13 @@ public final class Opcodes {
         byte[] code = buf.toByteArray();
 
         String head = String.format("#%-3s %-8s", idx.i, _NAMES[code[idx.i]].toLowerCase());
-        String comm = ""; //"unsupported.";
+        String comm = "";  //"unsupported.";
         switch (code[idx.i++]) {
             case STORE:
-            case LOAD: comm = "slot: "+ code[idx.i++]; break;
+            case LOAD: comm = "slot["+code[idx.i++]+"]"; break;
             case LDC: {
                 short i = IOUtils.readShort(code, idx.i);
-                comm = "cidx: "+i+ " // "+buf.constantpool.get(i);
+                comm = "CI["+i+"]: "+buf.constantpool.get(i);
                 idx.i+=2;
                 break;
             }
@@ -64,7 +66,8 @@ public final class Opcodes {
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;
             case DUP:
             case POP:   comm = "n="+code[idx.i++]; break;
-            case LDPTR: comm = "sz="+code[idx.i++]; break;
+            case LDPTR:
+            case STPTR: comm = "sz="+code[idx.i++]; break;
         }
         return head + (comm.isEmpty() ? "" : "// "+comm);
     }

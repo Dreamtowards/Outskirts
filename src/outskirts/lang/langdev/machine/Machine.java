@@ -62,10 +62,8 @@ public class Machine {
     public static void exec(CodeBuf codebuf) {
         byte[] code = codebuf.toByteArray();
 
-        Intptr t = Intptr.zero();
-        while (t.i < code.length) {
-            System.out.println(Opcodes._InstructionComment(codebuf, t));
-        }
+        System.out.println(codebuf.toString());
+
 
         int pc = 0;
 //        LinkedList<Object> opstack = new LinkedList<>();
@@ -121,11 +119,18 @@ public class Machine {
 
                     int ptr = popi();
                     pushn(ptr, sz);
-                    System.out.println("Ldptr["+ptr+"]: "+IOUtils.readInt(MemSpace, ptr));
 
                     break;
                 }
-                case INVOKEFUNC: {
+                case STPTR: {
+                    byte sz = code[pc++];
+
+                    int ptr = popi();
+                    popn(ptr, sz);
+
+                    break;
+                }
+                case INVOKESTATIC: {
                     throw new IllegalStateException();
                 }
                 case JMP: {

@@ -7,8 +7,6 @@ import java.util.*;
 
 public final class ClassFile {
 
-    public static Map<String, ClassFile> _CLASSPATH = new LinkedHashMap<>();
-
     public final int version;
     public final ConstantPool constantpool;
     public final String thisclass;       // int   idx

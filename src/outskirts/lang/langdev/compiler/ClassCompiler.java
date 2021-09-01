@@ -12,7 +12,7 @@ import java.util.List;
 
 public final class ClassCompiler {
 
-    public static List<CodeBuf> _COMPILED = new ArrayList<>();
+    public static List<AST_Stmt_DefClass> _COMPILED_CLASSES = new ArrayList<>();
 
     private static final int CLASS_VERSION = 1;
 
@@ -52,8 +52,8 @@ public final class ClassCompiler {
 
                 c.getBody().accept(new CodeGen(), codebuf);
 
-                System.out.println("Compiled Function: "+codebuf);
-                _COMPILED.add(codebuf);
+//                System.out.println("Compiled Function: "+codebuf);
+                c.symf.codebuf = codebuf;
 
                 String typename = "function<"+c.getReturnTypename().sym.getQualifiedName();
                 for (AST_Stmt_DefVar param : c.getParameters()) {
@@ -69,16 +69,14 @@ public final class ClassCompiler {
                 throw new IllegalStateException("Unsupported member: "+m);
         }
 
-
-
         ClassFile f = new ClassFile(CLASS_VERSION,
                 constantpool,
                 thisclass, superclasses.toArray(new String[0]),
                 fields.toArray(new ClassFile.Field[0])
                 );
-        System.out.println("Compiled ClassFile: "+f);
+//        System.out.println("Compiled ClassFile: "+f);
 
-        ClassFile._CLASSPATH.put(thisclass, f);
+        _COMPILED_CLASSES.add(a);
     }
 
     public static void compileStmtBlockStmts(List<AST_Stmt> stmts) {

@@ -86,40 +86,6 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
 
     }
 
-    @Override
-    public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprPrimaryLiteralChar(AST_Expr_PrimaryLiteralChar a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtBlock(AST_Stmt_Block a, PrintStat p) {
-
-    }
-
-    @Override
-    public void visitStmtDefClass(AST_Stmt_DefClass a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtDefFunc(AST_Stmt_DefFunc a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtDefVar(AST_Stmt_DefVar a, PrintStat printStat) {
-
-    }
 
     @Override
     public void visitStmtExpr(AST_Stmt_Expr a, PrintStat printStat) {

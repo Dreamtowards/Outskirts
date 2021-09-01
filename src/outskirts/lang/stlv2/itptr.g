@@ -4,35 +4,36 @@ namespace stl.lang {
 
     class string {
 
-        int base ;
+        int base;
 
-        int char_at(int i) {
-
-            i = 2;
+        int char_at(int i) {  i = 2;
             int off = sizeof(int)*i;
-            int p = 1 + off;
 
             int c = dereference<int>(8+4*3);
 
+            // return c;
+            // dereference<int>(this) = dereference<int>(this);
+        }
 
-            // i = 2;
-            // int off = sizeof(int)*i;
-            // return dereference<u64>(base + off);
+        static void test() {
+
+            int i = 10 * 9;
         }
     }
 }
 
 namespace stl.lang;
 
-// using test.myint as someint;
-
 class _main {
 
-    @permits
-    @private
-    static void main(int i) {
+    static void main() {
 
-        i = 2;
+        int i = 10;
+
+        string s = string();
+
+
+        stl.lang.string.test();
     }
 }
 

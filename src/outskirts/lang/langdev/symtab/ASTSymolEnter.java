@@ -15,8 +15,19 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 //        a.evaltype = sf.returntype;
 
         a.getExpression().accept(this, p);
-        SymbolFunction sf = (SymbolFunction)a.getExpression().getEvalTypeSymbol();
-        a.setEvalTypeSymbol(sf.returntype);
+
+        TypeSymbol s = a.getExpression().getEvalTypeSymbol();
+        a.fsym = s;
+
+        if (s instanceof SymbolFunction) {
+
+            a.setEvalTypeSymbol(((SymbolFunction)s).returntype);
+        } else if (s instanceof SymbolClass){
+
+            a.setEvalTypeSymbol(s);  // stack object creation.  type();
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     @Override
@@ -24,19 +35,20 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
         a.getExpression().accept(this, p);
 
         ScopedTypeSymbol l = (ScopedTypeSymbol)a.getExpression().getEvalTypeSymbol();
-        SymbolVariable v = (SymbolVariable)l.getTable().resolveMember(a.getIdentifier());
-        a.setEvalTypeSymbol(v.type);
+        Symbol v = l.getTable().resolveMember(a.getIdentifier());  // Var / Func. / Namespace..
+
+        a.setEvalTypeSymbol(v instanceof SymbolVariable ? ((SymbolVariable)v).type : (TypeSymbol)v);
     }
 
     @Override
     public void visitExprOperBinary(AST_Expr_OperBinary a, Scope p) {
         a.getLeftOperand().accept(this, p);
         a.getRightOperand().accept(this, p);
+
         if (a.getLeftOperand().getEvalTypeSymbol() == a.getRightOperand().getEvalTypeSymbol())
             a.setEvalTypeSymbol(a.getLeftOperand().getEvalTypeSymbol());  // return commonBaseType(e1, e2);
         else
             throw new UnsupportedOperationException("Incpompactble OperBin "+a.getLeftOperand().getEvalTypeSymbol().getQualifiedName()+", "+a.getRightOperand().getEvalTypeSymbol().getQualifiedName());
-
     }
 
     @Override
@@ -79,6 +91,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, Scope p) {
         Symbol s = p.resolve(a.getName());
+        a.sym = s;
 
         if (s instanceof SymbolVariable)
             a.setEvalTypeSymbol(((SymbolVariable)s).type);
@@ -87,13 +100,15 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
     }
 
     @Override
-    public void visitExprPrimaryLiteralInt(AST_Expr_PrimaryLiteralInt a, Scope scope) {
-        a.setEvalTypeSymbol(SymbolBuiltinType._int);
-    }
-
-    @Override
-    public void visitExprPrimaryLiteralChar(AST_Expr_PrimaryLiteralChar a, Scope p) {
-        throw new UnsupportedOperationException();
+    public void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, Scope p) {
+        TypeSymbol s;
+        switch (a.getLiteralKind()) {
+            case INT32: s = SymbolBuiltinType._int;  break;
+            case BOOL:  s = SymbolBuiltinType._bool; break;
+            default:
+                throw new IllegalStateException(" unsupported literal.");
+        }
+        a.setEvalTypeSymbol(s);
     }
 
     @Override
@@ -107,38 +122,44 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
     @Override
     public void visitStmtDefClass(AST_Stmt_DefClass a, Scope _p) {
-        Scope clp = new Scope(_p);
 
         for (AST__Typename sup : a.getSuperTypenames()) {
             sup.accept(this, _p);
         }
+
+        Scope clp = new Scope(_p);
+        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);  // before member. init Scope.associatedsymbol.
 
         for (AST_Stmt clstmt : a.getMembers()) {
 
             clstmt.accept(this, clp);
         }
 
-        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);
         a.sym = clsym;
-
         _p.define(clsym);
     }
 
     @Override
     public void visitStmtDefFunc(AST_Stmt_DefFunc a, Scope _p) {
-        Scope fnp = new Scope(_p);
 
         a.getReturnTypename().accept(this, _p);
+
+        Scope fnp = new Scope(_p);
 
         for (AST_Stmt_DefVar param : a.getParameters()) {
 
             param.accept(this, fnp);
-
         }
+
         a.getBody().accept(this, fnp);
 
-        SymbolVariable sym = new SymbolVariable(a.getName(), new SymbolFunction(a.getName(), a.getReturnTypename().sym));
-        _p.define(sym);
+//        SymbolVariable sym = new SymbolVariable(a.getName(), sf);
+//        _p.define(sym);
+        SymbolFunction sf = new SymbolFunction(a.getName(), a.getReturnTypename().sym, (SymbolClass)_p.symbolAssociated);
+        sf.isStaticFunction = a.getModifiers().isStatic();
+
+        a.symf = sf;
+        _p.define(sf);
     }
 
     @Override

@@ -17,6 +17,8 @@ public enum TokenType {
     SIZEOF("sizeof"),
     IS("is"),
     DEREFERENCE("dereference"),
+    LITERAL_TRUE("true"),
+    LITERAL_FALSE("false"),
 
     CLASS("class"),
     NAMESPACE("namespace"),

@@ -1,6 +1,8 @@
 package outskirts.lang.langdev;
 
+import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.ast.AST__CompilationUnit;
+import outskirts.lang.langdev.ast.AST__Modifiers;
 import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
@@ -8,9 +10,7 @@ import outskirts.lang.langdev.interpreter.RuntimeExec;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.lang.langdev.symtab.ASTSymolEnter;
-import outskirts.lang.langdev.symtab.SymbolBuiltinType;
-import outskirts.lang.langdev.symtab.Scope;
+import outskirts.lang.langdev.symtab.*;
 
 
 import java.io.IOException;
@@ -38,15 +38,11 @@ public class Main {
 
 
         // Exec
-        CodeBuf cbuf = ClassCompiler._COMPILED.get(0);
-        Machine.exec(cbuf);
+        SymbolFunction sf = glob.resolveQualifiedName("stl.lang._main.main");
+
+        Machine.exec(sf.codebuf);
 
 
-
-
-
-
-        System.out.println(ClassFile._CLASSPATH.keySet());
 
 
 //        StringBuffer sb = new StringBuffer();

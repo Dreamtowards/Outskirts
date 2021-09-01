@@ -119,16 +119,22 @@ public final class LxParser {
         switch (t.type()) {
             case LITERAL_INT:
                 lx.next();
-                return new AST_Expr_PrimaryLiteralInt(Integer.parseInt(t.content()));
+                return new AST_Expr_PrimaryLiteral(Integer.parseInt(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.INT32);
             case LITERAL_FLOAT:
                 lx.next();
-                return new AST_Expr_PrimaryLiteralFloat(Float.parseFloat(t.content()));
+                return new AST_Expr_PrimaryLiteral(Float.parseFloat(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.FLOAT32);
             case LITERAL_CHAR:
                 lx.next();
-                return new AST_Expr_PrimaryLiteralChar(t.content().charAt(0));
+                return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.CHAR);
             case LITERAL_STRING:
                 lx.next();
-                return new AST_Expr_PrimaryLiteralString(t);
+                return new AST_Expr_PrimaryLiteral(t.content(), AST_Expr_PrimaryLiteral.LiteralKind.STRING);
+            case LITERAL_TRUE:
+                lx.next();
+                return new AST_Expr_PrimaryLiteral(true, AST_Expr_PrimaryLiteral.LiteralKind.BOOL);
+            case LITERAL_FALSE:
+                lx.next();
+                return new AST_Expr_PrimaryLiteral(false, AST_Expr_PrimaryLiteral.LiteralKind.BOOL);
             case IDENTIFIER:
                 return parseExprPrimaryIdentifier(lx);
             case LPAREN: {
