@@ -3,8 +3,6 @@ package outskirts.lang.langdev.compiler.codegen;
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
 
-import java.util.Locale;
-
 public final class Opcodes {
 
     public static final byte
@@ -27,7 +25,9 @@ public final class Opcodes {
             POP = 16,
             I32MUL = 17,
             LDPTR = 18,
-            STPTR = 19;
+            STPTR = 19,
+            STACKALLOC = 20,
+            GETFIELD = 21;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -44,21 +44,23 @@ public final class Opcodes {
             "POP",
             "I32MUL",
             "LDPTR",
-            "STPTR"
+            "STPTR",
+            "STACKALLOC",
+            "GETFIELD"
     };
 
 
     public static String _InstructionComment(CodeBuf buf, Intptr idx) {
         byte[] code = buf.toByteArray();
 
-        String head = String.format("#%-3s %-8s", idx.i, _NAMES[code[idx.i]].toLowerCase());
+        String head = String.format("#%-3s %-12s", idx.i, _NAMES[code[idx.i]].toLowerCase());
         String comm = "";  //"unsupported.";
         switch (code[idx.i++]) {
             case STORE:
             case LOAD: comm = "slot["+code[idx.i++]+"]"; break;
             case LDC: {
                 short i = IOUtils.readShort(code, idx.i);
-                comm = "CI["+i+"]: "+buf.constantpool.get(i);
+                comm = "CI["+i+"]: "+buf.cp.get(i);
                 idx.i+=2;
                 break;
             }
@@ -68,7 +70,9 @@ public final class Opcodes {
             case POP:   comm = "n="+code[idx.i++]; break;
             case LDPTR:
             case STPTR: comm = "sz="+code[idx.i++]; break;
-            case INVOKEFUNC: comm = "fn: $"+buf.constantpool.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
+            case INVOKEFUNC: comm = "fn: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
+            case STACKALLOC: comm = "cl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
+            case GETFIELD:   comm = "fl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
         }
         return head + (comm.isEmpty() ? "" : "// "+comm);
     }

@@ -1,4 +1,4 @@
-package outskirts.lang.langdev.interpreter;
+package outskirts.lang.langdev.machine.interpreter;
 
 public class GObject {
 

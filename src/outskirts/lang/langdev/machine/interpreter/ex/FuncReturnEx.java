@@ -1,6 +1,6 @@
-package outskirts.lang.langdev.interpreter.ex;
+package outskirts.lang.langdev.machine.interpreter.ex;
 
-import outskirts.lang.langdev.interpreter.GObject;
+import outskirts.lang.langdev.machine.interpreter.GObject;
 
 public class FuncReturnEx extends RuntimeException {
 

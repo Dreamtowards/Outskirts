@@ -3,14 +3,10 @@ package outskirts.lang.langdev.compiler.codegen;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.symtab.*;
-import outskirts.util.Identifier;
 import outskirts.util.Validate;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.IntConsumer;
-import java.util.function.Supplier;
 
 public class CodeGen implements ASTVisitor<CodeBuf> {
 
@@ -20,7 +16,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         switch (a.getLiteralKind()) {
             case INT32:
-                buf._ldc(buf.constantpool.ensureInt32(a.getInt32()));
+                buf._ldc(buf.cp.ensureInt32(a.getInt32()));
                 break;
             default:
                 throw new IllegalStateException();
@@ -38,7 +34,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, CodeBuf buf) {
         int sz = a.getEvalTypeSymbol().typesize();
-        buf._ldc(buf.constantpool.ensureInt32(sz));
+        buf._ldc(buf.cp.ensureInt32(sz));
     }
 
     @Override
@@ -67,9 +63,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             if (msym instanceof SymbolVariable) {
 
-//                buf._getfield(a.getIdentifier());
+                buf._getfield(exprsym.getQualifiedName()+"."+a.getIdentifier());
             } else {
                 // SymbolFunction, ignore.
+                throw new IllegalStateException("Unsupported Get Function Member.");
             }
         } else {
             // SymbolNamespace, ignore.
@@ -84,14 +81,11 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
-//        a.getExpression().accept(this, buf);
-
-        // series().of.exprs().funcName(arg1);
-        // funcName(exprs(series().of), arg1)
 
         TypeSymbol s = a.calleesym;
 
-        // is that should be allowed.? for Can search static function defined in super classes, by a instance variable.
+        // series().of.exprs().funcName(arg1);
+        // funcName(exprs(series().of), arg1)
 
         // Invoke of Oridinary Function.
         // if (!is_static) compile(fncall.instexpr)
@@ -111,9 +105,13 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             buf._invokefunc(sfname);
 
         } else if (s instanceof SymbolClass) {  // stack object alloc.
+            // string s = string();  // alloc mem, call init.  then assign to var.
+            SymbolClass cl = (SymbolClass)s;
+            String clname = cl.getQualifiedName();
 
-            throw new UnsupportedOperationException("Unsupported StackAlloc ObjectCreation yet.");
-        } else
+            buf._stackalloc(clname);
+
+        } else  // or a variable.?
             throw new IllegalStateException();
     }
 

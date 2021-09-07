@@ -6,7 +6,6 @@ namespace stl.lang {
 
         int base;
 
-
         int char_at(int i) {  i = 2;
             int off = sizeof(int)*i;
 
@@ -33,12 +32,13 @@ class _main {
 
         int i = 10;
 
-        // string s = string();  // object creation - stack-alloc
+        string s = string();  // object creation - stack-alloc
 
-
+        i = s.base;
 
         stl.lang.string.test();
-        // stl.lang._main.main();
+
+        // s.char_at(2);
 
         // retm()();  // problem. static-symbol vs. instance-symbol.
 

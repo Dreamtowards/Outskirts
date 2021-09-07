@@ -1,13 +1,13 @@
-//package outskirts.lang.langdev.interpreter;
+//package outskirts.lang.langdev.machine.interpreter;
 //
 //import outskirts.lang.langdev.ast.*;
-//import outskirts.lang.langdev.interpreter.ex.FuncPtr;
-//import outskirts.lang.langdev.interpreter.ex.FuncReturnEx;
+//import outskirts.lang.langdev.machine.interpreter.ex.FuncPtr;
+//import outskirts.lang.langdev.machine.interpreter.ex.FuncReturnEx;
 //import outskirts.lang.langdev.ast.oop.AST_Class_Member;
 //import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 //import outskirts.lang.langdev.ast.srcroot.AST_Stmt_Package;
 //import outskirts.lang.langdev.ast.AST_Stmt_Using;
-//import outskirts.lang.langdev.interpreter.RuntimeExec;
+//import outskirts.lang.langdev.machine.interpreter.RuntimeExec;
 //import outskirts.lang.langdev.parser.LxParser;
 //import outskirts.lang.langdev.symtab.SymbolVariable;
 //import outskirts.lang.langdev.symtab.Symtab;

@@ -1,4 +1,4 @@
-//package outskirts.lang.langdev.interpreter;
+//package outskirts.lang.langdev.machine.interpreter;
 //
 //import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 //import outskirts.util.Validate;

@@ -1,8 +1,8 @@
-package outskirts.lang.langdev.interpreter.nstdlib;
+package outskirts.lang.langdev.machine.interpreter.nstdlib;
 
-import outskirts.lang.langdev.interpreter.ex.FuncPtr;
-import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.nstdlib.gnlx.glux.WindowPrx;
+import outskirts.lang.langdev.machine.interpreter.ex.FuncPtr;
+import outskirts.lang.langdev.machine.interpreter.GObject;
+import outskirts.lang.langdev.machine.interpreter.nstdlib.gnlx.glux.WindowPrx;
 
 import java.util.HashMap;
 import java.util.Map;

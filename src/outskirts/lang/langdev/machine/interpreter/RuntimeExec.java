@@ -1,6 +1,6 @@
-package outskirts.lang.langdev.interpreter;
+package outskirts.lang.langdev.machine.interpreter;
 
-import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
+import outskirts.lang.langdev.machine.interpreter.nstdlib._nstdlib;
 import outskirts.util.IOUtils;
 
 import java.io.File;

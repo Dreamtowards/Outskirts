@@ -39,6 +39,7 @@ public final class ConstantPool {
         return constants.get(i);
     }
 
+    public String getUTF8(short i) { return ((Constant.CUtf8)get(i)).tx; }
 
 
 

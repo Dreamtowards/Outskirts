@@ -15,17 +15,11 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, Scope p) {
-//        idenExpr(a.funcptr, scope);
-//        SymbolFunction sf = (SymbolFunction)a.funcptr.evaltype;
-//        a.evaltype = sf.returntype;
-
         AST_Expr fnexpr = a.getExpression();
-
         fnexpr.accept(this, p);
 
         TypeSymbol s = fnexpr.getEvalTypeSymbol();
         a.calleesym = s;
-
 //        System.out.println("Found Function Invokation, ExprType: "+s+"/"+s.getQualifiedName());
 
         if (s instanceof SymbolFunction) {  // Originally 'Exact' Function Calling.  expr_primary.iden(..) | iden(..)
@@ -193,8 +187,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         a.getBody().accept(this, fnp);
 
-//        SymbolVariable sym = new SymbolVariable(a.getName(), sf);
-//        _p.define(sym);
+//        SymbolVariable sym = new SymbolVariable(a.getName(), sf); _p.define(sym);
     }
 
     @Override

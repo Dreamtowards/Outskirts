@@ -1,9 +1,12 @@
 package outskirts.lang.langdev.machine;
 
+import outskirts.lang.langdev.Main;
 import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.lang.langdev.symtab.SymbolClass;
+import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
@@ -12,6 +15,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
+import static outskirts.util.IOUtils.readShort;
 
 public class Machine {
 
@@ -27,8 +31,12 @@ public class Machine {
     }
 
     private static void memcpy(int src, int dest, int len) {
-
         System.arraycopy(MemSpace, src, MemSpace, dest, len);
+    }
+    private static void memset(int dest, int len, int val) {
+        for (int i = 0;i < len;i++) {
+            MemSpace[dest+i] = (byte)val;
+        }
     }
 
     private static void pushn(int destptr, int n) {
@@ -93,14 +101,15 @@ public class Machine {
                     break;
                 }
                 case LDC: {
-                    short i = IOUtils.readShort(code, ip);
+                    short i = readShort(code, ip);
                     ip += 2;
-                    ConstantPool.Constant c = buf.constantpool.get(i);
+                    ConstantPool.Constant c = buf.cp.get(i);
 
                     if (c instanceof ConstantPool.Constant.CInt32) {
                         int v = ((ConstantPool.Constant.CInt32)c).i;
                         pushi32(v);
-                    }
+                    } else
+                        throw new UnsupportedOperationException();
 
 //                    if (c instanceof ConstantPool.Constant.CUtf8) opstack.push(((ConstantPool.Constant.CUtf8) c).tx);
 //                    else if (c instanceof ConstantPool.Constant.CInt32) opstack.push(((ConstantPool.Constant.CInt32) c).i);
@@ -126,8 +135,7 @@ public class Machine {
                     break;
                 }
                 case INVOKEFUNC: {
-                    short sfnameIdx = IOUtils.readShort(code, ip); ip+=2;
-                    String sfname = ((ConstantPool.Constant.CUtf8)buf.constantpool.get(sfnameIdx)).tx;
+                    String sfname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
 
                     int begArg = sfname.indexOf('('),
                         begFld = sfname.lastIndexOf('.', begArg);
@@ -135,7 +143,7 @@ public class Machine {
                     String flname = sfname.substring(begFld+1, begArg);  // field name.
 
 
-                    ClassFile cf = findOrInitClass(clname);
+                    ClassFile cf = resolveClass(clname).compiledclfile;
                     ClassFile.Field fld = cf.findField(flname);
 
                     System.out.println("INVOKEFUNC Load Function: "+sfname+", Clname: "+clname);
@@ -143,14 +151,42 @@ public class Machine {
 
                     break;
                 }
+                case STACKALLOC: {
+                    String clname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
+
+                    SymbolClass cl = resolveClass(clname);
+                    int sz = cl.typesize();
+                    System.out.println("SIZE"+sz);
+
+                    memset(esp, sz, 0);
+                    esp += sz;
+
+                    break;
+                }
+                case GETFIELD: {
+                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
+
+                    int bord = qualidname.lastIndexOf('.');
+                    String clname = qualidname.substring(0, bord);
+                    String flname = qualidname.substring(bord+1);
+                    SymbolClass cl = resolveClass(clname);
+                    int clsz = cl.typesize();
+                    TypeSymbol fl_type = ((SymbolVariable)cl.getTable().resolveMember(flname)).type;
+                    int fl_typ_sz = fl_type.typesize();
+                    int beg_ = esp - clsz;
+
+                    memcpy(beg_+cl.memoffset(flname), beg_, fl_typ_sz);
+
+                    break;
+                }
                 case JMP: {
-                    ip = IOUtils.readShort(code, ip);
+                    ip = readShort(code, ip);
                     break;
                 }
                 case JMP_F: {
                     int b = popi8();
                     if (b == 0) {
-                        ip = IOUtils.readShort(code, ip);
+                        ip = readShort(code, ip);
                     } else {
                         ip += 2;
                     }
@@ -212,7 +248,7 @@ public class Machine {
         }
 
         byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp);
-        lcspc = CollectionUtils.subarray(MemSpace, 0, 32);
+//        lcspc = CollectionUtils.subarray(MemSpace, 0, 32);
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
     }
@@ -221,13 +257,9 @@ public class Machine {
                              CMPR_GT = 1,
                              CMPR_EQ = 2;
 
-    // clname: e.g. like "stl.lang.string"
-    public static ClassFile findOrInitClass(String clname) {
-        return Objects.requireNonNull(
-                CollectionUtils.find(ClassCompiler._COMPILED_CLASSES, e -> e.thisclass.equals(clname)));
+    private static SymbolClass resolveClass(String clname) {
+        return Main.glob.resolveQualifiedName(clname);
     }
-
-
 
     public static String[] dump(byte[] bytes) {
         String[] a = new String[bytes.length];

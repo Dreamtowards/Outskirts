@@ -18,10 +18,10 @@ public class CodeBuf {
 
     private final List<Byte> buf = new ArrayList<>();
 
-    public ConstantPool constantpool;
+    public ConstantPool cp;
 
     public CodeBuf(ConstantPool constantpool) {
-        this.constantpool = constantpool;
+        this.cp = constantpool;
     }
 
 
@@ -82,7 +82,17 @@ public class CodeBuf {
     // funcptr, args...
     public void _invokefunc(String sfname) {
         append(INVOKEFUNC);
-        appendShort(constantpool.ensureUtf8(sfname));
+        appendShort(cp.ensureUtf8(sfname));
+    }
+
+    public void _stackalloc(String clname) {
+        append(STACKALLOC);
+        appendShort(cp.ensureUtf8(clname));
+    }
+
+    public void _getfield(String flname) {
+        append(GETFIELD);
+        appendShort(cp.ensureUtf8(flname));
     }
 
     public void _jmpifn(int i) {
@@ -172,7 +182,7 @@ public class CodeBuf {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Constants:\n  ").append(constantpool).append("\n");
+        sb.append("Constants:\n  ").append(cp).append("\n");
         sb.append("Locals:\n  ").append(localvars).append("\n");
         sb.append("Code:\n");
         Intptr t = Intptr.zero();

@@ -1,11 +1,10 @@
-package outskirts.lang.langdev.interpreter.nstdlib.gnlx.glux;
+package outskirts.lang.langdev.machine.interpreter.nstdlib.gnlx.glux;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import outskirts.lang.langdev.Main;
-import outskirts.lang.langdev.interpreter.GObject;
-import outskirts.lang.langdev.interpreter.nstdlib._nstdlib;
+import outskirts.lang.langdev.machine.interpreter.GObject;
+import outskirts.lang.langdev.machine.interpreter.nstdlib._nstdlib;
 import outskirts.util.SystemUtil;
 
 import java.io.File;

@@ -12,8 +12,6 @@ import java.util.List;
 
 public final class ClassCompiler {
 
-    public static List<ClassFile> _COMPILED_CLASSES = new ArrayList<>();
-
     private static final int CLASS_VERSION = 1;
 
     public static void compileClass(AST_Stmt_DefClass a) {
@@ -79,7 +77,7 @@ public final class ClassCompiler {
                 );
 //        System.out.println("Compiled ClassFile: "+f);
 
-        _COMPILED_CLASSES.add(f);
+        a.sym.compiledclfile = f;
     }
 
     public static void compileStmtBlockStmts(List<AST_Stmt> stmts) {

@@ -2,30 +2,32 @@ package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.AST__CompilationUnit;
 import outskirts.lang.langdev.compiler.ClassCompiler;
-import outskirts.lang.langdev.interpreter.RuntimeExec;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.lang.langdev.symtab.*;
+import outskirts.util.IOUtils;
 
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class Main {
 
+    public static Scope glob;
 
     public static void main(String[] args) throws IOException {
 
         // Lex
         Lexer lx = new Lexer();
-        lx.appendsource(RuntimeExec.readfileInSrc("itptr.g"));
+        lx.appendsource(IOUtils.toString(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/outskirts/lang/stlv2/itptr.g")));
 
         // Parse
         AST__CompilationUnit a = LxParser.parse_CompilationUnit(lx);
 
         // Type Entering.
         // Attr. Identity
-        Scope glob = new Scope(null);  SymbolBuiltinType.init(glob);  //  ASTSymbol.idenStmtBlockStmts(a, glob);
+        glob = new Scope(null);  SymbolBuiltinType.init(glob);  //  ASTSymbol.idenStmtBlockStmts(a, glob);
         a.accept(new ASTSymolize(), glob);
 
 

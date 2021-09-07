@@ -40,6 +40,7 @@ public class SymbolFunction extends Symbol implements TypeSymbol {
 
     @Override
     public int typesize() {
-        return 8;  // ptrsize
+//        return 8;  // ptrsize
+        throw new IllegalStateException();
     }
 }
