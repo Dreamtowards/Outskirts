@@ -12,7 +12,7 @@ import java.util.List;
 
 public final class ClassCompiler {
 
-    public static List<AST_Stmt_DefClass> _COMPILED_CLASSES = new ArrayList<>();
+    public static List<ClassFile> _COMPILED_CLASSES = new ArrayList<>();
 
     private static final int CLASS_VERSION = 1;
 
@@ -60,7 +60,10 @@ public final class ClassCompiler {
                     typename += ", "+param.getTypename().sym.getQualifiedName();
                 }
                 typename += ">";
-                fields.add(new ClassFile.Field(c.getName(), modc, typename));
+
+                ClassFile.Field fld = new ClassFile.Field(c.getName(), modc, typename);
+                fld._codebuf = codebuf;
+                fields.add(fld);
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
@@ -76,7 +79,7 @@ public final class ClassCompiler {
                 );
 //        System.out.println("Compiled ClassFile: "+f);
 
-        _COMPILED_CLASSES.add(a);
+        _COMPILED_CLASSES.add(f);
     }
 
     public static void compileStmtBlockStmts(List<AST_Stmt> stmts) {

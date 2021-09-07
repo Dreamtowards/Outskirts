@@ -13,7 +13,7 @@ public final class Opcodes {
             LOAD = 2,
             LDC = 3,
             DUP = 4,
-            INVOKESTATIC = 5,
+            INVOKEFUNC = 5,
             JMP = 6,
             JMP_F = 7,
             I32ADD = 8,
@@ -68,6 +68,7 @@ public final class Opcodes {
             case POP:   comm = "n="+code[idx.i++]; break;
             case LDPTR:
             case STPTR: comm = "sz="+code[idx.i++]; break;
+            case INVOKEFUNC: comm = "fn: $"+buf.constantpool.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
         }
         return head + (comm.isEmpty() ? "" : "// "+comm);
     }

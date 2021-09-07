@@ -1,5 +1,8 @@
 package outskirts.lang.langdev.compiler;
 
+import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.util.CollectionUtils;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,6 +32,8 @@ public final class ClassFile {
         public short modifier;
         public String type;
 
+        public CodeBuf _codebuf;
+
         public Field(String name, short modifier, String type) {
             this.name = name;
             this.modifier = modifier;
@@ -43,6 +48,11 @@ public final class ClassFile {
                     ", type='" + type + '\'' +
                     '}';
         }
+    }
+
+    public final Field findField(String fldname) {
+        return Objects.requireNonNull(
+                CollectionUtils.find(Arrays.asList(fields), e -> e.name.equals(fldname)), "no field name "+fldname);
     }
 
     @Override

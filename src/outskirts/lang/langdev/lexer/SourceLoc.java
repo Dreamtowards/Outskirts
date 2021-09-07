@@ -33,4 +33,9 @@ public final class SourceLoc {
     public int getCharNumber() {
         return _charNumber;
     }
+
+    @Override
+    public String toString() {
+        return String.format("SourceLoc{file: %s, on: \"%s\", at: [%s+](%s:%s+)}", sourceLocation, source.substring(beginIndex, endIndex), beginIndex, getLineNumber(), getCharNumber());
+    }
 }

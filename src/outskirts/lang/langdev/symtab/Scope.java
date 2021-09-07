@@ -17,6 +17,7 @@ public final class Scope {
     // lookup by stringName? how about diff type..
     /**
      * note that the String-Key-Map is Important, Finding Symbol by Map-Key instead of Actual-Symbol-Name.
+     * the Key-String might not Actual-Symbol-Name, but Searching-Name. (alias name.)
      *
      * because the functionality of "typealias (using .. as ..)",
      * the Symbol is Unique, Symbol.name is its Actually-Name. see getQualifiedName(): we won't give a alias name as result, because its leads wrong address,
@@ -96,7 +97,6 @@ public final class Scope {
     }
 
     public SymbolFunction lookupEnclosingFuncction() {
-        System.out.println("Lookup -> "+symbolAssociated);
         if (symbolAssociated instanceof SymbolFunction) {
             return (SymbolFunction)symbolAssociated;
         } else if (getParent() != null) {

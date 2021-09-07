@@ -147,6 +147,13 @@ public final class CollectionUtils {
         return indexOf(array, find) != -1;
     }
 
+    public static <T> T find(Iterable<T> it, Predicate<T> test) {
+        for (T e : it) {
+            if (test.test(e))
+                return e;
+        }
+        return null;
+    }
 
     public static <T> T get(T[] array, Predicate<T> predicate) {
         for (T e : array) {

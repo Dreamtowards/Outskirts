@@ -6,7 +6,12 @@ import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
-public class ASTSymolEnter implements ASTVisitor<Scope> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, Scope p) {
@@ -14,18 +19,33 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 //        SymbolFunction sf = (SymbolFunction)a.funcptr.evaltype;
 //        a.evaltype = sf.returntype;
 
-        a.getExpression().accept(this, p);
+        AST_Expr fnexpr = a.getExpression();
 
-        TypeSymbol s = a.getExpression().getEvalTypeSymbol();
-        a.fsym = s;
+        fnexpr.accept(this, p);
 
-        if (s instanceof SymbolFunction) {
+        TypeSymbol s = fnexpr.getEvalTypeSymbol();
+        a.calleesym = s;
+
+//        System.out.println("Found Function Invokation, ExprType: "+s+"/"+s.getQualifiedName());
+
+        if (s instanceof SymbolFunction) {  // Originally 'Exact' Function Calling.  expr_primary.iden(..) | iden(..)
+            Validate.isTrue(fnexpr instanceof AST_Expr_PrimaryIdentifier ||
+                                 fnexpr instanceof AST_Expr_MemberAccess);
+
+            // when a function is static, dont allows it been called from instance context. like: instExpr.stfunc();
+            // this may not a good way to check.
+            if (((SymbolFunction)s).isStaticFunction && fnexpr instanceof AST_Expr_MemberAccess) {
+                // pkg.to.Class.Innr.stFunc();
+                AST_Expr prev = ((AST_Expr_MemberAccess)fnexpr).getExpression();
+                Validate.isTrue(prev.getEvalTypeSymbol() instanceof SymbolNamespace ||
+                                prev.getEvalTypeSymbol() instanceof SymbolClass);  // unavailable check.
+            }
 
             a.setEvalTypeSymbol(((SymbolFunction)s).returntype);
-        } else if (s instanceof SymbolClass){
+        } else if (s instanceof SymbolClass){  // Construction of Stack-Alloc-Object-Creation.  type(..).
 
-            a.setEvalTypeSymbol(s);  // stack object creation.  type();
-        } else {
+            a.setEvalTypeSymbol(s);
+        } else {  // otherwise expr. Invoke "Invokation ()" operator to that object. or not.  // but still shoud in case of return-type SymbolClass.?
             throw new IllegalStateException();
         }
     }
@@ -118,7 +138,7 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
             case INT32: s = SymbolBuiltinType._int;  break;
             case BOOL:  s = SymbolBuiltinType._bool; break;
             default:
-                throw new IllegalStateException(" unsupported literal.");
+                throw new IllegalStateException("unsupported literal.");
         }
         a.setEvalTypeSymbol(s);
     }
@@ -141,15 +161,15 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
         Scope clp = new Scope(_p);
         SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);
-        clp.symbolAssociated = clsym;   // before member.
+        clp.symbolAssociated = clsym;   // before member. members need link the owner_class.
+        _p.define(clsym);  // before member. member should can lookup enclosing class symbol.
+        a.sym = clsym;
 
         for (AST_Stmt clstmt : a.getMembers()) {
 
             clstmt.accept(this, clp);
         }
 
-        a.sym = clsym;
-        _p.define(clsym);
     }
 
     @Override
@@ -157,22 +177,24 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
 
         a.getReturnTypename().accept(this, _p);
 
-        SymbolFunction sf = new SymbolFunction(a.getName(), a.getReturnTypename().sym, (SymbolClass)_p.symbolAssociated);
-        sf.isStaticFunction = a.getModifiers().isStatic();
-        a.symf = sf;
-
         Scope fnp = new Scope(_p);
-        fnp.symbolAssociated = sf;  // before body.
 
+        List<TypeSymbol> paramsyms = new ArrayList<>(a.getParameters().size());
         for (AST_Stmt_DefVar param : a.getParameters()) {
             param.accept(this, fnp);
+            paramsyms.add(param.getTypename().sym);
         }
+
+        SymbolFunction sf = new SymbolFunction(a.getName(), paramsyms, a.getReturnTypename().sym, (SymbolClass)_p.symbolAssociated);
+        sf.isStaticFunction = a.getModifiers().isStatic();
+        fnp.symbolAssociated = sf;  // before body. return_stmt needs lookupEnclosingFunction to validates return-type.
+        a.symf = sf;
+        _p.define(sf);  // before body. recursive funcCall should can resolve self-calling.
 
         a.getBody().accept(this, fnp);
 
 //        SymbolVariable sym = new SymbolVariable(a.getName(), sf);
 //        _p.define(sym);
-        _p.define(sf);
     }
 
     @Override
@@ -217,6 +239,8 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
             } else {
                 Scope np = new Scope(lp);
                 ns = new SymbolNamespace(nm, np);
+                np.symbolAssociated = ns;
+
                 lp.define(ns);
                 lp = np;
             }
@@ -235,9 +259,9 @@ public class ASTSymolEnter implements ASTVisitor<Scope> {
         if (retexpr != null) {
             retexpr.accept(this, p);
 
-            Validate.isTrue(sf.returntype == retexpr.getEvalTypeSymbol(), "Expected returning type: "+sf.returntype+", actual returning: "+retexpr.getEvalTypeSymbol());
+            Validate.isTrue(sf.getReturnType() == retexpr.getEvalTypeSymbol(), "Expected returning type: "+sf.getReturnType()+", actual returning: "+retexpr.getEvalTypeSymbol());
         } else {
-            Validate.isTrue(sf.returntype == SymbolBuiltinType._void, "function return-type is not void, required returning: "+sf.returntype);
+            Validate.isTrue(sf.getReturnType() == SymbolBuiltinType._void, "function return-type is not void, required returning: "+sf.getReturnType());
         }
     }
 

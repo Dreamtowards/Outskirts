@@ -7,7 +7,6 @@ public class SymbolNamespace extends Symbol implements ScopedTypeSymbol {
     public SymbolNamespace(String name, Scope symtab) {
         super(name);
         this.symtab = symtab;
-        symtab.symbolAssociated = this;
     }
 
     @Override

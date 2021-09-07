@@ -117,6 +117,7 @@ public final class LxParser {
     public static AST_Expr parseExprPrimary(Lexer lx) {
         Token t = lx.peek();
         switch (t.type()) {
+            /* BEGIN LITERAL */
             case LITERAL_INT:
                 lx.next();
                 return new AST_Expr_PrimaryLiteral(Integer.parseInt(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.INT32);
@@ -135,6 +136,8 @@ public final class LxParser {
             case LITERAL_FALSE:
                 lx.next();
                 return new AST_Expr_PrimaryLiteral(false, AST_Expr_PrimaryLiteral.LiteralKind.BOOL);
+            /* END LITERAL */
+
             case IDENTIFIER:
                 return parseExprPrimaryIdentifier(lx);
             case LPAREN: {

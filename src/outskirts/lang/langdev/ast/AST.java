@@ -1,6 +1,7 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.lexer.SourceLoc;
 import outskirts.lang.langdev.symtab.Scope;
 
 /**
@@ -40,10 +41,16 @@ public abstract class AST {
 //    private String sourcefile;
 //    private int sourcefile_pos; startpos, endpos.
 
+    private SourceLoc sourceloc;
+
+    public final void _SetupSourceLoc(SourceLoc sl) {
+        this.sourceloc = sl;
+    }
+
 
     @Override
     public String toString() {
-        return "base_ast"+getClass();
+        return "base_ast"+getClass()+sourceloc;
     }
 
     public <P> void accept(ASTVisitor<P> visitor, P p) {

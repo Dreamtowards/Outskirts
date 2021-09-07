@@ -69,8 +69,9 @@ public class CodeBuf {
     }
 
     // funcptr, args...
-    public void _invokestatic() {
-        append(INVOKESTATIC);
+    public void _invokefunc(String sfname) {
+        append(INVOKEFUNC);
+        appendShort(constantpool.ensureUtf8(sfname));
     }
 
     public void _jmpifn(int i) {

@@ -2,14 +2,15 @@ package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
-import outskirts.lang.langdev.symtab.SymbolBuiltinType;
-import outskirts.lang.langdev.symtab.SymbolClass;
-import outskirts.lang.langdev.symtab.SymbolFunction;
-import outskirts.lang.langdev.symtab.TypeSymbol;
+import outskirts.lang.langdev.symtab.*;
+import outskirts.util.Identifier;
 import outskirts.util.Validate;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
+import java.util.function.Supplier;
 
 public class CodeGen implements ASTVisitor<CodeBuf> {
 
@@ -29,6 +30,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, CodeBuf buf) {
 
+        // LocalVar, Typename, Out-Var.
 
         buf._load(a.getName());
     }
@@ -49,25 +51,67 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     }
 
     @Override
+    public void visitExprMemberAccess(AST_Expr_MemberAccess a, CodeBuf buf) {
+        // std.lang.Class.innr.fld.
+        // fncall().rsdat
+        // a.accept(this, buf);
+
+        AST_Expr expr = a.getExpression();
+
+        expr.accept(this, buf);
+
+        ScopedTypeSymbol exprsym = (ScopedTypeSymbol)expr.getEvalTypeSymbol();  // ScopedTypeSymbol.
+
+        if (exprsym instanceof SymbolClass) {
+            Symbol msym = exprsym.getTable().resolveMember(a.getIdentifier());
+
+            if (msym instanceof SymbolVariable) {
+
+//                buf._getfield(a.getIdentifier());
+            } else {
+                // SymbolFunction, ignore.
+            }
+        } else {
+            // SymbolNamespace, ignore.
+        }
+    }
+
+    private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {
+        for (AST_Expr e : args) {
+            e.accept(comp, buf);
+        }
+    }
+
+    @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
 //        a.getExpression().accept(this, buf);
 
-        TypeSymbol s = a.fsym;
+        // series().of.exprs().funcName(arg1);
+        // funcName(exprs(series().of), arg1)
 
+        TypeSymbol s = a.calleesym;
+
+        // is that should be allowed.? for Can search static function defined in super classes, by a instance variable.
+
+        // Invoke of Oridinary Function.
+        // if (!is_static) compile(fncall.instexpr)
+        // push args.
+        // invoke "func"
         if (s instanceof SymbolFunction) {
             SymbolFunction sf = (SymbolFunction)s;
+            String sfname = sf.getQualifiedName();
 
-            if (sf.isStaticFunction) {
-
-                buf._invokestatic();
-            } else {
-
+            if (!sf.isStaticFunction) {
                 a.getExpression().accept(this, buf);
-//                buf._invokeinstance();
             }
-        } else if (s instanceof SymbolClass) {
 
-            throw new UnsupportedOperationException();
+            _visitFuncArguments(a.getArguments(), this, buf);
+
+            buf._invokefunc(sfname);
+
+        } else if (s instanceof SymbolClass) {  // stack object alloc.
+
+            throw new UnsupportedOperationException("Unsupported StackAlloc ObjectCreation yet.");
         } else
             throw new IllegalStateException();
     }
@@ -88,7 +132,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         expr.accept(this, buf);
 
-        buf._pop(expr.getEvalTypeSymbol().typesize());  // erases the expression return value.
+        TypeSymbol rettyp = expr.getEvalTypeSymbol();
+        if (rettyp != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
+            buf._pop(expr.getEvalTypeSymbol().typesize());  // erases the expression return value.
+        }
     }
 
     @Override

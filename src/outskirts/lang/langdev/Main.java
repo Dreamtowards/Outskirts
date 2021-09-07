@@ -1,11 +1,7 @@
 package outskirts.lang.langdev;
 
-import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.ast.AST__CompilationUnit;
-import outskirts.lang.langdev.ast.AST__Modifiers;
 import outskirts.lang.langdev.compiler.ClassCompiler;
-import outskirts.lang.langdev.compiler.ClassFile;
-import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.interpreter.RuntimeExec;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.machine.Machine;
@@ -30,7 +26,7 @@ public class Main {
         // Type Entering.
         // Attr. Identity
         Scope glob = new Scope(null);  SymbolBuiltinType.init(glob);  //  ASTSymbol.idenStmtBlockStmts(a, glob);
-        a.accept(new ASTSymolEnter(), glob);
+        a.accept(new ASTSymolize(), glob);
 
 
         // Compile.
@@ -41,6 +37,8 @@ public class Main {
         SymbolFunction sf = glob.resolveQualifiedName("stl.lang._main.main");
 
         Machine.exec(sf.codebuf);
+
+
 
 
 

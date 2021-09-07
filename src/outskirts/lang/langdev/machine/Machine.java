@@ -1,16 +1,16 @@
 package outskirts.lang.langdev.machine;
 
-import org.lwjgl.Sys;
+import outskirts.lang.langdev.compiler.ClassCompiler;
+import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
-import outskirts.lang.langdev.compiler.codegen.Opcodes;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
-import outskirts.util.Intptr;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
@@ -64,11 +64,13 @@ public class Machine {
 
         System.out.println(codebuf.toString());
 
+        int ip = 0;
+        final int baseptr = 8;  // rand.
 
-        int pc = 0;
 //        LinkedList<Object> opstack = new LinkedList<>();
 //        Object[] locals = new Object[codebuf.localsize()];
-        int baseptr = 8;  // rand.
+
+
         int[] localsizes = new int[codebuf.localsize()];  // locals type-size.
         int tmpi = 0;
         for (TypeSymbol typ : codebuf.localmap().values()) {
@@ -82,24 +84,23 @@ public class Machine {
             tmpi += localsizes[i];
         }
         esp = tmpi;  // rvalues baseptr.  baseptr+sum(localsizes)
-        final int rvp = esp;
+        final int rvp = esp;  // rvalue initptr. end of locals.
 
-        while (pc < code.length) {
-//            System.out.println(" EXEC INST "+Opcodes._InstructionComment(code, Intptr.of(pc)));
-            switch (code[pc++]) {
+        while (ip < code.length) {
+            switch (code[ip++]) {
                 case STORE: {
-                    byte i = code[pc++];
+                    byte i = code[ip++];
                     popn(localptrs[i], localsizes[i]);
                     break;
                 }
                 case LOAD: {
-                    byte i = code[pc++];
+                    byte i = code[ip++];
                     pushn(localptrs[i], localsizes[i]);
                     break;
                 }
                 case LDC: {
-                    short i = IOUtils.readShort(code, pc);
-                    pc += 2;
+                    short i = IOUtils.readShort(code, ip);
+                    ip += 2;
                     ConstantPool.Constant c = codebuf.constantpool.get(i);
 
                     if (c instanceof ConstantPool.Constant.CInt32) {
@@ -115,7 +116,7 @@ public class Machine {
                     break;
                 }
                 case LDPTR: {
-                    byte sz = code[pc++];
+                    byte sz = code[ip++];
 
                     int ptr = popi();
                     pushn(ptr, sz);
@@ -123,26 +124,41 @@ public class Machine {
                     break;
                 }
                 case STPTR: {
-                    byte sz = code[pc++];
+                    byte sz = code[ip++];
 
                     int ptr = popi();
                     popn(ptr, sz);
 
                     break;
                 }
-                case INVOKESTATIC: {
-                    throw new IllegalStateException();
+                case INVOKEFUNC: {
+                    short sfnameIdx = IOUtils.readShort(code, ip); ip+=2;
+                    String sfname = ((ConstantPool.Constant.CUtf8)codebuf.constantpool.get(sfnameIdx)).tx;
+
+                    int begArg = sfname.indexOf('('),
+                        begFld = sfname.lastIndexOf('.', begArg);
+                    String clname = sfname.substring(0, begFld);         // class name.
+                    String flname = sfname.substring(begFld+1, begArg);  // field name.
+
+                    System.out.println("Load Function: "+sfname+", Clname: "+clname);
+
+                    ClassFile cf = findOrInitClass(clname);
+                    ClassFile.Field fld = cf.findField(flname);
+
+                    Machine.exec(fld._codebuf);
+
+                    break;
                 }
                 case JMP: {
-                    pc = IOUtils.readShort(code, pc);
+                    ip = IOUtils.readShort(code, ip);
                     break;
                 }
                 case JMP_F: {
                     int b = popi8();
                     if (b == 0) {
-                        pc = IOUtils.readShort(code, pc);
+                        ip = IOUtils.readShort(code, ip);
                     } else {
-                        pc += 2;
+                        ip += 2;
                     }
                     break;
                 }
@@ -159,7 +175,7 @@ public class Machine {
                     break;
                 }
                 case DUP: {
-                    byte n = code[pc++];
+                    byte n = code[ip++];
 
                     memcpy(esp-n, esp, n);
                     esp += n;
@@ -167,7 +183,7 @@ public class Machine {
                     break;
                 }
                 case POP: {
-                    byte n = code[pc++];
+                    byte n = code[ip++];
 
                     esp -= n;
 
@@ -197,7 +213,7 @@ public class Machine {
                     break;
                 }
                 default:
-                    throw new IllegalStateException("Illegal instruction. #"+pc);
+                    throw new IllegalStateException("Illegal instruction. #"+ip);
             }
         }
 
@@ -207,4 +223,10 @@ public class Machine {
     public static final byte CMPR_LT = 0,
                              CMPR_GT = 1,
                              CMPR_EQ = 2;
+
+    // clname: e.g. like "stl.lang.string"
+    public static ClassFile findOrInitClass(String clname) {
+        return Objects.requireNonNull(
+                CollectionUtils.find(ClassCompiler._COMPILED_CLASSES, e -> e.thisclass.equals(clname)));
+    }
 }
