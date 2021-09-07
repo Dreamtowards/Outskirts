@@ -4,17 +4,18 @@ import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Intptr;
+import outskirts.util.Pair;
 import outskirts.util.Validate;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class CodeBuf {
 
-    private final LinkedHashMap<String, TypeSymbol> localvars = new LinkedHashMap<>();
+    private final List<Pair<String, TypeSymbol>> localvars = new ArrayList<>();
+
     private final List<Byte> buf = new ArrayList<>();
 
     public ConstantPool constantpool;
@@ -23,24 +24,34 @@ public class CodeBuf {
         this.constantpool = constantpool;
     }
 
-    public int findvar(String name) {
-        int i = 0;
-        for (String s : localvars.keySet()) {
-            if (s.equals(name))
+
+
+    private int internalLocalidx(String name) {
+        for (int i = 0;i < localvars.size();i++) {
+            if (localvars.get(i).first.equals(name))
                 return i;
-            i++;
         }
-        throw new IllegalStateException("Not found variable "+name);
+        return -1;
     }
-    public void defvar(String name, TypeSymbol ts) {
-        Validate.isTrue(!localvars.containsKey(name), "Already def variable '"+name+"'.");
-        localvars.put(name, ts);
+    public int localidx(String name) {
+        int i = internalLocalidx(name);
+        if (i == -1)
+            throw new IllegalStateException("Not found variable "+name);
+        return i;
     }
-    public int localsize() {
+
+    public void localdef(String name, TypeSymbol ts) {
+        Validate.isTrue(internalLocalidx(name) == -1, "Already def variable '"+name+"'.");
+        localvars.add(new Pair<>(name, ts));
+    }
+    public TypeSymbol localat(int i) {
+        return localvars.get(i).second;
+    }
+    public int localsz(int i) {
+        return localat(i).typesize();
+    }
+    public int numlocals() {
         return localvars.size();
-    }
-    public LinkedHashMap<String, TypeSymbol> localmap() {
-        return localvars;
     }
 
     public int idx() {
@@ -48,7 +59,7 @@ public class CodeBuf {
     }
 
     public void _store(String name) {
-        _store(findvar(name));
+        _store(localidx(name));
     }
     public void _store(int i) {
         append(STORE);
@@ -56,7 +67,7 @@ public class CodeBuf {
     }
 
     public void _load(String name) {
-        _load(findvar(name));
+        _load(localidx(name));
     }
     public void _load(int i) {
         append(LOAD);

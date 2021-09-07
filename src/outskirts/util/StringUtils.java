@@ -14,7 +14,7 @@ public final class StringUtils {
     public static final String EMPTY = "";
     public static final String SPACE = " ";
 
-    private static final String HEX_MAPPING = "0123456789abcdef";
+    public static final String HEX_MAPPING = "0123456789abcdef";
 
     public static String toHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();

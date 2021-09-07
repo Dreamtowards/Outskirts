@@ -9,15 +9,14 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Objects;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 
 public class Machine {
 
-    public static byte[] MemSpace = new byte[1024 * 1024 * 4];
-    private static int esp;
+    public static byte[] MemSpace = new byte[100];
+    private static int esp = 0;
 
     private static int sum(int[] a) {
         int s = 0;
@@ -36,7 +35,7 @@ public class Machine {
         memcpy(destptr, esp, n);
         esp += n;
     }
-    private static void pushi(int i) {
+    private static void pushi32(int i) {
         IOUtils.writeInt(MemSpace, esp, i);
         esp += 4;
     }
@@ -45,7 +44,7 @@ public class Machine {
         esp += 1;
     }
 
-    private static int popi() {
+    private static int popi32() {
         esp -= 4;
         return IOUtils.readInt(MemSpace, esp);
     }
@@ -53,59 +52,54 @@ public class Machine {
         esp -= 1;
         return MemSpace[esp];
     }
-
     private static void popn(int destptr, int n) {
         esp -= n;
         memcpy(esp, destptr, n);
     }
 
-    public static void exec(CodeBuf codebuf) {
-        byte[] code = codebuf.toByteArray();
+    public static void exec(CodeBuf buf) {
+        System.out.println(buf.toString());
 
-        System.out.println(codebuf.toString());
+        byte[] code = buf.toByteArray();
 
         int ip = 0;
-        final int baseptr = 8;  // rand.
+//        final int baseptr = 8;  // rand.
 
-//        LinkedList<Object> opstack = new LinkedList<>();
-//        Object[] locals = new Object[codebuf.localsize()];
+//        int[] localsizes = new int[buf.numlocals()];  // locals type-size.
+//        int tmpi = 0;
+//        for (TypeSymbol typ : buf.localmap().values()) {
+//            localsizes[tmpi++] = typ.typesize();
+//        }
+        final int begin_esp = esp;
 
-
-        int[] localsizes = new int[codebuf.localsize()];  // locals type-size.
-        int tmpi = 0;
-        for (TypeSymbol typ : codebuf.localmap().values()) {
-            localsizes[tmpi++] = typ.typesize();
-        }
-
-        int[] localptrs = new int[codebuf.localsize()];
-        tmpi = baseptr;
+        int[] localptrs = new int[buf.numlocals()];
         for (int i = 0;i < localptrs.length;i++) {
-            localptrs[i] = tmpi;
-            tmpi += localsizes[i];
+            localptrs[i] = esp;
+            esp += buf.localsz(i);
         }
-        esp = tmpi;  // rvalues baseptr.  baseptr+sum(localsizes)
+
         final int rvp = esp;  // rvalue initptr. end of locals.
 
         while (ip < code.length) {
             switch (code[ip++]) {
                 case STORE: {
                     byte i = code[ip++];
-                    popn(localptrs[i], localsizes[i]);
+                    popn(localptrs[i], buf.localsz(i));
                     break;
                 }
                 case LOAD: {
                     byte i = code[ip++];
-                    pushn(localptrs[i], localsizes[i]);
+                    pushn(localptrs[i], buf.localsz(i));
                     break;
                 }
                 case LDC: {
                     short i = IOUtils.readShort(code, ip);
                     ip += 2;
-                    ConstantPool.Constant c = codebuf.constantpool.get(i);
+                    ConstantPool.Constant c = buf.constantpool.get(i);
 
                     if (c instanceof ConstantPool.Constant.CInt32) {
                         int v = ((ConstantPool.Constant.CInt32)c).i;
-                        pushi(v);
+                        pushi32(v);
                     }
 
 //                    if (c instanceof ConstantPool.Constant.CUtf8) opstack.push(((ConstantPool.Constant.CUtf8) c).tx);
@@ -118,7 +112,7 @@ public class Machine {
                 case LDPTR: {
                     byte sz = code[ip++];
 
-                    int ptr = popi();
+                    int ptr = popi32();
                     pushn(ptr, sz);
 
                     break;
@@ -126,25 +120,25 @@ public class Machine {
                 case STPTR: {
                     byte sz = code[ip++];
 
-                    int ptr = popi();
+                    int ptr = popi32();
                     popn(ptr, sz);
 
                     break;
                 }
                 case INVOKEFUNC: {
                     short sfnameIdx = IOUtils.readShort(code, ip); ip+=2;
-                    String sfname = ((ConstantPool.Constant.CUtf8)codebuf.constantpool.get(sfnameIdx)).tx;
+                    String sfname = ((ConstantPool.Constant.CUtf8)buf.constantpool.get(sfnameIdx)).tx;
 
                     int begArg = sfname.indexOf('('),
                         begFld = sfname.lastIndexOf('.', begArg);
                     String clname = sfname.substring(0, begFld);         // class name.
                     String flname = sfname.substring(begFld+1, begArg);  // field name.
 
-                    System.out.println("Load Function: "+sfname+", Clname: "+clname);
 
                     ClassFile cf = findOrInitClass(clname);
                     ClassFile.Field fld = cf.findField(flname);
 
+                    System.out.println("INVOKEFUNC Load Function: "+sfname+", Clname: "+clname);
                     Machine.exec(fld._codebuf);
 
                     break;
@@ -163,15 +157,15 @@ public class Machine {
                     break;
                 }
                 case I32ADD: {
-                    int i2 = popi();
-                    int i1 = popi();
-                    pushi(i1+i2);
+                    int i2 = popi32();
+                    int i1 = popi32();
+                    pushi32(i1+i2);
                     break;
                 }
                 case I32MUL: {
-                    int i2 = popi();
-                    int i1 = popi();
-                    pushi(i1*i2);
+                    int i2 = popi32();
+                    int i1 = popi32();
+                    pushi32(i1*i2);
                     break;
                 }
                 case DUP: {
@@ -190,8 +184,8 @@ public class Machine {
                     break;
                 }
                 case ICMP: {
-                    int i2 = popi();
-                    int i1 = popi();
+                    int i2 = popi32();
+                    int i1 = popi32();
                     int r = i1 - i2;
                     byte cmpr;
                     if (r < 0) cmpr = CMPR_LT;
@@ -217,7 +211,10 @@ public class Machine {
             }
         }
 
-        System.out.println("Done Exec. opstack: rvp="+rvp+", esp="+esp+", locals: "+ Arrays.toString(CollectionUtils.subarray(MemSpace, baseptr, rvp)));
+        byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp);
+        lcspc = CollectionUtils.subarray(MemSpace, 0, 32);
+
+        System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
     }
 
     public static final byte CMPR_LT = 0,
@@ -228,5 +225,16 @@ public class Machine {
     public static ClassFile findOrInitClass(String clname) {
         return Objects.requireNonNull(
                 CollectionUtils.find(ClassCompiler._COMPILED_CLASSES, e -> e.thisclass.equals(clname)));
+    }
+
+
+
+    public static String[] dump(byte[] bytes) {
+        String[] a = new String[bytes.length];
+        for (int i = 0;i < bytes.length;i++) {
+            byte b = bytes[i];
+            a[i] = String.valueOf(b&0xff);
+        }
+        return a;
     }
 }

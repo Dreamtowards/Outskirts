@@ -47,7 +47,7 @@ public final class ClassCompiler {
 //                    codebuf.defvar("this", SymbolBuiltinType._ptr);
 //                }
                 for (AST_Stmt_DefVar param : c.getParameters()) {
-                    codebuf.defvar(param.getName(), param.getTypename().sym);
+                    codebuf.localdef(param.getName(), param.getTypename().sym);
                 }
 
                 c.getBody().accept(new CodeGen(), codebuf);

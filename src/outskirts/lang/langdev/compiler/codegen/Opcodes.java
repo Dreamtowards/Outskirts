@@ -35,7 +35,7 @@ public final class Opcodes {
             "LDLOC",
             "LDC",
             "DUP",
-            "INVOKESTATIC",
+            "INVOKEPROC",
             "JMP",
             "JMP_F",
             "I32ADD",

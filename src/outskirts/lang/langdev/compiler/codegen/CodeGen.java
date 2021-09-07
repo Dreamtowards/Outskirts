@@ -101,6 +101,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             SymbolFunction sf = (SymbolFunction)s;
             String sfname = sf.getQualifiedName();
 
+            // while an expr is static, 'call by instance-expr' is not allowed.
             if (!sf.isStaticFunction) {
                 a.getExpression().accept(this, buf);
             }
@@ -174,7 +175,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitStmtDefVar(AST_Stmt_DefVar a, CodeBuf buf) {
-        buf.defvar(a.getName(), a.getTypename().sym);
+        buf.localdef(a.getName(), a.getTypename().sym);
 
         AST_Expr initexpr = a.getInitializer();
         if (initexpr != null) {

@@ -2,7 +2,6 @@
 
 namespace stl.lang {
 
-
     class string {
 
         int base;
@@ -17,9 +16,9 @@ namespace stl.lang {
             // dereference<int>(this) = dereference<int>(this);
         }
 
-        static void test() {
+        static void test(int pi) {
 
-            int i = 10 * 9;
+            int i = 10 * pi;
         }
     }
 }
@@ -37,8 +36,9 @@ class _main {
         // string s = string();  // object creation - stack-alloc
 
 
+
         stl.lang.string.test();
-        stl.lang._main.main();
+        // stl.lang._main.main();
 
         // retm()();  // problem. static-symbol vs. instance-symbol.
 
