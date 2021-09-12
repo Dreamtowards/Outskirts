@@ -95,6 +95,11 @@ public class CodeBuf {
         appendShort(cp.ensureUtf8(flname));
     }
 
+    public void _putfield(String flname) {
+        append(PUTFIELD);
+        appendShort(cp.ensureUtf8(flname));
+    }
+
     public void _jmpifn(int i) {
         append(JMP_F);
         appendShort((short)i);

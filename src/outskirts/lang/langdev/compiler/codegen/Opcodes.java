@@ -27,7 +27,8 @@ public final class Opcodes {
             LDPTR = 18,
             STPTR = 19,
             STACKALLOC = 20,
-            GETFIELD = 21;
+            GETFIELD = 21,
+            PUTFIELD = 22;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -46,7 +47,8 @@ public final class Opcodes {
             "LDPTR",
             "STPTR",
             "STACKALLOC",
-            "GETFIELD"
+            "GETFIELD",
+            "PUTFIELD"
     };
 
 
@@ -72,7 +74,8 @@ public final class Opcodes {
             case STPTR: comm = "sz="+code[idx.i++]; break;
             case INVOKEFUNC: comm = "fn: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
             case STACKALLOC: comm = "cl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
-            case GETFIELD:   comm = "fl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
+            case GETFIELD:
+            case PUTFIELD:   comm = "fl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
         }
         return head + (comm.isEmpty() ? "" : "// "+comm);
     }

@@ -169,13 +169,29 @@ public class Machine {
                     int bord = qualidname.lastIndexOf('.');
                     String clname = qualidname.substring(0, bord);
                     String flname = qualidname.substring(bord+1);
+
                     SymbolClass cl = resolveClass(clname);
                     int clsz = cl.typesize();
                     TypeSymbol fl_type = ((SymbolVariable)cl.getTable().resolveMember(flname)).type;
                     int fl_typ_sz = fl_type.typesize();
-                    int beg_ = esp - clsz;
 
+                    int beg_ = esp - clsz;
                     memcpy(beg_+cl.memoffset(flname), beg_, fl_typ_sz);
+
+                    break;
+                }
+                case PUTFIELD: {
+                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
+
+                    int bord = qualidname.lastIndexOf('.');
+                    String clname = qualidname.substring(0, bord);
+                    String flname = qualidname.substring(bord+1);
+
+                    SymbolClass cl = resolveClass(clname);
+                    int clsz = cl.typesize();
+                    TypeSymbol fl_type = ((SymbolVariable)cl.getTable().resolveMember(flname)).type;
+                    int fl_typ_sz = fl_type.typesize();
+
 
                     break;
                 }

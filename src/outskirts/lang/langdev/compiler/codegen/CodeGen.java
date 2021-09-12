@@ -201,16 +201,43 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 buf._store(((AST_Expr_PrimaryIdentifier)lhs).getName());
 
             } else if (lhs instanceof AST_Expr_TemporaryDereference) {
-                AST_Expr_TemporaryDereference lhsc = (AST_Expr_TemporaryDereference)lhs;
+                AST_Expr_TemporaryDereference lc = (AST_Expr_TemporaryDereference)lhs;
 
                 rhs.accept(this, buf);
                 buf._dup(rhs.getEvalTypeSymbol().typesize());
 
-                lhsc.getExpression().accept(this, buf);
+                lc.getExpression().accept(this, buf);
 
-                buf._stptr(lhsc.getTypename().sym.typesize());
+                buf._stptr(lc.getTypename().sym.typesize());
 
-                Validate.isTrue(rhs.getEvalTypeSymbol().typesize() == lhsc.getTypename().sym.typesize());  // should already validated in Attr phase.
+                Validate.isTrue(rhs.getEvalTypeSymbol().typesize() == lc.getTypename().sym.typesize());  // should already validated in Attr phase.
+            } else if (lhs instanceof AST_Expr_MemberAccess) {
+                AST_Expr_MemberAccess lhs_ = (AST_Expr_MemberAccess)lhs;
+                AST_Expr lhs_lexpr = lhs_.getExpression();
+
+                // load lhs addr
+                // load val
+                // storefield lhsType::fld
+
+                // this.a.b.c = 2+3;
+                // ldloc $this
+                // ldfld $a
+                // ldfld $b
+                // ldfld $c
+
+                // addr?
+                // lhs_lexpr.accept(this, buf);
+//                if (lhs_lexpr instanceof AST_Expr_PrimaryIdentifier) {
+//                    String locname = ((AST_Expr_PrimaryIdentifier)lhs_lexpr).getName();
+//                    buf._lloadaddr(buf.loca)
+//                } else
+//                    throw new IllegalStateException();
+//
+//                // val.
+//                rhs.accept(this, buf);
+//
+//                buf._putfield(lhs_lexpr.getEvalTypeSymbol().getQualifiedName()+"."+lhs_.getIdentifier());
+                throw new UnsupportedOperationException();
             } else {
                 throw new UnsupportedOperationException();
             }

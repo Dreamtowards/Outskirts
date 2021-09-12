@@ -17,6 +17,7 @@ public enum TokenType {
     SIZEOF("sizeof"),
     IS("is"),
     DEREFERENCE("dereference"),
+    REFERENCE("reference"),
     LITERAL_TRUE("true"),
     LITERAL_FALSE("false"),
     // LITERAL_NULLPTR("nullptr"),
