@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
 
-    private final AST__Typename returntype;
+    private final AST_Expr returntype;
     private final String name;
     private final List<AST_Stmt_DefVar> params; // unclear
     private final AST_Stmt_Block body;     // ?? block ??or expr?
@@ -21,7 +21,7 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
 
     public SymbolFunction symf;
 
-    public AST_Stmt_DefFunc(AST__Typename returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body) {
+    public AST_Stmt_DefFunc(AST_Expr returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body) {
         this.returntype = returntype;
         this.name = name;
         this.params = params;
@@ -32,7 +32,7 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
         return name;
     }
 
-    public AST__Typename getReturnTypename() {
+    public AST_Expr getReturnTypeExpression() {
         return returntype;
     }
 

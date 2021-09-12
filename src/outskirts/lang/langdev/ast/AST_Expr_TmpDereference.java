@@ -2,18 +2,18 @@ package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 
-public class AST_Expr_TemporaryDereference extends AST_Expr {
+public class AST_Expr_TmpDereference extends AST_Expr {
 
-    private AST__Typename typename;
+    private AST_Expr type;
     private AST_Expr expr;
 
-    public AST_Expr_TemporaryDereference(AST__Typename typename, AST_Expr expr) {
-        this.typename = typename;
+    public AST_Expr_TmpDereference(AST_Expr type, AST_Expr expr) {
+        this.type = type;
         this.expr = expr;
     }
 
-    public AST__Typename getTypename() {
-        return typename;
+    public AST_Expr getTypeExpression() {
+        return type;
     }
 
     public AST_Expr getExpression() {

@@ -1,22 +1,25 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.symtab.SymbolVariable;
 
 public class AST_Stmt_DefVar extends AST_Stmt implements AST.Modifierable {
 
-    private final AST__Typename type;
+    private final AST_Expr type;
     private final String name;
     private final AST_Expr initexpr;  // nullable.
 
     public AST__Modifiers modifiers;
 
-    public AST_Stmt_DefVar(AST__Typename type, String name, AST_Expr initexpr) {
+    public SymbolVariable sym;
+
+    public AST_Stmt_DefVar(AST_Expr type, String name, AST_Expr initexpr) {
         this.type = type;
         this.name = name;
         this.initexpr = initexpr;
     }
 
-    public AST__Typename getTypename() {
+    public AST_Expr getTypeExpression() {
         return type;
     }
 

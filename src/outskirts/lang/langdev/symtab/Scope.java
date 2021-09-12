@@ -2,7 +2,6 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.util.StringUtils;
-import outskirts.util.Validate;
 
 import java.util.*;
 
@@ -23,10 +22,10 @@ public final class Scope {
      * the Symbol is Unique, Symbol.name is its Actually-Name. see getQualifiedName(): we won't give a alias name as result, because its leads wrong address,
      * we won't duplicate the Symbol for the typealias functionality, Symbol-Instance/Object just Unique, but we search it/local-using-it by custom name - just in the map's key.
      */
-    public final Map<String, Symbol> _symbols = new HashMap<>();
+    public final Map<String, BaseSymbol> _symbols = new HashMap<>();
 
     // e.g. SymbolClass, SymbolNamespace.
-    public Symbol symbolAssociated;
+    public BaseSymbol symbolAssociated;
     public AST astAssociated;
 
     public Scope(Scope enclosing) {
@@ -37,29 +36,29 @@ public final class Scope {
         return enclosing;
     }
 
-    public final Collection<Symbol> getMemberSymbols() {
+    public final Collection<BaseSymbol> getMemberSymbols() {
         return Collections.unmodifiableCollection(_symbols.values());
     }
 
-    public Symbol findLocalSymbol(String name) {
+    public BaseSymbol findLocalSymbol(String name) {
         return _symbols.get(name);
     }
-    private void internalDefineLocalSymbol(String name, Symbol symbol) {
+    private void internalDefineLocalSymbol(String name, BaseSymbol symbol) {
         if (_symbols.containsKey(name))
             throw new IllegalStateException("Symbol '"+name+"' already defined in this scope.");
         _symbols.put(name, symbol);
     }
 
-    public void define(Symbol symbol) {
-        internalDefineLocalSymbol(symbol.name, symbol);
+    public void define(BaseSymbol symbol) {
+        internalDefineLocalSymbol(symbol.getSimpleName(), symbol);
     }
     // for functionality of "typealias". (using .. as ..)
-    public void defineAsCustomName(String asname, Symbol symbol) {
+    public void defineAsCustomName(String asname, BaseSymbol symbol) {
         internalDefineLocalSymbol(asname, symbol);
     }
 
-    public Symbol resolve(String name) {
-        Symbol s = findLocalSymbol(name);
+    public BaseSymbol resolve(String name) {
+        BaseSymbol s = findLocalSymbol(name);
         if (s != null)
             return s;
         if (enclosing != null)
@@ -70,29 +69,29 @@ public final class Scope {
 
 
     // MemberAccess "base.fur.inr"
-    public <T extends Symbol> T resolveQualifiedName(String qualifiedname) {  // resolveMAStr
-        Symbol s = null;
+    public <T extends BaseSymbol> T resolveQualifiedName(String qualifiedname) {  // resolveMAStr
+        BaseSymbol s = null;
         for (String nm : StringUtils.explode(qualifiedname, ".")) {
             if (s == null) {  // assert idx==0;
                 s = resolve(nm);
             } else {
-                s = ((ScopedTypeSymbol)s).getTable().resolveMember(nm);
+                s = ((ScopedSymbol)s).getSymbolTable().resolveMember(nm);
             }
         }
         return (T)s;
     }
 
-    public <T extends Symbol> T resolveQualifiedExpr(AST_Expr a) {  // resolveMAExpr
+    public <T extends BaseSymbol> T resolveQualifiedExpr(AST_Expr a) {  // resolveMAExpr
         if (a instanceof AST_Expr_MemberAccess) {
             AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)a;
-            ScopedTypeSymbol l = resolveQualifiedExpr(c.getExpression());
-            return (T)l.getTable().resolveMember(c.getIdentifier());
+            ScopedSymbol l = resolveQualifiedExpr(c.getExpression());
+            return (T)l.getSymbolTable().resolveMember(c.getIdentifier());
         } else {
             return (T)resolve(((AST_Expr_PrimaryIdentifier)a).getName());
         }
     }
 
-    public Symbol resolveMember(String name) {
+    public BaseSymbol resolveMember(String name) {
         return Objects.requireNonNull(findLocalSymbol(name), "Could not resolve member-symbol '"+name+"'");
     }
 

@@ -1,6 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
-public class SymbolNamespace extends Symbol implements ScopedTypeSymbol {
+public class SymbolNamespace extends BaseSymbol implements ScopedSymbol {
 
     public Scope symtab;
 
@@ -10,12 +10,8 @@ public class SymbolNamespace extends Symbol implements ScopedTypeSymbol {
     }
 
     @Override
-    public Scope getTable() {
+    public Scope getSymbolTable() {
         return symtab;
     }
 
-    @Override
-    public int typesize() {
-        throw new UnsupportedOperationException();
-    }
 }

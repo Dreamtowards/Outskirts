@@ -7,10 +7,20 @@ import outskirts.lang.langdev.symtab.TypeSymbol;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Really has the necessary to have a AST_Typename.?
+ * its like a AST_Expr (typename) plus a <AST_Expr, ..> (Generic Arguments) i.e. like AST_TypeAndGenericArgs
+ *
+ * and, in somewhere like Variable-Type-Decl, there can have a valid AST_Typename place, but in usual Expr, there no AST_Typename anymore!
+ * but just basic Chains, series of AST_Expr:AST_Expr_MemberAccess.
+ *
+ * AST_Expr_OperDiamond { Expr expr, Expr args; }  // expr<arg1, arg2..>
+ */
 public class AST__Typename extends AST {
 
-    // Type Symbol
-    public TypeSymbol sym;
+    // Duplicated with Expr.evaltype .?
+    // Real is a TypeSymbol.? SymbolBuiltinType, SymbolClass allowed,
+//    public TypeSymbol sym;
 
     private final AST_Expr nameptr;  // AST_Expr_PrimaryVariableName or AST_Expr_BiOper.
     private final List<AST__Typename> genericArgs;  // List<GenericArgument : Typename | Const Int | Wildcast> TypeArguments
@@ -25,10 +35,10 @@ public class AST__Typename extends AST {
     }  // getQualifit..or?
 
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visit_Typename(this, p);
-    }
+//    @Override
+//    public <P> void accept(ASTVisitor<P> visitor, P p) {
+//        visitor.visit_Typename(this, p);
+//    }
 
     //    public static String SimpleExpand(AST__Typename a) {
 //        return LxParser._ExpandQualifiedName(a.nameptr) + (a.genericArgs.isEmpty() ? "" : "<"+ a.genericArgs.stream().map(AST__Typename::SimpleExpand).collect(Collectors.joining(", ")) +">");

@@ -48,11 +48,6 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     }
 
     @Override
-    public void visitExprMemberAccess(AST_Expr_MemberAccess a, PrintStat printStat) {
-
-    }
-
-    @Override
     public void visitExprOperBinary(AST_Expr_OperBinary a, PrintStat ps) {
         appendln(ps, "ExprBinary {"); ps.dp++;
             a.getLeftOperand().accept(this, ps);
@@ -61,76 +56,7 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
         appendln(ps, "}");
     }
 
-    @Override
-    public void visitExprOperNew(AST_Expr_OperNew a, PrintStat printStat) {
 
-    }
-
-    @Override
-    public void visitExprOperConditional(AST_Expr_OperConditional a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprOperUnary(AST_Expr_OperUnary a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprSizeOf(AST_Expr_OperSizeOf a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitExprTmpDereference(AST_Expr_TemporaryDereference a, PrintStat printStat) {
-
-    }
-
-
-    @Override
-    public void visitStmtExpr(AST_Stmt_Expr a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtIf(AST_Stmt_If a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtNamespace(AST_Stmt_Namespace a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtReturn(AST_Stmt_Return a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtUsing(AST_Stmt_Using a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visitStmtWhile(AST_Stmt_While a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visit_Annotation(AST__Annotation a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visit_Typename(AST__Typename a, PrintStat printStat) {
-
-    }
-
-    @Override
-    public void visit_CompilationUnit(AST__CompilationUnit a, PrintStat printStat) {
-
-    }
 
     //    public static void printExprPrimaryVariableName(AST_Expr_PrimaryVariableName a, int dp, StringBuffer buf) {
 //        appendln(buf, dp, "VAR{ "+a.name+" }");

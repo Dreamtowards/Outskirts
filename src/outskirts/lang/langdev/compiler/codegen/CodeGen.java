@@ -33,16 +33,16 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, CodeBuf buf) {
-        int sz = a.getEvalTypeSymbol().typesize();
+        int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
         buf._ldc(buf.cp.ensureInt32(sz));
     }
 
     @Override
-    public void visitExprTmpDereference(AST_Expr_TemporaryDereference a, CodeBuf buf) {
+    public void visitExprTmpDereference(AST_Expr_TmpDereference a, CodeBuf buf) {
         // exec ptr.
         a.getExpression().accept(this, buf);
 
-        int sz = a.getTypename().sym.typesize();
+        int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
         buf._ldptr(sz);
     }
 
@@ -50,20 +50,20 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     public void visitExprMemberAccess(AST_Expr_MemberAccess a, CodeBuf buf) {
         // std.lang.Class.innr.fld.
         // fncall().rsdat
-        // a.accept(this, buf);
 
-        AST_Expr expr = a.getExpression();
+        AST_Expr lexpr = a.getExpression();
 
-        expr.accept(this, buf);
+        lexpr.accept(this, buf);
 
-        ScopedTypeSymbol exprsym = (ScopedTypeSymbol)expr.getEvalTypeSymbol();  // ScopedTypeSymbol.
+        ScopedSymbol lsym = (ScopedSymbol)lexpr.getExprSymbol();  // ScopedTypeSymbol.
 
-        if (exprsym instanceof SymbolClass) {
-            Symbol msym = exprsym.getTable().resolveMember(a.getIdentifier());
+        if (lsym instanceof SymbolClass) {
+            BaseSymbol membsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());
 
-            if (msym instanceof SymbolVariable) {
+            if (membsym instanceof SymbolVariable) {
 
-                buf._getfield(exprsym.getQualifiedName()+"."+a.getIdentifier());
+                // need optim.
+                buf._getfield(((BaseSymbol)lsym).getQualifiedName()+"."+a.getIdentifier());
             } else {
                 // SymbolFunction, ignore.
                 throw new IllegalStateException("Unsupported Get Function Member.");
@@ -82,7 +82,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
 
-        TypeSymbol s = a.calleesym;
+        Symbol s = a.getExpression().getExprSymbol();
 
         // series().of.exprs().funcName(arg1);
         // funcName(exprs(series().of), arg1)
@@ -131,9 +131,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         expr.accept(this, buf);
 
-        TypeSymbol rettyp = expr.getEvalTypeSymbol();
+        Symbol rettyp = expr.getExprSymbol();
         if (rettyp != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
-            buf._pop(expr.getEvalTypeSymbol().typesize());  // erases the expression return value.
+            buf._pop(((TypeSymbol)rettyp).getTypesize());  // erases the expression return value.
         }
     }
 
@@ -173,7 +173,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitStmtDefVar(AST_Stmt_DefVar a, CodeBuf buf) {
-        buf.localdef(a.getName(), a.getTypename().sym);
+        buf.localdef(a.getName(), a.getTypeExpression().getTypeSymbol());
 
         AST_Expr initexpr = a.getInitializer();
         if (initexpr != null) {
@@ -196,21 +196,21 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             if (lhs instanceof AST_Expr_PrimaryIdentifier) {
                 // exec val.
                 rhs.accept(this, buf);
-                buf._dup(rhs.getEvalTypeSymbol().typesize());
+                buf._dup(rhs.getTypeSymbol().getTypesize());  // the eval-expr really returns a TypeLiteral.? think there should a instance-variable thing.
 
                 buf._store(((AST_Expr_PrimaryIdentifier)lhs).getName());
 
-            } else if (lhs instanceof AST_Expr_TemporaryDereference) {
-                AST_Expr_TemporaryDereference lc = (AST_Expr_TemporaryDereference)lhs;
+            } else if (lhs instanceof AST_Expr_TmpDereference) {
+                AST_Expr_TmpDereference lc = (AST_Expr_TmpDereference)lhs;
 
                 rhs.accept(this, buf);
-                buf._dup(rhs.getEvalTypeSymbol().typesize());
+                buf._dup(rhs.getTypeSymbol().getTypesize());  // SymVar.?
 
                 lc.getExpression().accept(this, buf);
 
-                buf._stptr(lc.getTypename().sym.typesize());
+                buf._stptr(lc.getTypeExpression().getTypeSymbol().getTypesize());  // rhs.getTypeSymbol().typesize() should be same as prev dup.
 
-                Validate.isTrue(rhs.getEvalTypeSymbol().typesize() == lc.getTypename().sym.typesize());  // should already validated in Attr phase.
+                Validate.isTrue(rhs.getTypeSymbol().getTypesize() == lc.getTypeExpression().getTypeSymbol().getTypesize());  // should already validated in Attr phase.
             } else if (lhs instanceof AST_Expr_MemberAccess) {
                 AST_Expr_MemberAccess lhs_ = (AST_Expr_MemberAccess)lhs;
                 AST_Expr lhs_lexpr = lhs_.getExpression();

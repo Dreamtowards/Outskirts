@@ -148,26 +148,33 @@ public final class LxParser {
             }
             case NEW: {
                 lx.next();
-                AST__Typename typename = parse_Typename(lx);
+                AST_Expr type = parse_TypeExpression(lx);
                 List<AST_Expr> args = _Parse_FuncArgs(lx);
-                return new AST_Expr_OperNew(typename, args);
+                return new AST_Expr_OperNew(type, args);
             }
             case SIZEOF: {
                 lx.next();
                 lx.next(TokenType.LPAREN);
-                AST__Typename typename = parse_Typename(lx);
+                AST_Expr type = parse_TypeExpression(lx);
                 lx.next(TokenType.RPAREN);
-                return new AST_Expr_OperSizeOf(typename);
+                return new AST_Expr_OperSizeOf(type);
             }
             case DEREFERENCE: {
                 lx.next();
                 lx.next(TokenType.LT);
-                AST__Typename typename = parse_Typename(lx);
+                AST_Expr type = parse_TypeExpression(lx);
                 lx.next(TokenType.GT);
                 lx.next(TokenType.LPAREN);
                 AST_Expr expr = parseExpr(lx);
                 lx.next(TokenType.RPAREN);
-                return new AST_Expr_TemporaryDereference(typename, expr);
+                return new AST_Expr_TmpDereference(type, expr);
+            }
+            case REFERENCE: {
+                lx.next();
+                lx.next(TokenType.LPAREN);
+                AST_Expr expr = parseExpr(lx);
+                lx.next(TokenType.RPAREN);
+                return new AST_Expr_TmpReference(expr);
             }
             default:
                 throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
@@ -305,7 +312,7 @@ public final class LxParser {
                 {
                     AST_Stmt_DefClass a = parseStmtDefClass(lx); a.modifiers = modifiers; return a;
                 }
-                else if (_IsPass(lx, LxParser::parse_Typename) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
+                else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
                 {
                     TokenType t = lx.peek().type();
                     lx.unmark();
@@ -421,7 +428,7 @@ public final class LxParser {
 
     public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
 
-        AST__Typename rettype = parse_Typename(lx);
+        AST_Expr rettype = parse_TypeExpression(lx);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
         lx.next(TokenType.LPAREN);
@@ -441,7 +448,7 @@ public final class LxParser {
 
     // not the ';'. for support of FuncParams.
     public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {
-        AST__Typename type = parse_Typename(lx);
+        AST_Expr type = parse_TypeExpression(lx);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
         AST_Expr init = null;
@@ -462,9 +469,9 @@ public final class LxParser {
             lx.next(TokenType.GT);
         }
 
-        List<AST__Typename> supers = Collections.emptyList();
+        List<AST_Expr> supers = Collections.emptyList();
         if (lx.nexting(TokenType.COLON)) {
-            supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_Typename, TokenType.COMMA);
+            supers = _Parse_RepeatJoin_OneMore(lx, LxParser::parse_TypeExpression, TokenType.COMMA);
         }
 
         List<AST_Stmt> stmts_members = parseStmtBlock(lx).getStatements();
@@ -488,16 +495,17 @@ public final class LxParser {
         return l;
     }
 
-    public static AST__Typename parse_Typename(Lexer lx) {
-        AST_Expr nameptr = parse_QualifiedName(lx);
+    public static AST_Expr parse_TypeExpression(Lexer lx) {
+        AST_Expr type = parse_QualifiedName(lx);
 
-        List<AST__Typename> genericArgs = Collections.emptyList();
-        if (lx.nexting(TokenType.LT)) {
-            // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
-            genericArgs = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_Typename, TokenType.COMMA, TokenType.GT);
+        if (lx.nexting(TokenType.LT)) {  // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
+            List<AST_Expr> generic_args = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_TypeExpression, TokenType.COMMA, TokenType.GT);
             lx.next(TokenType.GT);
+//            return new AST_Expr_GenericsArguments(type, generic_args);
+            throw new UnsupportedOperationException("unsupported.");
+        } else {
+            return type;
         }
-        return new AST__Typename(nameptr, genericArgs);
     }
 
     public static AST__Annotation parse_Annotation(Lexer lx) {

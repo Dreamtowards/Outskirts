@@ -155,7 +155,7 @@ public class Machine {
                     String clname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
 
                     SymbolClass cl = resolveClass(clname);
-                    int sz = cl.typesize();
+                    int sz = cl.getTypesize();
                     System.out.println("SIZE"+sz);
 
                     memset(esp, sz, 0);
@@ -171,9 +171,9 @@ public class Machine {
                     String flname = qualidname.substring(bord+1);
 
                     SymbolClass cl = resolveClass(clname);
-                    int clsz = cl.typesize();
-                    TypeSymbol fl_type = ((SymbolVariable)cl.getTable().resolveMember(flname)).type;
-                    int fl_typ_sz = fl_type.typesize();
+                    int clsz = cl.getTypesize();
+                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
+                    int fl_typ_sz = fl_type.getTypesize();
 
                     int beg_ = esp - clsz;
                     memcpy(beg_+cl.memoffset(flname), beg_, fl_typ_sz);
@@ -188,9 +188,9 @@ public class Machine {
                     String flname = qualidname.substring(bord+1);
 
                     SymbolClass cl = resolveClass(clname);
-                    int clsz = cl.typesize();
-                    TypeSymbol fl_type = ((SymbolVariable)cl.getTable().resolveMember(flname)).type;
-                    int fl_typ_sz = fl_type.typesize();
+                    int clsz = cl.getTypesize();
+                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
+                    int fl_typ_sz = fl_type.getTypesize();
 
 
                     break;

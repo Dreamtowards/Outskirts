@@ -3,7 +3,8 @@ package outskirts.lang.langdev.symtab;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+// why SymbolFunction is a TypeSymbol..?
 
 /**
  * Sometimes, people think while let a Function, as a class `function<ret_type, param_type..>`, then things will been more common,
@@ -12,17 +13,17 @@ import java.util.stream.Collectors;
  *
  */
 // this maybe temporary.  until Generic Available. vartype:: function<return_type, param_type...>
-public class SymbolFunction extends Symbol implements TypeSymbol {
+public class SymbolFunction extends BaseSymbol {
 
     public final TypeSymbol returntype;
-    public final List<TypeSymbol> params;
+    public final List<SymbolVariable> params;
     public final SymbolClass ownerclass;
 
     public CodeBuf codebuf;
 
     public boolean isStaticFunction;
 
-    public SymbolFunction(String name, List<TypeSymbol> params, TypeSymbol returntype, SymbolClass ownerclass) {
+    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass) {
         super(name);
         this.params = params;
         this.returntype = returntype;
@@ -35,12 +36,9 @@ public class SymbolFunction extends Symbol implements TypeSymbol {
 
     @Override
     public String getQualifiedName() {
-        return ownerclass.getQualifiedName()+"."+name+"("+String.join(",", params.stream().map(TypeSymbol::getQualifiedName).collect(Collectors.toList()))+"):"+returntype.getQualifiedName();
+        String[] prms = params.stream().map(p -> p.type.getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
+
+        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+returntype.getQualifiedName();
     }
 
-    @Override
-    public int typesize() {
-//        return 8;  // ptrsize
-        throw new IllegalStateException();
-    }
 }

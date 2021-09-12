@@ -48,7 +48,7 @@ public class CodeBuf {
         return localvars.get(i).second;
     }
     public int localsz(int i) {
-        return localat(i).typesize();
+        return localat(i).getTypesize();
     }
     public int numlocals() {
         return localvars.size();

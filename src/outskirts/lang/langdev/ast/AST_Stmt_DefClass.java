@@ -10,12 +10,12 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
     private final String name;
     public SymbolClass sym;
 
-    private final List<AST__Typename> superclasses;  // nullable.
+    private final List<AST_Expr> superclasses;  // nullable.
     private final List<AST_Stmt> members;
 
     public AST__Modifiers modifiers;
 
-    public AST_Stmt_DefClass(String name, List<AST_Expr_PrimaryIdentifier> genericParams, List<AST__Typename> superclasses, List<AST_Stmt> members) {
+    public AST_Stmt_DefClass(String name, List<AST_Expr_PrimaryIdentifier> genericParams, List<AST_Expr> superclasses, List<AST_Stmt> members) {
         this.name = name;
         this.superclasses = superclasses;
         this.members = members;
@@ -27,7 +27,7 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
         return name;
     }
 
-    public List<AST__Typename> getSuperTypenames() {
+    public List<AST_Expr> getSuperTypeExpressions() {
         return superclasses;
     }
 

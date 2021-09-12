@@ -15,7 +15,7 @@ public interface ASTVisitor<P> {
     default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
     default void visitExprOperConditional(AST_Expr_OperConditional a, P p)     { visitDefault(a, p); }
     default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }
-    default void visitExprTmpDereference(AST_Expr_TemporaryDereference a, P p) { visitDefault(a, p); }
+    default void visitExprTmpDereference(AST_Expr_TmpDereference a, P p) { visitDefault(a, p); }
     default void visitExprOperUnary(AST_Expr_OperUnary a, P p)                 { visitDefault(a, p); }
     default void visitExprOperBinary(AST_Expr_OperBinary a, P p)               { visitDefault(a, p); }
     // Lambda
@@ -32,7 +32,6 @@ public interface ASTVisitor<P> {
     default void visitStmtDefClass(AST_Stmt_DefClass a, P p)    { visitDefault(a, p); }
 
     default void visit_Annotation(AST__Annotation a, P p)       { visitDefault(a, p); }
-    default void visit_Typename(AST__Typename a, P p)           { visitDefault(a, p); }
     default void visit_CompilationUnit(AST__CompilationUnit a, P p) { visitDefault(a, p); }
 
     default void visitDefault(AST a, P p) {
@@ -40,12 +39,12 @@ public interface ASTVisitor<P> {
     }
 
 
-    static <P> void _VisitStmts(ASTVisitor<P> visitor, List<AST_Stmt> stmts, P p) {
-        for (AST_Stmt stmt : stmts) {
-            stmt.accept(visitor, p);
-        }
-    }
-
+//    default void visit_Typename(AST__Typename a, P p)           { visitDefault(a, p); }
+//    static <P> void _VisitStmts(ASTVisitor<P> visitor, List<AST_Stmt> stmts, P p) {
+//        for (AST_Stmt stmt : stmts) {
+//            stmt.accept(visitor, p);
+//        }
+//    }
 //    static <P> void visit(AST a, ASTVisitor<P> visitor, P p) {
 //        a.accept(visitor, p);
 //    }

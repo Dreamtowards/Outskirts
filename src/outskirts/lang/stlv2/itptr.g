@@ -2,8 +2,6 @@
 /**
  * TODO ls;
  * 1. Type Diff. ClassInstance vs LiteralClass.
- * 2. Reduce of StackNew.
- * 3. Parse for TmpReference.
  */
 
 namespace stl.lang {
@@ -15,8 +13,8 @@ namespace stl.lang {
         int char_at(int i) {
             i = 2;
             int off = sizeof(int)*i;
-            int c = dereference<int>(this.base + off);
-            return c;
+            int c = dereference<int>(/*this.base +*/ off);
+            // return c;
 
             // int p = reference(c);
         }
@@ -43,11 +41,11 @@ class _main {
         // how we manulate it, a uniform way? or special for two.
 
         // lets see some "Same case" but may diff in rvals/lvals.
-        myinfo fr = myinfo();  // rval. cpy(esp-=sizeof(myinfo), localptr['fl'], sizeof(myinfo));
-        myinfo fl = fr;        // lval. cpy(pop_ptr(), localptr['fl'], sizeof(myinfo));
+        // myinfo fr = myinfo();  // rval. cpy(esp-=sizeof(myinfo), localptr['fl'], sizeof(myinfo));
+        // myinfo fl = fr;        // lval. cpy(pop_ptr(), localptr['fl'], sizeof(myinfo));
 
-        int itmp = myinfo().i;  // access rval. cpy(esp-=sizeof(myinfo) +fldIdx('i'), esp, sizeof(i.type));
-        int itmp = fl.i;        // access lval. push_ptr(pop_ptr() +fldIdx('i'));
+        // int itmp = myinfo().i;  // access rval. cpy(esp-=sizeof(myinfo) +fldIdx('i'), esp, sizeof(i.type));
+        // int itmp = fl.i;        // access lval. push_ptr(pop_ptr() +fldIdx('i'));
 
         // Assignment, MemberAccess, Ref and Deref (r/lvalues), StackAlloc-ObjectCreation
 
@@ -55,7 +53,7 @@ class _main {
         string s = string();  // object creation - stack-alloc
         // when dispose? is same as "string s;" ..?
 
-        s.base = 2;
+        // s.base = 2;
 
         i = s.base;
 

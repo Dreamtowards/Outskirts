@@ -4,7 +4,7 @@ import outskirts.lang.langdev.compiler.ClassFile;
 
 import java.util.NoSuchElementException;
 
-public class SymbolClass extends Symbol implements ScopedTypeSymbol {
+public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol {
 
     // public boolean isUsing = false;// nono, this will effect original DefClass.
 //    public SymbolVariable standardInstanced = new SymbolVariable("<any:this>", this, this);
@@ -19,7 +19,7 @@ public class SymbolClass extends Symbol implements ScopedTypeSymbol {
     }
 
     @Override
-    public Scope getTable() {
+    public Scope getSymbolTable() {
         return symtab;
     }
 
@@ -27,25 +27,26 @@ public class SymbolClass extends Symbol implements ScopedTypeSymbol {
 
     public int memoffset(String flname) {
         int size = OBJECT_HEADER_SIZE;
-        for (Symbol s : getTable().getMemberSymbols()) {
+        for (Symbol s : getSymbolTable().getMemberSymbols()) {
             if (s instanceof SymbolVariable) {
-                if (s.name.equals(flname))
+                if (s.getSimpleName().equals(flname))
                     return size;
-                size += ((SymbolVariable)s).type.typesize();
+                size += ((SymbolVariable)s).type.getTypesize();
             }
         }
         throw new NoSuchElementException();
     }
 
     @Override
-    public int typesize() {
+    public int getTypesize() {
         int size = OBJECT_HEADER_SIZE;
-        for (Symbol s : getTable().getMemberSymbols()) {
+        for (Symbol s : getSymbolTable().getMemberSymbols()) {
             if (s instanceof SymbolVariable) {
                 SymbolVariable c = (SymbolVariable)s;
-                size += c.type.typesize();
+                size += c.getType().getTypesize();
             }
         }
         return size;
     }
+
 }

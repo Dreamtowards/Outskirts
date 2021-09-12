@@ -1,6 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
-public class SymbolBuiltinType extends Symbol implements TypeSymbol {
+public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
 
     public SymbolBuiltinType(String name) {
         super(name);
@@ -21,20 +21,20 @@ public class SymbolBuiltinType extends Symbol implements TypeSymbol {
 
     @Override
     public String getQualifiedName() {
-        return name;
+        return getSimpleName();
     }
 
     @Override
-    public int typesize() {
+    public int getTypesize() {
         if (this == _int) return 4;
         if (this == _void) throw new IllegalStateException();
 //        if (this == _ptr) return 4;
 
-        throw new IllegalStateException(name);
+        throw new IllegalStateException(getSimpleName());
     }
 
     @Override
     public String toString() {
-        return "SymbolBuiltinType{"+name+"}";
+        return "SymbolBuiltinType{"+getSimpleName()+"}";
     }
 }

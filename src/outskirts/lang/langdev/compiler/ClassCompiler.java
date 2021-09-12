@@ -6,6 +6,7 @@ import outskirts.lang.langdev.ast.AST__Typename;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
 import outskirts.lang.langdev.symtab.SymbolBuiltinType;
+import outskirts.lang.langdev.symtab.SymbolVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,8 @@ public final class ClassCompiler {
         String thisclass = a.sym.getQualifiedName();
 
         List<String> superclasses = new ArrayList<>();
-        for (AST__Typename sup : a.getSuperTypenames()) {
-            superclasses.add(sup.sym.getQualifiedName());
+        for (AST_Expr sup_typ : a.getSuperTypeExpressions()) {
+            superclasses.add(sup_typ.getTypeSymbol().getQualifiedName());
         }
 
         List<ClassFile.Field> fields = new ArrayList<>();
@@ -41,11 +42,8 @@ public final class ClassCompiler {
                 AST_Stmt_DefFunc c = (AST_Stmt_DefFunc)m;
 
                 CodeBuf codebuf = new CodeBuf(constantpool);
-//                if (!isStatic) {
-//                    codebuf.defvar("this", SymbolBuiltinType._ptr);
-//                }
-                for (AST_Stmt_DefVar param : c.getParameters()) {
-                    codebuf.localdef(param.getName(), param.getTypename().sym);
+                for (SymbolVariable prm : c.symf.params) {
+                    codebuf.localdef(prm.getSimpleName(), prm.getType());
                 }
 
                 c.getBody().accept(new CodeGen(), codebuf);
@@ -53,9 +51,9 @@ public final class ClassCompiler {
 //                System.out.println("Compiled Function: "+codebuf);
                 c.symf.codebuf = codebuf;
 
-                String typename = "function<"+c.getReturnTypename().sym.getQualifiedName();
+                String typename = "function<"+c.getReturnTypeExpression().getTypeSymbol().getQualifiedName();
                 for (AST_Stmt_DefVar param : c.getParameters()) {
-                    typename += ", "+param.getTypename().sym.getQualifiedName();
+                    typename += ", "+param.getTypeExpression().getTypeSymbol().getQualifiedName();
                 }
                 typename += ">";
 
@@ -65,7 +63,7 @@ public final class ClassCompiler {
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
-                fields.add(new ClassFile.Field(c.getName(), modc, c.getTypename().sym.getQualifiedName()));
+                fields.add(new ClassFile.Field(c.getName(), modc, c.getTypeExpression().getTypeSymbol().getQualifiedName()));
             } else
                 throw new IllegalStateException("Unsupported member: "+m);
         }

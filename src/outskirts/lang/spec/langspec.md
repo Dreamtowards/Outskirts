@@ -46,8 +46,18 @@
 
 ### Pointers
 
+- Dereference
+- Reference
 
 ### Stack-Objects
+
+## Class
+
+
+
+- Instance Function (non-static)
+
+for all non-static function, there are a 'this' pointer argument at the 1st slot. standfor the instance.
 
 
 ## Instructions

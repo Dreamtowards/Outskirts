@@ -1,8 +1,7 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.symtab.BaseSymbol;
 import outskirts.lang.langdev.symtab.Symbol;
-import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 
 /**
@@ -13,16 +12,25 @@ public abstract class AST_Expr extends AST {
     // Return-Type Symbol.
     // public Symbol sym;
 
-    private TypeSymbol evaltype;
+    private Symbol evaltype;
+    // Not Type anymore.  (not only SymbolClass, SymbolBuiltinType, but also included SymbolNamespace, SymbolFunction, SymbolVariable
+
+    // Re-Consider. really needs 'evaltype_symbol'.? or just 'expr_symbol'.?
+    // Problem: how handle return-symbol from func-call.  what's differnece of symbol between '2+4' vs. 'int'.?
+    //   they are both SymbolBuiltinType, and may isn't a SymbolVariable because its not a var-name.
 
     /**
      * Evaluated TypeSymbol
      */
-    public final TypeSymbol getEvalTypeSymbol() {
+    public final Symbol getExprSymbol() {
         return evaltype;
     }
-    public final void setEvalTypeSymbol(TypeSymbol evalTypeSymbol) {
-        evaltype = evalTypeSymbol;
+    public final void setExprSymbol(Symbol sym) {
+        evaltype = sym;
     }
 
+    // just utility.
+    public final TypeSymbol getTypeSymbol() {
+        return (TypeSymbol)getExprSymbol();
+    }
 }
