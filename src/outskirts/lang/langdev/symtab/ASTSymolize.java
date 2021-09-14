@@ -16,27 +16,29 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         AST_Expr fexpr = a.getExpression();
         fexpr.accept(this, p);
 
-        Symbol fsym = fexpr.getExprSymbol();
-
+        Symbol s = fexpr.getExprSymbol();
 //        System.out.println("Found Function Invokation, ExprType: "+s+"/"+s.getQualifiedName());
 
-        if (fsym instanceof SymbolFunction) {  // Originally 'Exact' Function Calling.  expr_primary.iden(..) | iden(..)
-            Validate.isTrue(fexpr instanceof AST_Expr_PrimaryIdentifier ||
-                                fexpr instanceof AST_Expr_MemberAccess);
+        if (s instanceof SymbolFunction) {  // Originally 'Exact' Function Calling.  expr_primary.iden(..) | iden(..)
+            Validate.isTrue(fexpr instanceof AST_Expr_PrimaryIdentifier || fexpr instanceof AST_Expr_MemberAccess);
+            SymbolFunction sf = (SymbolFunction)s;
 
             // when a function is static, dont allows it been called from instance context. like: instExpr.stfunc();
             // this may not a good way to check.
-            if (((SymbolFunction)fsym).isStaticFunction && fexpr instanceof AST_Expr_MemberAccess) {
+            if (sf.isStaticFunction && fexpr instanceof AST_Expr_MemberAccess) {
                 // pkg.to.Class.Innr.stFunc();
                 AST_Expr prev = ((AST_Expr_MemberAccess)fexpr).getExpression();
                 Validate.isTrue(prev.getExprSymbol() instanceof SymbolNamespace ||
                                     prev.getExprSymbol() instanceof SymbolClass);  // unavailable check.
             }
 
-            a.setExprSymbol(((SymbolFunction)fsym).returntype);
-        } else if (fsym instanceof SymbolClass){  // Construction of Stack-Alloc-Object-Creation.  type(..).
+            a.setExprSymbol(sf.returntype);
+        } else if (s instanceof SymbolClass){  // Construction of Stack-Alloc-Object-Creation.  type(..).
+            if (fexpr.isLiteralTypeExpr) {
 
-            a.setExprSymbol(fsym);
+            }
+
+            a.setExprSymbol((SymbolClass)s); // ? s.getInstanceSymbol());
         } else {  // otherwise expr. Invoke "Invokation ()" operator to that object. or not.  // but still shoud in case of return-type SymbolClass.?
             throw new IllegalStateException();
         }
@@ -51,10 +53,11 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         lexpr.accept(this, p);
         ScopedSymbol lsym = (ScopedSymbol)lexpr.getExprSymbol();
 
-        BaseSymbol rsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());  // Var / Func. / Namespace..
+        Symbol rsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());  // Var / Func. / Namespace..
 
         // SymVar.?
         a.setExprSymbol(rsym instanceof SymbolVariable ? ((SymbolVariable)rsym).type : rsym);
+
     }
 
     @Override
@@ -278,7 +281,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitStmtUsing(AST_Stmt_Using a, Scope p) {
-        BaseSymbol used = p.resolveQualifiedExpr(a.getQualifiedExpression());
+        Symbol used = p.resolveQualifiedExpr(a.getQualifiedExpression());
 
         Validate.isTrue(a.isStatic() ? (used instanceof SymbolVariable) : (used instanceof SymbolClass));
 

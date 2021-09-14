@@ -3,7 +3,6 @@ package outskirts.lang.langdev.parser;
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.AST__Annotation;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.AST__Typename;
 import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;

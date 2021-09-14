@@ -18,6 +18,10 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         this.symtab = symtab;
     }
 
+//    public Symbol getInstanceSymbol() {  // really.?
+//        return ;
+//    }
+
     @Override
     public Scope getSymbolTable() {
         return symtab;

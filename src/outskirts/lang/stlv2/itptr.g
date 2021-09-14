@@ -1,7 +1,7 @@
 
 /**
  * TODO ls;
- * 1. Type Diff. ClassInstance vs LiteralClass.
+ * 1. Type Diff. TypeLiteral vs TypeInstance.
  */
 
 namespace stl.lang {
@@ -36,11 +36,6 @@ class _main {
 
         int i = 10;
 
-        // data-uniform of rvalues and lvalues on runtime.
-        // lvals always a ptr/addr, but rvals always a bunch of data.
-        // how we manulate it, a uniform way? or special for two.
-
-        // lets see some "Same case" but may diff in rvals/lvals.
         // myinfo fr = myinfo();  // rval. cpy(esp-=sizeof(myinfo), localptr['fl'], sizeof(myinfo));
         // myinfo fl = fr;        // lval. cpy(pop_ptr(), localptr['fl'], sizeof(myinfo));
 
@@ -62,17 +57,6 @@ class _main {
         // s.char_at(2);
 
         // retm()();  // problem. static-symbol vs. instance-symbol.
-
-        //Java// if (symf.isStatic) buf._invokestatic(symf.getQualifiedName());
-        //Cpp//  if (symf.isStatic) buf.push_fnaddr(symf.getQualifiedName()); buf._invokefunc()
-
-        // still requires evals the expr.
-        // stl.lang.string().inn.doSthRetStr().testStatic();  // call static on ret of some function
-
-        // (new string()).char_at(2);
-        // new $string
-        // getfield
-        // call fsym.QName();  // fail, curr the FuncCall doesn't have FuncSym/FuncName, just have Args, just a operator.
 
     }
 }
@@ -99,5 +83,21 @@ struct string
         return i;
     }
 }*/
+
+
+
+
+
+
+
+
+
+
+namespace ns.to.sth {
+    class MyType {}
+}
+MyType myinst;
+MyType myfunc() {..}
+
 
 

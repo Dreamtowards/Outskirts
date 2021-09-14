@@ -1,6 +1,5 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.symtab.BaseSymbol;
 import outskirts.lang.langdev.symtab.Symbol;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 
@@ -28,6 +27,8 @@ public abstract class AST_Expr extends AST {
     public final void setExprSymbol(Symbol sym) {
         evaltype = sym;
     }
+
+    public boolean isLiteralTypeExpr = false;
 
     // just utility.
     public final TypeSymbol getTypeSymbol() {

@@ -2,7 +2,6 @@ package outskirts.lang.langdev.compiler;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
-import outskirts.lang.langdev.ast.AST__Typename;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
 import outskirts.lang.langdev.symtab.SymbolBuiltinType;

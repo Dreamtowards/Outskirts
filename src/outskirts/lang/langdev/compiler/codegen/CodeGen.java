@@ -58,19 +58,18 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         ScopedSymbol lsym = (ScopedSymbol)lexpr.getExprSymbol();  // ScopedTypeSymbol.
 
         if (lsym instanceof SymbolClass) {
-            BaseSymbol membsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());
+            Symbol membsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());
 
             if (membsym instanceof SymbolVariable) {
 
                 // need optim.
-                buf._getfield(((BaseSymbol)lsym).getQualifiedName()+"."+a.getIdentifier());
+                buf._getfield(((Symbol)lsym).getQualifiedName()+"."+a.getIdentifier());
             } else {
                 // SymbolFunction, ignore.
                 throw new IllegalStateException("Unsupported Get Function Member.");
             }
-        } else {
-            // SymbolNamespace, ignore.
         }
+        // else: SymbolNamespace, ignore.
     }
 
     private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {

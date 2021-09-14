@@ -6,16 +6,17 @@ import java.util.List;
 
 public interface ASTVisitor<P> {
 
-    // Float, String  Double, Long
+    // needs default impl for iterates AST.children..? might doesn't needed now.
+
     default void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, P p)   { visitDefault(a, p); }
-    default void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, P p)   { visitDefault(a, p); }
+    default void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, P p)         { visitDefault(a, p); }
 
     default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
     default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }
     default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
     default void visitExprOperConditional(AST_Expr_OperConditional a, P p)     { visitDefault(a, p); }
     default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }
-    default void visitExprTmpDereference(AST_Expr_TmpDereference a, P p) { visitDefault(a, p); }
+    default void visitExprTmpDereference(AST_Expr_TmpDereference a, P p)       { visitDefault(a, p); }
     default void visitExprOperUnary(AST_Expr_OperUnary a, P p)                 { visitDefault(a, p); }
     default void visitExprOperBinary(AST_Expr_OperBinary a, P p)               { visitDefault(a, p); }
     // Lambda
@@ -31,7 +32,7 @@ public interface ASTVisitor<P> {
     default void visitStmtDefFunc(AST_Stmt_DefFunc a, P p)      { visitDefault(a, p); }
     default void visitStmtDefClass(AST_Stmt_DefClass a, P p)    { visitDefault(a, p); }
 
-    default void visit_Annotation(AST__Annotation a, P p)       { visitDefault(a, p); }
+    default void visit_Annotation(AST__Annotation a, P p)           { visitDefault(a, p); }
     default void visit_CompilationUnit(AST__CompilationUnit a, P p) { visitDefault(a, p); }
 
     default void visitDefault(AST a, P p) {
