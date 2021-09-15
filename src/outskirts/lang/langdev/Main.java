@@ -15,11 +15,12 @@ import java.io.IOException;
 public class Main {
 
     public static Scope glob;
+    public static Lexer currLxr;
 
     public static void main(String[] args) throws IOException {
 
         // Lex
-        Lexer lx = new Lexer();
+        Lexer lx = new Lexer(); currLxr = lx;
         lx.appendsource(IOUtils.toString(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/outskirts/lang/stlv2/itptr.g")));
 
         // Parse

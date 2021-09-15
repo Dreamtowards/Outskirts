@@ -50,7 +50,7 @@ class _main {
 
         // s.base = 2;
 
-        i = s.base;
+        // i = s.base;
 
         stl.lang.string.test();
 
@@ -92,12 +92,12 @@ struct string
 
 
 
-
+/*
 namespace ns.to.sth {
     class MyType {}
 }
 MyType myinst;
-MyType myfunc() {..}
+MyType myfunc() {..} */
 
 
 

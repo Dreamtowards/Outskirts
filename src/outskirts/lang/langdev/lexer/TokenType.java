@@ -21,7 +21,7 @@ public enum TokenType {
     LITERAL_TRUE("true"),
     LITERAL_FALSE("false"),
     // LITERAL_NULLPTR("nullptr"),
-    // THIS("this")
+     THIS("this"),
 
     CLASS("class"),
     NAMESPACE("namespace"),

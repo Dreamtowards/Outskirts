@@ -26,7 +26,7 @@ public final class Scope {
 
     // e.g. SymbolClass, SymbolNamespace.
     public Symbol symbolAssociated;
-    public AST astAssociated;
+//    public AST astAssociated;
 
     public Scope(Scope enclosing) {
         this.enclosing = enclosing;

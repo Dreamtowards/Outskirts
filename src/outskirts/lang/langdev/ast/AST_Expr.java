@@ -1,6 +1,7 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.symtab.Symbol;
+import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 
 /**
@@ -34,4 +35,5 @@ public abstract class AST_Expr extends AST {
     public final TypeSymbol getTypeSymbol() {
         return (TypeSymbol)getExprSymbol();
     }
+    public final TypeSymbol getVarTypeSymbol() { return ((SymbolVariable)getExprSymbol()).getType(); }
 }

@@ -13,7 +13,7 @@ import java.util.List;
  *
  */
 // this maybe temporary.  until Generic Available. vartype:: function<return_type, param_type...>
-public class SymbolFunction extends BaseSymbol {
+public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
     public final TypeSymbol returntype;
     public final List<SymbolVariable> params;
@@ -21,13 +21,16 @@ public class SymbolFunction extends BaseSymbol {
 
     public CodeBuf codebuf;
 
-    public boolean isStaticFunction;
+    private final short modifiercode;
 
-    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass) {
+//    public boolean isStaticFunction;  // todo: reduce by: Modifiers.isStatic(getModifierCode());
+
+    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode) {
         super(name);
         this.params = params;
         this.returntype = returntype;
         this.ownerclass = ownerclass;
+        this.modifiercode = modifiercode;
     }
 
     public TypeSymbol getReturnType() {
@@ -41,4 +44,8 @@ public class SymbolFunction extends BaseSymbol {
         return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+returntype.getQualifiedName();
     }
 
+    @Override
+    public short getModifierCode() {
+        return modifiercode;
+    }
 }

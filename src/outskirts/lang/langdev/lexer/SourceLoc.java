@@ -36,6 +36,9 @@ public final class SourceLoc {
 
     @Override
     public String toString() {
-        return String.format("SourceLoc{file: %s, on: \"%s\", at: [%s+](%s:%s+)}", sourceLocation, source.substring(beginIndex, endIndex), beginIndex, getLineNumber(), getCharNumber());
+        return String.format("SourceLoc{\"%s\" (%s:%s+%s) \"%s\"}",
+                source.substring(beginIndex, endIndex),
+                getLineNumber()+1, getCharNumber()+1, endIndex-beginIndex,
+                sourceLocation);
     }
 }

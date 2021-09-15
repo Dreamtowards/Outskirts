@@ -17,15 +17,16 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
     private final List<AST_Stmt_DefVar> params; // unclear
     private final AST_Stmt_Block body;     // ?? block ??or expr?
 
-    public AST__Modifiers modifiers;
+    private final AST__Modifiers modifiers;
 
     public SymbolFunction symf;
 
-    public AST_Stmt_DefFunc(AST_Expr returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body) {
+    public AST_Stmt_DefFunc(AST_Expr returntype, String name, List<AST_Stmt_DefVar> params, AST_Stmt_Block body, AST__Modifiers modifiers) {
         this.returntype = returntype;
         this.name = name;
         this.params = params;
         this.body = body;
+        this.modifiers = modifiers;
     }
 
     public String getName() {

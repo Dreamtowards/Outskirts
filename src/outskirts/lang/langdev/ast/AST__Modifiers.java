@@ -1,6 +1,7 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.lexer.TokenType;
+import outskirts.lang.langdev.symtab.Modifiers;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,10 +20,15 @@ public class AST__Modifiers extends AST {
         return annotations;
     }
 
-    public final boolean isStatic() {
-        return modifiers.contains(TokenType.STATIC);
+    public short getModifierCode() {
+        return Modifiers.of(modifiers);  // todo: init cache
     }
 
-    public static AST__Modifiers DEFAULT = new AST__Modifiers(Collections.emptyList(), Collections.emptyList());
+    public final boolean isEmpty() {
+        return annotations.size()==0 && modifiers.size()==0;
+    }
+
+    // dont use global DEFAULT/EMPTY. every AST have different SourceLocation. they represents themselves.
+    // public static AST__Modifiers DEFAULT = new AST__Modifiers(Collections.emptyList(), Collections.emptyList());
 
 }

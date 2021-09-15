@@ -5,6 +5,7 @@ import outskirts.lang.langdev.ast.AST__Annotation;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
+import outskirts.lang.langdev.lexer.SourceLoc;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.util.Validate;
@@ -304,12 +305,13 @@ public final class LxParser {
             case RETURN:
                 return parseStmtReturn(lx);
             default:
-                AST__Modifiers modifiers = parse_Modifiers(lx);
                 lx.mark();
+                AST__Modifiers modifiers = parse_Modifiers(lx);  // simply consume.
 
                 if (lx.peeking(TokenType.CLASS))
                 {
-                    AST_Stmt_DefClass a = parseStmtDefClass(lx); a.modifiers = modifiers; return a;
+                    lx.unmark();
+                    return parseStmtDefClass(lx);
                 }
                 else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
                 {
@@ -317,19 +319,19 @@ public final class LxParser {
                     lx.unmark();
                     if (t == TokenType.LPAREN)
                     {
-                        AST_Stmt_DefFunc a = parseStmtDefFunc(lx); a.modifiers = modifiers; return a;
+                        return parseStmtDefFunc(lx);
                     }
                     else if (t == TokenType.EQ || t == TokenType.SEMI)
                     {
-                        AST_Stmt_DefVar a = parseStmtDefVar(lx); a.modifiers = modifiers; return a;
+                        return parseStmtDefVar(lx);
                     }
                     else throw new IllegalStateException();
                 }
                 else
                 {
-                    Validate.isTrue(modifiers == AST__Modifiers.DEFAULT, "illegal modifiers exists.");
-
+                    Validate.isTrue(modifiers.isEmpty(), "illegal modifiers exists.");
                     lx.unmark();
+
                     return parseStmtExpr(lx);
                 }
         }
@@ -426,6 +428,7 @@ public final class LxParser {
 
 
     public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
+        AST__Modifiers mdf = parse_Modifiers(lx);
 
         AST_Expr rettype = parse_TypeExpression(lx);
         String name = lx.next(TokenType.IDENTIFIER).content();
@@ -436,7 +439,7 @@ public final class LxParser {
 
         var body = parseStmtBlock(lx);
 
-        return new AST_Stmt_DefFunc(rettype, name, params, body);
+        return new AST_Stmt_DefFunc(rettype, name, params, body, mdf);
     }
 
     public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
@@ -447,6 +450,8 @@ public final class LxParser {
 
     // not the ';'. for support of FuncParams.
     public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {
+        AST__Modifiers mdf = parse_Modifiers(lx);
+
         AST_Expr type = parse_TypeExpression(lx);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
@@ -455,10 +460,12 @@ public final class LxParser {
             init = parseExpr(lx);
         }
 
-        return new AST_Stmt_DefVar(type, name, init);
+        return new AST_Stmt_DefVar(type, name, init, mdf);
     }
 
     public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
+        AST__Modifiers mdf = parse_Modifiers(lx);
+
         lx.next(TokenType.CLASS);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
@@ -478,7 +485,7 @@ public final class LxParser {
         // validate member type.
         stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
 
-        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members);
+        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members, mdf);
     }
 
 
@@ -531,9 +538,6 @@ public final class LxParser {
             Validate.isTrue(!modifiers.contains(t.type()), "modifier '"+t+"' duplicated.");
             modifiers.add(t.type());
         }
-
-        if (annos.isEmpty() && modifiers.isEmpty())
-            return AST__Modifiers.DEFAULT;
 
         return new AST__Modifiers(annos, modifiers);
     }

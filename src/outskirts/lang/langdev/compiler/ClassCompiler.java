@@ -4,6 +4,7 @@ import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
+import outskirts.lang.langdev.symtab.Modifiers;
 import outskirts.lang.langdev.symtab.SymbolBuiltinType;
 import outskirts.lang.langdev.symtab.SymbolVariable;
 
@@ -26,13 +27,9 @@ public final class ClassCompiler {
 
         List<ClassFile.Field> fields = new ArrayList<>();
         for (AST_Stmt m : a.getMembers()) {
-            AST__Modifiers modif = ((AST.Modifierable)m).getModifiers();
+            AST__Modifiers mdf = ((AST.Modifierable)m).getModifiers();
 
-            boolean isStatic = modif.isStatic();
-
-            short modc = 0;
-            if (isStatic)
-                modc |= ClassFile.Field.MASK_STATIC;
+            boolean isStatic = Modifiers.isStatic(mdf.getModifierCode());
 
             if (m instanceof AST_Stmt_DefClass) {
                 compileClass((AST_Stmt_DefClass)m);
@@ -56,13 +53,13 @@ public final class ClassCompiler {
                 }
                 typename += ">";
 
-                ClassFile.Field fld = new ClassFile.Field(c.getName(), modc, typename);
+                ClassFile.Field fld = new ClassFile.Field(c.getName(), mdf.getModifierCode(), typename);
                 fld._codebuf = codebuf;
                 fields.add(fld);
             } else if (m instanceof AST_Stmt_DefVar) {
                 AST_Stmt_DefVar c = (AST_Stmt_DefVar)m;
 
-                fields.add(new ClassFile.Field(c.getName(), modc, c.getTypeExpression().getTypeSymbol().getQualifiedName()));
+                fields.add(new ClassFile.Field(c.getName(), mdf.getModifierCode(), c.getTypeExpression().getTypeSymbol().getQualifiedName()));
             } else
                 throw new IllegalStateException("Unsupported member: "+m);
         }

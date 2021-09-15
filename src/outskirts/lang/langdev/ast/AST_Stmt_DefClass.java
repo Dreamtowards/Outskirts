@@ -13,12 +13,13 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
     private final List<AST_Expr> superclasses;  // nullable.
     private final List<AST_Stmt> members;
 
-    public AST__Modifiers modifiers;
+    private final AST__Modifiers modifiers;
 
-    public AST_Stmt_DefClass(String name, List<AST_Expr_PrimaryIdentifier> genericParams, List<AST_Expr> superclasses, List<AST_Stmt> members) {
+    public AST_Stmt_DefClass(String name, List<AST_Expr_PrimaryIdentifier> genericParams, List<AST_Expr> superclasses, List<AST_Stmt> members, AST__Modifiers modifiers) {
         this.name = name;
         this.superclasses = superclasses;
         this.members = members;
+        this.modifiers = modifiers;
         // System.out.println("ClassDef: "+name+", sups: "+ Arrays.toString(superclasses)+", membs: "+ Arrays.toString(members));
     }
 

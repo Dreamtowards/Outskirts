@@ -52,24 +52,36 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // fncall().rsdat
 
         AST_Expr lexpr = a.getExpression();
-
         lexpr.accept(this, buf);
 
-        ScopedSymbol lsym = (ScopedSymbol)lexpr.getExprSymbol();  // ScopedTypeSymbol.
+        Symbol s = lexpr.getExprSymbol();
 
-        if (lsym instanceof SymbolClass) {
-            Symbol membsym = lsym.getSymbolTable().resolveMember(a.getIdentifier());
+        if (s instanceof SymbolClass) {
+            Symbol membsym = ((SymbolClass)s).getSymbolTable().resolveMember(a.getIdentifier());
+
+            if (membsym instanceof SymbolVariable) {
+
+                throw new IllegalStateException("Unsupported get static member variable");
+            } else {
+                // SymbolFunction, ignore.
+                throw new IllegalStateException("Unsupported get static function address member.");
+            }
+        } else if (s instanceof SymbolVariable) {
+            Symbol membsym = ((SymbolClass)((SymbolVariable)s).getType()).getSymbolTable().resolveMember(a.getIdentifier());
+
 
             if (membsym instanceof SymbolVariable) {
 
                 // need optim.
-                buf._getfield(((Symbol)lsym).getQualifiedName()+"."+a.getIdentifier());
+                buf._getfield(s.getQualifiedName()+"."+a.getIdentifier());
             } else {
                 // SymbolFunction, ignore.
-                throw new IllegalStateException("Unsupported Get Function Member.");
+                throw new IllegalStateException("Unsupported get function address member.");
             }
+        } else if (!(s instanceof SymbolNamespace)) {  // SymbolNamespace can be ignore.
+            throw new IllegalStateException();
         }
-        // else: SymbolNamespace, ignore.
+
     }
 
     private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {
@@ -94,8 +106,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             SymbolFunction sf = (SymbolFunction)s;
             String sfname = sf.getQualifiedName();
 
+            // only non-static function needs executes expr.
             // while an expr is static, 'call by instance-expr' is not allowed.
-            if (!sf.isStaticFunction) {
+            if (!sf.isStatic()) {
                 a.getExpression().accept(this, buf);
             }
 
@@ -130,9 +143,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         expr.accept(this, buf);
 
-        Symbol rettyp = expr.getExprSymbol();
+        TypeSymbol rettyp = expr.getVarTypeSymbol();
         if (rettyp != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
-            buf._pop(((TypeSymbol)rettyp).getTypesize());  // erases the expression return value.
+            buf._pop(rettyp.getTypesize());  // erases the expression return value.
         }
     }
 
@@ -195,7 +208,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             if (lhs instanceof AST_Expr_PrimaryIdentifier) {
                 // exec val.
                 rhs.accept(this, buf);
-                buf._dup(rhs.getTypeSymbol().getTypesize());  // the eval-expr really returns a TypeLiteral.? think there should a instance-variable thing.
+                buf._dup(rhs.getVarTypeSymbol().getTypesize());  // the eval-expr really returns a TypeLiteral.? think there should a instance-variable thing.
 
                 buf._store(((AST_Expr_PrimaryIdentifier)lhs).getName());
 

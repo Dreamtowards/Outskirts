@@ -21,9 +21,17 @@ public final class Lexer {
 
 //    private Token curr;
 
+    public String sourceLocation = "file://SomeWhere/abc.n";
     private String srx = "";  // Source
     private int rdi;     // ReadIndex.
-    private final LinkedList<Integer> rdimarkers = new LinkedList<>();
+    private final LinkedList<Integer> rdimarkers = new LinkedList<>();  // for mark/setback.
+
+    private final LinkedList<Integer> markedreadidxs = new LinkedList<>();  // for pushIdx, popIdx. AST SourceLocation QuickRangeDefine
+
+    public String getSource() { return srx; }
+    public void pushReadIdx() { markedreadidxs.push(rdi); }
+    public int popReadIdx() { return markedreadidxs.pop(); }
+    public int readidx() { return rdi; }
 
     // read/next/peek
 
@@ -90,7 +98,7 @@ public final class Lexer {
                         break;
                     }
                 }
-                Validate.isTrue(type != null, "Not found keyword at '"+ srx.substring(beg, beg+10)+"'");
+                Validate.isTrue(type != null, "Not found keyword at '"+ srx.substring(beg, Math.min(srx.length()-1, idx.i))+"'");
             }
         }
 
