@@ -65,9 +65,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 // nothing.
                 break;
             case DEREF:
-                if (expr.getVarSymbol().hasAddress()) {
-                    buf._loadv(SymbolBuiltinTypePointer.PTR_SIZE);
-                }
+                lvalue_loadv(buf, expr);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -103,9 +101,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             SymbolVariable sv = (SymbolVariable)s;
             SymbolClass typ = (SymbolClass)sv.getType();
             Symbol ms = typ.getSymbolTable().resolveMember(a.getIdentifier());
-            int off = typ.memoffset(a.getIdentifier());
 
             if (ms instanceof SymbolVariable) {
+                int off = typ.memoffset(a.getIdentifier());
                 if (sv.hasAddress()) {  // ptr offset.
                     buf._ldv_i(off);
                     buf._i32add();
@@ -136,8 +134,8 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, CodeBuf buf) {
-
-        Symbol s = a.getExpression().getExprSymbol();
+        AST_Expr expr = a.getExpression();
+        Symbol s = expr.getExprSymbol();
 
         // series().of.exprs().funcName(arg1);
         // funcName(exprs(series().of), arg1)
@@ -153,7 +151,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             // only non-static function needs executes expr.
             // while an expr is static, 'call by instance-expr' is not allowed.
             if (!sf.isStatic()) {
-                a.getExpression().accept(this, buf);
+                if (expr instanceof AST_Expr_MemberAccess) {
+                    ((AST_Expr_MemberAccess)expr).getExpression()
+                            .accept(this, buf);
+                }
             }
 
             _visitFuncArguments(a.getArguments(), this, buf);
@@ -247,7 +248,12 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     }
 
 
-
+    // currently only for int (binary-op, dereference-addr). will it working for composied types.?
+    private static void lvalue_loadv(CodeBuf buf, AST_Expr expr) {
+        if (expr.getVarSymbol().hasAddress()) {
+            buf._loadv(expr.getVarTypeSymbol().getTypesize());
+        }
+    }
 
 
     @Override
@@ -320,7 +326,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 //            }
         } else {
             lhs.accept(this, buf);
+            lvalue_loadv(buf, lhs);
+
             rhs.accept(this, buf);
+            lvalue_loadv(buf, rhs);
 
             switch (a.getBinaryKind()) {
                 case ADD: {

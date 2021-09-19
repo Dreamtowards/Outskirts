@@ -201,38 +201,38 @@ public class Machine {
 
                     break;
                 }
-                case GETFIELD: {
-                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
-
-                    int bord = qualidname.lastIndexOf('.');
-                    String clname = qualidname.substring(0, bord);
-                    String flname = qualidname.substring(bord+1);
-
-                    SymbolClass cl = resolveClass(clname);
-                    int clsz = cl.getTypesize();
-                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
-                    int fl_typ_sz = fl_type.getTypesize();
-
-                    int beg_ = esp - clsz;
-                    memcpy(beg_+cl.memoffset(flname), beg_, fl_typ_sz);
-
-                    break;
-                }
-                case PUTFIELD: {
-                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
-
-                    int bord = qualidname.lastIndexOf('.');
-                    String clname = qualidname.substring(0, bord);
-                    String flname = qualidname.substring(bord+1);
-
-                    SymbolClass cl = resolveClass(clname);
-                    int clsz = cl.getTypesize();
-                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
-                    int fl_typ_sz = fl_type.getTypesize();
-
-
-                    break;
-                }
+//                case GETFIELD: {
+//                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
+//
+//                    int bord = qualidname.lastIndexOf('.');
+//                    String clname = qualidname.substring(0, bord);
+//                    String flname = qualidname.substring(bord+1);
+//
+//                    SymbolClass cl = resolveClass(clname);
+//                    int clsz = cl.getTypesize();
+//                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
+//                    int fl_typ_sz = fl_type.getTypesize();
+//
+//                    int beg_ = esp - clsz;
+//                    memcpy(beg_+cl.memoffset(flname), beg_, fl_typ_sz);
+//
+//                    break;
+//                }
+//                case PUTFIELD: {
+//                    String qualidname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
+//
+//                    int bord = qualidname.lastIndexOf('.');
+//                    String clname = qualidname.substring(0, bord);
+//                    String flname = qualidname.substring(bord+1);
+//
+//                    SymbolClass cl = resolveClass(clname);
+//                    int clsz = cl.getTypesize();
+//                    TypeSymbol fl_type = ((SymbolVariable)cl.getSymbolTable().resolveMember(flname)).type;
+//                    int fl_typ_sz = fl_type.getTypesize();
+//
+//
+//                    break;
+//                }
                 case JMP: {
                     ip = readShort(code, ip);
                     break;
@@ -301,10 +301,12 @@ public class Machine {
             }
         }
 
-        byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp+8);
+        byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp);
 //        lcspc = CollectionUtils.subarray(MemSpace, 0, 32);
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
+
+        esp = begin_esp;
     }
 
     public static final byte CMPR_LT = 0,

@@ -220,7 +220,7 @@ public final class LxParser {
         } else if (lx.peeking(TokenType.LPAREN)) {
             lx.mark();
             lx.next();
-            try {
+            try {  // there is little part, so doesn't needed use _IsPass strict detect.
                 AST_Expr type = parse_TypeExpression(lx);
                 lx.next(TokenType.RPAREN);
 
@@ -335,11 +335,8 @@ public final class LxParser {
                     lx.unmark();
                     return parseStmtDefClass(lx);
                 }
-
-                try {
-                    parse_TypeExpression(lx);
-                    parseExprPrimaryIdentifier(lx);  // is: Typename id
-
+                else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
+                {
                     TokenType t = lx.peek().type();
                     lx.unmark();
                     if (t == TokenType.LPAREN)
@@ -351,34 +348,14 @@ public final class LxParser {
                         return parseStmtDefVar(lx);
                     }
                     else throw new IllegalStateException();
-                } catch (Exception ex) {
-                    // failed. not DefFunc or DefVar. expect StmtExpr.
-                    Validate.isTrue(modifiers.empty(), "illegal modifiers exists.");
+                }
+                else
+                {
+                    Validate.isTrue(modifiers.empty(), "illegal modifiers exists."+modifiers);
                     lx.unmark();
 
                     return parseStmtExpr(lx);
                 }
-//                else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
-//                {
-//                    TokenType t = lx.peek().type();
-//                    lx.unmark();
-//                    if (t == TokenType.LPAREN)
-//                    {
-//                        return parseStmtDefFunc(lx);
-//                    }
-//                    else if (t == TokenType.EQ || t == TokenType.SEMI)
-//                    {
-//                        return parseStmtDefVar(lx);
-//                    }
-//                    else throw new IllegalStateException();
-//                }
-//                else
-//                {
-//                    Validate.isTrue(modifiers.empty(), "illegal modifiers exists.");
-//                    lx.unmark();
-//
-//                    return parseStmtExpr(lx);
-//                }
         }
     }
 

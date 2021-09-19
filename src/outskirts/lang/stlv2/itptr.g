@@ -23,7 +23,7 @@ namespace stl.lang {
 
         int char_at(int i) {
             i = 2;
-            int c = *( (((*this).base as int) + (sizeof(int) * i)) as int*);
+            int c = *(int*)( (int)(*this).base + sizeof(int) * i );
             // return c;
         }
 
@@ -41,11 +41,16 @@ namespace stl.lang {
             int j = 12;
             int* p = &j;
 
-            //*(0 as int*) = 3;
+            // *(0 as int*) = 3;
+            // *(int*)0 = 3;
 
             string s = string();
-            s.base = 4 as int*;
-            *((int*)0) = (int)s.base;
+            s.base = (int*)4;  //  4 as int*;
+            *(int*)0 = (int)s.base;
+
+            // i = *p * 2;
+
+            int c = s.char_at(1);
 
             //i = string().base as int;
 
