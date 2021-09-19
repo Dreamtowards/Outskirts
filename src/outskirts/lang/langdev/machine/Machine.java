@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.machine;
 
+import org.lwjgl.Sys;
 import outskirts.lang.langdev.Main;
 import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
@@ -126,6 +127,7 @@ public class Machine {
                     int srcp = esp;
                     int dstp = popi32();
                     memcpy(srcp, dstp, sz);
+                    System.out.println("PopCpy: "+srcp+"->"+dstp);
 
                     break;
                 }
@@ -147,22 +149,29 @@ public class Machine {
 
                     break;
                 }
-                case LDPTR: {
-                    byte sz = code[ip++];
+                case STKPTR_OFF: {
+                    byte off = code[ip++];
 
-                    int ptr = popi32();
-                    pushn(ptr, sz);
-
-                    break;
-                }
-                case STPTR: {
-                    byte sz = code[ip++];
-
-                    int ptr = popi32();
-                    popn(ptr, sz);
+                    pushi32(esp+off);
 
                     break;
                 }
+//                case LDPTR: {
+//                    byte sz = code[ip++];
+//
+//                    int ptr = popi32();
+//                    pushn(ptr, sz);
+//
+//                    break;
+//                }
+//                case STPTR: {
+//                    byte sz = code[ip++];
+//
+//                    int ptr = popi32();
+//                    popn(ptr, sz);
+//
+//                    break;
+//                }
                 case INVOKEFUNC: {
                     String sfname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
 
@@ -185,7 +194,7 @@ public class Machine {
 
                     SymbolClass cl = resolveClass(clname);
                     int sz = cl.getTypesize();
-                    System.out.println("SIZE"+sz);
+//                    System.out.println("SIZE"+sz);
 
                     memset(esp, sz, 0);
                     esp += sz;
@@ -292,7 +301,7 @@ public class Machine {
             }
         }
 
-        byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp);
+        byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp+8);
 //        lcspc = CollectionUtils.subarray(MemSpace, 0, 32);
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));

@@ -97,9 +97,18 @@ public class CodeBuf {
         append((byte)sz);
     }
 
+    public void _stkptroff(int off) {
+        append(STKPTR_OFF);
+        append((byte)off);
+    }
+
     public void _ldc(short cpidx) {
         append(LDC);
         appendShort(cpidx);
+    }
+
+    public void _ldv_i(int v) {
+        _ldc(cp.ensureInt32(v));
     }
 
     // funcptr, args...
@@ -113,15 +122,15 @@ public class CodeBuf {
         appendShort(cp.ensureUtf8(clname));
     }
 
-    public void _getfield(String flname) {
-        append(GETFIELD);
-        appendShort(cp.ensureUtf8(flname));
-    }
-
-    public void _putfield(String flname) {
-        append(PUTFIELD);
-        appendShort(cp.ensureUtf8(flname));
-    }
+//    public void _getfield(String flname) {
+//        append(GETFIELD);
+//        appendShort(cp.ensureUtf8(flname));
+//    }
+//
+//    public void _putfield(String flname) {
+//        append(PUTFIELD);
+//        appendShort(cp.ensureUtf8(flname));
+//    }
 
     public void _jmpifn(int i) {
         append(JMP_F);
@@ -176,15 +185,15 @@ public class CodeBuf {
         append((byte)n);
     }
 
-    public void _ldptr(int sz) {
-        append(LDPTR);
-        append((byte)sz);
-    }
-
-    public void _stptr(int sz) {
-        append(STPTR);
-        append((byte)sz);
-    }
+//    public void _ldptr(int sz) {
+//        append(LDPTR);
+//        append((byte)sz);
+//    }
+//
+//    public void _stptr(int sz) {
+//        append(STPTR);
+//        append((byte)sz);
+//    }
 
     void append(byte b) {
         buf.add(b);

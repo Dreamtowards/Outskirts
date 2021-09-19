@@ -2,7 +2,6 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
-import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
@@ -62,11 +61,10 @@ public class ASTSymolize implements ASTVisitor<Scope> {
      */
     @Override
     public void visitExprMemberAccess(AST_Expr_MemberAccess a, Scope p) {
-        AST_Expr lexpr = a.getExpression();
-        lexpr.accept(this, p);
+        AST_Expr expr = a.getExpression();
+        expr.accept(this, p);
 
-        Symbol s = lexpr.getExprSymbol();
-
+        Symbol s = expr.getSymbol();
         ScopedSymbol lp;
         if (s instanceof SymbolVariable) {  // access from Instance.
             lp = (ScopedSymbol) ((SymbolVariable)s).getType();
@@ -74,7 +72,12 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             lp = (ScopedSymbol) s;
         }
 
-        a.setExprSymbol(lp.getSymbolTable().resolveMember(a.getIdentifier()));
+        Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());
+        if (ms instanceof SymbolVariable && s instanceof SymbolVariable) {  // val.memb;  when left expr is rval, access expr are rval.
+            a.setExprSymbol(((SymbolVariable)ms).getType().valsym(((SymbolVariable)s).hasAddress()));
+        } else {
+            a.setExprSymbol(ms);
+        }
 
         // validate static access.
         if (s instanceof SymbolVariable) {  // access from Instance. required non-static access.
@@ -139,7 +142,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         a.getRightOperand().accept(this, p);
 
         if (a.getLeftOperand().getVarTypeSymbol() != a.getRightOperand().getVarTypeSymbol())
-            throw new UnsupportedOperationException("Incpompactble OperBin "+a.getLeftOperand().getExprSymbol().getQualifiedName()+", "+a.getRightOperand().getExprSymbol().getQualifiedName());
+            throw new UnsupportedOperationException("Incpompactble OperBin: "+a.getLeftOperand().getExprSymbol().getQualifiedName()+", "+a.getRightOperand().getExprSymbol().getQualifiedName());
 
         switch (a.getBinaryKind()) {
             case LT: case LTEQ: case GT: case GTEQ: case IS:
@@ -216,7 +219,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         // assert isCapabile()
 
-        a.setExprSymbol(a.getType().getTypeSymbol().valsymbol(a.getExpression().getVarSymbol().hasAddress()));
+        a.setExprSymbol(a.getType().getTypeSymbol().valsym(a.getExpression().getVarSymbol().hasAddress()));
     }
 
     @Override
@@ -250,6 +253,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitStmtDefFunc(AST_Stmt_DefFunc a, Scope _p) {
+        SymbolClass ownerclass = (SymbolClass)_p.symbolAssociated;
 
         a.getReturnTypeExpression().accept(this, _p);
 
@@ -258,8 +262,8 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         List<SymbolVariable> param_syms = new ArrayList<>();
         // manually add "this" ptr for non-static function.
         if (!Modifiers.isStatic(a.getModifiers().getModifierCode())) {
-            SymbolVariable sv;
-            fnp.defineAsCustomName("this", sv=SymbolBuiltinTypePointer.of(a.symf.ownerclass).lvalue());
+            SymbolVariable sv = new SymbolVariable("this", SymbolBuiltinTypePointer.of(ownerclass), (short)0, true);
+            fnp.define(sv);
             param_syms.add(sv);
         }
         for (AST_Stmt_DefVar prm : a.getParameters()) {
@@ -268,7 +272,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         }
 
         SymbolFunction sf = new SymbolFunction(a.getName(), param_syms, a.getReturnTypeExpression().getTypeSymbol(),
-                (SymbolClass)_p.symbolAssociated, a.getModifiers().getModifierCode(), fnp);
+                ownerclass, a.getModifiers().getModifierCode(), fnp);
         fnp.symbolAssociated = sf;  // before body. return_stmt needs lookupEnclosingFunction to validates return-type.
         a.symf = sf;
         _p.define(sf);  // before body. recursive funcCall should can resolve self-calling.

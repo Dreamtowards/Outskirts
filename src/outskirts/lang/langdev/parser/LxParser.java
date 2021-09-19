@@ -217,9 +217,22 @@ public final class LxParser {
         if ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB, TokenType.PLUS, TokenType.SUB, TokenType.BANG, TokenType.TILDE, TokenType.AMP, TokenType.STAR)) != null) {
             AST_Expr r = parseExpr3UnaryPre(lx);
             return new AST_Expr_OperUnary(r, AST_Expr_OperUnary.UnaryKind.of(opr.type(), false));
-        } else {
-            return parseExpr2UnaryPost(lx);
+        } else if (lx.peeking(TokenType.LPAREN)) {
+            lx.mark();
+            lx.next();
+            try {
+                AST_Expr type = parse_TypeExpression(lx);
+                lx.next(TokenType.RPAREN);
+
+                AST_Expr r = parseExpr3UnaryPre(lx);
+                lx.cancelmark();
+                return new AST_Expr_TypeCast(r, type);
+            } catch (Exception ex) {
+                lx.unmark();
+                // failed. not TypeCast. nexlv.
+            }
         }
+        return parseExpr2UnaryPost(lx);
     }
 
     public static AST_Expr parseExpr31TypeCast(Lexer lx) {
@@ -322,8 +335,11 @@ public final class LxParser {
                     lx.unmark();
                     return parseStmtDefClass(lx);
                 }
-                else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
-                {
+
+                try {
+                    parse_TypeExpression(lx);
+                    parseExprPrimaryIdentifier(lx);  // is: Typename id
+
                     TokenType t = lx.peek().type();
                     lx.unmark();
                     if (t == TokenType.LPAREN)
@@ -335,14 +351,34 @@ public final class LxParser {
                         return parseStmtDefVar(lx);
                     }
                     else throw new IllegalStateException();
-                }
-                else
-                {
+                } catch (Exception ex) {
+                    // failed. not DefFunc or DefVar. expect StmtExpr.
                     Validate.isTrue(modifiers.empty(), "illegal modifiers exists.");
                     lx.unmark();
 
                     return parseStmtExpr(lx);
                 }
+//                else if (_IsPass(lx, LxParser::parse_TypeExpression) && _IsPass(lx, LxParser::parseExprPrimaryIdentifier))  // is: Typename id
+//                {
+//                    TokenType t = lx.peek().type();
+//                    lx.unmark();
+//                    if (t == TokenType.LPAREN)
+//                    {
+//                        return parseStmtDefFunc(lx);
+//                    }
+//                    else if (t == TokenType.EQ || t == TokenType.SEMI)
+//                    {
+//                        return parseStmtDefVar(lx);
+//                    }
+//                    else throw new IllegalStateException();
+//                }
+//                else
+//                {
+//                    Validate.isTrue(modifiers.empty(), "illegal modifiers exists.");
+//                    lx.unmark();
+//
+//                    return parseStmtExpr(lx);
+//                }
         }
     }
 

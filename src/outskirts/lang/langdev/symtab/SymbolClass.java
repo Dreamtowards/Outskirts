@@ -27,7 +27,7 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         return symtab;
     }
 
-    private static final int OBJECT_HEADER_SIZE = 8;
+    private static final int OBJECT_HEADER_SIZE = 4;
 
     public int memoffset(String flname) {
         int size = OBJECT_HEADER_SIZE;

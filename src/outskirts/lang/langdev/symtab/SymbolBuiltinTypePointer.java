@@ -10,7 +10,7 @@ public class SymbolBuiltinTypePointer extends SymbolBuiltinType {
     private final TypeSymbol ptrtype;
 
     public SymbolBuiltinTypePointer(TypeSymbol ptrtype) {
-        super(null);  // this name ..?  the name seems meaningless. wouldn't be used.  // edit: into null.
+        super(ptrtype.getQualifiedName()+"*");  // this name ..?  the name seems meaningless. wouldn't be used.  // edit: into null.
 
         this.ptrtype = ptrtype;
     }

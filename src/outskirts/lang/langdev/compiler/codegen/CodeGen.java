@@ -16,7 +16,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         switch (a.getLiteralKind()) {
             case INT32:
-                buf._ldc(buf.cp.ensureInt32(a.getInt32()));
+                buf._ldv_i(a.getInt32());
                 break;
             default:
                 throw new IllegalStateException();
@@ -34,7 +34,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, CodeBuf buf) {
         int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
-        buf._ldc(buf.cp.ensureInt32(sz));
+        buf._ldv_i(sz);
     }
 
 //    @Override
@@ -84,15 +84,15 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // std.lang.Class.innr.fld.
         // fncall().rsdat
 
-        AST_Expr lexpr = a.getExpression();
-        lexpr.accept(this, buf);
+        AST_Expr expr = a.getExpression();
+        expr.accept(this, buf);
 
-        Symbol s = lexpr.getExprSymbol();
+        Symbol s = expr.getExprSymbol();
 
         if (s instanceof SymbolClass) {
-            Symbol membsym = ((SymbolClass)s).getSymbolTable().resolveMember(a.getIdentifier());
+            Symbol ms = ((SymbolClass)s).getSymbolTable().resolveMember(a.getIdentifier());
 
-            if (membsym instanceof SymbolVariable) {
+            if (ms instanceof SymbolVariable) {
 
                 throw new IllegalStateException("Unsupported get static member variable");
             } else {
@@ -100,13 +100,24 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 throw new IllegalStateException("Unsupported get static function address member.");
             }
         } else if (s instanceof SymbolVariable) {
-            Symbol membsym = ((SymbolClass)((SymbolVariable)s).getType()).getSymbolTable().resolveMember(a.getIdentifier());
+            SymbolVariable sv = (SymbolVariable)s;
+            SymbolClass typ = (SymbolClass)sv.getType();
+            Symbol ms = typ.getSymbolTable().resolveMember(a.getIdentifier());
+            int off = typ.memoffset(a.getIdentifier());
 
+            if (ms instanceof SymbolVariable) {
+                if (sv.hasAddress()) {  // ptr offset.
+                    buf._ldv_i(off);
+                    buf._i32add();
+                } else {  // silce.
+                    int sz = ((SymbolVariable)ms).getType().getTypesize();
 
-            if (membsym instanceof SymbolVariable) {
+                    buf._stkptroff(-typ.getTypesize());
+                    buf._stkptroff(-typ.getTypesize()+off-4);
+                    buf._ptrcpy(sz);
 
-                // need optim.
-                buf._getfield(s.getQualifiedName()+"."+a.getIdentifier());
+                    buf._pop(typ.getTypesize()-sz);
+                }
             } else {
                 // SymbolFunction, ignore.
                 throw new IllegalStateException("Unsupported get function address member.");
@@ -248,6 +259,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             Validate.isTrue(lhs.getVarSymbol().hasAddress());
 
             lhs.accept(this, buf);  // put lhs addr.
+            buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
 
             rhs.accept(this, buf);  // put rhs addr(lval)/value(rval)
 

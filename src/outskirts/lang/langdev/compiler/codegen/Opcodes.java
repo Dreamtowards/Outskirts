@@ -32,7 +32,8 @@ public final class Opcodes {
             PUTFIELD = 22,
             POPCPY = 23,
             PTRCPY = 24,
-            LOADV = 25;
+            LOADV = 25,
+            STKPTR_OFF = 27;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -55,7 +56,8 @@ public final class Opcodes {
             "PUTFIELD",
             "POPCPY",
             "PTRCPY",
-            "LOADV"
+            "LOADV","",
+            "STKPTR_OFF"
     };
 
 
@@ -75,6 +77,7 @@ public final class Opcodes {
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;
             case DUP:
             case POP:
+            case STKPTR_OFF:
             case LOADV:
             case POPCPY:
             case PTRCPY: comm = "n="+code[idx.i++]; break;

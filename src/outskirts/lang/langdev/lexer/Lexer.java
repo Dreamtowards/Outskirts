@@ -199,6 +199,9 @@ public final class Lexer {
         rdi = rdimarkers.pop();
 //        curr = null;  // curr is invalid since rdi changed.
     }
+    public void cancelmark() {
+        rdimarkers.pop();
+    }
     public boolean isSpeculating() {
         return rdimarkers.size() > 0;
     }

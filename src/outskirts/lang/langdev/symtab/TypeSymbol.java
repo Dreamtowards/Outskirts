@@ -12,12 +12,12 @@ public interface TypeSymbol extends Symbol {
 
     // int getBaseType();
 
-    default SymbolVariable rvalue() { return valsymbol(false); }
-    default SymbolVariable lvalue() { return valsymbol(true);  }
+    default SymbolVariable rvalue() { return valsym(false); }
+    default SymbolVariable lvalue() { return valsym(true);  }
 
     static Map<Pair<TypeSymbol, Boolean>, SymbolVariable> _CACHED = new HashMap<>();
 
-    default SymbolVariable valsymbol(boolean hasAddr) {
+    default SymbolVariable valsym(boolean hasAddr) {
         var k = new Pair<>(this, hasAddr);
         SymbolVariable v = _CACHED.get(k);
         if (v != null)
