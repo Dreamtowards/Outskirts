@@ -21,8 +21,4 @@ public class AST__CompilationUnit extends AST {
         return stmts;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visit_CompilationUnit(this, p);
-    }
 }

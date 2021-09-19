@@ -14,8 +14,4 @@ public class AST_Expr_OperSizeOf extends AST_Expr {
         return type;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprSizeOf(this, p);
-    }
 }

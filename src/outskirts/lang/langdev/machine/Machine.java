@@ -90,14 +90,14 @@ public class Machine {
 
         while (ip < code.length) {
             switch (code[ip++]) {
-                case STORE: {
+//                case STORE: {
+//                    byte i = code[ip++];
+//                    popn(localptrs[i], buf.localsz(i));
+//                    break;
+//                }
+                case LLOADP: {
                     byte i = code[ip++];
-                    popn(localptrs[i], buf.localsz(i));
-                    break;
-                }
-                case LOAD: {
-                    byte i = code[ip++];
-                    pushn(localptrs[i], buf.localsz(i));
+                    pushi32(localptrs[i]);
                     break;
                 }
                 case LDC: {
@@ -116,6 +116,35 @@ public class Machine {
 //                    else throw new IllegalStateException("Unsupported Constant Type.");
 
 //                    System.out.println("Load Constant: "+opstack.peek());
+                    break;
+                }
+                case POPCPY: {
+                    byte sz = code[ip++];
+
+                    // maybe dest-ptr should after rvalue-data.
+                    esp -= sz;
+                    int srcp = esp;
+                    int dstp = popi32();
+                    memcpy(srcp, dstp, sz);
+
+                    break;
+                }
+                case PTRCPY: {
+                    byte sz = code[ip++];
+
+                    int srcptr = popi32();
+                    int dstptr = popi32();
+                    memcpy(srcptr, dstptr, sz);
+                    System.out.println("PtrCpy: "+srcptr+"->"+dstptr);
+
+                    break;
+                }
+                case LOADV: {
+                    byte sz = code[ip++];
+
+                    int p = popi32();
+                    pushn(p, sz);
+
                     break;
                 }
                 case LDPTR: {

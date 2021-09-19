@@ -9,13 +9,13 @@ public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
     public static final SymbolBuiltinType
             _int = new SymbolBuiltinType("int"),
             _void = new SymbolBuiltinType("void"),
-            _ptr = new SymbolBuiltinType("ptr"),
+//            _ptr = new SymbolBuiltinType("ptr"),
             _bool = new SymbolBuiltinType("bool");
 
     public static void init(Scope glob) {
         glob.define(_int);
         glob.define(_void);
-        glob.define(_ptr);
+//        glob.define(_ptr);
         glob.define(_bool);
     }
 

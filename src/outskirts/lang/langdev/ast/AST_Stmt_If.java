@@ -27,8 +27,4 @@ public class AST_Stmt_If extends AST_Stmt {
         return elseb;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtIf(this, p);
-    }
 }

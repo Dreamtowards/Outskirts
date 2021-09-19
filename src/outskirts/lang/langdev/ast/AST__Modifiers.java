@@ -24,11 +24,8 @@ public class AST__Modifiers extends AST {
         return Modifiers.of(modifiers);  // todo: init cache
     }
 
-    public final boolean isEmpty() {
+    public final boolean empty() {
         return annotations.size()==0 && modifiers.size()==0;
     }
-
-    // dont use global DEFAULT/EMPTY. every AST have different SourceLocation. they represents themselves.
-    // public static AST__Modifiers DEFAULT = new AST__Modifiers(Collections.emptyList(), Collections.emptyList());
 
 }

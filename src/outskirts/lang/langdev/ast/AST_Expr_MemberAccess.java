@@ -29,8 +29,4 @@ public class AST_Expr_MemberAccess extends AST_Expr {
         return identifier;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprMemberAccess(this, p);
-    }
 }

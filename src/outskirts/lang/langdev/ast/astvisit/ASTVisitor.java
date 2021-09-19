@@ -16,9 +16,11 @@ public interface ASTVisitor<P> {
     default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
     default void visitExprOperConditional(AST_Expr_OperConditional a, P p)     { visitDefault(a, p); }
     default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }
-    default void visitExprTmpDereference(AST_Expr_TmpDereference a, P p)       { visitDefault(a, p); }
+//    default void visitExprTmpDereference(AST_Expr_TmpDereference a, P p)       { visitDefault(a, p); }
+//    default void visitExprTmpReference(AST_Expr_TmpReference a, P p)           { visitDefault(a, p); }
     default void visitExprOperUnary(AST_Expr_OperUnary a, P p)                 { visitDefault(a, p); }
     default void visitExprOperBinary(AST_Expr_OperBinary a, P p)               { visitDefault(a, p); }
+    default void visitExprTypeCast(AST_Expr_TypeCast a, P p)                   { visitDefault(a, p); }
     // Lambda
 
     default void visitStmtBlock(AST_Stmt_Block a, P p)          { visitDefault(a, p); }

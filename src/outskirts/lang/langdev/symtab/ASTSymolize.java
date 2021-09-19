@@ -9,6 +9,7 @@ import outskirts.util.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ASTSymolize implements ASTVisitor<Scope> {
 
@@ -38,18 +39,18 @@ public class ASTSymolize implements ASTVisitor<Scope> {
                                     prev.getExprSymbol() instanceof SymbolClass);  // unavailable check.
             }
 
-            a.setExprSymbol(SymbolVariable.nnInstance(sf.returntype));
+            a.setExprSymbol(sf.returntype.rvalue());
         } else if (s instanceof SymbolClass) {  // Construction of Stack-Alloc-Object-Creation.  type(..).
             SymbolClass c = (SymbolClass)s;
 
 
-            a.setExprSymbol(SymbolVariable.nnInstance(c));
+            a.setExprSymbol(c.rvalue());
         } else if (s instanceof SymbolVariable) {
             // otherwise expr. Invoke "Invokation ()" operator to that object. or not.  // but still shoud in case of return-type SymbolClass.?
 
 
             TypeSymbol rettype = null;// ((SymbolVariable)s).getType().getOperatorFunction().getReturnType();
-            a.setExprSymbol(SymbolVariable.nnInstance(rettype));
+            a.setExprSymbol(rettype.rvalue());
             throw new UnsupportedOperationException("Unsupported invocation operator.");
         } else {
             throw new IllegalStateException();
@@ -89,7 +90,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         type.accept(this, p);
 
         Validate.isTrue(type.getTypeSymbol() instanceof SymbolClass, "OperNew Required SymbolClass.");
-        a.setExprSymbol(SymbolVariable.nnInstance(type.getTypeSymbol()));  // SymVar.?
+        a.setExprSymbol(type.getTypeSymbol().rvalue());  // SymVar.?
     }
 
     @Override
@@ -99,18 +100,37 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         a.getFalseExpression().accept(this, p);
 
         Validate.isTrue(a.getTrueExpression().getExprSymbol() == a.getFalseExpression().getExprSymbol());
-        a.setExprSymbol(SymbolVariable.nnInstance(a.getTrueExpression().getTypeSymbol()));
+        a.setExprSymbol(a.getTrueExpression().getTypeSymbol().rvalue());
     }
 
     @Override
     public void visitExprOperUnary(AST_Expr_OperUnary a, Scope p) {
-        a.getExpression().accept(this, p);
+        AST_Expr expr = a.getExpression();
+        expr.accept(this, p);
 
-        if (a.getUnaryKind() == AST_Expr_OperUnary.UnaryKind.NOT) {
-            a.setExprSymbol(SymbolBuiltinType._bool);
-        } else {
-            a.setExprSymbol(a.getExpression().getExprSymbol());
+        Symbol s;
+        switch (a.getUnaryKind()) {
+            case REF:
+                Validate.isTrue(expr.getVarSymbol().hasAddress());  // make sure lvalue in.
+
+                s = SymbolBuiltinTypePointer.of(expr.getVarTypeSymbol()).rvalue();
+                break;
+            case DEREF:
+                SymbolBuiltinTypePointer ptype = (SymbolBuiltinTypePointer)expr.getVarTypeSymbol();
+
+                s = ptype.getPointerType().lvalue();
+                break;
+            case NOT:
+                s = SymbolBuiltinType._bool.rvalue();
+                break;
+            case PTR_TYP:
+                s = SymbolBuiltinTypePointer.of(expr.getTypeSymbol());
+                break;
+            default:
+                s = expr.getVarSymbol();
+                break;
         }
+        a.setExprSymbol(s);
     }
 
     @Override
@@ -124,10 +144,10 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         switch (a.getBinaryKind()) {
             case LT: case LTEQ: case GT: case GTEQ: case IS:
             case EQ: case NEQ:
-                a.setExprSymbol(SymbolBuiltinType._bool);
+                a.setSymbol(SymbolBuiltinType._bool.rvalue());
                 break;
             default:
-                a.setExprSymbol(a.getLeftOperand().getExprSymbol());  // return commonBaseType(e1, e2);
+                a.setExprSymbol(a.getLeftOperand().getVarTypeSymbol().rvalue());  // return commonBaseType(e1, e2);
                 break;
         }
     }
@@ -136,18 +156,31 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, Scope p) {
         a.getTypeExpression().accept(this, p);
 
-        a.setExprSymbol(SymbolVariable.nnInstance(SymbolBuiltinType._int));
+        a.setExprSymbol(SymbolBuiltinType._int.rvalue());
     }
 
-    @Override
-    public void visitExprTmpDereference(AST_Expr_TmpDereference a, Scope p) {
-        a.getTypeExpression().accept(this, p);
-        a.getExpression().accept(this, p);
+//    @Override
+//    public void visitExprTmpDereference(AST_Expr_TmpDereference a, Scope p) {
+//        a.getTypeExpression().accept(this, p);
+//        a.getExpression().accept(this, p);
+//
+//        Validate.isTrue(a.getExpression().getVarTypeSymbol() == SymbolBuiltinType._int);
+//
+//        a.setExprSymbol(a.getTypeExpression().getTypeSymbol().lvalue());
+//        System.out.println("Deref-SYM: "+a.getVarSymbol().hasAddress()+" "+a.getVarTypeSymbol());
+//    }
 
-        Validate.isTrue(a.getExpression().getVarTypeSymbol() == SymbolBuiltinType._int);
+//    @Override
+//    public void visitExprTmpReference(AST_Expr_TmpReference a, Scope p) {
+//        AST_Expr expr = a.getExpression();
+//        expr.accept(this, p);
+//
+//        Validate.isTrue(expr.getVarSymbol().hasAddress(), "Reference operation can only applies on lvalues.");
+//
+//        a.setExprSymbol(SymbolBuiltinType._int.rvalue());
+//    }
 
-        a.setExprSymbol(SymbolVariable.nnInstance(a.getTypeExpression().getTypeSymbol()));
-    }
+
 
     @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, Scope p) {
@@ -173,7 +206,17 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             default:
                 throw new IllegalStateException("unsupported literal.");
         }
-        a.setExprSymbol(SymbolVariable.nnInstance(s));
+        a.setExprSymbol(s.rvalue());
+    }
+
+    @Override
+    public void visitExprTypeCast(AST_Expr_TypeCast a, Scope p) {
+        a.getExpression().accept(this, p);
+        a.getType().accept(this, p);
+
+        // assert isCapabile()
+
+        a.setExprSymbol(a.getType().getTypeSymbol().valsymbol(a.getExpression().getVarSymbol().hasAddress()));
     }
 
     @Override
@@ -215,16 +258,17 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         List<SymbolVariable> param_syms = new ArrayList<>();
         // manually add "this" ptr for non-static function.
         if (!Modifiers.isStatic(a.getModifiers().getModifierCode())) {
-            SymbolVariable thisp = new SymbolVariable(TokenType.THIS.fixed(), SymbolBuiltinType._int, (short)0);
-            fnp.define(thisp);
-            param_syms.add(thisp);
+            SymbolVariable sv;
+            fnp.defineAsCustomName("this", sv=SymbolBuiltinTypePointer.of(a.symf.ownerclass).lvalue());
+            param_syms.add(sv);
         }
         for (AST_Stmt_DefVar prm : a.getParameters()) {
             prm.accept(this, fnp);
             param_syms.add(prm.sym);
         }
 
-        SymbolFunction sf = new SymbolFunction(a.getName(), param_syms, a.getReturnTypeExpression().getTypeSymbol(), (SymbolClass)_p.symbolAssociated, a.getModifiers().getModifierCode());
+        SymbolFunction sf = new SymbolFunction(a.getName(), param_syms, a.getReturnTypeExpression().getTypeSymbol(),
+                (SymbolClass)_p.symbolAssociated, a.getModifiers().getModifierCode(), fnp);
         fnp.symbolAssociated = sf;  // before body. return_stmt needs lookupEnclosingFunction to validates return-type.
         a.symf = sf;
         _p.define(sf);  // before body. recursive funcCall should can resolve self-calling.
@@ -238,14 +282,21 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitStmtDefVar(AST_Stmt_DefVar a, Scope p) {
         a.getTypeExpression().accept(this, p);
 
-        SymbolVariable sym = new SymbolVariable(a.getName(), a.getTypeExpression().getTypeSymbol(), a.getModifiers().getModifierCode());
+//        // check function-inside variable name unique.
+//        SymbolFunction sf = p.lookupEnclosingFuncction();
+//        if (sf != null) {  // declrating var in a function.
+//            sf.fnscope.resolveInside(a.getName());
+//        }
+
+        SymbolVariable sym = new SymbolVariable(a.getName(), a.getTypeExpression().getTypeSymbol(),
+                                                 a.getModifiers().getModifierCode(), true);
         a.sym = sym;
         p.define(sym);
 
         if (a.getInitializer() != null) {
             a.getInitializer().accept(this, p);
 
-            Validate.isTrue(a.getTypeExpression().getTypeSymbol() == a.getInitializer().getVarTypeSymbol(), "bad init type");  // might should let Semantic do.
+            Validate.isTrue(a.getTypeExpression().getTypeSymbol() == a.getInitializer().getVarTypeSymbol(), "Initializer type dismatch.");
         }
     }
 
@@ -292,12 +343,13 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     @Override
     public void visitStmtReturn(AST_Stmt_Return a, Scope p) {
         SymbolFunction sf = p.lookupEnclosingFuncction();
+        Objects.requireNonNull(sf);
 
         AST_Expr retexpr = a.getReturnExpression();
         if (retexpr != null) {
             retexpr.accept(this, p);
 
-            Validate.isTrue(sf.getReturnType() == retexpr.getTypeSymbol() /* SymVar.? insteadof directly TypeLiteral */, "Expected returning type: "+sf.getReturnType()+", actual returning: "+retexpr.getExprSymbol());
+            Validate.isTrue(sf.getReturnType() == retexpr.getVarTypeSymbol(), "Expected returning type: "+sf.getReturnType()+", actual returning: "+retexpr.getExprSymbol());
         } else {
             Validate.isTrue(sf.getReturnType() == SymbolBuiltinType._void, "function return-type is not void, required returning: "+sf.getReturnType());
         }

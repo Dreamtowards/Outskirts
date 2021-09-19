@@ -58,20 +58,43 @@ public class CodeBuf {
         return buf.size();
     }
 
-    public void _store(String name) {
-        _store(localidx(name));
+//    public void _lstorep(String name) {
+//        _lstorep(localidx(name));
+//    }
+//    public void _lstorep(int i) {
+//        append(LSTOREP);
+//        append((byte)i);
+//    }
+//
+//    public void _lstorev(String name) {
+//        _lstorev(localidx(name));
+//    }
+//    public void _lstorev(int i) {
+//        append(LSTOREV);
+//        append((byte)i);
+//    }
+
+    public void _lloadp(String name) {
+        _lloadp(localidx(name));
     }
-    public void _store(int i) {
-        append(STORE);
+    public void _lloadp(int i) {
+        append(LLOADP);
         append((byte)i);
     }
 
-    public void _load(String name) {
-        _load(localidx(name));
+    public void _popcpy(int sz) {
+        append(POPCPY);
+        append((byte)sz);
     }
-    public void _load(int i) {
-        append(LOAD);
-        append((byte)i);
+    public void _ptrcpy(int sz) {
+        append(PTRCPY);
+        append((byte)sz);
+    }
+
+    // popptr(), cpy(ptr, esp, n); esp += n;
+    public void _loadv(int sz) {
+        append(LOADV);
+        append((byte)sz);
     }
 
     public void _ldc(short cpidx) {
@@ -190,9 +213,11 @@ public class CodeBuf {
         sb.append("Constants:\n  ").append(cp).append("\n");
         sb.append("Locals:\n  ").append(localvars).append("\n");
         sb.append("Code:\n");
+        byte[] code = toByteArray();  // COST
+        Validate.isTrue(code.length == buf.size());
         Intptr t = Intptr.zero();
-        while (t.i < buf.size()) {
-            sb.append("  ").append(Opcodes._InstructionComment(this, t)).append("\n");
+        while (t.i < code.length) {
+            sb.append("  ").append(Opcodes._InstructionComment(this, code, t)).append("\n");
         }
 
         return sb.toString();

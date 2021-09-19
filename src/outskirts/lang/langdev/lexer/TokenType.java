@@ -16,12 +16,12 @@ public enum TokenType {
     NEW("new"),
     SIZEOF("sizeof"),
     IS("is"),
-    DEREFERENCE("dereference"),
-    REFERENCE("reference"),
+//    DEREFERENCE("dereference"),
+//    REFERENCE("reference"),
     LITERAL_TRUE("true"),
     LITERAL_FALSE("false"),
     // LITERAL_NULLPTR("nullptr"),
-     THIS("this"),
+    // THIS("this"),  "this" should just simply a variable name.? instead of a keyword.
 
     CLASS("class"),
     NAMESPACE("namespace"),

@@ -51,11 +51,6 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtDefFunc(this, p);
-    }
-
-    @Override
     public String toString() {
         return "ast_stmt_funcdef{"+returntype+" "+name+"("+params+")"+body+"}";
     }

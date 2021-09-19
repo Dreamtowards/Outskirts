@@ -28,11 +28,6 @@ public class AST_Expr_FuncCall extends AST_Expr {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprFuncCall(this, p);
-    }
-
-    @Override
     public String toString() {
         return "fcall{"+funcptr+"("+args+")}";
     }

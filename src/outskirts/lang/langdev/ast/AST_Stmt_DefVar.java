@@ -38,11 +38,6 @@ public class AST_Stmt_DefVar extends AST_Stmt implements AST.Modifierable {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtDefVar(this, p);
-    }
-
-    @Override
     public String toString() {
         return String.format("ast_vardef{%s %s = %s}", type, name, initexpr);
     }

@@ -159,23 +159,23 @@ public final class LxParser {
                 lx.next(TokenType.RPAREN);
                 return new AST_Expr_OperSizeOf(type);
             }
-            case DEREFERENCE: {
-                lx.next();
-                lx.next(TokenType.LT);
-                AST_Expr type = parse_TypeExpression(lx);
-                lx.next(TokenType.GT);
-                lx.next(TokenType.LPAREN);
-                AST_Expr expr = parseExpr(lx);
-                lx.next(TokenType.RPAREN);
-                return new AST_Expr_TmpDereference(type, expr);
-            }
-            case REFERENCE: {
-                lx.next();
-                lx.next(TokenType.LPAREN);
-                AST_Expr expr = parseExpr(lx);
-                lx.next(TokenType.RPAREN);
-                return new AST_Expr_TmpReference(expr);
-            }
+//            case DEREFERENCE: {
+//                lx.next();
+//                lx.next(TokenType.LT);
+//                AST_Expr type = parse_TypeExpression(lx);
+//                lx.next(TokenType.GT);
+//                lx.next(TokenType.LPAREN);
+//                AST_Expr expr = parseExpr(lx);
+//                lx.next(TokenType.RPAREN);
+//                return new AST_Expr_TmpDereference(type, expr);
+//            }
+//            case REFERENCE: {
+//                lx.next();
+//                lx.next(TokenType.LPAREN);
+//                AST_Expr expr = parseExpr(lx);
+//                lx.next(TokenType.RPAREN);
+//                return new AST_Expr_TmpReference(expr);
+//            }
             default:
                 throw new IllegalStateException("Illegal Primary Expr. at "+t.detailString());
         }
@@ -214,7 +214,7 @@ public final class LxParser {
 
     public static AST_Expr parseExpr3UnaryPre(Lexer lx) {
         Token opr;
-        if ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB, TokenType.PLUS, TokenType.SUB, TokenType.BANG, TokenType.TILDE)) != null) {
+        if ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB, TokenType.PLUS, TokenType.SUB, TokenType.BANG, TokenType.TILDE, TokenType.AMP, TokenType.STAR)) != null) {
             AST_Expr r = parseExpr3UnaryPre(lx);
             return new AST_Expr_OperUnary(r, AST_Expr_OperUnary.UnaryKind.of(opr.type(), false));
         } else {
@@ -222,8 +222,17 @@ public final class LxParser {
         }
     }
 
+    public static AST_Expr parseExpr31TypeCast(Lexer lx) {
+        AST_Expr expr = parseExpr3UnaryPre(lx);
+        if (lx.nexting(TokenType.AS)) {
+            AST_Expr type = parse_TypeExpression(lx);
+            expr = new AST_Expr_TypeCast(expr, type);
+        }
+        return expr;
+    }
+
     public static AST_Expr parseExpr4Multiplecation(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr3UnaryPre, TokenType.STAR, TokenType.SLASH);
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr31TypeCast, TokenType.STAR, TokenType.SLASH);
     }
 
     public static AST_Expr parseExpr5Addition(Lexer lx) {
@@ -329,7 +338,7 @@ public final class LxParser {
                 }
                 else
                 {
-                    Validate.isTrue(modifiers.isEmpty(), "illegal modifiers exists.");
+                    Validate.isTrue(modifiers.empty(), "illegal modifiers exists.");
                     lx.unmark();
 
                     return parseStmtExpr(lx);
@@ -504,14 +513,19 @@ public final class LxParser {
     public static AST_Expr parse_TypeExpression(Lexer lx) {
         AST_Expr type = parse_QualifiedName(lx);
 
+        // Generics Arguments
         if (lx.nexting(TokenType.LT)) {  // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
             List<AST_Expr> generic_args = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_TypeExpression, TokenType.COMMA, TokenType.GT);
             lx.next(TokenType.GT);
-//            return new AST_Expr_GenericsArguments(type, generic_args);
-            throw new UnsupportedOperationException("unsupported.");
-        } else {
-            return type;
+            type =  new AST_Expr_GenericsArgument(generic_args);
         }
+
+        // Pointer Type.
+        while (lx.nexting(TokenType.STAR)) {
+            type = new AST_Expr_OperUnary(type, AST_Expr_OperUnary.UnaryKind.PTR_TYP);
+        }
+
+        return type;
     }
 
     public static AST__Annotation parse_Annotation(Lexer lx) {

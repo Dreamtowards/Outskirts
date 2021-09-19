@@ -17,11 +17,6 @@ public class AST_Stmt_Expr extends AST_Stmt {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtExpr(this, p);
-    }
-
-    @Override
     public String toString() {
         return "SmtmExpr::"+expr + ";";
     }

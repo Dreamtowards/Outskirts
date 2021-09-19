@@ -24,11 +24,6 @@ public class AST_Expr_OperNew extends AST_Expr {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprOperNew(this, p);
-    }
-
-    @Override
     public String toString() {
         return "(new "+type+" ("+args.toString()+"))";
     }

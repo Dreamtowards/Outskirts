@@ -42,11 +42,6 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtDefClass(this, p);
-    }
-
-    @Override
     public String toString() {
         return "(class "+ name +")";
     }

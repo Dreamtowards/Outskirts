@@ -28,7 +28,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         // LocalVar, Typename, Out-Var.
 
-        buf._load(a.getName());
+        buf._lloadp(a.getName());
     }
 
     @Override
@@ -37,13 +37,46 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         buf._ldc(buf.cp.ensureInt32(sz));
     }
 
-    @Override
-    public void visitExprTmpDereference(AST_Expr_TmpDereference a, CodeBuf buf) {
-        // exec ptr.
-        a.getExpression().accept(this, buf);
+//    @Override
+//    public void visitExprTmpDereference(AST_Expr_TmpDereference a, CodeBuf buf) {
+//        // exec ptr.
+//        AST_Expr expr = a.getExpression();
+//        expr.accept(this, buf);
+//
+//        if (expr.getVarSymbol().hasAddress()) {
+//            buf._loadv(4);  // loadup actual addr value.
+//        }
+////        System.out.println("Deref: "+a.getVarSymbol().hasAddress());
+//    }
+//
+//    @Override
+//    public void visitExprTmpReference(AST_Expr_TmpReference a, CodeBuf buf) {
+//        // push the variable addr into the stack.
+//        a.getExpression().accept(this, buf);
+//    }
 
-        int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
-        buf._ldptr(sz);
+    @Override
+    public void visitExprOperUnary(AST_Expr_OperUnary a, CodeBuf buf) {
+        AST_Expr expr = a.getExpression();
+        expr.accept(this, buf);
+
+        switch (a.getUnaryKind()) {
+            case REF:
+                // nothing.
+                break;
+            case DEREF:
+                if (expr.getVarSymbol().hasAddress()) {
+                    buf._loadv(SymbolBuiltinTypePointer.PTR_SIZE);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void visitExprTypeCast(AST_Expr_TypeCast a, CodeBuf buf) {
+        a.getExpression().accept(this, buf);  // currently cast only symbol cast. then just pass.
     }
 
     @Override
@@ -189,9 +222,16 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         AST_Expr initexpr = a.getInitializer();
         if (initexpr != null) {
+            buf._lloadp(a.getName());
+
             initexpr.accept(this, buf);
 
-            buf._store(a.getName());
+            int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
+            if (initexpr.getVarSymbol().hasAddress()) {
+                buf._ptrcpy(sz);
+            } else {
+                buf._popcpy(sz);
+            }
         }
     }
 
@@ -205,54 +245,67 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         AST_Expr rhs = a.getRightOperand();
 
         if (a.getBinaryKind() == AST_Expr_OperBinary.BinaryKind.ASSIGN) {
-            if (lhs instanceof AST_Expr_PrimaryIdentifier) {
-                // exec val.
-                rhs.accept(this, buf);
-                buf._dup(rhs.getVarTypeSymbol().getTypesize());  // the eval-expr really returns a TypeLiteral.? think there should a instance-variable thing.
+            Validate.isTrue(lhs.getVarSymbol().hasAddress());
 
-                buf._store(((AST_Expr_PrimaryIdentifier)lhs).getName());
+            lhs.accept(this, buf);  // put lhs addr.
 
-            } else if (lhs instanceof AST_Expr_TmpDereference) {
-                AST_Expr_TmpDereference lc = (AST_Expr_TmpDereference)lhs;
+            rhs.accept(this, buf);  // put rhs addr(lval)/value(rval)
 
-                rhs.accept(this, buf);
-                buf._dup(rhs.getTypeSymbol().getTypesize());  // SymVar.?
-
-                lc.getExpression().accept(this, buf);
-
-                buf._stptr(lc.getTypeExpression().getTypeSymbol().getTypesize());  // rhs.getTypeSymbol().typesize() should be same as prev dup.
-
-                Validate.isTrue(rhs.getTypeSymbol().getTypesize() == lc.getTypeExpression().getTypeSymbol().getTypesize());  // should already validated in Attr phase.
-            } else if (lhs instanceof AST_Expr_MemberAccess) {
-                AST_Expr_MemberAccess lhs_ = (AST_Expr_MemberAccess)lhs;
-                AST_Expr lhs_lexpr = lhs_.getExpression();
-
-                // load lhs addr
-                // load val
-                // storefield lhsType::fld
-
-                // this.a.b.c = 2+3;
-                // ldloc $this
-                // ldfld $a
-                // ldfld $b
-                // ldfld $c
-
-                // addr?
-                // lhs_lexpr.accept(this, buf);
-//                if (lhs_lexpr instanceof AST_Expr_PrimaryIdentifier) {
-//                    String locname = ((AST_Expr_PrimaryIdentifier)lhs_lexpr).getName();
-//                    buf._lloadaddr(buf.loca)
-//                } else
-//                    throw new IllegalStateException();
-//
-//                // val.
-//                rhs.accept(this, buf);
-//
-//                buf._putfield(lhs_lexpr.getEvalTypeSymbol().getQualifiedName()+"."+lhs_.getIdentifier());
-                throw new UnsupportedOperationException();
-            } else {
-                throw new UnsupportedOperationException();
+            int sz = lhs.getVarTypeSymbol().getTypesize();
+            if (rhs.getVarSymbol().hasAddress()) {  // rhs: lvalue
+                buf._ptrcpy(sz);
+            } else {  // rhs: rvalue
+                buf._popcpy(sz);
             }
+
+//            if (lhs instanceof AST_Expr_PrimaryIdentifier) {
+//                // exec val.
+//                rhs.accept(this, buf);
+//                buf._dup(rhs.getVarTypeSymbol().getTypesize());  // the eval-expr really returns a TypeLiteral.? think there should a instance-variable thing.
+//
+//                buf._store(((AST_Expr_PrimaryIdentifier)lhs).getName());
+//
+//            } else if (lhs instanceof AST_Expr_TmpDereference) {
+//                AST_Expr_TmpDereference lc = (AST_Expr_TmpDereference)lhs;
+//
+//                rhs.accept(this, buf);
+//                buf._dup(rhs.getTypeSymbol().getTypesize());  // SymVar.?
+//
+//                lc.getExpression().accept(this, buf);
+//
+//                buf._stptr(lc.getTypeExpression().getTypeSymbol().getTypesize());  // rhs.getTypeSymbol().typesize() should be same as prev dup.
+//
+//                Validate.isTrue(rhs.getTypeSymbol().getTypesize() == lc.getTypeExpression().getTypeSymbol().getTypesize());  // should already validated in Attr phase.
+//            } else if (lhs instanceof AST_Expr_MemberAccess) {
+//                AST_Expr_MemberAccess lhs_ = (AST_Expr_MemberAccess)lhs;
+//                AST_Expr lhs_lexpr = lhs_.getExpression();
+//
+//                // load lhs addr
+//                // load val
+//                // storefield lhsType::fld
+//
+//                // this.a.b.c = 2+3;
+//                // ldloc $this
+//                // ldfld $a
+//                // ldfld $b
+//                // ldfld $c
+//
+//                // addr?
+//                // lhs_lexpr.accept(this, buf);
+////                if (lhs_lexpr instanceof AST_Expr_PrimaryIdentifier) {
+////                    String locname = ((AST_Expr_PrimaryIdentifier)lhs_lexpr).getName();
+////                    buf._lloadaddr(buf.loca)
+////                } else
+////                    throw new IllegalStateException();
+////
+////                // val.
+////                rhs.accept(this, buf);
+////
+////                buf._putfield(lhs_lexpr.getEvalTypeSymbol().getQualifiedName()+"."+lhs_.getIdentifier());
+//                throw new UnsupportedOperationException();
+//            } else {
+//                throw new UnsupportedOperationException();
+//            }
         } else {
             lhs.accept(this, buf);
             rhs.accept(this, buf);

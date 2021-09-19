@@ -22,8 +22,4 @@ public class AST_Stmt_Namespace extends AST_Stmt {
         return stmts;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtNamespace(this, p);
-    }
 }

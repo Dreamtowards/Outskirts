@@ -28,16 +28,20 @@ public class AST_Expr_OperUnary extends AST_Expr {
         POS,    // + _ Positive
         COMPL,  // ~ _ BitwiseComplement
         NOT,    // ! _ LogicalComplement
-        PRE_INC,
-        PRE_DEC,
+        REF,    // & _ Reference
+        DEREF,  // * _ Dereference
+        PRE_INC,  // ++ _ PreIncrease
+        PRE_DEC,  // -- _ PreDecrease
 
-        POST_INC,
-        POST_DEC;
+        POST_INC, // _ ++ PostIncrease
+        POST_DEC, // _ -- PostDecrease
+        PTR_TYP;   // _ * PointerType
 
         public static UnaryKind of(TokenType oper, boolean post) {
             if (post) {
-                if (oper == TokenType.PLUSPLUS) return POST_INC;
-                else if (oper == TokenType.SUBSUB) return POST_DEC;
+                if      (oper == TokenType.PLUSPLUS) return POST_INC;
+                else if (oper == TokenType.SUBSUB)   return POST_DEC;
+                else if (oper == TokenType.STAR)     return PTR_TYP;
                 else throw new IllegalStateException("Illegal post unary operator.");
             }
             switch (oper) {
@@ -47,14 +51,11 @@ public class AST_Expr_OperUnary extends AST_Expr {
             case SUB:      return NEG;
             case TILDE:    return COMPL;
             case BANG:     return NOT;
+            case AMP:      return REF;
+            case STAR:     return DEREF;
             default:       throw new IllegalStateException("Illegal pre unary operator.");
             }
         }
-    }
-
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprOperUnary(this, p);
     }
 
     @Override

@@ -35,8 +35,4 @@ public class AST_Expr_PrimaryLiteral extends AST_Expr {
         BOOL
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprPrimaryLiteral(this, p);
-    }
 }

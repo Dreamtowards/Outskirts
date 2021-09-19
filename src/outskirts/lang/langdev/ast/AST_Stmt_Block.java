@@ -17,11 +17,6 @@ public class AST_Stmt_Block extends AST_Stmt {
     }
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtBlock(this, p);
-    }
-
-    @Override
     public String toString() {
         return "ast_stmt_block{"+ stmts +'}';
     }

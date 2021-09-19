@@ -15,12 +15,6 @@ public class AST_Expr_PrimaryIdentifier extends AST_Expr {
         return name;
     }
 
-
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprPrimaryIdentifier(this, p);
-    }
-
     @Override
     public String toString() {
         return "`"+name;

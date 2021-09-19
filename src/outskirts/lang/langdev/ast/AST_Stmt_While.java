@@ -23,8 +23,4 @@ public class AST_Stmt_While extends AST_Stmt {
         return then;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtWhile(this, p);
-    }
 }

@@ -44,6 +44,7 @@ public final class Scope {
         return _symbols.get(name);
     }
     private void internalDefineLocalSymbol(String name, Symbol symbol) {
+        Objects.requireNonNull(name);
         if (_symbols.containsKey(name))
             throw new IllegalStateException("Symbol '"+name+"' already defined in this scope.");
         _symbols.put(name, symbol);
@@ -96,12 +97,14 @@ public final class Scope {
     }
 
     public SymbolFunction lookupEnclosingFuncction() {
-        if (symbolAssociated instanceof SymbolFunction) {
+        if (symbolAssociated != null) {
+            if (!(symbolAssociated instanceof SymbolFunction))
+                return null; //throw new IllegalStateException("Enclosing symbol is not a Function.");
             return (SymbolFunction)symbolAssociated;
-        } else if (getParent() != null) {
-            return getParent().lookupEnclosingFuncction();
         } else {
-            throw new IllegalStateException();
+            if (getParent() == null)
+                return null; //throw new IllegalStateException("Not found enclsing function.");
+            return getParent().lookupEnclosingFuncction();
         }
     }
 

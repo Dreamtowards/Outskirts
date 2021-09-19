@@ -27,8 +27,4 @@ public class AST_Stmt_Using extends AST_Stmt {
         return asname;
     }
 
-    @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitStmtUsing(this, p);
-    }
 }

@@ -19,18 +19,21 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
     public final List<SymbolVariable> params;
     public final SymbolClass ownerclass;
 
+    private final Scope fnscope;
+
     public CodeBuf codebuf;
 
     private final short modifiercode;
 
 //    public boolean isStaticFunction;  // todo: reduce by: Modifiers.isStatic(getModifierCode());
 
-    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode) {
+    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode, Scope fnscope) {
         super(name);
         this.params = params;
         this.returntype = returntype;
         this.ownerclass = ownerclass;
         this.modifiercode = modifiercode;
+        this.fnscope = fnscope;
     }
 
     public TypeSymbol getReturnType() {
@@ -43,6 +46,12 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
         return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+returntype.getQualifiedName();
     }
+
+//    public SymbolVariable findVariable(Scope s, String name) {
+//        Scope s = fnscope;
+//        Symbol v;
+//        while ((v=s.findLocalSymbol(name)) == null)
+//    }
 
     @Override
     public short getModifierCode() {

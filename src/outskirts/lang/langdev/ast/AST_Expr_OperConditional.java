@@ -30,11 +30,6 @@ public class AST_Expr_OperConditional extends AST_Expr {
 
 
     @Override
-    public <P> void accept(ASTVisitor<P> visitor, P p) {
-        visitor.visitExprOperConditional(this, p);
-    }
-
-    @Override
     public String toString() {
         return "("+condition+" ? "+exprthen+" : "+exprelse+")";
     }

@@ -1,5 +1,7 @@
 package outskirts.lang.langdev.symtab;
 
+import outskirts.util.Validate;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,10 +13,16 @@ public class SymbolVariable extends BaseSymbol implements ModifierSymbol {
 
     private final short modifiercode;
 
-    public SymbolVariable(String name, TypeSymbol type, short modifiercode) {
+    private final boolean hasAddr;
+
+    public SymbolVariable(String name, TypeSymbol type, short modifiercode, boolean hasAddr) {
         super(name);
         this.type = type;
         this.modifiercode = modifiercode;
+        this.hasAddr = hasAddr;
+
+        if (name!=null && !hasAddr)
+            throw new IllegalStateException("Named-Variable mush has address.");
     }
 
     // private static Map<TypeSymbol, SymbolVariable> cahcedNNInstances = new HashMap<>();
@@ -23,10 +31,12 @@ public class SymbolVariable extends BaseSymbol implements ModifierSymbol {
     // x ForcedRequirement: Make sure for every NonName-Instance, per TypeSymbol, per VariableSymbol instance.
     // x because in case of Binary-Oper-Operand-TypeCheck, two operand should have same symbol.
     // x nono, variable symbol can be different, the var-type be samed just ok.
-    public static SymbolVariable nnInstance(TypeSymbol type) {  // nn: NotNamed
-        return new SymbolVariable(null, type, (short)0);
-//        return cahcedNNInstances.computeIfAbsent(type, typ -> new SymbolVariable(null, typ, (short)0));
-    }
+//    static SymbolVariable buildRvalue(TypeSymbol type) {  // nn: NotNamed
+//        return new SymbolVariable(null, type, (short)0, false);
+//    }
+//    static SymbolVariable buildLvalue(TypeSymbol type) {
+//        return new SymbolVariable(null, type, (short)0, true);
+//    }
 
     public TypeSymbol getType() {
         return type;
@@ -35,7 +45,17 @@ public class SymbolVariable extends BaseSymbol implements ModifierSymbol {
     @Override
     public String getQualifiedName() {
         // EnclosingType.variable:Type ..?
-        throw new UnsupportedOperationException();
+        return type.getQualifiedName() + " " + getSimpleName();
+    }
+
+    /**
+     * meant. a lvalue.
+     * only 2 type of VarSym hasAddress currently:
+     *  1. VarDecl declrated variable.
+     *  2. returning symbol of dereference(ptr).
+     */
+    public boolean hasAddress() {
+        return hasAddr;
     }
 
     @Override
