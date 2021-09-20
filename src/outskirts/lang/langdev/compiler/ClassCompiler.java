@@ -44,6 +44,10 @@ public final class ClassCompiler {
 
                 c.getBody().accept(new CodeGen(), codebuf);
 
+                if (c.symf.getReturnType() == SymbolBuiltinType._void) {
+                    codebuf._ret(0);
+                }
+
 //                System.out.println("Compiled Function: "+codebuf);
                 c.symf.codebuf = codebuf;
 

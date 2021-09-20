@@ -6,11 +6,14 @@ import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.lang.langdev.compiler.codegen.Opcodes;
 import outskirts.lang.langdev.symtab.SymbolClass;
+import outskirts.lang.langdev.symtab.SymbolFunction;
 import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
+import outskirts.util.Intptr;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -67,7 +70,7 @@ public class Machine {
     }
 
     public static void exec(CodeBuf buf) {
-        System.out.println(buf.toString());
+//        System.out.println(buf.toString());
 
         byte[] code = buf.toByteArray();
 
@@ -90,6 +93,11 @@ public class Machine {
         final int rvp = esp;  // rvalue initptr. end of locals.
 
         while (ip < code.length) {
+
+            byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, esp);
+
+            System.out.printf("inst %-40s;  opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc))+"\n", Opcodes._InstructionComment(buf, code, Intptr.of(ip)));
+            boolean doret = false;
             switch (code[ip++]) {
 //                case STORE: {
 //                    byte i = code[ip++];
@@ -127,7 +135,7 @@ public class Machine {
                     int srcp = esp;
                     int dstp = popi32();
                     memcpy(srcp, dstp, sz);
-                    System.out.println("PopCpy: "+srcp+"->"+dstp);
+                    //System.out.println("PopCpy: "+srcp+"->"+dstp);
 
                     break;
                 }
@@ -137,7 +145,7 @@ public class Machine {
                     int srcptr = popi32();
                     int dstptr = popi32();
                     memcpy(srcptr, dstptr, sz);
-                    System.out.println("PtrCpy: "+srcptr+"->"+dstptr);
+                    //System.out.println("PtrCpy: "+srcptr+"->"+dstptr);
 
                     break;
                 }
@@ -181,11 +189,16 @@ public class Machine {
                     String flname = sfname.substring(begFld+1, begArg);  // field name.
 
 
-                    ClassFile cf = resolveClass(clname).compiledclfile;
-                    ClassFile.Field fld = cf.findField(flname);
+                    SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(flname);
+
+                    int params_sz = 0;
+                    for (SymbolVariable sv : sf.params) {
+                        params_sz += sv.getType().getTypesize();
+                    }
+                    esp -= params_sz;
 
                     System.out.println("INVOKEFUNC Load Function: "+sfname+", Clname: "+clname);
-                    Machine.exec(fld._codebuf);
+                    Machine.exec(sf.codebuf);
 
                     break;
                 }
@@ -198,6 +211,16 @@ public class Machine {
 
                     memset(esp, sz, 0);
                     esp += sz;
+
+                    break;
+                }
+                case RET: {
+                    byte sz = code[ip++];
+
+                    memcpy(esp-sz, begin_esp, sz);
+
+                    esp = begin_esp + sz;
+                    doret = true;
 
                     break;
                 }
@@ -299,6 +322,8 @@ public class Machine {
                 default:
                     throw new IllegalStateException("Illegal instruction. #"+ip);
             }
+            if (doret)
+                break;
         }
 
         byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, rvp);
@@ -306,7 +331,6 @@ public class Machine {
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
 
-        esp = begin_esp;
     }
 
     public static final byte CMPR_LT = 0,

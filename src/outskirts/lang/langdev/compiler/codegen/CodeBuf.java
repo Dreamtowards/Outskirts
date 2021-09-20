@@ -102,6 +102,11 @@ public class CodeBuf {
         append((byte)off);
     }
 
+    public void _ret(int sz) {
+        append(RET);
+        append((byte)sz);
+    }
+
     public void _ldc(short cpidx) {
         append(LDC);
         appendShort(cpidx);

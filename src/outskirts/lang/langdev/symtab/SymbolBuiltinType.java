@@ -27,7 +27,7 @@ public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
     @Override
     public int getTypesize() {
         if (this == _int) return 4;
-        if (this == _void) throw new IllegalStateException();
+        if (this == _void) return 0;
 //        if (this == _ptr) return 4;
 
         throw new IllegalStateException(getSimpleName());

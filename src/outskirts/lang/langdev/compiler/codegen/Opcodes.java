@@ -33,7 +33,8 @@ public final class Opcodes {
             POPCPY = 23,
             PTRCPY = 24,
             LOADV = 25,
-            STKPTR_OFF = 27;
+            STKPTR_OFF = 27,
+            RET = 28;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -57,9 +58,13 @@ public final class Opcodes {
             "POPCPY",
             "PTRCPY",
             "LOADV","",
-            "STKPTR_OFF"
+            "STKPTR_OFF",
+            "RET"
     };
 
+    public static String _InstructionComment(CodeBuf buf, int idx) {
+        return _InstructionComment(buf, buf.toByteArray(), Intptr.of(idx));
+    }
 
     public static String _InstructionComment(CodeBuf buf, byte[] code, Intptr idx) {
 
@@ -78,6 +83,7 @@ public final class Opcodes {
             case DUP:
             case POP:
             case STKPTR_OFF:
+            case RET:
             case LOADV:
             case POPCPY:
             case PTRCPY: comm = "n="+code[idx.i++]; break;

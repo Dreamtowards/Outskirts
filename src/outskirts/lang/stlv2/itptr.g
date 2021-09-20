@@ -22,9 +22,10 @@ namespace stl.lang {
         int* base;
 
         int char_at(int i) {
-            i = 2;
-            int c = *(int*)( (int)(*this).base + sizeof(int) * i );
+            //i = 2;
+            int c = 3; //*(int*)( (int)(*this).base + sizeof(int) * i );
             // return c;
+            return i;
         }
 
         static void test(int pi) {
@@ -38,21 +39,21 @@ namespace stl.lang {
         static void main() {
 
             int i = sizeof(int*);
-            int j = 12;
-            int* p = &j;
-
-            // *(0 as int*) = 3;
-            // *(int*)0 = 3;
+            //int j = 12;
+            //int* p = &j;
 
             string s = string();
             s.base = (int*)4;  //  4 as int*;
             *(int*)0 = (int)s.base;
 
-            // i = *p * 2;
+            int i2 =
+            s.char_at(19);
 
-            int c = s.char_at(1);
 
             //i = string().base as int;
+            // *(0 as int*) = 3;
+            // *(int*)0 = 3;
+            // i = *p * 2;
 
         }
     }

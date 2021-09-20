@@ -173,7 +173,18 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     }
 
 
+    @Override
+    public void visitStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
+        AST_Expr expr = a.getReturnExpression();
+        if (expr != null) {
+            expr.accept(this, buf);
+            lvalue_loadv(buf, expr);
 
+            buf._ret(expr.getVarTypeSymbol().getTypesize());
+        } else {
+            buf._ret(0);
+        }
+    }
 
     @Override
     public void visitStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
@@ -188,9 +199,13 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         expr.accept(this, buf);
 
-        TypeSymbol rettyp = expr.getVarTypeSymbol();
-        if (rettyp != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
-            buf._pop(rettyp.getTypesize());  // erases the expression return value.
+        SymbolVariable sv = expr.getVarSymbol();
+        if (sv.getType() != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
+            if (sv.hasAddress()) {
+                buf._pop(SymbolBuiltinTypePointer.PTR_SIZE);
+            } else {
+                buf._pop(sv.getType().getTypesize());  // erases the expression return value.
+            }
         }
     }
 
@@ -248,6 +263,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     }
 
 
+    // lvalue to rvalue.
     // currently only for int (binary-op, dereference-addr). will it working for composied types.?
     private static void lvalue_loadv(CodeBuf buf, AST_Expr expr) {
         if (expr.getVarSymbol().hasAddress()) {
