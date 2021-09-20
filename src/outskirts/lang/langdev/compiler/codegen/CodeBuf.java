@@ -176,6 +176,9 @@ public class CodeBuf {
     public void _cmpeq() {
         append(CMP_EQ);
     }
+    public void _cmpne() {
+        append(CMP_NE);
+    }
     public void _cmpgt() {
         append(CMP_GT);
     }

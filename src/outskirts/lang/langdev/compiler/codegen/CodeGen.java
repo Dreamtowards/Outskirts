@@ -18,6 +18,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             case INT32:
                 buf._ldv_i(a.getInt32());
                 break;
+            case CHAR:
+                buf._ldv_i(a.getChar());
+                break;
             default:
                 throw new IllegalStateException();
         }
@@ -65,8 +68,26 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 // nothing.
                 break;
             case DEREF:
-                lvalue_loadv(buf, expr);
+                lvalue2rvalue(buf, expr);
                 break;
+            case POST_INC:
+                // i++
+                // ptr
+                // dup ptr
+                // loadv
+                //
+                //   dup ptr
+                //   loadv
+                //   push 1
+                //   iadd
+                //   pstore
+                //
+
+//                Validate.isTrue(expr.getVarSymbol().hasAddress());
+//                lvalue_loadv(buf, expr);
+//                buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
+
+//                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -129,6 +150,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {
         for (AST_Expr e : args) {
             e.accept(comp, buf);
+            lvalue2rvalue(buf, e);
         }
     }
 
@@ -178,7 +200,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         AST_Expr expr = a.getReturnExpression();
         if (expr != null) {
             expr.accept(this, buf);
-            lvalue_loadv(buf, expr);
+            lvalue2rvalue(buf, expr);
 
             buf._ret(expr.getVarTypeSymbol().getTypesize());
         } else {
@@ -265,7 +287,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     // lvalue to rvalue.
     // currently only for int (binary-op, dereference-addr). will it working for composied types.?
-    private static void lvalue_loadv(CodeBuf buf, AST_Expr expr) {
+    private static void lvalue2rvalue(CodeBuf buf, AST_Expr expr) {
         if (expr.getVarSymbol().hasAddress()) {
             buf._loadv(expr.getVarTypeSymbol().getTypesize());
         }
@@ -342,10 +364,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 //            }
         } else {
             lhs.accept(this, buf);
-            lvalue_loadv(buf, lhs);
+            lvalue2rvalue(buf, lhs);
 
             rhs.accept(this, buf);
-            lvalue_loadv(buf, rhs);
+            lvalue2rvalue(buf, rhs);
 
             switch (a.getBinaryKind()) {
                 case ADD: {
@@ -364,6 +386,11 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 case EQ: {
                     buf._icmp();
                     buf._cmpeq();
+                    break;
+                }
+                case NEQ: {
+                    buf._icmp();
+                    buf._cmpne();
                     break;
                 }
                 default:

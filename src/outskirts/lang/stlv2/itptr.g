@@ -22,38 +22,39 @@ namespace stl.lang {
         int* base;
 
         int char_at(int i) {
-            //i = 2;
-            int c = 3; //*(int*)( (int)(*this).base + sizeof(int) * i );
-            // return c;
+            return *(int*)( (int)(*this).base + sizeof(int) * i );
+        }
+
+        int length() {
+            int i = 0;
+            while ((*this).char_at(i) != 0) {
+                i = i+1;
+            }
             return i;
         }
 
-        static void test(int pi) {
-
-            int i = 10 * pi;
-        }
     }
 
     class _main {
 
         static void main() {
 
-            int i = sizeof(int*);
-            //int j = 12;
-            //int* p = &j;
-
             string s = string();
-            s.base = (int*)4;  //  4 as int*;
-            *(int*)0 = (int)s.base;
 
-            int i2 =
-            s.char_at(19);
+            s.base = (int*)60;
+            *(int*)60 = 'H';
+            *(int*)64 = 'e';
+            *(int*)68 = 'l';
+            *(int*)72 = 'l';
+            *(int*)76 = 'o';
+            *(int*)80 = 0;
+
+            //int c = s.char_at(0);
+            //int expected = 'H';
 
 
-            //i = string().base as int;
-            // *(0 as int*) = 3;
-            // *(int*)0 = 3;
-            // i = *p * 2;
+            int len = s.length();
+
 
         }
     }

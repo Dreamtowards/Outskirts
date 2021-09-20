@@ -90,7 +90,7 @@ public abstract class AST {
             else if (this instanceof AST_Expr_PrimaryLiteral)   visitor.visitExprPrimaryLiteral((AST_Expr_PrimaryLiteral)this, p);
             else if (this instanceof AST_Expr_TypeCast)         visitor.visitExprTypeCast((AST_Expr_TypeCast)this, p);
 // Statement
-            // StmtBlank
+            else if (this instanceof AST_Stmt_Blank)    ;
             else if (this instanceof AST_Stmt_Block)    visitor.visitStmtBlock((AST_Stmt_Block)this, p);
             else if (this instanceof AST_Stmt_DefClass) visitor.visitStmtDefClass((AST_Stmt_DefClass)this, p);
             else if (this instanceof AST_Stmt_DefFunc)  visitor.visitStmtDefFunc((AST_Stmt_DefFunc)this, p);

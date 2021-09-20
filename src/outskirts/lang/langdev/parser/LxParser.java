@@ -126,6 +126,7 @@ public final class LxParser {
                 return new AST_Expr_PrimaryLiteral(Float.parseFloat(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.FLOAT32);
             case LITERAL_CHAR:
                 lx.next();
+                Validate.isTrue(t.content().length() == 1);
                 return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.CHAR);
             case LITERAL_STRING:
                 lx.next();

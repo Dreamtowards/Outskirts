@@ -319,6 +319,10 @@ public class Machine {
                     pushi8((byte)(popi8() == CMPR_EQ ? 1 : 0));
                     break;
                 }
+                case CMP_NE: {
+                    pushi8((byte)(popi8() != CMPR_EQ ? 1 : 0));
+                    break;
+                }
                 default:
                     throw new IllegalStateException("Illegal instruction. #"+ip);
             }

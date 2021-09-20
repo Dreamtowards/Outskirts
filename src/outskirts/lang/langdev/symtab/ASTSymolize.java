@@ -204,6 +204,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, Scope p) {
         TypeSymbol s;
         switch (a.getLiteralKind()) {
+            case CHAR:  // char -> int is temporary.
             case INT32: s = SymbolBuiltinType._int;  break;
             case BOOL:  s = SymbolBuiltinType._bool; break;
             default:
