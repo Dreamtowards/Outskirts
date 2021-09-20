@@ -12,6 +12,11 @@ import java.util.Objects;
 
 public class ASTSymolize implements ASTVisitor<Scope> {
 
+    public static ASTSymolize INSTANCE = new ASTSymolize();
+
+    private ASTSymolize() {}
+
+
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, Scope p) {
         AST_Expr fexpr = a.getExpression();

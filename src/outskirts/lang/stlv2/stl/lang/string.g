@@ -1,21 +1,31 @@
 
-package stl.lang;
+namespace stl.lang;
 
 
 class string {
 
-    @private
-    int hash;
+    int* base;
 
-    @private
-    array<ushort> value;
+    //@private
+    //int hash;
 
-    string init(array<ushort> value) {
-        this.value = arrays.copy(value);
+    //@private
+    //array<ushort> value;
+
+    //string init(array<ushort> value) {
+    //    this.value = arrays.copy(value);
+    //}
+
+    int char_at(int i) {
+        return *(int*)((int)(*this).base + sizeof(int) * i);
     }
 
-    ushort char_at(int idx) {
-        return sac_get(value, idx);
+    int length() {
+        int i = 0;
+        while ((*this).char_at(i) != 0) {
+            i++;
+        }
+        return i;
     }
 
 /*

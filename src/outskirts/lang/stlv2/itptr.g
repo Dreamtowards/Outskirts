@@ -14,48 +14,30 @@
  * 6. Pointer MemberAccess a->b.
  */
 
-namespace stl.lang {
+using stl.lang.string;
+
+namespace test;
+
+class _main {
+
+    static void main() {
+
+        string s = string();
+
+        s.base = (int*)60;
+        *(int*)60 = 'H';
+        *(int*)64 = 'e';
+        *(int*)68 = 'l';
+        *(int*)72 = 'l';
+        *(int*)76 = 'o';
+        *(int*)80 = 0;
+
+        //int c = s.char_at(0);
+        //int expected = 'H';
 
 
-    class string {
-
-        int* base;
-
-        int char_at(int i) {
-            return *(int*)( (int)(*this).base + sizeof(int) * i );
-        }
-
-        int length() {
-            int i = 0;
-            while ((*this).char_at(i) != 0) {
-                i = i+1;
-            }
-            return i;
-        }
-
-    }
-
-    class _main {
-
-        static void main() {
-
-            string s = string();
-
-            s.base = (int*)60;
-            *(int*)60 = 'H';
-            *(int*)64 = 'e';
-            *(int*)68 = 'l';
-            *(int*)72 = 'l';
-            *(int*)76 = 'o';
-            *(int*)80 = 0;
-
-            //int c = s.char_at(0);
-            //int expected = 'H';
+        int len = s.length();
 
 
-            int len = s.length();
-
-
-        }
     }
 }

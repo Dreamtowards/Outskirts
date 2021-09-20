@@ -48,22 +48,20 @@ public abstract class AST {
     /**
      * Context Required: lx.pushReadIdx() at AST-Parsing-Beginning.
      */
-    private void _SetupSourceLoc(Lexer lx) {
+    public <T> T _SetupSourceLoc(Lexer lx, int begRdi) {
         this.sourceloc = new SourceLoc(
-                lx.sourceLocation,
+                lx.getSourceName(),
                 lx.getSource(),
-                lx.readidx()-10,//lx.popReadIdx(),
+                begRdi,
                 lx.readidx()
         );
-    }
-    {
-        _SetupSourceLoc(Main.currLxr);
+        return (T)this;
     }
 
 
     @Override
     public String toString() {
-        return "AST::"+getClass().getSimpleName()+"::"+sourceloc;
+        return getClass().getSimpleName()+"::"+sourceloc;
     }
 
     /**

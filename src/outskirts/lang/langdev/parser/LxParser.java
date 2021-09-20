@@ -5,7 +5,6 @@ import outskirts.lang.langdev.ast.AST__Annotation;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
-import outskirts.lang.langdev.lexer.SourceLoc;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.lexer.TokenType;
 import outskirts.util.Validate;
@@ -22,20 +21,20 @@ public final class LxParser {
      * =============== PARSER UTILITY ===============
      */
 
-    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, TokenType... opers) {
+    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, TokenType... opers) {  int beg = lx.cleanrdi();
         AST_Expr l = factorpsr.apply(lx);
         Token opr;
         while ((opr=lx.selnext(opers)) != null) {
             AST_Expr r = factorpsr.apply(lx);
-            l = new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(opr.type()));
+            l = new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(opr.type()))._SetupSourceLoc(lx, beg);
         }
         return l;
     }
-    public static AST_Expr _Parse_OperBin_RL(Lexer lx, Function<Lexer, AST_Expr> fac, TokenType oper) {
+    public static AST_Expr _Parse_OperBin_RL(Lexer lx, Function<Lexer, AST_Expr> fac, TokenType oper) {  int beg = lx.cleanrdi();
         AST_Expr l = fac.apply(lx);
         if (lx.nexting(oper)) {
             AST_Expr r = _Parse_OperBin_RL(lx, fac, oper);
-            return new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(oper));
+            return new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(oper))._SetupSourceLoc(lx, beg);
         } else {
             return l;
         }
@@ -110,33 +109,33 @@ public final class LxParser {
         return parseExpr15Assignment(lx);
     }
 
-    public static AST_Expr_PrimaryIdentifier parseExprPrimaryIdentifier(Lexer lx) {
-        return new AST_Expr_PrimaryIdentifier(lx.next(TokenType.IDENTIFIER));
+    public static AST_Expr_PrimaryIdentifier parseExprPrimaryIdentifier(Lexer lx) { int beg = lx.cleanrdi();
+        return new AST_Expr_PrimaryIdentifier(lx.next(TokenType.IDENTIFIER).content())._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Expr parseExprPrimary(Lexer lx) {
+    public static AST_Expr parseExprPrimary(Lexer lx) { int beg = lx.cleanrdi();
         Token t = lx.peek();
         switch (t.type()) {
             /* BEGIN LITERAL */
             case LITERAL_INT:
                 lx.next();
-                return new AST_Expr_PrimaryLiteral(Integer.parseInt(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.INT32);
+                return new AST_Expr_PrimaryLiteral(Integer.parseInt(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.INT32)._SetupSourceLoc(lx, beg);
             case LITERAL_FLOAT:
                 lx.next();
-                return new AST_Expr_PrimaryLiteral(Float.parseFloat(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.FLOAT32);
+                return new AST_Expr_PrimaryLiteral(Float.parseFloat(t.content()), AST_Expr_PrimaryLiteral.LiteralKind.FLOAT32)._SetupSourceLoc(lx, beg);
             case LITERAL_CHAR:
                 lx.next();
                 Validate.isTrue(t.content().length() == 1);
-                return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.CHAR);
+                return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.CHAR)._SetupSourceLoc(lx, beg);
             case LITERAL_STRING:
                 lx.next();
-                return new AST_Expr_PrimaryLiteral(t.content(), AST_Expr_PrimaryLiteral.LiteralKind.STRING);
+                return new AST_Expr_PrimaryLiteral(t.content(), AST_Expr_PrimaryLiteral.LiteralKind.STRING)._SetupSourceLoc(lx, beg);
             case LITERAL_TRUE:
                 lx.next();
-                return new AST_Expr_PrimaryLiteral(true, AST_Expr_PrimaryLiteral.LiteralKind.BOOL);
+                return new AST_Expr_PrimaryLiteral(true, AST_Expr_PrimaryLiteral.LiteralKind.BOOL)._SetupSourceLoc(lx, beg);
             case LITERAL_FALSE:
                 lx.next();
-                return new AST_Expr_PrimaryLiteral(false, AST_Expr_PrimaryLiteral.LiteralKind.BOOL);
+                return new AST_Expr_PrimaryLiteral(false, AST_Expr_PrimaryLiteral.LiteralKind.BOOL)._SetupSourceLoc(lx, beg);
             /* END LITERAL */
 
             case IDENTIFIER:
@@ -151,14 +150,14 @@ public final class LxParser {
                 lx.next();
                 AST_Expr type = parse_TypeExpression(lx);
                 List<AST_Expr> args = _Parse_FuncArgs(lx);
-                return new AST_Expr_OperNew(type, args);
+                return new AST_Expr_OperNew(type, args)._SetupSourceLoc(lx, beg);
             }
             case SIZEOF: {
                 lx.next();
                 lx.next(TokenType.LPAREN);
                 AST_Expr type = parse_TypeExpression(lx);
                 lx.next(TokenType.RPAREN);
-                return new AST_Expr_OperSizeOf(type);
+                return new AST_Expr_OperSizeOf(type)._SetupSourceLoc(lx, beg);
             }
 //            case DEREFERENCE: {
 //                lx.next();
@@ -182,20 +181,20 @@ public final class LxParser {
         }
     }
 
-    public static AST_Expr parseExpr1AccessCall(Lexer lx) {
+    public static AST_Expr parseExpr1AccessCall(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l = parseExprPrimary(lx);
         while (true) {
             TokenType typ = lx.peek().type();
             if (typ == TokenType.DOT)
             {
                 lx.next();
-                String memb = parseExprPrimaryIdentifier(lx).getName();
-                l = new AST_Expr_MemberAccess(l, memb);
+                String memb = lx.next(TokenType.IDENTIFIER).content();
+                l = new AST_Expr_MemberAccess(l, memb)._SetupSourceLoc(lx, beg);
             }
             else if (typ == TokenType.LPAREN)
             {
                 List<AST_Expr> args = _Parse_FuncArgs(lx);
-                l = new AST_Expr_FuncCall(l, args);
+                l = new AST_Expr_FuncCall(l, args)._SetupSourceLoc(lx, beg);
             }
             else
             {
@@ -204,20 +203,20 @@ public final class LxParser {
         }
     }
 
-    public static AST_Expr parseExpr2UnaryPost(Lexer lx) {
+    public static AST_Expr parseExpr2UnaryPost(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l = parseExpr1AccessCall(lx);
         Token opr;
         while ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB)) != null) {
-            l = new AST_Expr_OperUnary(l, AST_Expr_OperUnary.UnaryKind.of(opr.type(), true));
+            l = new AST_Expr_OperUnary(l, AST_Expr_OperUnary.UnaryKind.of(opr.type(), true))._SetupSourceLoc(lx, beg);
         }
         return l;
     }
 
-    public static AST_Expr parseExpr3UnaryPre(Lexer lx) {
+    public static AST_Expr parseExpr3UnaryPre(Lexer lx) {  int beg = lx.cleanrdi();
         Token opr;
         if ((opr=lx.selnext(TokenType.PLUSPLUS, TokenType.SUBSUB, TokenType.PLUS, TokenType.SUB, TokenType.BANG, TokenType.TILDE, TokenType.AMP, TokenType.STAR)) != null) {
             AST_Expr r = parseExpr3UnaryPre(lx);
-            return new AST_Expr_OperUnary(r, AST_Expr_OperUnary.UnaryKind.of(opr.type(), false));
+            return new AST_Expr_OperUnary(r, AST_Expr_OperUnary.UnaryKind.of(opr.type(), false))._SetupSourceLoc(lx, beg);
         } else if (lx.peeking(TokenType.LPAREN)) {
             lx.mark();
             lx.next();
@@ -227,7 +226,7 @@ public final class LxParser {
 
                 AST_Expr r = parseExpr3UnaryPre(lx);
                 lx.cancelmark();
-                return new AST_Expr_TypeCast(r, type);
+                return new AST_Expr_TypeCast(r, type)._SetupSourceLoc(lx, beg);
             } catch (Exception ex) {
                 lx.unmark();
                 // failed. not TypeCast. nexlv.
@@ -236,11 +235,11 @@ public final class LxParser {
         return parseExpr2UnaryPost(lx);
     }
 
-    public static AST_Expr parseExpr31TypeCast(Lexer lx) {
+    public static AST_Expr parseExpr31TypeCast(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr expr = parseExpr3UnaryPre(lx);
         if (lx.nexting(TokenType.AS)) {
             AST_Expr type = parse_TypeExpression(lx);
-            expr = new AST_Expr_TypeCast(expr, type);
+            expr = new AST_Expr_TypeCast(expr, type)._SetupSourceLoc(lx, beg);
         }
         return expr;
     }
@@ -285,13 +284,13 @@ public final class LxParser {
         return _Parse_OperBin_LR(lx, LxParser::parseExpr12LogicalAnd, TokenType.BARBAR);
     }
 
-    public static AST_Expr parseExpr14TernaryConditional(Lexer lx) {
+    public static AST_Expr parseExpr14TernaryConditional(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l_cond = parseExpr13LogicalOr(lx);
         if (lx.nexting(TokenType.QUES)) {
             AST_Expr then = parseExpr14TernaryConditional(lx);
             lx.next(TokenType.COLON);
             AST_Expr els = parseExpr14TernaryConditional(lx);
-            return new AST_Expr_OperConditional(l_cond, then, els);
+            return new AST_Expr_OperConditional(l_cond, then, els)._SetupSourceLoc(lx, beg);
         } else {
             return l_cond;
         }
@@ -394,17 +393,17 @@ public final class LxParser {
         return new AST_Stmt_While(cond, then);
     }
 
-    public static AST_Stmt_Return parseStmtReturn(Lexer lx) {
+    public static AST_Stmt_Return parseStmtReturn(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.RETURN);
         AST_Expr expr = null;
         if (!lx.peeking(TokenType.SEMI)) {
             expr = parseExpr(lx);
         }
         lx.next(TokenType.SEMI);
-        return new AST_Stmt_Return(expr);
+        return new AST_Stmt_Return(expr)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_Using parseStmtUsing(Lexer lx) {
+    public static AST_Stmt_Using parseStmtUsing(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.USING);
 
         boolean isStatic = false;
@@ -420,10 +419,10 @@ public final class LxParser {
         }
         lx.next(TokenType.SEMI);
 
-        return new AST_Stmt_Using(isStatic, addr, name);
+        return new AST_Stmt_Using(isStatic, addr, name)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {
+    public static AST_Stmt_Namespace parseStmtNamespace(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.NAMESPACE);
 
         AST_Expr name = parse_QualifiedName(lx);
@@ -440,17 +439,17 @@ public final class LxParser {
             stmts = parseStmtBlock(lx).getStatements();
         }
 
-        return new AST_Stmt_Namespace(name, stmts);
+        return new AST_Stmt_Namespace(name, stmts)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {
+    public static AST_Stmt_Expr parseStmtExpr(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr expr = parseExpr(lx);
         lx.next(TokenType.SEMI);
-        return new AST_Stmt_Expr(expr);
+        return new AST_Stmt_Expr(expr)._SetupSourceLoc(lx, beg);
     }
 
 
-    public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {
+    public static AST_Stmt_DefFunc parseStmtDefFunc(Lexer lx) {  int beg = lx.cleanrdi();
         AST__Modifiers mdf = parse_Modifiers(lx);
 
         AST_Expr rettype = parse_TypeExpression(lx);
@@ -462,7 +461,7 @@ public final class LxParser {
 
         var body = parseStmtBlock(lx);
 
-        return new AST_Stmt_DefFunc(rettype, name, params, body, mdf);
+        return new AST_Stmt_DefFunc(rettype, name, params, body, mdf)._SetupSourceLoc(lx, beg);
     }
 
     public static AST_Stmt_DefVar parseStmtDefVar(Lexer lx) {
@@ -472,7 +471,7 @@ public final class LxParser {
     }
 
     // not the ';'. for support of FuncParams.
-    public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {
+    public static AST_Stmt_DefVar parseStmtDefVar_Def(Lexer lx) {  int beg = lx.cleanrdi();
         AST__Modifiers mdf = parse_Modifiers(lx);
 
         AST_Expr type = parse_TypeExpression(lx);
@@ -483,18 +482,18 @@ public final class LxParser {
             init = parseExpr(lx);
         }
 
-        return new AST_Stmt_DefVar(type, name, init, mdf);
+        return new AST_Stmt_DefVar(type, name, init, mdf)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {
+    public static AST_Stmt_DefClass parseStmtDefClass(Lexer lx) {  int beg = lx.cleanrdi();
         AST__Modifiers mdf = parse_Modifiers(lx);
 
         lx.next(TokenType.CLASS);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
-        List<AST_Expr_PrimaryIdentifier> genericParams = Collections.emptyList();
+        List<AST_Expr_PrimaryIdentifier> genericparams = Collections.emptyList();
         if (lx.nexting(TokenType.LT)) {
-            genericParams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryIdentifier, TokenType.COMMA);
+            genericparams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryIdentifier, TokenType.COMMA);
             lx.next(TokenType.GT);
         }
 
@@ -508,7 +507,7 @@ public final class LxParser {
         // validate member type.
         stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
 
-        return new AST_Stmt_DefClass(name, genericParams, supers, stmts_members, mdf);
+        return new AST_Stmt_DefClass(name, genericparams, supers, stmts_members, mdf)._SetupSourceLoc(lx, beg);
     }
 
 
@@ -516,33 +515,36 @@ public final class LxParser {
 
 
 
-    public static AST_Expr parse_QualifiedName(Lexer lx) {
+    public static AST_Expr parse_QualifiedName(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l = parseExprPrimaryIdentifier(lx);
         while (lx.nexting(TokenType.DOT)) {
-            l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName());
+            l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName())._SetupSourceLoc(lx, beg);
         }
         return l;
     }
 
-    public static AST_Expr parse_TypeExpression(Lexer lx) {
+    /**
+     * this is type-only-struct-expr parse. tho same lexs can use parseExpr() produces same AST, but this only allows type-expr.
+     */
+    public static AST_Expr parse_TypeExpression(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr type = parse_QualifiedName(lx);
 
         // Generics Arguments
         if (lx.nexting(TokenType.LT)) {  // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
             List<AST_Expr> generic_args = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_TypeExpression, TokenType.COMMA, TokenType.GT);
             lx.next(TokenType.GT);
-            type =  new AST_Expr_GenericsArgument(generic_args);
+            type =  new AST_Expr_GenericsArgument(type, generic_args)._SetupSourceLoc(lx, beg);
         }
 
         // Pointer Type.
         while (lx.nexting(TokenType.STAR)) {
-            type = new AST_Expr_OperUnary(type, AST_Expr_OperUnary.UnaryKind.PTR_TYP);
+            type = new AST_Expr_OperUnary(type, AST_Expr_OperUnary.UnaryKind.PTR_TYP)._SetupSourceLoc(lx, beg);
         }
 
         return type;
     }
 
-    public static AST__Annotation parse_Annotation(Lexer lx) {
+    public static AST__Annotation parse_Annotation(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.AT);
         AST_Expr name = parse_QualifiedName(lx);
 
@@ -551,10 +553,10 @@ public final class LxParser {
             args = _Parse_FuncArgs(lx);
         }
 
-        return new AST__Annotation(name, args);
+        return new AST__Annotation(name, args)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST__Modifiers parse_Modifiers(Lexer lx) {
+    public static AST__Modifiers parse_Modifiers(Lexer lx) {  int beg = lx.cleanrdi();
         List<AST__Annotation> annos = new ArrayList<>();
         while (lx.peeking(TokenType.AT)) {
             annos.add(parse_Annotation(lx));
@@ -567,11 +569,11 @@ public final class LxParser {
             modifiers.add(t.type());
         }
 
-        return new AST__Modifiers(annos, modifiers);
+        return new AST__Modifiers(annos, modifiers)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST__CompilationUnit parse_CompilationUnit(Lexer lx) {
+    public static AST__CompilationUnit parse_CompilationUnit(Lexer lx) {  int beg = lx.cleanrdi();
         return new AST__CompilationUnit(
-                _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF));
+                _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF))._SetupSourceLoc(lx, beg);
     }
 }

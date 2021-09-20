@@ -21,17 +21,29 @@ public final class Lexer {
 
 //    private Token curr;
 
-    public String sourceLocation = "file://SomeWhere/abc.n";
+    private String sourcelocation = "file://SomeWhere/abc.n";
     private String srx = "";  // Source
     private int rdi;     // ReadIndex.
     private final LinkedList<Integer> rdimarkers = new LinkedList<>();  // for mark/setback.
 
-    private final LinkedList<Integer> markedreadidxs = new LinkedList<>();  // for pushIdx, popIdx. AST SourceLocation QuickRangeDefine
+//    private final LinkedList<Integer> markedreadidxs = new LinkedList<>();  // for pushIdx, popIdx. AST SourceLocation QuickRangeDefine
+//    public void pushReadIdx() { markedreadidxs.push(rdi); }
+//    public int popReadIdx() { return markedreadidxs.pop(); }
 
     public String getSource() { return srx; }
-    public void pushReadIdx() { markedreadidxs.push(rdi); }
-    public int popReadIdx() { return markedreadidxs.pop(); }
+    public void setSourceName(String sourcelocation) {
+        this.sourcelocation = sourcelocation;
+    }
+    public String getSourceName() {
+        return sourcelocation;
+    }
+
     public int readidx() { return rdi; }
+    public int cleanrdi() {
+        Intptr idx = Intptr.of(rdi);
+        _skipBlankAndComments(srx, idx);
+        return idx.i;
+    }
 
     // read/next/peek
 
@@ -43,6 +55,7 @@ public final class Lexer {
             return new Token(TokenType.EOF, null, new SourceLoc(null, srx, srx.length(), srx.length()));
 
         final int beg = idx.i;
+        rdi=beg;  // assign unblank-begin to rdi is allowed. else the SrcLoc.end might before SrcLoc.begin if the Parse only peeking not steppin. (Modifiers)
         TokenType type = null;
         String content = null;  // only available for TType.fixed==null Types.
 
@@ -107,7 +120,7 @@ public final class Lexer {
         }
         Validate.isTrue(type != null);
         Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
-        return new Token(type, content, new SourceLoc(null, srx, beg, rdi));
+        return new Token(type, content, new SourceLoc(null, srx, beg, idx.i));
     }
 
     private static void _skipBlankAndComments(String s, Intptr idx) {

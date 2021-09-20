@@ -2,6 +2,7 @@ package outskirts.lang.langdev.lexer;
 
 import outskirts.util.Intptr;
 import outskirts.util.StringUtils;
+import outskirts.util.Validate;
 
 public final class SourceLoc {
 
@@ -19,6 +20,7 @@ public final class SourceLoc {
         this.source = source;
         this.beginIndex = beginIndex;
         this.endIndex = endIndex;
+        Validate.isTrue(beginIndex <= endIndex, "Illegal idx, beg "+beginIndex+", end "+endIndex);
 
         // setup linenumber cache.
         Intptr ln = Intptr.zero(), cn = Intptr.zero();
@@ -36,9 +38,10 @@ public final class SourceLoc {
 
     @Override
     public String toString() {
-        return String.format("SourceLoc{\"%s\" (%s:%s+%s) \"%s\"}",
+        return String.format("{\"%s\" in \"%s\" at (%s:%s/%s+%s)}",
                 source.substring(beginIndex, endIndex),
-                getLineNumber()+1, getCharNumber()+1, endIndex-beginIndex,
-                sourceLocation);
+                sourceLocation,
+                getLineNumber()+1, getCharNumber()+1,
+                beginIndex+1, endIndex-beginIndex);
     }
 }
