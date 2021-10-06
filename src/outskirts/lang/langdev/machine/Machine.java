@@ -14,22 +14,23 @@ import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
+import outskirts.util.Pair;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
 import static outskirts.util.IOUtils.readShort;
 
 public class Machine {
 
-    public static byte[] MemSpace = new byte[100];
+    public static byte[] MemSpace = new byte[200];
     private static int esp = 0;
 
-    private static int str_constant_ai_ptr = 62;
+    private static int str_constant_ai_ptr = MemSpace.length - 40;
     private static final Map<String, Integer> str_constants = new HashMap<>();
+
+    private static int malloc_begin = str_constant_ai_ptr - 80;
+    public static final List<Pair<Integer, Integer>> mallocated = new ArrayList<>();
 
     private static int sum(int[] a) {
         int s = 0;
@@ -55,6 +56,9 @@ public class Machine {
     private static void pushi32(int i) {
         IOUtils.writeInt(MemSpace, esp, i);
         esp += 4;
+    }
+    private static void push_ptr(int i) {
+        pushi32(i);
     }
     private static void pushi8(byte i) {
         MemSpace[esp] = i;
@@ -216,7 +220,7 @@ public class Machine {
                     SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(flname);
 
                     int params_sz = 0;
-                    for (SymbolVariable sv : sf.params) {
+                    for (SymbolVariable sv : sf.getParameters()) {  // include 'this'.
                         params_sz += sv.getType().getTypesize();
                     }
                     esp -= params_sz;
@@ -293,16 +297,39 @@ public class Machine {
                     }
                     break;
                 }
-                case I32ADD: {
+                case ADD_I32: {
                     int i2 = popi32();
                     int i1 = popi32();
                     pushi32(i1+i2);
                     break;
                 }
-                case I32MUL: {
+                case MUL_I32: {
                     int i2 = popi32();
                     int i1 = popi32();
                     pushi32(i1*i2);
+                    break;
+                }
+                case SUB_I32: {
+                    int i2 = popi32();
+                    int i1 = popi32();
+                    pushi32(i1 - i2);
+                    break;
+                }
+                case MALLOC: {
+                    int sz = popi32();
+
+                    int beg = malloc_begin;
+                    for (int i = 0;i < mallocated.size();i++) {
+                        var e = mallocated.get(i);
+                        beg = e.first + e.second;
+                        if (mallocated.size()-1 == i) {
+                            break;
+                        } else if (mallocated.get(i+1).first - beg >= sz){
+                            break;
+                        }
+                    }
+
+                    push_ptr(beg);
                     break;
                 }
                 case DUP: {

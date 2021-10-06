@@ -38,7 +38,7 @@ public final class ClassCompiler {
                 AST_Stmt_DefFunc c = (AST_Stmt_DefFunc)m;
 
                 CodeBuf codebuf = new CodeBuf(constantpool);
-                for (SymbolVariable prm : c.symf.params) {
+                for (SymbolVariable prm : c.symf.getParameters()) {
                     codebuf.localdef(prm.getSimpleName(), prm.getType());
                 }
 

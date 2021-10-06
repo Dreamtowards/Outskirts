@@ -26,14 +26,19 @@ class _main {
     static void main() {
 
         string s = string();
+        s.hash = 21;
 
-        s.base = "okString";
+        s.base = "okStr";
 
         // s = s.substring(0, 2);
 
         int len = s.length();
+        // int j = len++;
 
-        int j = len++;
+        int i80 = *(int*)80;
+        int i81 = *(int*)84;
+        int i82 = *(int*)88;
+        int i83 = *(int*)92;*/
 
     }
 }

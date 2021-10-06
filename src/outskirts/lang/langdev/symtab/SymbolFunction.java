@@ -15,8 +15,8 @@ import java.util.List;
 // this maybe temporary.  until Generic Available. vartype:: function<return_type, param_type...>
 public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
-    public final TypeSymbol returntype;
-    public final List<SymbolVariable> params;
+    private final TypeSymbol returntype;
+    public final List<SymbolVariable> params;  // actual params. may include 'this'. order sensitive: codegen invokeproc args, 'this' is heading.
     public final SymbolClass ownerclass;
 
     private final Scope fnscope;
@@ -40,11 +40,19 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
         return returntype;
     }
 
+    public List<SymbolVariable> getParameters() {
+        return params;
+    }
+    // parameters without 'this'. used for semantic func-call args type-check.
+    public List<SymbolVariable> getDeclaredParameters() {
+        return isStatic() ? getParameters() : getParameters().subList(1, getParameters().size());
+    }
+
     @Override
     public String getQualifiedName() {
         String[] prms = params.stream().map(p -> p.type.getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
 
-        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+returntype.getQualifiedName();
+        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+getReturnType().getQualifiedName();
     }
 
 //    public SymbolVariable findVariable(Scope s, String name) {

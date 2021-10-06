@@ -19,20 +19,25 @@ class string {
         }
         return i;
     }
-/*
-    static void memcpy(void* src, void* dest, int size) {
-        while(size--)
-            *(dest++) = *(src++);
+
+    static void memcpy(int* src, int* dest, int size) {
+        while(size--) {
+            *dest = *src;
+            dest = (int*)((int)dest + sizeof(int));
+            src  = (int*)((int)src  + sizeof(int));
+        }
     }
 
     string substring(int begin, int end) {
         int len = end - begin;
-        int* p = (int*)new((len + 1) * sizeof(int));
-        memcpy( (int*)((int)(*this).base + begin * sizeof(int)), p, len);
-        *(int*)( (int)p + len * sizeof(int)) = 0;
+        int* p = (int*)80; //new((len + 1) * sizeof(int));
+        // memcpy( (int*)((int)(*this).base + begin * sizeof(int)), p, len * sizeof(int));
+        // memcpy(0, p, 8);
+        // *(int*)( (int)p + len * sizeof(int)) = 0;
 
         string s = string();
         s.base = p;
+        s.hash = 31;
 
         return s;
     }

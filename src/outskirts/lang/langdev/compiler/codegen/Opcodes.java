@@ -15,7 +15,7 @@ public final class Opcodes {
             INVOKEFUNC = 5,
             JMP = 6,
             JMP_F = 7,
-            I32ADD = 8,
+            ADD_I32 = 8,
             ICMP = 9,
             CMP_EQ = 10,
             CMP_NE = 11,
@@ -24,7 +24,7 @@ public final class Opcodes {
             CMP_LE = 14,
             CMP_GE = 15,
             POP = 16,
-            I32MUL = 17,
+            MUL_I32 = 17,
             LDPTR = 18,
             STPTR = 19,
             STACKALLOC = 20,
@@ -36,7 +36,9 @@ public final class Opcodes {
             STKPTR_OFF = 27,
             RET = 28,
             INC_I32 = 29,
-            DEC_I32 = 30;
+            DEC_I32 = 30,
+            SUB_I32 = 31,
+            MALLOC = 32;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -47,11 +49,11 @@ public final class Opcodes {
             "INVOKEPROC",
             "JMP",
             "JMP_F",
-            "I32ADD",
+            "ADD_I32",
             "ICMP",
             "CMP_EQ", "CMP_NE", "CMP_LT", "CMP_GT", "CMP_LE", "CMP_GE",
             "POP",
-            "I32MUL",
+            "MUL_I32",
             "LDPTR",
             "STPTR",
             "STACKALLOC",
@@ -63,7 +65,9 @@ public final class Opcodes {
             "STKPTR_OFF",
             "RET",
             "INC_I32",
-            "DEC_I32"
+            "DEC_I32",
+            "SUB_I32",
+            "MALLOC"
     };
 
     public static String _InstructionComment(CodeBuf buf, int idx) {

@@ -22,7 +22,7 @@ public final class Scope {
      * the Symbol is Unique, Symbol.name is its Actually-Name. see getQualifiedName(): we won't give a alias name as result, because its leads wrong address,
      * we won't duplicate the Symbol for the typealias functionality, Symbol-Instance/Object just Unique, but we search it/local-using-it by custom name - just in the map's key.
      */
-    public final Map<String, Symbol> _symbols = new HashMap<>();
+    public final Map<String, Symbol> _symbols = new TreeMap<>();
 
     // e.g. SymbolClass, SymbolNamespace.
     public Symbol symbolAssociated;

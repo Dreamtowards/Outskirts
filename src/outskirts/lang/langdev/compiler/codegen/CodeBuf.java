@@ -164,11 +164,24 @@ public class CodeBuf {
         };
     }
 
-    public void _i32add() {
-        append(I32ADD);
+    public void _add_i32() {
+        append(ADD_I32);
     }
-    public void _i32mul() {
-        append(I32MUL);
+    public void _mul_i32() {
+        append(MUL_I32);
+    }
+    public void _inc_i32() {
+        append(INC_I32);
+    }
+    public void _dec_i32() {
+        append(DEC_I32);
+    }
+    public void _sub_i32() {
+        append(SUB_I32);
+    }
+
+    public void _malloc() {
+        append(MALLOC);
     }
 
     public void _icmp() {
@@ -197,12 +210,6 @@ public class CodeBuf {
         append((byte)n);
     }
 
-    public void _inc_i32() {
-        append(INC_I32);
-    }
-    public void _dec_i32() {
-        append(DEC_I32);
-    }
 
 //    public void _ldptr(int sz) {
 //        append(LDPTR);

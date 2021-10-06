@@ -33,6 +33,14 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             // Validate.isTrue(fexpr instanceof AST_Expr_PrimaryIdentifier || fexpr instanceof AST_Expr_MemberAccess);  // meaningless.
             SymbolFunction sf = (SymbolFunction)s;
 
+            // check args types.
+            List<SymbolVariable> params = sf.getDeclaredParameters();
+            Validate.isTrue(a.getArguments().size() == params.size(), "argument size dismatched.");
+            for (int i = 0;i < a.getArguments().size();i++) {
+                TypeSymbol arg_typ = a.getArguments().get(i).getVarTypeSymbol(), prm_typ = params.get(i).getType();
+                Validate.isTrue(arg_typ == prm_typ, "argument "+(i+1)+" type dismatched. required: "+prm_typ+", actual: "+arg_typ);
+            }
+
             // TODO: this check is responsbility of MemberAccess. (static member access check)
             // when a function is static, dont allows it been called from instance context. like: instExpr.stfunc();
             // this may not a good way to check.
@@ -43,7 +51,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
                                     prev.getExprSymbol() instanceof SymbolClass);  // unavailable check.
             }
 
-            a.setExprSymbol(sf.returntype.rvalue());
+            a.setExprSymbol(sf.getReturnType().rvalue());
         } else if (s instanceof SymbolClass) {  // Construction of Stack-Alloc-Object-Creation.  type(..).
             SymbolClass c = (SymbolClass)s;
 
@@ -173,6 +181,10 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             case LT: case LTEQ: case GT: case GTEQ: case IS:
             case EQ: case NEQ:
                 a.setSymbol(SymbolBuiltinType._bool.rvalue());
+                break;
+            case ASSIGN:
+                Validate.isTrue(a.getLeftOperand().getVarSymbol().hasAddress());
+                a.setExprSymbol(a.getLeftOperand().getVarSymbol());
                 break;
             default:
                 a.setExprSymbol(a.getLeftOperand().getVarTypeSymbol().rvalue());  // return commonBaseType(e1, e2);

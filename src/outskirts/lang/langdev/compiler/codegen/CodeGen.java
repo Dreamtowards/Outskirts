@@ -75,12 +75,16 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 lvalue2rvalue(buf, expr);
                 break;
             case PRE_INC:
+            case PRE_DEC:
                 Validate.isTrue(expr.getVarTypeSymbol() == SymbolBuiltinType._int);
                 buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
                     buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
                     buf._loadv(SymbolBuiltinType._int.getTypesize());
                     buf._ldc_i(1);
-                    buf._i32add();
+                    if (a.getUnaryKind() == AST_Expr_OperUnary.UnaryKind.PRE_INC)
+                        buf._add_i32();
+                    else
+                        buf._sub_i32();
                 buf._popcpy(SymbolBuiltinType._int.getTypesize());
                 break;
             case POST_INC:
@@ -95,6 +99,13 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, CodeBuf buf) {
+        a.getSizeExpression().accept(this, buf);
+
+        buf._malloc();
     }
 
     @Override
@@ -131,7 +142,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 int off = typ.memoffset(a.getIdentifier());
                 if (sv.hasAddress()) {  // ptr offset.
                     buf._ldc_i(off);
-                    buf._i32add();
+                    buf._add_i32();
                 } else {  // silce.
                     int sz = ((SymbolVariable)ms).getType().getTypesize();
 
@@ -311,7 +322,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             rhs.accept(this, buf);  // put rhs addr(lval)/value(rval)
 
-            int sz = lhs.getVarTypeSymbol().getTypesize();
+            int sz = lhs.getVarTypeSymbol().getTypesize(); Validate.isTrue(sz > 0, "Invalid assignment. zero copies.");
             if (rhs.getVarSymbol().hasAddress()) {  // rhs: lvalue
                 buf._ptrcpy(sz);
             } else {  // rhs: rvalue
@@ -375,11 +386,15 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             switch (a.getBinaryKind()) {
                 case ADD: {
-                    buf._i32add();
+                    buf._add_i32();
                     break;
                 }
                 case MUL: {
-                    buf._i32mul();
+                    buf._mul_i32();
+                    break;
+                }
+                case SUB: {
+                    buf._sub_i32();
                     break;
                 }
                 case LT: {
