@@ -15,8 +15,4 @@ public class AST_Expr_PrimaryIdentifier extends AST_Expr {
         return name;
     }
 
-    @Override
-    public String toString() {
-        return "`"+name;
-    }
 }

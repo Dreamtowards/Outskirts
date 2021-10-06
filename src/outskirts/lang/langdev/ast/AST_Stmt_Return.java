@@ -16,9 +16,4 @@ public class AST_Stmt_Return extends AST_Stmt {
         return expr;
     }
 
-    @Override
-    public String toString() {
-        return "ast_stmt_return{"+expr+"}";
-    }
-
 }

@@ -50,9 +50,4 @@ public class AST_Stmt_DefFunc extends AST_Stmt implements AST.Modifierable {
         return modifiers;
     }
 
-    @Override
-    public String toString() {
-        return "ast_stmt_funcdef{"+returntype+" "+name+"("+params+")"+body+"}";
-    }
-
 }

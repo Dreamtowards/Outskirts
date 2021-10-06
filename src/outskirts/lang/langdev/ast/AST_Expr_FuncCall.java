@@ -27,9 +27,4 @@ public class AST_Expr_FuncCall extends AST_Expr {
         return args;
     }
 
-    @Override
-    public String toString() {
-        return "fcall{"+funcptr+"("+args+")}";
-    }
-
 }

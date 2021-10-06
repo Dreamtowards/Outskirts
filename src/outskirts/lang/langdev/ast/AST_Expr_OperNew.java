@@ -23,8 +23,4 @@ public class AST_Expr_OperNew extends AST_Expr {
         return args;
     }
 
-    @Override
-    public String toString() {
-        return "(new "+type+" ("+args.toString()+"))";
-    }
 }

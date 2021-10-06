@@ -37,8 +37,4 @@ public class AST_Stmt_DefVar extends AST_Stmt implements AST.Modifierable {
         return modifiers;
     }
 
-    @Override
-    public String toString() {
-        return String.format("ast_vardef{%s %s = %s}", type, name, initexpr);
-    }
 }

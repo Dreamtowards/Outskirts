@@ -148,9 +148,15 @@ public final class LxParser {
             }
             case NEW: {
                 lx.next();
-                AST_Expr type = parse_TypeExpression(lx);
-                List<AST_Expr> args = _Parse_FuncArgs(lx);
-                return new AST_Expr_OperNew(type, args)._SetupSourceLoc(lx, beg);
+                if (lx.nexting(TokenType.LPAREN)) {
+                    AST_Expr szExpr = parseExpr(lx);
+                    lx.next(TokenType.RPAREN);
+                    return new AST_Expr_OperNewMalloc(szExpr)._SetupSourceLoc(lx, beg);
+                } else {
+                    AST_Expr type = parse_TypeExpression(lx);
+                    List<AST_Expr> args = _Parse_FuncArgs(lx);
+                    return new AST_Expr_OperNew(type, args)._SetupSourceLoc(lx, beg);
+                }
             }
             case SIZEOF: {
                 lx.next();

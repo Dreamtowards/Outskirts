@@ -29,7 +29,11 @@ class _main {
 
         s.base = "okString";
 
+        // s = s.substring(0, 2);
+
         int len = s.length();
+
+        int j = len++;
 
     }
 }

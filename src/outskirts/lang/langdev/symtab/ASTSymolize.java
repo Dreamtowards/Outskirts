@@ -98,7 +98,16 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         type.accept(this, p);
 
         Validate.isTrue(type.getTypeSymbol() instanceof SymbolClass, "OperNew Required SymbolClass.");
-        a.setExprSymbol(type.getTypeSymbol().rvalue());  // SymVar.?
+        a.setExprSymbol(type.getTypeSymbol().rvalue());  // SymVar.? TODO: nono.. should be PTR
+    }
+
+    @Override
+    public void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, Scope p) {
+        AST_Expr szexpr = a.getSizeExpression();
+        szexpr.accept(this, p);
+
+        Validate.isTrue(szexpr.getVarTypeSymbol() == SymbolBuiltinType._int);
+        a.setExprSymbol(SymbolBuiltinTypePointer.of(SymbolBuiltinType._void).rvalue());
     }
 
     @Override
@@ -134,9 +143,20 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             case PTR_TYP:
                 s = SymbolBuiltinTypePointer.of(expr.getTypeSymbol());
                 break;
-            default:
-                s = expr.getVarSymbol();
+            case POST_INC:
+            case POST_DEC:
+                Validate.isTrue(expr.getVarSymbol().hasAddress());  // makesure lvalue
+
+                s = expr.getVarTypeSymbol().rvalue();
                 break;
+            case PRE_INC:
+            case PRE_DEC:
+                Validate.isTrue(expr.getVarSymbol().hasAddress());  // makesure lvalue
+
+                s = expr.getVarTypeSymbol().lvalue();
+                break;
+            default:
+                throw new UnsupportedOperationException();
         }
         a.setExprSymbol(s);
     }

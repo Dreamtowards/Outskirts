@@ -65,6 +65,9 @@ public class Machine {
         esp -= 4;
         return IOUtils.readInt(MemSpace, esp);
     }
+    private static int pop_ptr() {
+        return popi32();
+    }
     private static int popi8() {
         esp -= 1;
         return MemSpace[esp];
@@ -103,7 +106,8 @@ public class Machine {
 
             System.out.printf("inst %-40s;  opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc))+"\n", Opcodes._InstructionComment(buf, code, Intptr.of(ip)));
             boolean doret = false;
-            switch (code[ip++]) {
+            final byte INST = code[ip++];
+            switch (INST) {
 //                case STORE: {
 //                    byte i = code[ip++];
 //                    popn(localptrs[i], buf.localsz(i));
@@ -341,6 +345,14 @@ public class Machine {
                 }
                 case CMP_NE: {
                     pushi8((byte)(popi8() != CMPR_EQ ? 1 : 0));
+                    break;
+                }
+                case INC_I32:
+                case DEC_I32: {
+                    int p = pop_ptr();
+                    int v = IOUtils.readInt(MemSpace, p);
+                    IOUtils.writeInt(MemSpace, p, INST == INC_I32 ? v+1 : v-1);
+                    pushi32(v);
                     break;
                 }
                 default:

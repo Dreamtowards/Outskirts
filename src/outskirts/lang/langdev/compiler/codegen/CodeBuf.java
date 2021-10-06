@@ -197,6 +197,13 @@ public class CodeBuf {
         append((byte)n);
     }
 
+    public void _inc_i32() {
+        append(INC_I32);
+    }
+    public void _dec_i32() {
+        append(DEC_I32);
+    }
+
 //    public void _ldptr(int sz) {
 //        append(LDPTR);
 //        append((byte)sz);

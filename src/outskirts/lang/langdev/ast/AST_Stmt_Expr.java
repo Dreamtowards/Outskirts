@@ -16,8 +16,4 @@ public class AST_Stmt_Expr extends AST_Stmt {
         return expr;
     }
 
-    @Override
-    public String toString() {
-        return "SmtmExpr::"+expr + ";";
-    }
 }

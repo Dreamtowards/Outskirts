@@ -34,7 +34,9 @@ public final class Opcodes {
             PTRCPY = 24,
             LOADV = 25,
             STKPTR_OFF = 27,
-            RET = 28;
+            RET = 28,
+            INC_I32 = 29,
+            DEC_I32 = 30;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -59,7 +61,9 @@ public final class Opcodes {
             "PTRCPY",
             "LOADV","",
             "STKPTR_OFF",
-            "RET"
+            "RET",
+            "INC_I32",
+            "DEC_I32"
     };
 
     public static String _InstructionComment(CodeBuf buf, int idx) {

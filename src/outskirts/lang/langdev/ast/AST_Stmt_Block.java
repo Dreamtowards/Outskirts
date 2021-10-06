@@ -16,8 +16,4 @@ public class AST_Stmt_Block extends AST_Stmt {
         return stmts;
     }
 
-    @Override
-    public String toString() {
-        return "ast_stmt_block{"+ stmts +'}';
-    }
 }

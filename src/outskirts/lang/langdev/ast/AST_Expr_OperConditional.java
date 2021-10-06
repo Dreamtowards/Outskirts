@@ -27,10 +27,4 @@ public class AST_Expr_OperConditional extends AST_Expr {
     public AST_Expr getFalseExpression() {
         return exprelse;
     }
-
-
-    @Override
-    public String toString() {
-        return "("+condition+" ? "+exprthen+" : "+exprelse+")";
-    }
 }

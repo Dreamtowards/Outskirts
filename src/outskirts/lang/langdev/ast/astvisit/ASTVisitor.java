@@ -13,6 +13,7 @@ public interface ASTVisitor<P> {
 
     default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
     default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }
+    default void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, P p)                     { visitDefault(a, p); }
     default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }
     default void visitExprOperConditional(AST_Expr_OperConditional a, P p)     { visitDefault(a, p); }
     default void visitExprSizeOf(AST_Expr_OperSizeOf a, P p)                   { visitDefault(a, p); }

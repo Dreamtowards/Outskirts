@@ -71,26 +71,27 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 // nothing.
                 break;
             case DEREF:
+                // TODO: why..? how about "nothing.?"
                 lvalue2rvalue(buf, expr);
                 break;
+            case PRE_INC:
+                Validate.isTrue(expr.getVarTypeSymbol() == SymbolBuiltinType._int);
+                buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
+                    buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
+                    buf._loadv(SymbolBuiltinType._int.getTypesize());
+                    buf._ldc_i(1);
+                    buf._i32add();
+                buf._popcpy(SymbolBuiltinType._int.getTypesize());
+                break;
             case POST_INC:
-                // i++
-                // ptr
-                // dup ptr
-                // loadv
-                //
-                //   dup ptr
-                //   loadv
-                //   push 1
-                //   iadd
-                //   pstore
-                //
-
-//                Validate.isTrue(expr.getVarSymbol().hasAddress());
-//                lvalue_loadv(buf, expr);
-//                buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
-
-//                break;
+                // pure stack-based & base on one ptr, its seems can't do the post_inc/dec functionality.
+                // at beginning there have a lvalue, then it's rvalue have to be pushed firstly, then inc it and update, funally returns the rvalue.
+                // but since the rvalue been pushed, the lvalue can't be got anymore. thus, cannot inc.
+                buf._inc_i32();
+                break;
+            case POST_DEC:
+                buf._dec_i32();
+                break;
             default:
                 throw new UnsupportedOperationException();
         }

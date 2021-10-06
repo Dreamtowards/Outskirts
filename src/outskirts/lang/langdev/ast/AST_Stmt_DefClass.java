@@ -41,9 +41,4 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
         return modifiers;
     }
 
-    @Override
-    public String toString() {
-        return "(class "+ name +")";
-    }
-
 }

@@ -60,7 +60,7 @@ public abstract class AST {
 
 
     @Override
-    public String toString() {
+    public final String toString() {
         return getClass().getSimpleName()+"::"+sourceloc;
     }
 
@@ -82,6 +82,7 @@ public abstract class AST {
             else if (this instanceof AST_Expr_OperBinary)       visitor.visitExprOperBinary((AST_Expr_OperBinary)this, p);
             else if (this instanceof AST_Expr_OperConditional)  visitor.visitExprOperConditional((AST_Expr_OperConditional)this, p);
             else if (this instanceof AST_Expr_OperNew)          visitor.visitExprOperNew((AST_Expr_OperNew)this, p);
+            else if (this instanceof AST_Expr_OperNewMalloc)    visitor.visitExprOperNewMalloc((AST_Expr_OperNewMalloc)this, p);
             else if (this instanceof AST_Expr_OperSizeOf)       visitor.visitExprSizeOf((AST_Expr_OperSizeOf)this, p);
             else if (this instanceof AST_Expr_OperUnary)        visitor.visitExprOperUnary((AST_Expr_OperUnary)this, p);
             else if (this instanceof AST_Expr_PrimaryIdentifier)visitor.visitExprPrimaryIdentifier((AST_Expr_PrimaryIdentifier)this, p);
