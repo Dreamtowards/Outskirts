@@ -6,12 +6,15 @@
  * 3. StackObject Creation.  solv. space alloc.
  * 4. MemberAccess. from Variable vs. from TemporaryRvalues.  Solv. lval: ptr off, rval: slice.
  * 5. Pointers Syntax. & and *.  solv
+ * 6. Call Spec. ret-val. args. ret-ip.
  *
- * 1. Call Spec. ret-val. args. ret-ip.
- * 2. Lvalue Rvalue on used operation.
+ * 2. Lvalue Rvalue on used operations. relations.
  *
  * 5. new HeapObjectCreation
  * 6. Pointer MemberAccess a->b.
+ * 7. Refied Generics
+ * 8. using function<void, int> as int_consumer;
+ * 9. Const Generics.
  */
 
 using stl.lang.string;
@@ -24,20 +27,9 @@ class _main {
 
         string s = string();
 
-        s.base = (int*)60;
-        *(int*)60 = 'H';
-        *(int*)64 = 'e';
-        *(int*)68 = 'l';
-        *(int*)72 = 'l';
-        *(int*)76 = 'o';
-        *(int*)80 = 0;
-
-        //int c = s.char_at(0);
-        //int expected = 'H';
-
+        s.base = "okString";
 
         int len = s.length();
-
 
     }
 }

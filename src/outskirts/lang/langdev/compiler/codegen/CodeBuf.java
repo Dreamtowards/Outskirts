@@ -112,8 +112,12 @@ public class CodeBuf {
         appendShort(cpidx);
     }
 
-    public void _ldv_i(int v) {
+    public void _ldc_i(int v) {
         _ldc(cp.ensureInt32(v));
+    }
+
+    public void _ldc_str(String v) {
+        _ldc(cp.ensureUtf8(v));
     }
 
     // funcptr, args...

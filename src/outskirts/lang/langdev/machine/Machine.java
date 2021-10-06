@@ -16,6 +16,8 @@ import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
@@ -25,6 +27,9 @@ public class Machine {
 
     public static byte[] MemSpace = new byte[100];
     private static int esp = 0;
+
+    private static int str_constant_ai_ptr = 62;
+    private static final Map<String, Integer> str_constants = new HashMap<>();
 
     private static int sum(int[] a) {
         int s = 0;
@@ -117,6 +122,21 @@ public class Machine {
                     if (c instanceof ConstantPool.Constant.CInt32) {
                         int v = ((ConstantPool.Constant.CInt32)c).i;
                         pushi32(v);
+                    } else if (c instanceof ConstantPool.Constant.CUtf8) {
+                        String v = ((ConstantPool.Constant.CUtf8)c).tx;
+                        Integer p = str_constants.get(v);
+                        if (p == null) {
+                            System.err.println("Load STR "+v+" base on "+str_constant_ai_ptr);
+                            p = str_constant_ai_ptr;
+                            for (int j = 0;j < v.length();j++) {
+                                IOUtils.writeInt(MemSpace, str_constant_ai_ptr, v.charAt(j));
+                                str_constant_ai_ptr += 4;
+                            }
+                            IOUtils.writeInt(MemSpace, str_constant_ai_ptr, 0);
+                            str_constant_ai_ptr += 4;
+                            str_constants.put(v, p);
+                        }
+                        pushi32(p);
                     } else
                         throw new UnsupportedOperationException();
 

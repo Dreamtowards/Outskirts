@@ -24,8 +24,8 @@ public class Main {
         SymbolBuiltinType.init(glob);
 
         for (String cp : Arrays.asList(
-                "itptr.g"//,
-                //"stl/lang/string.g"
+                "stl/lang/string.g",
+                "itptr.g"
         )) {
             // Lex
             Lexer lx = currLxr = new Lexer();
@@ -46,7 +46,7 @@ public class Main {
 
 
         // Exec
-        SymbolFunction sf = glob.resolveQualifiedName("_main.main");
+        SymbolFunction sf = glob.resolveQualifiedName("test._main.main");
 
         Machine.exec(sf.codebuf);
 

@@ -16,10 +16,13 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         switch (a.getLiteralKind()) {
             case INT32:
-                buf._ldv_i(a.getInt32());
+                buf._ldc_i(a.getInt32());
                 break;
             case CHAR:
-                buf._ldv_i(a.getChar());
+                buf._ldc_i(a.getChar());
+                break;
+            case STRING:
+                buf._ldc_str(a.getString());
                 break;
             default:
                 throw new IllegalStateException();
@@ -37,7 +40,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, CodeBuf buf) {
         int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
-        buf._ldv_i(sz);
+        buf._ldc_i(sz);
     }
 
 //    @Override
@@ -126,7 +129,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             if (ms instanceof SymbolVariable) {
                 int off = typ.memoffset(a.getIdentifier());
                 if (sv.hasAddress()) {  // ptr offset.
-                    buf._ldv_i(off);
+                    buf._ldc_i(off);
                     buf._i32add();
                 } else {  // silce.
                     int sz = ((SymbolVariable)ms).getType().getTypesize();

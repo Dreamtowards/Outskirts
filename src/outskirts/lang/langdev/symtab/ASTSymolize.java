@@ -210,8 +210,9 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         TypeSymbol s;
         switch (a.getLiteralKind()) {
             case CHAR:  // char -> int is temporary.
-            case INT32: s = SymbolBuiltinType._int;  break;
-            case BOOL:  s = SymbolBuiltinType._bool; break;
+            case INT32:  s = SymbolBuiltinType._int;  break;
+            case BOOL:   s = SymbolBuiltinType._bool; break;
+            case STRING: s = SymbolBuiltinTypePointer.of(SymbolBuiltinType._int); break;
             default:
                 throw new IllegalStateException("unsupported literal.");
         }

@@ -1,16 +1,12 @@
 
 namespace stl.lang;
 
-
 class string {
 
     int* base;
 
-    //@private
-    //int hash;
-
-    //@private
-    //array<ushort> value;
+    //@private int hash;
+    //@private array<ushort> value;
 
     //string init(array<ushort> value) {
     //    this.value = arrays.copy(value);
@@ -23,12 +19,12 @@ class string {
     int length() {
         int i = 0;
         while ((*this).char_at(i) != 0) {
-            i++;
+            i = i + 1;
         }
         return i;
     }
 
-/*
+    /*
     string substring(int begin, int end) {
         s_print("DoSubStr");
         return new string(arrays.subarray(begin, end));
@@ -40,7 +36,5 @@ class string {
            hash = arrays.hash(value);  // won't return 0 since arrlen > 0.
         }
         return hash;
-    }
-
-*/
+    }*/
 }

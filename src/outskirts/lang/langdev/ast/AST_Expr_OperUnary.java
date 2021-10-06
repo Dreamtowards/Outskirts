@@ -58,8 +58,4 @@ public class AST_Expr_OperUnary extends AST_Expr {
         }
     }
 
-    @Override
-    public String toString() {
-        return "{"+expr+getUnaryKind().name()+"}";
-    }
 }
