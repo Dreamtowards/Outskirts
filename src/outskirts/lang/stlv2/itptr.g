@@ -6,7 +6,7 @@
  * 3. StackObject Creation.  solv. space alloc.
  * 4. MemberAccess. from Variable vs. from TemporaryRvalues.  Solv. lval: ptr off, rval: slice.
  * 5. Pointers Syntax. & and *.  solv
- * 6. Call Spec. ret-val. args. ret-ip.
+ * 6. Call Spec. ret-val. args. ret-ip.  solv.
  *
  * 2. Lvalue Rvalue on used operations. relations.
  *
@@ -27,19 +27,15 @@ class _main {
 
         string s = string();
         s.hash = 21;
-
         s.base = "okStr";
 
-        s = s.substring(1, 3);
+        s = s.substring(0, 4);
+        s = s.substring(1, 2);
 
         int len = s.length();
-        // int j = len++;
-
 
         int i80 = *(int*)180;
         int i81 = *(int*)184;
-        //int i82 = *(int*)88;
-        //int i83 = *(int*)92;
 
     }
 }

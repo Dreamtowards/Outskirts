@@ -8,13 +8,14 @@ public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
 
     public static final SymbolBuiltinType
             _int = new SymbolBuiltinType("int"),
+            _byte = new SymbolBuiltinType("byte"),
             _void = new SymbolBuiltinType("void"),
             _bool = new SymbolBuiltinType("bool");
 
     public static void init(Scope glob) {
         glob.define(_int);
+        glob.define(_byte);
         glob.define(_void);
-//        glob.define(_ptr);
         glob.define(_bool);
     }
 
@@ -26,8 +27,8 @@ public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
     @Override
     public int getTypesize() {
         if (this == _int) return 4;
+        if (this == _byte) return 1;
         if (this == _void) return 0;
-//        if (this == _ptr) return 4;
 
         throw new IllegalStateException(getSimpleName());
     }

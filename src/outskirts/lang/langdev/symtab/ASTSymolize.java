@@ -115,7 +115,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         szexpr.accept(this, p);
 
         Validate.isTrue(szexpr.getVarTypeSymbol() == SymbolBuiltinType._int);
-        a.setExprSymbol(SymbolBuiltinTypePointer.of(SymbolBuiltinType._void).rvalue());
+        a.setExprSymbol(SymbolBuiltinTypePointer.of(SymbolBuiltinType._byte).rvalue());
     }
 
     @Override
@@ -244,7 +244,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             case CHAR:  // char -> int is temporary.
             case INT32:  s = SymbolBuiltinType._int;  break;
             case BOOL:   s = SymbolBuiltinType._bool; break;
-            case STRING: s = SymbolBuiltinTypePointer.of(SymbolBuiltinType._int); break;
+            case STRING: s = SymbolBuiltinTypePointer.of(SymbolBuiltinType._byte); break;
             default:
                 throw new IllegalStateException("unsupported literal.");
         }
@@ -402,7 +402,11 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitStmtUsing(AST_Stmt_Using a, Scope p) {
         Symbol used = p.resolveQualifiedExpr(a.getQualifiedExpression());
 
-        Validate.isTrue(a.isStatic() ? (used instanceof SymbolVariable) : (used instanceof SymbolClass));
+        if (a.isStatic()) {
+            Validate.isTrue(used instanceof SymbolVariable || used instanceof SymbolFunction, "static using required variable/function symbol.");
+        } else {
+            Validate.isTrue(used instanceof SymbolClass, "non-static using required class symbol.");
+        }
 
         p.defineAsCustomName(a.getDeclaredName(), used);
     }

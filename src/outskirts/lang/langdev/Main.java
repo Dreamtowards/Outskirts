@@ -24,6 +24,7 @@ public class Main {
         SymbolBuiltinType.init(glob);
 
         for (String cp : Arrays.asList(
+                "stl/lang/memory.g",
                 "stl/lang/string.g",
                 "itptr.g"
         )) {

@@ -11,10 +11,7 @@ import outskirts.lang.langdev.symtab.SymbolClass;
 import outskirts.lang.langdev.symtab.SymbolFunction;
 import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
-import outskirts.util.CollectionUtils;
-import outskirts.util.IOUtils;
-import outskirts.util.Intptr;
-import outskirts.util.Pair;
+import outskirts.util.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -142,11 +139,11 @@ public class Machine {
                             System.err.println("Load STR "+v+" base on "+str_constant_ai_ptr);
                             p = str_constant_ai_ptr;
                             for (int j = 0;j < v.length();j++) {
-                                IOUtils.writeInt(MemSpace, str_constant_ai_ptr, v.charAt(j));
-                                str_constant_ai_ptr += 4;
+                                char ch = v.charAt(j);
+                                Validate.isTrue(ch < 128);
+                                MemSpace[str_constant_ai_ptr++] = (byte)ch;
                             }
-                            IOUtils.writeInt(MemSpace, str_constant_ai_ptr, 0);
-                            str_constant_ai_ptr += 4;
+                            MemSpace[str_constant_ai_ptr++] = 0;
                             str_constants.put(v, p);
                         }
                         pushi32(p);
@@ -327,12 +324,14 @@ public class Machine {
                     for (int i = 0;i < mallocated.size();i++) {
                         var e = mallocated.get(i);
                         beg = e.first + e.second;
+
                         if (mallocated.size()-1 == i) {
                             break;
                         } else if (mallocated.get(i+1).first - beg >= sz){
                             break;
                         }
                     }
+                    mallocated.add(new Pair<>(beg, sz));
 
                     push_ptr(beg);
                     break;
