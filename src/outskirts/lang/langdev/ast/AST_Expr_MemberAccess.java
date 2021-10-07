@@ -15,10 +15,12 @@ public class AST_Expr_MemberAccess extends AST_Expr {
 
     private final AST_Expr expr;  // when as an executable-expression, its not-only Identifier / MemberAccess
     private final String identifier;
+    private final boolean arrow;  // "->" instead of "."
 
-    public AST_Expr_MemberAccess(AST_Expr expr, String identifier) {
+    public AST_Expr_MemberAccess(AST_Expr expr, String identifier, boolean arrow) {
         this.expr = expr;
         this.identifier = identifier;
+        this.arrow = arrow;
     }
 
     public AST_Expr getExpression() {
@@ -29,4 +31,7 @@ public class AST_Expr_MemberAccess extends AST_Expr {
         return identifier;
     }
 
+    public boolean isArrow() {
+        return arrow;
+    }
 }

@@ -79,16 +79,26 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         Symbol s = expr.getSymbol();
         ScopedSymbol lp;
-        if (s instanceof SymbolVariable) {  // access from Instance.
-            lp = (ScopedSymbol) ((SymbolVariable)s).getType();
+        if (a.isArrow()) {
+            SymbolBuiltinTypePointer ptr = (SymbolBuiltinTypePointer)((SymbolVariable)s).getType();
+            lp = (ScopedSymbol)ptr.getPointerType();
+        } else if (s instanceof SymbolVariable) {  // access from Instance.
+            lp = (ScopedSymbol)((SymbolVariable)s).getType();
         } else {  // SymbolNamespace, SymbolClass
             lp = (ScopedSymbol) s;
         }
 
         Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());
-        if (ms instanceof SymbolVariable && s instanceof SymbolVariable) {  // val.memb;  when left expr is rval, access expr are rval.
-            a.setExprSymbol(((SymbolVariable)ms).getType().valsym(((SymbolVariable)s).hasAddress()));
+        if (ms instanceof SymbolVariable && s instanceof SymbolVariable) {
+            TypeSymbol typ = ((SymbolVariable)ms).getType();
+            if (a.isArrow()) {
+                a.setExprSymbol(typ.lvalue());
+            } else {
+                // val.memb;  when left expr is rval, access expr are rval.
+                a.setExprSymbol(typ.valsym(((SymbolVariable)s).hasAddress()));
+            }
         } else {
+            // Namespace.. or expr.func(), expr->func().
             a.setExprSymbol(ms);
         }
 

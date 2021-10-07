@@ -48,6 +48,7 @@ public enum TokenType {
     PLUSPLUS("++"),
     PLUS("+"),
     SUBSUB("--"),
+    ARROW("->"),
     SUB("-"),
 
     GTEQ(">="),

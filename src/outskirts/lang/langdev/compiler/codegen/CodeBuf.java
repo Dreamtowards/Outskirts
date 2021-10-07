@@ -180,6 +180,10 @@ public class CodeBuf {
         append(SUB_I32);
     }
 
+    public void _cast_i8_i32() {
+        append(CAST_I8_I32);
+    }
+
     public void _malloc() {
         append(MALLOC);
     }

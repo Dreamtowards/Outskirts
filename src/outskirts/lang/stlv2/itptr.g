@@ -30,12 +30,15 @@ class _main {
         s.base = "okStr";
 
         s = s.substring(0, 4);
-        s = s.substring(1, 2);
+        s = s.substring(0, 2);
 
         int len = s.length();
 
-        int i80 = *(int*)180;
-        int i81 = *(int*)184;
+        string* p = &s;
+
+        byte c = *p->base;
+
+        // int i81 = *(int*)184;
 
     }
 }

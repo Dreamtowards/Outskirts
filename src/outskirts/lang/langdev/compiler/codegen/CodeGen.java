@@ -8,6 +8,9 @@ import outskirts.util.Validate;
 import java.util.List;
 import java.util.function.IntConsumer;
 
+import static outskirts.lang.langdev.symtab.SymbolBuiltinType._byte;
+import static outskirts.lang.langdev.symtab.SymbolBuiltinType._int;
+
 public class CodeGen implements ASTVisitor<CodeBuf> {
 
 
@@ -72,20 +75,23 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 break;
             case DEREF:
                 // TODO: why..? how about "nothing.?"
+                // shouldn't. if do, then ref can't bring it back to lvalue.
+                // int* p = &i;  // i: addr=0x4, p: addr=0x8
+                // p == &*p  // should true.
                 lvalue2rvalue(buf, expr);
                 break;
             case PRE_INC:
             case PRE_DEC:
-                Validate.isTrue(expr.getVarTypeSymbol() == SymbolBuiltinType._int);
+                Validate.isTrue(expr.getVarTypeSymbol() == _int);
                 buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
                     buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
-                    buf._loadv(SymbolBuiltinType._int.getTypesize());
+                    buf._loadv(_int.getTypesize());
                     buf._ldc_i(1);
                     if (a.getUnaryKind() == AST_Expr_OperUnary.UnaryKind.PRE_INC)
                         buf._add_i32();
                     else
                         buf._sub_i32();
-                buf._popcpy(SymbolBuiltinType._int.getTypesize());
+                buf._popcpy(_int.getTypesize());
                 break;
             case POST_INC:
                 // pure stack-based & base on one ptr, its seems can't do the post_inc/dec functionality.
@@ -110,7 +116,15 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprTypeCast(AST_Expr_TypeCast a, CodeBuf buf) {
-        a.getExpression().accept(this, buf);  // currently cast only symbol cast. then just pass.
+        a.getExpression().accept(this, buf);  // currently, cast only symbol cast. then just pass.
+
+        TypeSymbol srctyp = a.getExpression().getVarTypeSymbol();
+        TypeSymbol dsttyp = a.getType().getTypeSymbol();
+        if (srctyp == _byte && dsttyp == _int) {
+            buf._cast_i8_i32();
+        } else {
+            Validate.isTrue(srctyp.getTypesize() == dsttyp.getTypesize());
+        }
     }
 
     @Override
@@ -135,12 +149,18 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             }
         } else if (s instanceof SymbolVariable) {
             SymbolVariable sv = (SymbolVariable)s;
-            SymbolClass typ = (SymbolClass)sv.getType();
+            SymbolClass typ;
+            if (a.isArrow()) {
+                typ = (SymbolClass) ((SymbolBuiltinTypePointer)sv.getType()).getPointerType();
+                lvalue2rvalue(buf, expr);
+            } else {
+                typ = (SymbolClass) sv.getType();
+            }
             Symbol ms = typ.getSymbolTable().resolveMember(a.getIdentifier());
 
             if (ms instanceof SymbolVariable) {
                 int off = typ.memoffset(a.getIdentifier());
-                if (sv.hasAddress()) {  // ptr offset.
+                if (sv.hasAddress() || a.isArrow()) {  // ptr offset.
                     buf._ldc_i(off);
                     buf._add_i32();
                 } else {  // silce.

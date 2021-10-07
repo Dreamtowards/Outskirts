@@ -191,11 +191,12 @@ public final class LxParser {
         AST_Expr l = parseExprPrimary(lx);
         while (true) {
             TokenType typ = lx.peek().type();
-            if (typ == TokenType.DOT)
+            if (typ == TokenType.DOT || typ == TokenType.ARROW)
             {
+                boolean arrow = typ == TokenType.ARROW;
                 lx.next();
                 String memb = lx.next(TokenType.IDENTIFIER).content();
-                l = new AST_Expr_MemberAccess(l, memb)._SetupSourceLoc(lx, beg);
+                l = new AST_Expr_MemberAccess(l, memb, arrow)._SetupSourceLoc(lx, beg);
             }
             else if (typ == TokenType.LPAREN)
             {
@@ -524,7 +525,7 @@ public final class LxParser {
     public static AST_Expr parse_QualifiedName(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l = parseExprPrimaryIdentifier(lx);
         while (lx.nexting(TokenType.DOT)) {
-            l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName())._SetupSourceLoc(lx, beg);
+            l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName(), false)._SetupSourceLoc(lx, beg);
         }
         return l;
     }
@@ -579,7 +580,11 @@ public final class LxParser {
     }
 
     public static AST__CompilationUnit parse_CompilationUnit(Lexer lx) {  int beg = lx.cleanrdi();
-        return new AST__CompilationUnit(
-                _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF))._SetupSourceLoc(lx, beg);
+        try {
+            return new AST__CompilationUnit(
+                    _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF))._SetupSourceLoc(lx, beg);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed parse CompilaitonUnit. "+lx.getSourceName(), ex);
+        }
     }
 }

@@ -351,6 +351,12 @@ public class Machine {
 
                     break;
                 }
+                case CAST_I8_I32: {
+                    int i8 = popi8();
+
+                    pushi32(i8);
+                    break;
+                }
                 case ICMP: {
                     int i2 = popi32();
                     int i1 = popi32();
