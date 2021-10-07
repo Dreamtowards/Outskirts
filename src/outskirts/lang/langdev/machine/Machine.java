@@ -16,6 +16,8 @@ import outskirts.util.IOUtils;
 import outskirts.util.Intptr;
 import outskirts.util.Pair;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
@@ -23,7 +25,7 @@ import static outskirts.util.IOUtils.readShort;
 
 public class Machine {
 
-    public static byte[] MemSpace = new byte[200];
+    public static byte[] MemSpace = new byte[300];
     private static int esp = 0;
 
     private static int str_constant_ai_ptr = MemSpace.length - 40;
@@ -105,6 +107,9 @@ public class Machine {
         final int rvp = esp;  // rvalue initptr. end of locals.
 
         while (ip < code.length) {
+            if (esp >= malloc_begin) {
+                throw new IllegalStateException("Stack Overflow esp:"+esp);
+            }
 
             byte[] lcspc = CollectionUtils.subarray(MemSpace, begin_esp, esp);
 
@@ -394,6 +399,11 @@ public class Machine {
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
 
+        try {
+            IOUtils.write(MemSpace, new FileOutputStream("dump-fne.bin"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static final byte CMPR_LT = 0,

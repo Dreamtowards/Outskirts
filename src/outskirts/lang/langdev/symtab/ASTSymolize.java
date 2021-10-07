@@ -410,6 +410,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     @Override
     public void visitStmtWhile(AST_Stmt_While a, Scope p) {
         a.getCondition().accept(this, p);
+        Validate.isTrue(a.getCondition().getVarTypeSymbol() == SymbolBuiltinType._bool);
 
         a.getStatement().accept(this, p);
     }

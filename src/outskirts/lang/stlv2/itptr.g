@@ -36,8 +36,8 @@ class _main {
         // int j = len++;
 
 
-        int i80 = 11;//*(int*)80;
-        //int i81 = *(int*)84;
+        int i80 = *(int*)180;
+        int i81 = *(int*)184;
         //int i82 = *(int*)88;
         //int i83 = *(int*)92;
 

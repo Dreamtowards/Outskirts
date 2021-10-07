@@ -365,14 +365,14 @@ public final class LxParser {
         }
     }
 
-    public static AST_Stmt_Block parseStmtBlock(Lexer lx) {
+    public static AST_Stmt_Block parseStmtBlock(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.LBRACE);
         AST_Stmt_Block s = new AST_Stmt_Block(_Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.RBRACE));
         lx.next(TokenType.RBRACE);
-        return s;
+        return s._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_If parseStmtIf(Lexer lx) {
+    public static AST_Stmt_If parseStmtIf(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.IF);
         lx.next(TokenType.LPAREN);
         AST_Expr cond = parseExpr(lx);
@@ -385,10 +385,10 @@ public final class LxParser {
             els = parseStmt(lx);
         }
 
-        return new AST_Stmt_If(cond, then, els);
+        return new AST_Stmt_If(cond, then, els)._SetupSourceLoc(lx, beg);
     }
 
-    public static AST_Stmt_While parseStmtWhile(Lexer lx) {
+    public static AST_Stmt_While parseStmtWhile(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.WHILE);
         lx.next(TokenType.LPAREN);
         AST_Expr cond = parseExpr(lx);
@@ -396,7 +396,7 @@ public final class LxParser {
 
         AST_Stmt then = parseStmt(lx);
 
-        return new AST_Stmt_While(cond, then);
+        return new AST_Stmt_While(cond, then)._SetupSourceLoc(lx, beg);
     }
 
     public static AST_Stmt_Return parseStmtReturn(Lexer lx) {  int beg = lx.cleanrdi();

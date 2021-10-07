@@ -30,8 +30,10 @@ class string {
 
     string substring(int begin, int end) {
         int len = end - begin;
-        int* p = (int*)80; //new((len + 1) * sizeof(int));
+        int* p = (int*)new((len + 1) * sizeof(int));
         memcpy( (int*)((int)(*this).base + begin * sizeof(int)), p, len);
+        //p = "Aor";
+
         // memcpy(0, p, 8);
         *(int*)( (int)p + len * sizeof(int)) = 0;
 
