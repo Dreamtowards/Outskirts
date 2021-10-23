@@ -269,8 +269,14 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         a.getType().accept(this, p);
 
         // assert isCapabile()
+        TypeSymbol dst = a.getType().getTypeSymbol();
+//        SymbolVariable sv = a.getExpression().getVarSymbol();
 
-        a.setExprSymbol(a.getType().getTypeSymbol().valsym(a.getExpression().getVarSymbol().hasAddress()));
+        // cast_i8_i32.  identical size not total required.
+//        Validate.isTrue(dst.getTypesize() == sv.getType().getTypesize(), "Cast typesize dismatch.");
+
+//        a.setExprSymbol(dst.valsym(sv.hasAddress()));
+        a.setExprSymbol(dst.rvalue());  // after cast, its been rvalues. e.g. (byte)i
     }
 
     @Override
@@ -279,6 +285,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         for (AST_Stmt stmt : a.getStatements()) {
             stmt.accept(this, blp);
+
         }
     }
 

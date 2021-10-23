@@ -199,6 +199,9 @@ public class CodeBuf {
     public void _cast_i8_i32() {
         append(CAST_I8_I32);
     }
+    public void _cast_i32_i8() {
+        append(CAST_I32_I8);
+    }
 
     public void _malloc() {
         append(MALLOC);
@@ -207,9 +210,8 @@ public class CodeBuf {
     public void _icmp() {
         append(ICMP);
     }
-    public void _cmplt() {
-        append(CMP_LT);
-    }
+    public void _cmplt() {append(CMP_LT); }
+    public void _cmple() {append(CMP_LE); }
     public void _cmpeq() {
         append(CMP_EQ);
     }

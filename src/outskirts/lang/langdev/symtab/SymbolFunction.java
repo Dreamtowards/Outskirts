@@ -40,6 +40,7 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
         return returntype;
     }
 
+    // note that not aligned with AST_Expr_FuncCall.getArguments().
     public List<SymbolVariable> getParameters() {
         return params;
     }

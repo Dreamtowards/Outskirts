@@ -6,8 +6,8 @@ import outskirts.util.Validate;
 
 public final class SourceLoc {
 
-    private String sourceLocation;
-    private String source;
+    private final String sourceLocation;
+    private final String source;
 
     private int beginIndex;
     private int endIndex;

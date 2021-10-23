@@ -29,6 +29,7 @@ public class SymbolBuiltinType extends BaseSymbol implements TypeSymbol {
         if (this == _int) return 4;
         if (this == _byte) return 1;
         if (this == _void) return 0;
+        if (this == _bool) return 1;
 
         throw new IllegalStateException(getSimpleName());
     }

@@ -15,10 +15,14 @@ class string {
 
     int length() {
         int i = 0;
-        while ((int)(*this).char_at(i) != 0) {
+        while ((bool)this->char_at(i)) {
             i++;
         }
         return i;
+    }
+
+    int nest() {
+        return this->length();
     }
 
 
@@ -33,26 +37,29 @@ class string {
         s.hash = 31;
         return s;
     }
-/*
+
+    int gp() { return (int)this; }
+
     int find(string s) {
-        int i = 0;
         int len = this->length();
         int dstlen = s.length();
-        while (i < len) {
+        int i = 0;
+        while (i <= len-dstlen) {
             int j = 0;
-            bool found = true;
+            int found = 1;
             while (j < dstlen) {
-                if (this->char_at(i) != s.char_at(j)) {
-                    found = false;
+                //return (int)this->char_at(i+j);
+                if ((int)this->char_at(i+j) != (int)s.char_at(j)) {
+                    found = 0;
                     break;
                 }
-                if (found)
-                    return i;
                 j++;
             }
+            if (found != 0)
+                return i;
             i++;
         }
-        return -1;
+        return 89;
     }
-*/
+
 }

@@ -8,8 +8,7 @@ import outskirts.util.Validate;
 import java.util.List;
 import java.util.function.IntConsumer;
 
-import static outskirts.lang.langdev.symtab.SymbolBuiltinType._byte;
-import static outskirts.lang.langdev.symtab.SymbolBuiltinType._int;
+import static outskirts.lang.langdev.symtab.SymbolBuiltinType.*;
 
 public class CodeGen implements ASTVisitor<CodeBuf> {
 
@@ -27,6 +26,9 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             case STRING:
                 buf._ldc_str(a.getString());
                 break;
+//            case BOOL:
+//                buf._ldc_b(a.getBool() ? 1 : 0);
+//                break;
             default:
                 throw new IllegalStateException();
         }
@@ -118,14 +120,23 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprTypeCast(AST_Expr_TypeCast a, CodeBuf buf) {
-        a.getExpression().accept(this, buf);  // currently, cast only symbol cast. then just pass.
+        AST_Expr expr = a.getExpression();
+        expr.accept(this, buf);  // currently, cast only symbol cast. then just pass.
 
-        TypeSymbol srctyp = a.getExpression().getVarTypeSymbol();
+        TypeSymbol srctyp = expr.getVarTypeSymbol();
         TypeSymbol dsttyp = a.getType().getTypeSymbol();
         if (srctyp == _byte && dsttyp == _int) {
+            lvalue2rvalue(buf, expr);
             buf._cast_i8_i32();
+        } else if (srctyp == _int && dsttyp == _byte) {
+            lvalue2rvalue(buf, expr);
+            buf._cast_i32_i8();
+        } else if (srctyp instanceof SymbolBuiltinTypePointer && dsttyp == _int ||
+                   srctyp == _int && dsttyp instanceof SymbolBuiltinTypePointer ||
+                   srctyp == _byte && dsttyp == _bool) {
+            lvalue2rvalue(buf, expr);
         } else {
-            Validate.isTrue(srctyp.getTypesize() == dsttyp.getTypesize());
+            Validate.isTrue(srctyp == dsttyp);
         }
     }
 
@@ -207,15 +218,20 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             SymbolFunction sf = (SymbolFunction)s;
             String sfname = sf.getQualifiedName();
 
-            // only non-static function needs executes expr.
-            // while an expr is static, 'call by instance-expr' is not allowed.
+            // Prepare Args.
+            //   only non-static function needs executes expr.
+            //   while an expr is static, 'call by instance-expr' is not allowed.
             if (!sf.isStatic()) {
                 if (expr instanceof AST_Expr_MemberAccess) {
-                    ((AST_Expr_MemberAccess)expr).getExpression()
-                            .accept(this, buf);
+                    AST_Expr_MemberAccess m = (AST_Expr_MemberAccess)expr;
+                    AST_Expr ivkr = m.getExpression();
+                    ivkr.accept(this, buf);
+                    if (m.isArrow()) {
+                        Validate.isTrue(ivkr.getVarTypeSymbol() instanceof SymbolBuiltinTypePointer);
+                        lvalue2rvalue(buf, ivkr);
+                    }
                 }
             }
-
             _visitFuncArguments(a.getArguments(), this, buf);
 
             buf._invokefunc(sfname);
@@ -441,6 +457,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             rhs.accept(this, buf);
             lvalue2rvalue(buf, rhs);
+            Validate.isTrue(lhs.getVarTypeSymbol() == _int && rhs.getVarTypeSymbol() == _int);
 
             switch (a.getBinaryKind()) {
                 case ADD: {
@@ -458,6 +475,11 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 case LT: {
                     buf._icmp();
                     buf._cmplt();
+                    break;
+                }
+                case LTEQ: {
+                    buf._icmp();
+                    buf._cmple();
                     break;
                 }
                 case EQ: {

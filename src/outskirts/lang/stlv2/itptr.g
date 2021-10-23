@@ -26,28 +26,24 @@ class _main {
     static void main() {
 
         int i = 10;
-        while (i < 20) {
-            if (i == 18) {
-                i = 23;
-                continue;
-            }
-            i++;
-        }
+        //byte b = (byte)8;
+        //int ib = (int)b;
 
-/*
         string s = string();
         s.hash = 21;
         s.base = "okStr";
+        //string* sptr = &s;
+        //int ss = sptr->length();
 
-        s = s.substring(0, 4); */
+        // s = s.substring(0, 4);
 
         // int len = s.length();
         // string* p = &s;
         // byte c = *p->base;
 
-        // string s2 = string();
-        // s2.base = "s";
-        // int i = s.find(s2)
+        string s2 = string();
+        s2.base = "S";
+        int i2 = s.find(s2);
 
     }
 }

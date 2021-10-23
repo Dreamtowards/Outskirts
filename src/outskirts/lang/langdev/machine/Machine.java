@@ -357,6 +357,11 @@ public class Machine {
                     pushi32(i8);
                     break;
                 }
+                case CAST_I32_I8: {
+                    int i32 = popi32();
+                    pushi8((byte)i32);
+                    break;
+                }
                 case ICMP: {
                     int i2 = popi32();
                     int i1 = popi32();
@@ -370,6 +375,11 @@ public class Machine {
                 }
                 case CMP_LT: {
                     pushi8((byte)(popi8() == CMPR_LT ? 1 : 0));
+                    break;
+                }
+                case CMP_LE: {
+                    int n = popi8();
+                    pushi8((byte)((n == CMPR_LT || n == CMPR_EQ) ? 1 : 0));
                     break;
                 }
                 case CMP_GT: {

@@ -21,7 +21,7 @@ public final class Lexer {
 
 //    private Token curr;
 
-    private String sourcelocation = "file://SomeWhere/abc.n";
+    private String sourcelocation;
     private String srx = "";  // Source
     private int rdi;     // ReadIndex.
     private final LinkedList<Integer> rdimarkers = new LinkedList<>();  // for mark/setback.
@@ -48,11 +48,11 @@ public final class Lexer {
     // read/next/peek
 
     private Token read(TokenType expctedtype, boolean steppin) {
-
         Intptr idx = Intptr.of(rdi);
+
         _skipBlankAndComments(srx, idx);
         if (idx.i >= srx.length())
-            return new Token(TokenType.EOF, null, new SourceLoc(null, srx, srx.length(), srx.length()));
+            return new Token(TokenType.EOF, null, new SourceLoc(sourcelocation, srx, srx.length(), srx.length()));
 
         final int beg = idx.i;
         rdi=beg;  // assign unblank-begin to rdi is allowed. else the SrcLoc.end might before SrcLoc.begin if the Parse only peeking not steppin. (Modifiers)
@@ -71,7 +71,7 @@ public final class Lexer {
                     return null;
             } else {  // keywords.
                 String keyw = expctedtype.fixed();
-                Validate.isTrue(keyw != null, "Unsupported dynmaic type.");
+                Validate.isTrue(keyw != null, "Unsupported infixed token type.");
 
                 if (!srx.startsWith(keyw, beg))  // not match.
                     return null;
@@ -82,7 +82,8 @@ public final class Lexer {
         } else {  // as predicted.
             char ch = srx.charAt(beg);
 
-            if (isNumberChar(ch) || (ch == '.' && beg + 1 < srx.length() && isNumberChar(srx.charAt(beg + 1)))) {
+
+            if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(srx, beg+1))) || (ch=='-' && isNumberChar(atchar(srx, beg+1)))) {
                 Ref<TokenType> tmp = Ref.wrap();
                 content = readNumber(srx, idx, tmp);
                 type = tmp.value;
@@ -120,7 +121,7 @@ public final class Lexer {
         }
         Validate.isTrue(type != null);
         Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
-        return new Token(type, content, new SourceLoc(null, srx, beg, idx.i));
+        return new Token(type, content, new SourceLoc(sourcelocation, srx, beg, idx.i));
     }
 
     private static void _skipBlankAndComments(String s, Intptr idx) {
@@ -173,7 +174,7 @@ public final class Lexer {
     public Token next(TokenType expected) {
         Token t = read(expected, true);
         if (t == null)
-            throw new IllegalStateException("Expect token "+expected+", auto_detected: "+peek());
+            throw new IllegalStateException("Expect token "+expected+", auto_detected: "+peek()+" at "+_dbg_statinf());
         return t;
     }
     public final Token next() {
@@ -199,6 +200,9 @@ public final class Lexer {
         return null;
     }
 
+    public final String _dbg_statinf() {
+        return new SourceLoc(sourcelocation, srx, rdi, rdi+1).toString();
+    }
 
 
 
@@ -367,6 +371,7 @@ public final class Lexer {
     public static final int NUML_HEX = 3;
     private static String readNumber(String s, Intptr idx, Ref<TokenType> numtype_out) {
         int i = idx.i;
+//        if (s.charAt(0) == '-') i++;  // neg.
         int beg = i;
 
         boolean dot = false;  // fp. decimal point.
