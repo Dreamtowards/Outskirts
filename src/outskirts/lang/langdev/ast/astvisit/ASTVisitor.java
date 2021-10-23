@@ -25,6 +25,8 @@ public interface ASTVisitor<P> {
     // Lambda
 
     default void visitStmtBlock(AST_Stmt_Block a, P p)          { visitDefault(a, p); }
+    default void visitStmtBreak(AST_Stmt_Break a, P p)          { visitDefault(a, p); }
+    default void visitStmtContinue(AST_Stmt_Continue a, P p)    { visitDefault(a, p); }
     default void visitStmtNamespace(AST_Stmt_Namespace a, P p)  { visitDefault(a, p); }
     default void visitStmtUsing(AST_Stmt_Using a, P p)          { visitDefault(a, p); }
     default void visitStmtExpr(AST_Stmt_Expr a, P p)            { visitDefault(a, p); }

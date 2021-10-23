@@ -333,6 +333,10 @@ public final class LxParser {
                 return parseStmtWhile(lx);
             case RETURN:
                 return parseStmtReturn(lx);
+            case BREAK:
+                return parseStmtBreak(lx);
+            case CONTINUE:
+                return parseStmtContinue(lx);
             default:
                 lx.mark();
                 AST__Modifiers modifiers = parse_Modifiers(lx);  // simply consume.
@@ -408,6 +412,18 @@ public final class LxParser {
         }
         lx.next(TokenType.SEMI);
         return new AST_Stmt_Return(expr)._SetupSourceLoc(lx, beg);
+    }
+
+    public static AST_Stmt_Break parseStmtBreak(Lexer lx) {  int beg = lx.cleanrdi();
+        lx.next(TokenType.BREAK);
+        lx.next(TokenType.SEMI);
+        return new AST_Stmt_Break()._SetupSourceLoc(lx, beg);
+    }
+
+    public static AST_Stmt_Continue parseStmtContinue(Lexer lx) {  int beg = lx.cleanrdi();
+        lx.next(TokenType.CONTINUE);
+        lx.next(TokenType.SEMI);
+        return new AST_Stmt_Continue()._SetupSourceLoc(lx, beg);
     }
 
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {  int beg = lx.cleanrdi();

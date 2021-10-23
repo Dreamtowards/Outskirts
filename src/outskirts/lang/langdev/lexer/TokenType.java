@@ -31,6 +31,9 @@ public enum TokenType {
     ELSE("else"),
     WHILE("while"),
     RETURN("return"),
+    BREAK("break"),
+    CONTINUE("continue"),
+
     STATIC("static"),
     CONST("const"),
 

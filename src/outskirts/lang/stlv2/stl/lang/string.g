@@ -26,21 +26,33 @@ class string {
         int len = end - begin;
         byte* p = new(len + 1);
         memcpy( (byte*)((int)this->base + begin), p, len);
-        *(int*)( (int)p + len) = 0;
+        *(int*)((int)p + len) = 0;
 
         string s = string();
         s.base = p;
         s.hash = 31;
         return s;
     }
-
 /*
     int find(string s) {
         int i = 0;
         int len = this->length();
-        while (ci < ) {
-
+        int dstlen = s.length();
+        while (i < len) {
+            int j = 0;
+            bool found = true;
+            while (j < dstlen) {
+                if (this->char_at(i) != s.char_at(j)) {
+                    found = false;
+                    break;
+                }
+                if (found)
+                    return i;
+                j++;
+            }
+            i++;
         }
-    }*/
-
+        return -1;
+    }
+*/
 }

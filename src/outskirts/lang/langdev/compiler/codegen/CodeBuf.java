@@ -18,6 +18,18 @@ public class CodeBuf {
 
     private final List<Byte> buf = new ArrayList<>();
 
+    private LinkedList<BrLoopInf> enclosingLoopStack = new LinkedList<>();
+
+    public static class BrLoopInf {
+        public int beg_ip;
+
+        // when later, the end_ip available, all there funcs will be invoked with end_ip value arg.
+        public List<IntConsumer> end_ip_onDefined = new ArrayList<>();
+    }
+    public static class BrLabelInf {
+        public int ip;
+    }
+
     public ConstantPool cp;
 
     public CodeBuf(ConstantPool constantpool) {
@@ -25,6 +37,10 @@ public class CodeBuf {
     }
 
 
+
+    public LinkedList<BrLoopInf> getEnclosingLoopStack() {
+        return enclosingLoopStack;
+    }
 
     private int internalLocalidx(String name) {
         for (int i = 0;i < localvars.size();i++) {

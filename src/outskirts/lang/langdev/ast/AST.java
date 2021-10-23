@@ -91,6 +91,8 @@ public abstract class AST {
 // Statement
             else if (this instanceof AST_Stmt_Blank)    ;
             else if (this instanceof AST_Stmt_Block)    visitor.visitStmtBlock((AST_Stmt_Block)this, p);
+            else if (this instanceof AST_Stmt_Continue) visitor.visitStmtContinue((AST_Stmt_Continue)this, p);
+            else if (this instanceof AST_Stmt_Break)    visitor.visitStmtBreak((AST_Stmt_Break)this, p);
             else if (this instanceof AST_Stmt_DefClass) visitor.visitStmtDefClass((AST_Stmt_DefClass)this, p);
             else if (this instanceof AST_Stmt_DefFunc)  visitor.visitStmtDefFunc((AST_Stmt_DefFunc)this, p);
             else if (this instanceof AST_Stmt_DefVar)   visitor.visitStmtDefVar((AST_Stmt_DefVar)this, p);

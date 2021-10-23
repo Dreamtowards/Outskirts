@@ -78,6 +78,8 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 // shouldn't. if do, then ref can't bring it back to lvalue.
                 // int* p = &i;  // i: addr=0x4, p: addr=0x8
                 // p == &*p  // should true.
+
+                // Edit: there seems no problem. Deref just get the actual-address. rval doing-nothing, lval get-addr.
                 lvalue2rvalue(buf, expr);
                 break;
             case PRE_INC:
@@ -231,6 +233,38 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
 
     @Override
+    public void visitStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
+        for (AST_Stmt stmt : a.getStatements()) {
+            stmt.accept(this, buf);
+        }
+    }
+
+
+    @Override
+    public void visitStmtBreak(AST_Stmt_Break a, CodeBuf buf) {
+
+        CodeBuf.BrLoopInf l = buf.getEnclosingLoopStack().peek();
+        Validate.isTrue(l != null, "No enclosing loop.");
+
+        IntConsumer ltr = buf._jmp_delay();
+        l.end_ip_onDefined.add(ltr);
+    }
+
+    // visitStmtGoto:
+    //     String l = a.getLabel();
+    //     IntConsumer ltr = buf._jmp_delay();
+    //     buf.labels_onDefined.add(pair<>(l, ltr));
+
+    @Override
+    public void visitStmtContinue(AST_Stmt_Continue a, CodeBuf buf) {
+
+        CodeBuf.BrLoopInf l = buf.getEnclosingLoopStack().peek();
+        Validate.isTrue(l != null, "No enclosing loop.");
+
+        buf._jmp(l.beg_ip);
+    }
+
+    @Override
     public void visitStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
         AST_Expr expr = a.getReturnExpression();
         if (expr != null) {
@@ -240,13 +274,6 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             buf._ret(expr.getVarTypeSymbol().getTypesize());
         } else {
             buf._ret(0);
-        }
-    }
-
-    @Override
-    public void visitStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
-        for (AST_Stmt stmt : a.getStatements()) {
-            stmt.accept(this, buf);
         }
     }
 
@@ -290,14 +317,25 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitStmtWhile(AST_Stmt_While a, CodeBuf buf) {
-        int beg = buf.idx();
+        CodeBuf.BrLoopInf linf = new CodeBuf.BrLoopInf();
+        linf.beg_ip = buf.idx();
+        buf.getEnclosingLoopStack().push(linf);
+
+        // cond.
         a.getCondition().accept(this, buf);
-        IntConsumer eow = buf._jmpifn_delay();  // end of while.
+        IntConsumer endofwhile = buf._jmpifn_delay();  // end of while.
+        linf.end_ip_onDefined.add(endofwhile);
 
+        // body.
         a.getStatement().accept(this, buf);
-        buf._jmp(beg);
+        buf._jmp(linf.beg_ip);
 
-        eow.accept(buf.idx());  // delaysetup
+        buf.getEnclosingLoopStack().pop();
+        // end_ip onDefined.
+        int end_ip = buf.idx();
+        for (IntConsumer f : linf.end_ip_onDefined) {
+            f.accept(end_ip);
+        }
     }
 
     @Override

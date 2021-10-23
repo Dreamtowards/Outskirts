@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static outskirts.lang.langdev.symtab.SymbolBuiltinType.*;
+
 public class ASTSymolize implements ASTVisitor<Scope> {
 
     public static ASTSymolize INSTANCE = new ASTSymolize();
@@ -124,8 +126,8 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         AST_Expr szexpr = a.getSizeExpression();
         szexpr.accept(this, p);
 
-        Validate.isTrue(szexpr.getVarTypeSymbol() == SymbolBuiltinType._int);
-        a.setExprSymbol(SymbolBuiltinTypePointer.of(SymbolBuiltinType._byte).rvalue());
+        Validate.isTrue(szexpr.getVarTypeSymbol() == _int);
+        a.setExprSymbol(SymbolBuiltinTypePointer.of(_byte).rvalue());
     }
 
     @Override
@@ -156,7 +158,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
                 s = ptype.getPointerType().lvalue();
                 break;
             case NOT:
-                s = SymbolBuiltinType._bool.rvalue();
+                s = _bool.rvalue();
                 break;
             case PTR_TYP:
                 s = SymbolBuiltinTypePointer.of(expr.getTypeSymbol());
@@ -190,7 +192,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         switch (a.getBinaryKind()) {
             case LT: case LTEQ: case GT: case GTEQ: case IS:
             case EQ: case NEQ:
-                a.setSymbol(SymbolBuiltinType._bool.rvalue());
+                a.setSymbol(_bool.rvalue());
                 break;
             case ASSIGN:
                 Validate.isTrue(a.getLeftOperand().getVarSymbol().hasAddress());
@@ -206,7 +208,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitExprSizeOf(AST_Expr_OperSizeOf a, Scope p) {
         a.getTypeExpression().accept(this, p);
 
-        a.setExprSymbol(SymbolBuiltinType._int.rvalue());
+        a.setExprSymbol(_int.rvalue());
     }
 
 //    @Override
@@ -252,9 +254,9 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         TypeSymbol s;
         switch (a.getLiteralKind()) {
             case CHAR:  // char -> int is temporary.
-            case INT32:  s = SymbolBuiltinType._int;  break;
-            case BOOL:   s = SymbolBuiltinType._bool; break;
-            case STRING: s = SymbolBuiltinTypePointer.of(SymbolBuiltinType._byte); break;
+            case INT32:  s = _int;  break;
+            case BOOL:   s = _bool; break;
+            case STRING: s = SymbolBuiltinTypePointer.of(_byte); break;
             default:
                 throw new IllegalStateException("unsupported literal.");
         }
@@ -278,6 +280,17 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         for (AST_Stmt stmt : a.getStatements()) {
             stmt.accept(this, blp);
         }
+    }
+
+    @Override
+    public void visitStmtBreak(AST_Stmt_Break a, Scope p) {
+        // enclosing_loop check will be done in codengen.
+        // Validate.isTrue(p.findEnclosingLoop() != null);  // label / while / for / foreach / do-while
+    }
+
+    @Override
+    public void visitStmtContinue(AST_Stmt_Continue a, Scope p) {
+        // Validate.isTrue(p.findEnclosingLoop() != null);  // almost same as stmt_break.
     }
 
     @Override
@@ -361,7 +374,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     @Override
     public void visitStmtIf(AST_Stmt_If a, Scope p) {
         a.getCondition().accept(this, p);
-        Validate.isTrue(a.getCondition().getVarTypeSymbol() == SymbolBuiltinType._bool);  // early.
+        Validate.isTrue(a.getCondition().getVarTypeSymbol() == _bool);  // early.
 
         a.getThenStatement().accept(this, p);
 
@@ -424,7 +437,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     @Override
     public void visitStmtWhile(AST_Stmt_While a, Scope p) {
         a.getCondition().accept(this, p);
-        Validate.isTrue(a.getCondition().getVarTypeSymbol() == SymbolBuiltinType._bool);
+        Validate.isTrue(a.getCondition().getVarTypeSymbol() == _bool);
 
         a.getStatement().accept(this, p);
     }
