@@ -2,8 +2,6 @@ package outskirts.lang.langdev.ast.astvisit;
 
 import outskirts.lang.langdev.ast.*;
 
-import java.util.List;
-
 public interface ASTVisitor<P> {
 
     // needs default impl for iterates AST.children..? might doesn't needed now.
@@ -12,6 +10,7 @@ public interface ASTVisitor<P> {
     default void visitExprPrimaryLiteral(AST_Expr_PrimaryLiteral a, P p)         { visitDefault(a, p); }
 
     default void visitExprFuncCall(AST_Expr_FuncCall a, P p)                   { visitDefault(a, p); }
+    default void visitExprGenericsArgumented(AST_Expr_GenericsArgumented a, P p)   { visitDefault(a, p); }
     default void visitExprOperNew(AST_Expr_OperNew a, P p)                     { visitDefault(a, p); }
     default void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, P p)                     { visitDefault(a, p); }
     default void visitExprMemberAccess(AST_Expr_MemberAccess a, P p)           { visitDefault(a, p); }

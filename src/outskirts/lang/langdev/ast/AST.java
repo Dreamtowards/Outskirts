@@ -1,10 +1,8 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.Main;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.SourceLoc;
-import outskirts.lang.langdev.symtab.Scope;
 
 /**
  * AST_Stmt
@@ -77,6 +75,7 @@ public abstract class AST {
             // else if (this instanceof AST__Modifiers)        visitor.visitM
 // Expression
             else if (this instanceof AST_Expr_FuncCall)         visitor.visitExprFuncCall((AST_Expr_FuncCall)this, p);
+            else if (this instanceof AST_Expr_GenericsArgumented) visitor.visitExprGenericsArgumented((AST_Expr_GenericsArgumented)this, p);
             // else if (this instanceof AST_Expr_Lambda)
             else if (this instanceof AST_Expr_MemberAccess)     visitor.visitExprMemberAccess((AST_Expr_MemberAccess)this, p);
             else if (this instanceof AST_Expr_OperBinary)       visitor.visitExprOperBinary((AST_Expr_OperBinary)this, p);

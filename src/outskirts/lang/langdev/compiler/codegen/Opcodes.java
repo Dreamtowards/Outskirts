@@ -92,6 +92,7 @@ public final class Opcodes {
             }
             case JMP:
             case JMP_F: comm = "to: #"+IOUtils.readShort(code, idx.i); idx.i+=2; break;
+            case STACKALLOC:
             case DUP:
             case POP:
             case STKPTR_OFF:
@@ -102,7 +103,6 @@ public final class Opcodes {
             case LDPTR:
             case STPTR: comm = "sz="+code[idx.i++]; break;
             case INVOKEFUNC: comm = "fn: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
-            case STACKALLOC: comm = "cl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
             case GETFIELD:
             case PUTFIELD:   comm = "fl: $"+buf.cp.get(IOUtils.readShort(code, idx.i)); idx.i+=2; break;
         }

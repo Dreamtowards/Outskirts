@@ -228,16 +228,13 @@ public class Machine {
                     esp -= params_sz;
 
                     System.out.println("INVOKEFUNC Load Function: "+sfname+", Clname: "+clname);
+                    System.out.println("InvokeFuncSym "+sf.hashCode());
                     Machine.exec(sf.codebuf);
 
                     break;
                 }
                 case STACKALLOC: {
-                    String clname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
-
-                    SymbolClass cl = resolveClass(clname);
-                    int sz = cl.getTypesize();
-//                    System.out.println("SIZE"+sz);
+                    int sz = code[ip++];
 
                     memset(esp, sz, 0);
                     esp += sz;

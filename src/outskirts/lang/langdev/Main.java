@@ -1,7 +1,10 @@
 package outskirts.lang.langdev;
 
+import outskirts.lang.langdev.ast.AST_Stmt;
+import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.ast.AST__CompilationUnit;
 import outskirts.lang.langdev.compiler.ClassCompiler;
+import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
@@ -46,6 +49,16 @@ public class Main {
 
         }
 
+//        for (SymbolClass sc : SymbolClass.genericsFilledClasses) {
+//            for (Symbol sym : sc.getSymbolTable().getMemberSymbols())  {
+//                if (sym instanceof SymbolFunction) {
+//                    SymbolFunction sf = (SymbolFunction)sym;
+//                    // copy ast.?
+//                    ClassCompiler._CompileFunction(sf.genericsTmpASTForCompile, new ConstantPool());
+////                    System.out.println("Compiled Func "+sc.getQualifiedName()+"  "+((AST_Stmt_DefFunc)m).getName());
+//                }
+//            }
+//        }
 
         // Exec
         SymbolFunction sf = glob.resolveQualifiedName("test._main.main");

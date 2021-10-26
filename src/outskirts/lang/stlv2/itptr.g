@@ -9,9 +9,9 @@
  * 6. Call Spec. ret-val. args. ret-ip.  solv.
  *
  * 2. Lvalue Rvalue on used operations. relations.
+ * 6. Pointer MemberAccess a->b.
  *
  * 5. new HeapObjectCreation
- * 6. Pointer MemberAccess a->b.
  * 7. Refied Generics
  * 8. using function<void, int> as int_consumer;
  * 9. Const Generics.
@@ -21,29 +21,49 @@ using stl.lang.string;
 
 namespace test;
 
+class vec2<T> {
+    T x;
+    T y;
+
+    T sum() {
+        return this->x;
+    }
+}
+
 class _main {
 
     static void main() {
 
         int i = 10;
-        //byte b = (byte)8;
-        //int ib = (int)b;
+
+        vec2<int> v;
+        v.x = 8;
+        v.y = 9;
+        int vfv = v.sum();
+
+        vec2<byte> v2;
+        v2.x = (byte)1;
+        v2.y = (byte)2;
+
+        byte b2 = v2.x;
+
+        int sz1 = sizeof(vec2<int>);
+        int sz2 = sizeof(vec2<byte>);
+        int sz3 = sizeof(vec2i);
+
+
+/*
+        v.x = 8;
+        v.y = 9;
+
+        int vl = v.x;
+
+        int sz = sizeof(vec2<byte>); // 2 +4
+        int sz2 = sizeof(vec2<int>);  // 8 +4
 
         string s = string();
         s.hash = 21;
-        s.base = "okStr";
-        //string* sptr = &s;
-        //int ss = sptr->length();
-
-        // s = s.substring(0, 4);
-
-        // int len = s.length();
-        // string* p = &s;
-        // byte c = *p->base;
-
-        string s2 = string();
-        s2.base = "S";
-        int i2 = s.find(s2);
+        s.base = "okStr";*/
 
     }
 }

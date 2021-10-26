@@ -1,8 +1,12 @@
 package outskirts.lang.langdev.ast;
 
 import outskirts.lang.langdev.symtab.Symbol;
+import outskirts.lang.langdev.symtab.SymbolGenericsTypeParameter;
 import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
+import outskirts.util.Validate;
+
+import java.util.Objects;
 
 /**
  * for AST_Expr, the 'Oper' might can be reduced. (AST_Expr_OperNew -> AST_Expr_New)
@@ -21,22 +25,27 @@ public abstract class AST_Expr extends AST {
 
 
     public final Symbol getSymbol() {
+        if (exprsym == null)
+            throw new IllegalStateException("Null Symbol");
         return exprsym;
     }
     public final void setSymbol(Symbol s) {
+        Objects.requireNonNull(s);
         exprsym = s;
     }
 
     public final Symbol getExprSymbol() {
-        return exprsym;
+        return getSymbol();
     }
     public final void setExprSymbol(Symbol sym) {
-        exprsym = sym;
+        setSymbol(sym);
     }
 
 
     // just utility.
     public final TypeSymbol getTypeSymbol() {
+        if (getSymbol() instanceof SymbolGenericsTypeParameter)
+            throw new RuntimeException("GetTypeSymbol on GenericsTypeParameter");
         return (TypeSymbol)getExprSymbol();
     }
     public final TypeSymbol getVarTypeSymbol() { return getVarSymbol().getType(); }

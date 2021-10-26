@@ -2,6 +2,9 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
+import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.lang.langdev.compiler.codegen.CodeGen;
 import outskirts.lang.langdev.parser.LxParser;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
@@ -9,6 +12,7 @@ import outskirts.util.Validate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static outskirts.lang.langdev.symtab.SymbolBuiltinType.*;
 
@@ -71,6 +75,25 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         }
     }
 
+    @Override
+    public void visitExprGenericsArgumented(AST_Expr_GenericsArgumented a, Scope p) {
+        AST_Expr type = a.getTypeExpression();
+        type.accept(this, p);
+
+        Validate.isTrue(type.getTypeSymbol() instanceof SymbolClass);
+        SymbolClass proto = (SymbolClass)type.getTypeSymbol();
+        List<TypeSymbol> gtype_args = new ArrayList<>();
+
+        for (AST_Expr garg : a.getGenericsArguments()) {
+            garg.accept(this, p);
+
+            gtype_args.add(garg.getTypeSymbol());
+        }
+
+        SymbolClass sc = SymbolClass.lookupOrBuildFullfilledTemplate(proto, gtype_args, this);
+        a.setSymbol(sc);
+    }
+
     /**
      * ns.to.Class.InnerCls.instanceVal.funcSth()
      */
@@ -87,7 +110,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         } else if (s instanceof SymbolVariable) {  // access from Instance.
             lp = (ScopedSymbol)((SymbolVariable)s).getType();
         } else {  // SymbolNamespace, SymbolClass
-            lp = (ScopedSymbol) s;
+            lp = (ScopedSymbol)s;
         }
 
         Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());
@@ -300,22 +323,56 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         // Validate.isTrue(p.findEnclosingLoop() != null);  // almost same as stmt_break.
     }
 
+    public static String _GenericsArgumentsString(List<TypeSymbol> gtype_args) {
+        return "<"+gtype_args.stream().map(TypeSymbol::getQualifiedName).collect(Collectors.joining(","))+">";
+    }
+
     @Override
     public void visitStmtDefClass(AST_Stmt_DefClass a, Scope _p) {
+        boolean isGenericsPrototype = false;
 
-        for (AST_Expr sup_type : a.getSuperTypeExpressions()) {
-            sup_type.accept(this, _p);
+        // GenericsClass.
+        String genericsSuffix = "";
+        if (a.getGenericsParameters().size() > 0) {
+            // Not Resolve prototype.
+            if (a.genericsTmpFullfilledArguments == null) {
+                isGenericsPrototype = true;
+            } else {  // resolves when GenericsArguments FullFilled.
+                Validate.isTrue(a.getGenericsParameters().size() == a.genericsTmpFullfilledArguments.size());
+                genericsSuffix = _GenericsArgumentsString(a.genericsTmpFullfilledArguments);
+            }
         }
 
         Scope clp = new Scope(_p);
-        SymbolClass clsym = new SymbolClass(a.getSimpleName(), clp);
+        SymbolClass clsym = new SymbolClass(a.getSimpleName()+genericsSuffix, clp);
         clp.symbolAssociated = clsym;   // before member. members need link the owner_class.
         _p.define(clsym);  // before member. member should can lookup enclosing class symbol.
         a.sym = clsym;
+        System.out.println("  --> Define Class "+clsym.getQualifiedName());
+
+        if (isGenericsPrototype) {
+            clsym.genericsPrototypeClassAST = a;
+            return;
+        }
+
+        for (int i = 0;i < a.getGenericsParameters().size();i++) {
+
+            // SymbolGenericsTypeParameter sgt = new SymbolGenericsTypeParameter(gparam.getName());
+            clp.defineAsCustomName(a.getGenericsParameters().get(i).getName(), a.genericsTmpFullfilledArguments.get(i));
+        }
+
+        for (AST_Expr sup_type : a.getSuperTypeExpressions()) {
+            sup_type.accept(this, clp);
+        }
 
         for (AST_Stmt clstmt : a.getMembers()) {
 
             clstmt.accept(this, clp);
+        }
+
+        if (a.genericsTmpFullfilledArguments != null)  {
+            a.genericsTmpFullfilledArguments = null;  // consumed.
+            a.genericsTmpFullfilledSymbol = clsym;
         }
 
     }
@@ -336,7 +393,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             param_syms.add(sv);
         }
         for (AST_Stmt_DefVar prm : a.getParameters()) {
-            prm.accept(this, fnp);
+            prm.accept(this, fnp);  // define.
             param_syms.add(prm.sym);
         }
 
@@ -346,7 +403,13 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         a.symf = sf;
         _p.define(sf);  // before body. recursive funcCall should can resolve self-calling.
 
+        sf.genericsTmpASTForCompile = a;
+
         a.getBody().accept(this, fnp);
+
+        CodeBuf codeBuf = new CodeBuf(new ConstantPool(), param_syms);
+        a.getBody().accept(new CodeGen(), codeBuf);
+        sf.codebuf = codeBuf;
 
 //        SymbolVariable sym = new SymbolVariable(a.getName(), sf); _p.define(sym);
     }
@@ -430,7 +493,8 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitStmtUsing(AST_Stmt_Using a, Scope p) {
-        Symbol used = p.resolveQualifiedExpr(a.getQualifiedExpression());
+        a.getQualifiedExpression().accept(this, p);
+        Symbol used = a.getQualifiedExpression().getSymbol();
 
         if (a.isStatic()) {
             Validate.isTrue(used instanceof SymbolVariable || used instanceof SymbolFunction, "static using required variable/function symbol.");

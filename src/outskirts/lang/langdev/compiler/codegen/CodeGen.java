@@ -180,7 +180,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                     int sz = ((SymbolVariable)ms).getType().getTypesize();
 
                     buf._stkptroff(-typ.getTypesize());
-                    buf._stkptroff(-typ.getTypesize()+off-4);
+                    buf._stkptroff(-typ.getTypesize()+off-4);  // -4: prev pushed typesize.
                     buf._ptrcpy(sz);
 
                     buf._pop(typ.getTypesize()-sz);
@@ -239,9 +239,8 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         } else if (s instanceof SymbolClass) {  // stack object alloc.
             // string s = string();  // alloc mem, call init.  then assign to var.
             SymbolClass cl = (SymbolClass)s;
-            String clname = cl.getQualifiedName();
 
-            buf._stackalloc(clname);
+            buf._stackalloc(cl.getTypesize());
 
         } else  // or a variable.?
             throw new IllegalStateException();
@@ -457,7 +456,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             rhs.accept(this, buf);
             lvalue2rvalue(buf, rhs);
-            Validate.isTrue(lhs.getVarTypeSymbol() == _int && rhs.getVarTypeSymbol() == _int);
+            Validate.isTrue(lhs.getVarTypeSymbol() == _int && rhs.getVarTypeSymbol() == _int, "Unsupported type: "+lhs.getVarTypeSymbol());
 
             switch (a.getBinaryKind()) {
                 case ADD: {

@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
+import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
     public CodeBuf codebuf;
 
     private final short modifiercode;
+
+    public AST_Stmt_DefFunc genericsTmpASTForCompile;
 
 //    public boolean isStaticFunction;  // todo: reduce by: Modifiers.isStatic(getModifierCode());
 

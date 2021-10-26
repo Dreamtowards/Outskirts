@@ -434,11 +434,13 @@ public final class LxParser {
             isStatic = true;
         }
 
-        AST_Expr addr = parse_QualifiedName(lx);
+        AST_Expr addr = parse_TypeExpression(lx);
 
-        String name = addr instanceof AST_Expr_MemberAccess ? ((AST_Expr_MemberAccess)addr).getIdentifier() : ((AST_Expr_PrimaryIdentifier)addr).getName();
+        String name;
         if (lx.nexting(TokenType.AS)) {
             name = parseExprPrimaryIdentifier(lx).getName();
+        } else {
+            name = addr instanceof AST_Expr_MemberAccess ? ((AST_Expr_MemberAccess)addr).getIdentifier() : ((AST_Expr_PrimaryIdentifier)addr).getName();
         }
         lx.next(TokenType.SEMI);
 
@@ -514,9 +516,9 @@ public final class LxParser {
         lx.next(TokenType.CLASS);
         String name = lx.next(TokenType.IDENTIFIER).content();
 
-        List<AST_Expr_PrimaryIdentifier> genericparams = Collections.emptyList();
+        List<AST_Expr_PrimaryIdentifier> generic_params = Collections.emptyList();
         if (lx.nexting(TokenType.LT)) {
-            genericparams = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryIdentifier, TokenType.COMMA);
+            generic_params = _Parse_RepeatJoin_OneMore(lx, LxParser::parseExprPrimaryIdentifier, TokenType.COMMA);
             lx.next(TokenType.GT);
         }
 
@@ -530,7 +532,7 @@ public final class LxParser {
         // validate member type.
         stmts_members.forEach(e -> Validate.isTrue(e instanceof AST_Stmt_DefClass || e instanceof  AST_Stmt_DefVar || e instanceof AST_Stmt_DefFunc, "Illegal class member."));
 
-        return new AST_Stmt_DefClass(name, genericparams, supers, stmts_members, mdf)._SetupSourceLoc(lx, beg);
+        return new AST_Stmt_DefClass(name, supers, stmts_members, mdf, generic_params)._SetupSourceLoc(lx, beg);
     }
 
 
@@ -556,7 +558,7 @@ public final class LxParser {
         if (lx.nexting(TokenType.LT)) {  // the ">>" peoblem already solved as 'ofcourse' since there using In-time Lexer system.
             List<AST_Expr> generic_args = _Parse_RepeatJoin_ZeroMoreUntil(lx, LxParser::parse_TypeExpression, TokenType.COMMA, TokenType.GT);
             lx.next(TokenType.GT);
-            type =  new AST_Expr_GenericsArgument(type, generic_args)._SetupSourceLoc(lx, beg);
+            type = new AST_Expr_GenericsArgumented(type, generic_args)._SetupSourceLoc(lx, beg);
         }
 
         // Pointer Type.

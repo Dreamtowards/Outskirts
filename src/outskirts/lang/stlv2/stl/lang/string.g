@@ -21,10 +21,9 @@ class string {
         return i;
     }
 
-    int nest() {
-        return this->length();
+    bool is_empty() {
+        return this->length() == 0;
     }
-
 
     string substring(int begin, int end) {
         int len = end - begin;
@@ -37,8 +36,6 @@ class string {
         s.hash = 31;
         return s;
     }
-
-    int gp() { return (int)this; }
 
     int find(string s) {
         int len = this->length();
@@ -61,5 +58,35 @@ class string {
         }
         return 89;
     }
+
+
+
+
+
+
+
+// int length();  bool is_empty();
+// byte char_at(int i);
+
+// <equals>;
+// bool equals_ignore_case();
+// byte find(byte ch, int from);  int find(string s, int from);
+// int find_reverse(string ch, int from);
+//   bool starts_with(string prefix, int from);
+//   bool ends_with(string suffix);
+//   bool contains(string s);
+
+// int hashcode();
+// string substring(int begin, int end);
+// string replaceAll/First/<Last>(..);
+// string[] split(string delimiter);
+// string to_lower_case();  string to_upper_case();
+// string trim();  string trim_leading();  string trim_trailing();  string trim_indent();
+// bool is_blank();
+
+// string[] lines();
+// string repeat(int n);
+// static string join(string delimiter, string[] elements);
+// string ?indent(int n);  escapes  unescape  format
 
 }

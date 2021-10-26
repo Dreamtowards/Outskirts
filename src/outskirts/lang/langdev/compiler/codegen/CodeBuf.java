@@ -1,6 +1,9 @@
 package outskirts.lang.langdev.compiler.codegen;
 
 import outskirts.lang.langdev.compiler.ConstantPool;
+import outskirts.lang.langdev.symtab.Scope;
+import outskirts.lang.langdev.symtab.Symbol;
+import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Intptr;
@@ -31,9 +34,14 @@ public class CodeBuf {
     }
 
     public ConstantPool cp;
+    public Scope fnScope;
 
-    public CodeBuf(ConstantPool constantpool) {
+    public CodeBuf(ConstantPool constantpool, List<SymbolVariable> fnparams) {
         this.cp = constantpool;
+
+        for (SymbolVariable sv : fnparams) {
+            localdef(sv.getSimpleName(), sv.getType());
+        }
     }
 
 
@@ -142,9 +150,9 @@ public class CodeBuf {
         appendShort(cp.ensureUtf8(sfname));
     }
 
-    public void _stackalloc(String clname) {
+    public void _stackalloc(int n) {
         append(STACKALLOC);
-        appendShort(cp.ensureUtf8(clname));
+        append((byte)n);
     }
 
 //    public void _getfield(String flname) {
@@ -180,28 +188,14 @@ public class CodeBuf {
         };
     }
 
-    public void _add_i32() {
-        append(ADD_I32);
-    }
-    public void _mul_i32() {
-        append(MUL_I32);
-    }
-    public void _inc_i32() {
-        append(INC_I32);
-    }
-    public void _dec_i32() {
-        append(DEC_I32);
-    }
-    public void _sub_i32() {
-        append(SUB_I32);
-    }
+    public void _add_i32() {append(ADD_I32);}
+    public void _mul_i32() {append(MUL_I32);}
+    public void _inc_i32() {append(INC_I32);}
+    public void _dec_i32() {append(DEC_I32);}
+    public void _sub_i32() {append(SUB_I32);}
 
-    public void _cast_i8_i32() {
-        append(CAST_I8_I32);
-    }
-    public void _cast_i32_i8() {
-        append(CAST_I32_I8);
-    }
+    public void _cast_i8_i32() {append(CAST_I8_I32);}
+    public void _cast_i32_i8() {append(CAST_I32_I8);}
 
     public void _malloc() {
         append(MALLOC);
