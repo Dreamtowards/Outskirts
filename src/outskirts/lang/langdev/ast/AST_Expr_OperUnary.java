@@ -42,7 +42,7 @@ public class AST_Expr_OperUnary extends AST_Expr {
                 if      (oper == TokenType.PLUSPLUS) return POST_INC;
                 else if (oper == TokenType.SUBSUB)   return POST_DEC;
                 else if (oper == TokenType.STAR)     return PTR_TYP;
-                else throw new IllegalStateException("Illegal post unary operator.");
+                else throw new IllegalStateException("Illegal post unary operator."+oper);
             }
             switch (oper) {
             case PLUSPLUS: return PRE_INC;

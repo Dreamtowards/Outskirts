@@ -204,17 +204,12 @@ public class CodeBuf {
     public void _icmp() {
         append(ICMP);
     }
-    public void _cmplt() {append(CMP_LT); }
-    public void _cmple() {append(CMP_LE); }
-    public void _cmpeq() {
-        append(CMP_EQ);
-    }
-    public void _cmpne() {
-        append(CMP_NE);
-    }
-    public void _cmpgt() {
-        append(CMP_GT);
-    }
+    public void _cmplt() { append(CMP_LT); }
+    public void _cmple() { append(CMP_LE); }
+    public void _cmpeq() { append(CMP_EQ); }
+    public void _cmpne() { append(CMP_NE); }
+    public void _cmpgt() { append(CMP_GT); }
+    public void _cmpge() { append(CMP_GE); }
 
     public void _dup(int n) {
         append(DUP);

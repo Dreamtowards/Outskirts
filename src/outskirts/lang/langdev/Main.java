@@ -1,8 +1,6 @@
 package outskirts.lang.langdev;
 
-import outskirts.lang.langdev.ast.AST_Stmt;
-import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
-import outskirts.lang.langdev.ast.AST__CompilationUnit;
+import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.lexer.Lexer;
@@ -23,6 +21,14 @@ public class Main {
     public static Lexer currLxr;
 
     public static void main(String[] args) throws IOException {
+
+//        Lexer l = new Lexer();
+//        l.appendsource("(s.length() == this->length()) && (this->find(s) == 0)");
+//        AST_Expr aa = LxParser.parseExpr(l);
+//        System.out.println(((AST_Expr_OperBinary)aa).getBinaryKind());
+//        System.exit(0);
+//        System.out.println("abccd".lastIndexOf("cd", 3));
+//        System.exit(0);
 
         glob = new Scope(null);
         SymbolBuiltinType.init(glob);

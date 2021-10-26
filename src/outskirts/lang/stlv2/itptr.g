@@ -36,6 +36,15 @@ class _main {
 
         int i = 10;
 
+        string s1;
+        s1.base = " kabcTex234";
+
+        string s2;
+        s2.base = "Abc";
+        string v = s2.repeat(3);
+        int len = v.length();
+
+/*
         vec2<int> v;
         v.x = 8;
         v.y = 9;
@@ -50,7 +59,7 @@ class _main {
         int sz1 = sizeof(vec2<int>);
         int sz2 = sizeof(vec2<byte>);
         int sz3 = sizeof(vec2i);
-
+*/
 
 /*
         v.x = 8;

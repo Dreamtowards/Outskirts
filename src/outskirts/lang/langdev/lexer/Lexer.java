@@ -7,6 +7,9 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import static outskirts.lang.langdev.lexer.TokenType.EOF;
+import static outskirts.lang.langdev.lexer.TokenType.LITERAL_INT;
+
 /**
  * In-time Lexer.
  * reading token at in-time. not predict/parse all tokens at 'beginning'.
@@ -51,8 +54,13 @@ public final class Lexer {
         Intptr idx = Intptr.of(rdi);
 
         _skipBlankAndComments(srx, idx);
-        if (idx.i >= srx.length())
-            return new Token(TokenType.EOF, null, new SourceLoc(sourcelocation, srx, srx.length(), srx.length()));
+
+        // optim.
+        boolean eof = idx.i >= srx.length();
+//        if () {
+//            if (expctedtype != null) return null;
+//            else return new Token(TokenType.EOF, null, new SourceLoc(sourcelocation, srx, srx.length(), srx.length()));
+//        }
 
         final int beg = idx.i;
         rdi=beg;  // assign unblank-begin to rdi is allowed. else the SrcLoc.end might before SrcLoc.begin if the Parse only peeking not steppin. (Modifiers)
@@ -69,6 +77,9 @@ public final class Lexer {
                     return null;
                 if (TokenType.lookup(content) != null)  // overlapped with keyword.
                     return null;
+            } else if (expctedtype == EOF) {
+                if (!eof)
+                    return null;
             } else {  // keywords.
                 String keyw = expctedtype.fixed();
                 Validate.isTrue(keyw != null, "Unsupported infixed token type.");
@@ -80,39 +91,43 @@ public final class Lexer {
             }
 
         } else {  // as predicted.
-            char ch = srx.charAt(beg);
-
-
-            if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(srx, beg+1))) || (ch=='-' && isNumberChar(atchar(srx, beg+1)))) {
-                Ref<TokenType> tmp = Ref.wrap();
-                content = readNumber(srx, idx, tmp);
-                type = tmp.value;
-            } else if (ch == '\"') {
-                content = readQuote(srx, idx, '\"');
-                type = TokenType.LITERAL_STRING;
-            } else if (ch == '\'') {
-                content = readQuote(srx, idx, '\'');
-                type = TokenType.LITERAL_CHAR;
-            } else if (isNameChar(ch, true)) {  // before keywords. because a valid name may startsWith (but not equals) a keyword.
-                content = readName(srx, idx);
-
-                TokenType keywtyp = TokenType.lookup(content);
-                if (keywtyp != null) {  // Overlapped with Keywords.
-                    content = null;
-                    type = keywtyp;
-                } else {
-                    type = TokenType.IDENTIFIER;
-                }
+            if (eof) {
+                type = EOF;
+                content = "\0";
             } else {
-                for (TokenType e : TokenType.values()) {
-                    String fixed = e.fixed();
-                    if (fixed != null && srx.startsWith(fixed, beg)) {
-                        type = e;
-                        idx.i += fixed.length();
-                        break;
+                char ch = srx.charAt(beg);
+
+                if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(srx, beg + 1))) || (ch == '-' && isNumberChar(atchar(srx, beg + 1)))) {
+                    Ref<TokenType> tmp = Ref.wrap();
+                    content = readNumber(srx, idx, tmp);
+                    type = tmp.value;
+                } else if (ch == '\"') {
+                    content = readQuote(srx, idx, '\"');
+                    type = TokenType.LITERAL_STRING;
+                } else if (ch == '\'') {
+                    content = readQuote(srx, idx, '\'');
+                    type = TokenType.LITERAL_CHAR;
+                } else if (isNameChar(ch, true)) {  // before keywords. because a valid name may startsWith (but not equals) a keyword.
+                    content = readName(srx, idx);
+
+                    TokenType keywtyp = TokenType.lookup(content);
+                    if (keywtyp != null) {  // Overlapped with Keywords.
+                        content = null;
+                        type = keywtyp;
+                    } else {
+                        type = TokenType.IDENTIFIER;
                     }
+                } else {
+                    for (TokenType e : TokenType.values()) {
+                        String fixed = e.fixed();
+                        if (fixed != null && srx.startsWith(fixed, beg)) {
+                            type = e;
+                            idx.i += fixed.length();
+                            break;
+                        }
+                    }
+                    Validate.isTrue(type != null, "Not found keyword at '" + srx.substring(beg, Math.min(srx.length() - 1, idx.i)) + "'");
                 }
-                Validate.isTrue(type != null, "Not found keyword at '"+ srx.substring(beg, Math.min(srx.length()-1, idx.i))+"'");
             }
         }
 
@@ -120,7 +135,7 @@ public final class Lexer {
             rdi = idx.i;
         }
         Validate.isTrue(type != null);
-        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
+//        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
         return new Token(type, content, new SourceLoc(sourcelocation, srx, beg, idx.i));
     }
 
@@ -201,7 +216,7 @@ public final class Lexer {
     }
 
     public final String _dbg_statinf() {
-        return new SourceLoc(sourcelocation, srx, rdi, rdi+1).toString();
+        return new SourceLoc(sourcelocation, srx, rdi, Math.min(rdi+1, srx.length())).toString();
     }
 
 
@@ -376,7 +391,7 @@ public final class Lexer {
 
         boolean dot = false;  // fp. decimal point.
         int literaltype = NUML_DECIMAL;
-        TokenType numtype = null;
+        TokenType numtype = LITERAL_INT;
 
         if (s.charAt(beg) == '0') {  // IntNumber LiteralType.
             char nx = atchar(s, beg+1);
@@ -431,11 +446,11 @@ public final class Lexer {
                         i++;
                         numtype = TokenType.LITERAL_DOUBLE;
                     } else if (c == 'l' || c == 'L') {
-                        Validate.isTrue(numtype == null);
+//                        Validate.isTrue(numtype == null);
                         i++;
                         numtype = TokenType.LITERAL_LONG;
                     } else {
-                        numtype = TokenType.LITERAL_INT;
+                        numtype = LITERAL_INT;
                     }
                 }
                 break;

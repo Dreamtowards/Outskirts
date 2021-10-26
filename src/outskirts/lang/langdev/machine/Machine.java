@@ -383,6 +383,11 @@ public class Machine {
                     pushi8((byte)(popi8() == CMPR_GT ? 1 : 0));
                     break;
                 }
+                case CMP_GE: {
+                    int n = popi8();
+                    pushi8((byte)((n == CMPR_GT || n == CMPR_EQ) ? 1 : 0));
+                    break;
+                }
                 case CMP_EQ: {
                     pushi8((byte)(popi8() == CMPR_EQ ? 1 : 0));
                     break;

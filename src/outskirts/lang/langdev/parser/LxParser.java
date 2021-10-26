@@ -7,6 +7,7 @@ import outskirts.lang.langdev.ast.AST_Stmt_Using;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.lexer.Token;
 import outskirts.lang.langdev.lexer.TokenType;
+import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
@@ -21,14 +22,18 @@ public final class LxParser {
      * =============== PARSER UTILITY ===============
      */
 
-    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, TokenType... opers) {  int beg = lx.cleanrdi();
+    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, boolean predict, TokenType... opers) {  int beg = lx.cleanrdi();
         AST_Expr l = factorpsr.apply(lx);
         Token opr;
-        while ((opr=lx.selnext(opers)) != null) {
+        while (predict ? CollectionUtils.contains(opers, opr=lx.peek()) : (opr=lx.selnext(opers)) != null) {
+            if (predict) lx.next();
             AST_Expr r = factorpsr.apply(lx);
             l = new AST_Expr_OperBinary(l, r, AST_Expr_OperBinary.BinaryKind.of(opr.type()))._SetupSourceLoc(lx, beg);
         }
         return l;
+    }
+    public static AST_Expr _Parse_OperBin_LR(Lexer lx, Function<Lexer, AST_Expr> factorpsr, TokenType... opers) {
+        return _Parse_OperBin_LR(lx, factorpsr, false, opers);
     }
     public static AST_Expr _Parse_OperBin_RL(Lexer lx, Function<Lexer, AST_Expr> fac, TokenType oper) {  int beg = lx.cleanrdi();
         AST_Expr l = fac.apply(lx);
@@ -264,7 +269,7 @@ public final class LxParser {
     }
 
     public static AST_Expr parseExpr7Relations(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr6BitwiseShifts, TokenType.LTEQ, TokenType.LT, TokenType.GT, TokenType.GTEQ, TokenType.IS);
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr6BitwiseShifts, TokenType.LTEQ, TokenType.LT, TokenType.GTEQ, TokenType.GT, TokenType.IS);
     }
 
     public static AST_Expr parseExpr8Equals(Lexer lx) {
@@ -272,7 +277,7 @@ public final class LxParser {
     }
 
     public static AST_Expr parseExpr9BitwiseAnd(Lexer lx) {
-        return _Parse_OperBin_LR(lx, LxParser::parseExpr8Equals, TokenType.AMP);
+        return _Parse_OperBin_LR(lx, LxParser::parseExpr8Equals, true, TokenType.AMP);  // predict token: make sure not next to "&&".
     }
 
     public static AST_Expr parseExpr10BitwiseXor(Lexer lx) {
@@ -429,10 +434,7 @@ public final class LxParser {
     public static AST_Stmt_Using parseStmtUsing(Lexer lx) {  int beg = lx.cleanrdi();
         lx.next(TokenType.USING);
 
-        boolean isStatic = false;
-        if (lx.nexting(TokenType.STATIC)) {
-            isStatic = true;
-        }
+        boolean isStatic = lx.nexting(TokenType.STATIC);
 
         AST_Expr addr = parse_TypeExpression(lx);
 
@@ -602,7 +604,7 @@ public final class LxParser {
             return new AST__CompilationUnit(
                     _Parse_RepeatUntil(lx, LxParser::parseStmt, TokenType.EOF))._SetupSourceLoc(lx, beg);
         } catch (Exception ex) {
-            throw new RuntimeException("Failed parse CompilaitonUnit. "+lx.getSourceName(), ex);
+            throw new RuntimeException("Failed parse CompilaitonUnit. "+" at "+lx._dbg_statinf(), ex);
         }
     }
 }

@@ -6,8 +6,7 @@ using static stl.lang.memory.memcpy;
 class string {
 
     byte* base;
-
-    int hash;
+    // int hash;
 
     byte char_at(int i) {
         return *(byte*)((int)this->base + i);
@@ -26,37 +25,130 @@ class string {
     }
 
     string substring(int begin, int end) {
-        int len = end - begin;
+        int len = end-begin;
         byte* p = new(len + 1);
         memcpy( (byte*)((int)this->base + begin), p, len);
-        *(int*)((int)p + len) = 0;
+        *(byte*)((int)p + len) = (byte)0;
 
-        string s = string();
+        string s;
         s.base = p;
-        s.hash = 31;
+        return s;
+    }
+    string substr(int begin) {
+        return this->substring(begin, this->length());
+    }
+
+    string repeat(int n) {
+        int l = this->length();
+        int len = l * n;
+        string s;
+        s.base = new(len + 1);
+
+        int i = 0;
+        while (i < n) {
+            memcpy(this->base, (byte*)((int)s.base + i*n), l);
+            i++;
+        }
+        *(byte*)((int)s.base + len) = (byte)0;
         return s;
     }
 
-    int find(string s) {
-        int len = this->length();
-        int dstlen = s.length();
+
+    bool starts_with(string s, int from) {
         int i = 0;
-        while (i <= len-dstlen) {
-            int j = 0;
-            int found = 1;
-            while (j < dstlen) {
-                //return (int)this->char_at(i+j);
-                if ((int)this->char_at(i+j) != (int)s.char_at(j)) {
-                    found = 0;
-                    break;
-                }
-                j++;
-            }
-            if (found != 0)
+        int len = s.length();
+        if (this->length() - from < len) return false;
+
+        while (i < len) {
+            if ((int)this->char_at(from+i) != (int)s.char_at(i))
+                return false;
+            i++;
+        }
+        return true;
+    }
+
+    bool ends_with(string s) {
+        return this->starts_with(s, this->length()-s.length());
+    }
+
+
+    int find_on(string s, int from) {
+        int i = from;
+        int end = this->length()-s.length();
+        while (i <= end) {
+            if (this->starts_with(s, i))
                 return i;
             i++;
         }
-        return 89;
+        return 99;
+    }
+    int find(string s) {
+        return this->find_on(s, 0);
+    }
+    bool contains(string s) {
+        return this->find(s) != 99;
+    }
+
+    bool _equals(string s) {
+        // use of &&
+        if (s.length() == this->length()) {
+            if (this->find(s) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int find_reverse_on(string s, int from) {
+        // if (from > this->length() - s.length()) EXCEPTION;
+        int i = from;
+        while (i >= 0) {
+            if (this->starts_with(s, i))
+                return i;
+            i--;
+        }
+        return 99;
+    }
+
+    int find_reverse(string s) {
+        return this->find_reverse_on(s, this->length() - s.length());
+    }
+
+    int find_unblank() {
+        int i = 0;
+        int len = this->length();
+        while (i < len) {
+            if ((int)this->char_at(i) > ' ')
+                return i;
+            i++;
+        }
+        return 99;
+    }
+    int rfind_unblank() {
+        int i = this->length()-1;
+        while (i >= 0) {
+            if ((int)this->char_at(i) > ' ')
+                return i;
+            i--;
+        }
+        return 99;
+    }
+    bool is_blank() {
+        return this->find_unblank() == 99;
+    }
+
+    string trim() {
+        int begin = this->find_unblank();
+        int end =   this->rfind_unblank()+1;  // +1: includes the unblank char.
+        return this->substring(begin, end);
+    }
+    string trim_leading() {
+        int begin = this->find_unblank();
+        return this->substr(begin);
+    }
+    string trim_trailing() {
+        int end =   this->rfind_unblank()+1;
+        return this->substring(0, end);
     }
 
 
@@ -65,19 +157,10 @@ class string {
 
 
 
-// int length();  bool is_empty();
-// byte char_at(int i);
-
 // <equals>;
 // bool equals_ignore_case();
-// byte find(byte ch, int from);  int find(string s, int from);
-// int find_reverse(string ch, int from);
-//   bool starts_with(string prefix, int from);
-//   bool ends_with(string suffix);
-//   bool contains(string s);
 
 // int hashcode();
-// string substring(int begin, int end);
 // string replaceAll/First/<Last>(..);
 // string[] split(string delimiter);
 // string to_lower_case();  string to_upper_case();

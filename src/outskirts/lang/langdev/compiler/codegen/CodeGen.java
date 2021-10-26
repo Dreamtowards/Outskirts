@@ -26,9 +26,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             case STRING:
                 buf._ldc_str(a.getString());
                 break;
-//            case BOOL:
-//                buf._ldc_b(a.getBool() ? 1 : 0);
-//                break;
+            case BOOL:
+                buf._ldc_i(a.getBool() ? 1 : 0);
+                buf._cast_i32_i8();
+                break;
             default:
                 throw new IllegalStateException();
         }
@@ -479,6 +480,16 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 case LTEQ: {
                     buf._icmp();
                     buf._cmple();
+                    break;
+                }
+                case GT: {
+                    buf._icmp();
+                    buf._cmpgt();
+                    break;
+                }
+                case GTEQ: {
+                    buf._icmp();
+                    buf._cmpge();
                     break;
                 }
                 case EQ: {
