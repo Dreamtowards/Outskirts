@@ -213,13 +213,19 @@ public class Machine {
                 case INVOKEFUNC: {
                     String sfname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
 
-                    int begArg = sfname.indexOf('('),
-                        begFld = sfname.lastIndexOf('.', begArg);
-                    String clname = sfname.substring(0, begFld);         // class name.
-                    String flname = sfname.substring(begFld+1, begArg);  // field name.
+//                    int begArg = sfname.indexOf('('),
+//                        begFld = sfname.lastIndexOf('.', begArg);
+//                    String clname = sfname.substring(0, begFld);         // class name.
+//                    String flname = sfname.substring(begFld+1, begArg);  // field name.
 
+                    int begfn = sfname.indexOf("$");
+                    int begpr = sfname.indexOf("(");
+                    String clname = sfname.substring(0, begfn);
+                    String fname = sfname.substring(begfn+1, begpr);
+                    String psign = sfname.substring(begpr+1, sfname.length()-1);
 
-                    SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(flname);
+                    SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(fname);
+                    sf = sf.findOverwriteFunc(psign);
 
                     int params_sz = 0;
                     for (SymbolVariable sv : sf.getParameters()) {  // include 'this'.
@@ -227,8 +233,8 @@ public class Machine {
                     }
                     esp -= params_sz;
 
-                    System.out.println("INVOKEFUNC Load Function: "+sfname+", Clname: "+clname);
-                    System.out.println("InvokeFuncSym "+sf.hashCode());
+                    System.out.println("INVOKEFUNC Load Function: "+sf.getQualifiedName());
+//                    System.out.println("InvokeFuncSym "+sf.hashCode());
                     Machine.exec(sf.codebuf);
 
                     break;

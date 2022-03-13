@@ -2,8 +2,11 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
+import outskirts.util.CollectionUtils;
+import outskirts.util.Validate;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 // why SymbolFunction is a TypeSymbol..?
 
@@ -30,8 +33,8 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
 //    public boolean isStaticFunction;  // todo: reduce by: Modifiers.isStatic(getModifierCode());
 
-    public SymbolFunction(String name, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode, Scope fnscope) {
-        super(name);
+    public SymbolFunction(String fname, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode, Scope fnscope) {
+        super(fname);
         this.params = params;
         this.returntype = returntype;
         this.ownerclass = ownerclass;
@@ -39,8 +42,16 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
         this.fnscope = fnscope;
     }
 
+    public String getParametersSignature() {
+        return CollectionUtils.toString(params, ",", e -> e.getType().getQualifiedName());
+    }
+
     public TypeSymbol getReturnType() {
         return returntype;
+    }
+
+    public SymbolClass getOwnerSymbol() {
+        return ownerclass;
     }
 
     // note that not aligned with AST_Expr_FuncCall.getArguments().
@@ -54,7 +65,7 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
     @Override
     public String getQualifiedName() {
-        String[] prms = params.stream().map(p -> p.type.getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
+        String[] prms = params.stream().map(p -> p.getType().getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
 
         return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+getReturnType().getQualifiedName();
     }
@@ -68,5 +79,28 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
     @Override
     public short getModifierCode() {
         return modifiercode;
+    }
+
+
+    private SymbolFunction nextOverwriteFunc;
+
+    public void defineOverwriteFunc(SymbolFunction sf) {
+        Validate.isTrue(sf.getSimpleName().equals(getSimpleName()));
+        Validate.isTrue(!sf.getParametersSignature().equals(getParametersSignature()));  // toString optim.
+
+        if (nextOverwriteFunc == null) {
+            nextOverwriteFunc = sf;
+        } else {
+            nextOverwriteFunc.defineOverwriteFunc(sf);
+        }
+    }
+    public SymbolFunction findOverwriteFunc(String ps) {
+        if (getParametersSignature().equals(ps))
+            return this;
+
+        if (nextOverwriteFunc == null)
+            throw new NoSuchElementException("Not found overwrite func "+getSimpleName()+"("+ps+"). self: "+getParametersSignature());
+        else
+            return nextOverwriteFunc.findOverwriteFunc(ps);
     }
 }

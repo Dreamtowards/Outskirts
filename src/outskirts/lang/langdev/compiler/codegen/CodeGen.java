@@ -70,7 +70,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprOperUnary(AST_Expr_OperUnary a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
-        expr.accept(this, buf);
+        expr.walkthrough(this, buf);
 
         switch (a.getUnaryKind()) {
             case REF:
@@ -114,7 +114,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, CodeBuf buf) {
-        a.getSizeExpression().accept(this, buf);
+        a.getSizeExpression().walkthrough(this, buf);
 
         buf._malloc();
     }
@@ -122,7 +122,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprTypeCast(AST_Expr_TypeCast a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
-        expr.accept(this, buf);  // currently, cast only symbol cast. then just pass.
+        expr.walkthrough(this, buf);  // currently, cast only symbol cast. then just pass.
 
         TypeSymbol srctyp = expr.getVarTypeSymbol();
         TypeSymbol dsttyp = a.getType().getTypeSymbol();
@@ -147,7 +147,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // fncall().rsdat
 
         AST_Expr expr = a.getExpression();
-        expr.accept(this, buf);
+        expr.walkthrough(this, buf);
 
         Symbol s = expr.getExprSymbol();
 
@@ -198,7 +198,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {
         for (AST_Expr e : args) {
-            e.accept(comp, buf);
+            e.walkthrough(comp, buf);
             lvalue2rvalue(buf, e);
         }
     }
@@ -217,7 +217,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // invoke "func"
         if (s instanceof SymbolFunction) {
             SymbolFunction sf = (SymbolFunction)s;
-            String sfname = sf.getQualifiedName();
+            String sfname = sf.getOwnerSymbol().getQualifiedName()+"$"+sf.getSimpleName()+"("+sf.getParametersSignature()+")";//sf.getQualifiedName();
 
             // Prepare Args.
             //   only non-static function needs executes expr.
@@ -226,7 +226,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 if (expr instanceof AST_Expr_MemberAccess) {
                     AST_Expr_MemberAccess m = (AST_Expr_MemberAccess)expr;
                     AST_Expr ivkr = m.getExpression();
-                    ivkr.accept(this, buf);
+                    ivkr.walkthrough(this, buf);
                     if (m.isArrow()) {
                         Validate.isTrue(ivkr.getVarTypeSymbol() instanceof SymbolBuiltinTypePointer);
                         lvalue2rvalue(buf, ivkr);
@@ -251,7 +251,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
         for (AST_Stmt stmt : a.getStatements()) {
-            stmt.accept(this, buf);
+            stmt.walkthrough(this, buf);
         }
     }
 
@@ -284,7 +284,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     public void visitStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
         AST_Expr expr = a.getReturnExpression();
         if (expr != null) {
-            expr.accept(this, buf);
+            expr.walkthrough(this, buf);
             lvalue2rvalue(buf, expr);
 
             buf._ret(expr.getVarTypeSymbol().getTypesize());
@@ -297,7 +297,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     public void visitStmtExpr(AST_Stmt_Expr a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
 
-        expr.accept(this, buf);
+        expr.walkthrough(this, buf);
 
         SymbolVariable sv = expr.getVarSymbol();
         if (sv.getType() != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
@@ -312,10 +312,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitStmtIf(AST_Stmt_If a, CodeBuf buf) {
 
-        a.getCondition().accept(this, buf);
+        a.getCondition().walkthrough(this, buf);
         IntConsumer eot = buf._jmpifn_delay();  // end of then. if condition false, goto else/end
 
-        a.getThenStatement().accept(this, buf);
+        a.getThenStatement().walkthrough(this, buf);
 
         AST_Stmt stmtelse = a.getElseStatement();
         IntConsumer eoe = null;  // end of else. after exec then, should direct jumpover else.
@@ -324,7 +324,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         eot.accept(buf.idx());  // delaysetup
         if (stmtelse != null) {
-            stmtelse.accept(this, buf);
+            stmtelse.walkthrough(this, buf);
 
             eoe.accept(buf.idx());  // delaysetup
         }
@@ -338,12 +338,12 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         buf.getEnclosingLoopStack().push(linf);
 
         // cond.
-        a.getCondition().accept(this, buf);
+        a.getCondition().walkthrough(this, buf);
         IntConsumer endofwhile = buf._jmpifn_delay();  // end of while.
         linf.end_ip_onDefined.add(endofwhile);
 
         // body.
-        a.getStatement().accept(this, buf);
+        a.getStatement().walkthrough(this, buf);
         buf._jmp(linf.beg_ip);
 
         buf.getEnclosingLoopStack().pop();
@@ -362,7 +362,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         if (initexpr != null) {
             buf._lloadp(a.getName());
 
-            initexpr.accept(this, buf);
+            initexpr.walkthrough(this, buf);
 
             int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
             if (initexpr.getVarSymbol().hasAddress()) {
@@ -391,10 +391,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         if (a.getBinaryKind() == AST_Expr_OperBinary.BinaryKind.ASSIGN) {
             Validate.isTrue(lhs.getVarSymbol().hasAddress());
 
-            lhs.accept(this, buf);  // put lhs addr.
+            lhs.walkthrough(this, buf);  // put lhs addr.
             buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
 
-            rhs.accept(this, buf);  // put rhs addr(lval)/value(rval)
+            rhs.walkthrough(this, buf);  // put rhs addr(lval)/value(rval)
 
             int sz = lhs.getVarTypeSymbol().getTypesize(); Validate.isTrue(sz > 0, "Invalid assignment. zero copies.");
             if (rhs.getVarSymbol().hasAddress()) {  // rhs: lvalue
@@ -452,10 +452,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 //                throw new UnsupportedOperationException();
 //            }
         } else {
-            lhs.accept(this, buf);
+            lhs.walkthrough(this, buf);
             lvalue2rvalue(buf, lhs);
 
-            rhs.accept(this, buf);
+            rhs.walkthrough(this, buf);
             lvalue2rvalue(buf, rhs);
             Validate.isTrue(lhs.getVarTypeSymbol() == _int && rhs.getVarTypeSymbol() == _int, "Unsupported type: "+lhs.getVarTypeSymbol());
 

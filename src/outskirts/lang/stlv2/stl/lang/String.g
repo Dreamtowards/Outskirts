@@ -1,47 +1,46 @@
 
 namespace stl.lang;
 
-using static stl.lang.memory.memcpy;
+using static stl.lang.System.memcpy;
 
-class string {
+class String {
 
     byte* base;
-    // int hash;
 
-    byte char_at(int i) {
+    byte charAt(int i) {
         return *(byte*)((int)this->base + i);
     }
 
     int length() {
         int i = 0;
-        while ((bool)this->char_at(i)) {
+        while ((bool)this->charAt(i)) {
             i++;
         }
         return i;
     }
 
-    bool is_empty() {
+    bool isEmpty() {
         return this->length() == 0;
     }
 
-    string substring(int begin, int end) {
+    String substring(int begin, int end) {
         int len = end-begin;
         byte* p = new(len + 1);
         memcpy( (byte*)((int)this->base + begin), p, len);
         *(byte*)((int)p + len) = (byte)0;
 
-        string s;
+        String s;
         s.base = p;
         return s;
     }
-    string substr(int begin) {
+    String substring(int begin) {
         return this->substring(begin, this->length());
     }
 
-    string repeat(int n) {
+    String repeat(int n) {
         int l = this->length();
         int len = l * n;
-        string s;
+        String s;
         s.base = new(len + 1);
 
         int i = 0;
@@ -54,37 +53,45 @@ class string {
     }
 
 
-    bool starts_with(string s, int from) {
+    bool startsWith(String s, int from) {
         int i = 0;
         int len = s.length();
         if (this->length() - from < len) return false;
 
         while (i < len) {
-            if ((int)this->char_at(from+i) != (int)s.char_at(i))
+            if ((int)this->charAt(from+i) != (int)s.charAt(i))
                 return false;
             i++;
         }
         return true;
     }
 
-    bool ends_with(string s) {
-        return this->starts_with(s, this->length()-s.length());
+    bool endsWith(String s) {
+        return this->startsWith(s, this->length()-s.length());
     }
 
 
-    int find_on(string s, int from) {
+    int find(String s, int from) {
         int i = from;
         int end = this->length()-s.length();
         while (i <= end) {
-            if (this->starts_with(s, i))
+            if (this->startsWith(s, i))
                 return i;
             i++;
         }
         return 99;
     }
-    int find(string s) {
-        return this->find_on(s, 0);
+    int find(String s) {
+        // return 2;
+        return this->find(s, 0);
     }
+
+
+
+
+
+
+/*
     bool contains(string s) {
         return this->find(s) != 99;
     }
@@ -99,7 +106,7 @@ class string {
         return false;
     }
 
-    int find_reverse_on(string s, int from) {
+    int rfind(string s, int from) {
         // if (from > this->length() - s.length()) EXCEPTION;
         int i = from;
         while (i >= 0) {
@@ -110,11 +117,11 @@ class string {
         return 99;
     }
 
-    int find_reverse(string s) {
+    int rfinds(string s) {
         return this->find_reverse_on(s, this->length() - s.length());
     }
 
-    int find_unblank() {
+    int findUnblank() {
         int i = 0;
         int len = this->length();
         while (i < len) {
@@ -124,7 +131,7 @@ class string {
         }
         return 99;
     }
-    int rfind_unblank() {
+    int rfindUnblank() {
         int i = this->length()-1;
         while (i >= 0) {
             if ((int)this->char_at(i) > ' ')
@@ -133,8 +140,8 @@ class string {
         }
         return 99;
     }
-    bool is_blank() {
-        return this->find_unblank() == 99;
+    bool isBlank() {
+        return this->findUnblank() == 99;
     }
 
     string trim() {
@@ -150,7 +157,7 @@ class string {
         int end =   this->rfind_unblank()+1;
         return this->substring(0, end);
     }
-
+*/
 
 
 

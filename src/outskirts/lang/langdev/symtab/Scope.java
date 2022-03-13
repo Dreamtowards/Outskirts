@@ -45,7 +45,7 @@ public final class Scope {
     }
     private void internalDefineLocalSymbol(String name, Symbol symbol) {
         Objects.requireNonNull(name);
-        if (_symbols.containsKey(name))
+        if (findLocalSymbol(name) != null)
             throw new IllegalStateException("Symbol '"+name+"' already defined in this scope.");
         _symbols.put(name, symbol);
     }

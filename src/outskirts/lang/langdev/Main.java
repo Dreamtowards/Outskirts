@@ -2,7 +2,6 @@ package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.lang.langdev.compiler.ClassCompiler;
-import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.machine.Machine;
 import outskirts.lang.langdev.parser.LxParser;
@@ -13,7 +12,6 @@ import outskirts.util.IOUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -34,7 +32,7 @@ public class Main {
         SymbolBuiltinType.init(glob);
 
         for (String cp : Arrays.asList(
-                "stl/lang/memory.g",
+                "stl/lang/system.g",
                 "stl/lang/string.g",
                 "itptr.g"
         )) {
@@ -48,7 +46,7 @@ public class Main {
 
             // Type Entering.
             // Attr. Identity   //  ASTSymbol.idenStmtBlockStmts(a, glob);
-            a.accept(ASTSymolize.INSTANCE, glob);
+            a.walkthrough(ASTSymolize.INSTANCE, glob);
 
             // Compile.
             ClassCompiler.compileStmtBlockStmts(a.getDeclrations());

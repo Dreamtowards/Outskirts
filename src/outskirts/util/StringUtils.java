@@ -237,4 +237,20 @@ public final class StringUtils {
 
         return num;
     }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.isEmpty();
+    }
+
+    public static String concat(String a, String delimiter, String b) {
+        if (!isBlank(a) && !isBlank(b)) {
+            return a+delimiter+b;
+        } else if (!isBlank(a) && isBlank(b)) {
+            return a;
+        } else if (isBlank(a) && !isBlank(b)) {
+            return b;
+        } else {
+            return "";
+        }
+    }
 }

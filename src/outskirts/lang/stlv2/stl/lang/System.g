@@ -1,7 +1,7 @@
 
 namespace stl.lang;
 
-class memory {
+class System {
 
     static void memcpy(byte* src, byte* dest, int size) {
         while(size-- != 0) {

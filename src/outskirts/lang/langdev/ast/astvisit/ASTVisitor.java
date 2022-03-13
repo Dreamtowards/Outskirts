@@ -43,7 +43,6 @@ public interface ASTVisitor<P> {
         throw new UnsupportedOperationException();
     }
 
-
 //    default void visit_Typename(AST__Typename a, P p)           { visitDefault(a, p); }
 //    static <P> void _VisitStmts(ASTVisitor<P> visitor, List<AST_Stmt> stmts, P p) {
 //        for (AST_Stmt stmt : stmts) {
@@ -52,5 +51,10 @@ public interface ASTVisitor<P> {
 //    }
 //    static <P> void visit(AST a, ASTVisitor<P> visitor, P p) {
 //        a.accept(visitor, p);
+//    }
+
+    // experimental stage
+//    static <T> void walkthrough(AST a, ASTVisitor<T> visitor, T p) {
+//        a.walkthrough(visitor, p);
 //    }
 }
