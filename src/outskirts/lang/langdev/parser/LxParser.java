@@ -131,7 +131,7 @@ public final class LxParser {
             case LITERAL_CHAR:
                 lx.next();
                 Validate.isTrue(t.content().length() == 1);
-                return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.CHAR)._SetupSourceLoc(lx, beg);
+                return new AST_Expr_PrimaryLiteral(t.content().charAt(0), AST_Expr_PrimaryLiteral.LiteralKind.UINT16)._SetupSourceLoc(lx, beg);
             case LITERAL_STRING:
                 lx.next();
                 return new AST_Expr_PrimaryLiteral(t.content(), AST_Expr_PrimaryLiteral.LiteralKind.STRING)._SetupSourceLoc(lx, beg);
@@ -544,7 +544,7 @@ public final class LxParser {
 
     public static AST_Expr parse_QualifiedName(Lexer lx) {  int beg = lx.cleanrdi();
         AST_Expr l = parseExprPrimaryIdentifier(lx);
-        while (lx.nexting(TokenType.DOT)) {
+        while (lx.nexting(TokenType.COLCOL)) {
             l = new AST_Expr_MemberAccess(l, parseExprPrimaryIdentifier(lx).getName(), false)._SetupSourceLoc(lx, beg);
         }
         return l;

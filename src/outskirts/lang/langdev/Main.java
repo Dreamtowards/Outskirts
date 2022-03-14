@@ -12,11 +12,14 @@ import outskirts.util.IOUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
 
-    public static Scope glob;
-    public static Lexer currLxr;
+    // what if only functions been compiled. the data-struct is implied inside the opcodes?
+    public static Map<String, SymbolFunction> compiledfuncs = new HashMap<>();
+//    public static Scope glob;
 
     public static void main(String[] args) throws IOException {
 
@@ -28,28 +31,27 @@ public class Main {
 //        System.out.println("abccd".lastIndexOf("cd", 3));
 //        System.exit(0);
 
-        glob = new Scope(null);
+        Scope glob = new Scope(null);
         SymbolBuiltinType.init(glob);
 
         for (String cp : Arrays.asList(
-                "stl/lang/system.g",
-                "stl/lang/string.g",
+                "stl/lang/System.g",
+                "stl/lang/String.g",
                 "itptr.g"
         )) {
             // Lex
-            Lexer lx = currLxr = new Lexer();
+            Lexer lx = new Lexer();
             lx.setSourceName(cp);
             lx.appendsource(IOUtils.toString(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/outskirts/lang/stlv2/"+cp)));
 
             // Parse
             AST__CompilationUnit a = LxParser.parse_CompilationUnit(lx);
 
-            // Type Entering.
-            // Attr. Identity   //  ASTSymbol.idenStmtBlockStmts(a, glob);
-            a.walkthrough(ASTSymolize.INSTANCE, glob);
+            // Type/Symbol Entering. // Attr. Identity   //  ASTSymbol.idenStmtBlockStmts(a, glob);
+            a.acceptvisit(ASTSymolize.INSTANCE, glob);
 
             // Compile.
-            ClassCompiler.compileStmtBlockStmts(a.getDeclrations());
+            // ClassCompiler.compileStmtBlockStmts(a.getDeclrations());
 
         }
 
@@ -65,7 +67,7 @@ public class Main {
 //        }
 
         // Exec
-        SymbolFunction sf = glob.resolveQualifiedName("test._main.main");
+        SymbolFunction sf = compiledfuncs.get("test::_main::main()");
 
         Machine.exec(sf.codebuf);
 

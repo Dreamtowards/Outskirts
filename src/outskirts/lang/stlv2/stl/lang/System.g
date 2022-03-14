@@ -1,5 +1,9 @@
 
-namespace stl.lang;
+
+using i8 as byte;
+using i32 as int;
+
+namespace stl::lang;
 
 class System {
 

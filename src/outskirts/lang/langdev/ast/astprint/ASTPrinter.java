@@ -38,10 +38,10 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     public void visitExprFuncCall(AST_Expr_FuncCall a, PrintStat p) {
         appendln(p, "ExprFuncCall {");          p.dp++;
             appendln(p, "funcptr:");            p.dp++;
-                a.getExpression().walkthrough(this, p);    p.dp--;
+                a.getExpression().acceptvisit(this, p);    p.dp--;
             appendln(p, "args: [");             p.dp++;
             for (AST_Expr e : a.getArguments()) {
-                e.walkthrough(this, p);
+                e.acceptvisit(this, p);
             }                                      p.dp--;
             appendln(p, "]");                   p.dp--;
         appendln(p, "}");
@@ -50,9 +50,9 @@ public class ASTPrinter implements ASTVisitor<ASTPrinter.PrintStat> {
     @Override
     public void visitExprOperBinary(AST_Expr_OperBinary a, PrintStat ps) {
         appendln(ps, "ExprBinary {"); ps.dp++;
-            a.getLeftOperand().walkthrough(this, ps);
+            a.getLeftOperand().acceptvisit(this, ps);
             appendln(ps, quote(a.getBinaryKind().name()));
-            a.getRightOperand().walkthrough(this, ps);  ps.dp--;
+            a.getRightOperand().acceptvisit(this, ps);  ps.dp--;
         appendln(ps, "}");
     }
 

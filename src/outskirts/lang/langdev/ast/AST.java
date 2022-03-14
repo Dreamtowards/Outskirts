@@ -68,7 +68,7 @@ public abstract class AST {
      * somepeoplesay, this might be suspected violates 'OCP principle', but I think that's meaningless there.
      * there is similar operations, better to centerized manage. taugh grab resposibility, taugh cohesion.
      */
-    public final <P> void walkthrough(ASTVisitor<P> visitor, P p) {
+    public final <P> void acceptvisit(ASTVisitor<P> visitor, P p) {
         try {
             if (this instanceof AST__Annotation)                visitor.visit_Annotation((AST__Annotation)this, p);
             else if (this instanceof AST__CompilationUnit)      visitor.visit_CompilationUnit((AST__CompilationUnit)this, p);

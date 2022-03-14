@@ -66,6 +66,7 @@ public enum TokenType {
     QUES("?"),
     CARET("^"),
     TILDE("~"),
+    COLCOL("::"),
     COLON(":"),
     DOT("."),
     AT("@"),

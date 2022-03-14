@@ -65,9 +65,9 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
 
     @Override
     public String getQualifiedName() {
-        String[] prms = params.stream().map(p -> p.getType().getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
-
-        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+getReturnType().getQualifiedName();
+//        String[] prms = params.stream().map(p -> p.getType().getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
+//        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+getReturnType().getQualifiedName();
+        return getOwnerSymbol().getQualifiedName()+"::"+getSimpleName()+"("+getParametersSignature()+")";
     }
 
 //    public SymbolVariable findVariable(Scope s, String name) {

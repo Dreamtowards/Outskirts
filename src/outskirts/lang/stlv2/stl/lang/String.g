@@ -1,7 +1,7 @@
 
-namespace stl.lang;
+namespace stl::lang;
 
-using static stl.lang.System.memcpy;
+using stl::lang::System::memcpy;
 
 class String {
 
@@ -82,7 +82,6 @@ class String {
         return 99;
     }
     int find(String s) {
-        // return 2;
         return this->find(s, 0);
     }
 

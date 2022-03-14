@@ -213,19 +213,21 @@ public class Machine {
                 case INVOKEFUNC: {
                     String sfname = buf.cp.getUTF8(readShort(code, ip)); ip+=2;
 
-//                    int begArg = sfname.indexOf('('),
-//                        begFld = sfname.lastIndexOf('.', begArg);
-//                    String clname = sfname.substring(0, begFld);         // class name.
-//                    String flname = sfname.substring(begFld+1, begArg);  // field name.
+////                    int begArg = sfname.indexOf('('),
+////                        begFld = sfname.lastIndexOf('.', begArg);
+////                    String clname = sfname.substring(0, begFld);         // class name.
+////                    String flname = sfname.substring(begFld+1, begArg);  // field name.
 
-                    int begfn = sfname.indexOf("$");
-                    int begpr = sfname.indexOf("(");
-                    String clname = sfname.substring(0, begfn);
-                    String fname = sfname.substring(begfn+1, begpr);
-                    String psign = sfname.substring(begpr+1, sfname.length()-1);
+//                    int begfn = sfname.indexOf("$");
+//                    int begpr = sfname.indexOf("(");
+//                    String clname = sfname.substring(0, begfn);
+//                    String fname = sfname.substring(begfn+1, begpr);
+//                    String psign = sfname.substring(begpr+1, sfname.length()-1);
 
-                    SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(fname);
-                    sf = sf.findOverwriteFunc(psign);
+//                    SymbolFunction sf = (SymbolFunction)resolveClass(clname).getSymbolTable().resolveMember(fname);
+//                    sf = sf.findOverwriteFunc(psign);
+
+                    SymbolFunction sf = Main.compiledfuncs.get(sfname);
 
                     int params_sz = 0;
                     for (SymbolVariable sv : sf.getParameters()) {  // include 'this'.
@@ -422,20 +424,20 @@ public class Machine {
 
         System.out.println("Done Exec. opstack: beg="+begin_esp+" rvp="+rvp+", esp="+esp+", locals: "+Arrays.toString(dump(lcspc)));
 
-        try {
-            IOUtils.write(MemSpace, new FileOutputStream("dump-fne.bin"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            IOUtils.write(MemSpace, new FileOutputStream("dump-fne.bin"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static final byte CMPR_LT = 0,
                              CMPR_GT = 1,
                              CMPR_EQ = 2;
 
-    private static SymbolClass resolveClass(String clname) {
-        return Main.glob.resolveQualifiedName(clname);
-    }
+//    private static SymbolClass resolveClass(String clname) {
+//        return Main.glob.resolveQualifiedName(clname);
+//    }
 
     public static String[] dump(byte[] bytes) {
         String[] a = new String[bytes.length];

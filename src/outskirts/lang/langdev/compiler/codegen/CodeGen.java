@@ -20,8 +20,8 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             case INT32:
                 buf._ldc_i(a.getInt32());
                 break;
-            case CHAR:
-                buf._ldc_i(a.getChar());
+            case UINT16:
+                buf._ldc_i(a.getUint16());
                 break;
             case STRING:
                 buf._ldc_str(a.getString());
@@ -70,7 +70,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprOperUnary(AST_Expr_OperUnary a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
-        expr.walkthrough(this, buf);
+        expr.acceptvisit(this, buf);
 
         switch (a.getUnaryKind()) {
             case REF:
@@ -87,16 +87,16 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 break;
             case PRE_INC:
             case PRE_DEC:
-                Validate.isTrue(expr.getVarTypeSymbol() == _int);
+                Validate.isTrue(expr.getVarTypeSymbol() == _i32);
                 buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
                     buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
-                    buf._loadv(_int.getTypesize());
+                    buf._loadv(_i32.getTypesize());
                     buf._ldc_i(1);
                     if (a.getUnaryKind() == AST_Expr_OperUnary.UnaryKind.PRE_INC)
                         buf._add_i32();
                     else
                         buf._sub_i32();
-                buf._popcpy(_int.getTypesize());
+                buf._popcpy(_i32.getTypesize());
                 break;
             case POST_INC:
                 // pure stack-based & base on one ptr, its seems can't do the post_inc/dec functionality.
@@ -107,6 +107,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             case POST_DEC:
                 buf._dec_i32();
                 break;
+            case NEG: // Neg Unsupported.
             default:
                 throw new UnsupportedOperationException();
         }
@@ -114,7 +115,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     @Override
     public void visitExprOperNewMalloc(AST_Expr_OperNewMalloc a, CodeBuf buf) {
-        a.getSizeExpression().walkthrough(this, buf);
+        a.getSizeExpression().acceptvisit(this, buf);
 
         buf._malloc();
     }
@@ -122,19 +123,19 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprTypeCast(AST_Expr_TypeCast a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
-        expr.walkthrough(this, buf);  // currently, cast only symbol cast. then just pass.
+        expr.acceptvisit(this, buf);  // currently, cast only symbol cast. then just pass.
 
         TypeSymbol srctyp = expr.getVarTypeSymbol();
         TypeSymbol dsttyp = a.getType().getTypeSymbol();
-        if (srctyp == _byte && dsttyp == _int) {
+        if (srctyp == _i8 && dsttyp == _i32) {
             lvalue2rvalue(buf, expr);
             buf._cast_i8_i32();
-        } else if (srctyp == _int && dsttyp == _byte) {
+        } else if (srctyp == _i32 && dsttyp == _i8) {
             lvalue2rvalue(buf, expr);
             buf._cast_i32_i8();
-        } else if (srctyp instanceof SymbolBuiltinTypePointer && dsttyp == _int ||
-                   srctyp == _int && dsttyp instanceof SymbolBuiltinTypePointer ||
-                   srctyp == _byte && dsttyp == _bool) {
+        } else if (srctyp instanceof SymbolBuiltinTypePointer && dsttyp == _i32 ||
+                   srctyp == _i32 && dsttyp instanceof SymbolBuiltinTypePointer ||
+                   srctyp == _i8 && dsttyp == _bool) {
             lvalue2rvalue(buf, expr);
         } else {
             Validate.isTrue(srctyp == dsttyp);
@@ -147,7 +148,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // fncall().rsdat
 
         AST_Expr expr = a.getExpression();
-        expr.walkthrough(this, buf);
+        expr.acceptvisit(this, buf);
 
         Symbol s = expr.getExprSymbol();
 
@@ -198,7 +199,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
     private static void _visitFuncArguments(List<AST_Expr> args, CodeGen comp, CodeBuf buf) {
         for (AST_Expr e : args) {
-            e.walkthrough(comp, buf);
+            e.acceptvisit(comp, buf);
             lvalue2rvalue(buf, e);
         }
     }
@@ -217,7 +218,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         // invoke "func"
         if (s instanceof SymbolFunction) {
             SymbolFunction sf = (SymbolFunction)s;
-            String sfname = sf.getOwnerSymbol().getQualifiedName()+"$"+sf.getSimpleName()+"("+sf.getParametersSignature()+")";//sf.getQualifiedName();
+//            String sfname = sf.getOwnerSymbol().getQualifiedName()+"$"+sf.getSimpleName()+"("+sf.getParametersSignature()+")";//sf.getQualifiedName();
 
             // Prepare Args.
             //   only non-static function needs executes expr.
@@ -226,7 +227,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 if (expr instanceof AST_Expr_MemberAccess) {
                     AST_Expr_MemberAccess m = (AST_Expr_MemberAccess)expr;
                     AST_Expr ivkr = m.getExpression();
-                    ivkr.walkthrough(this, buf);
+                    ivkr.acceptvisit(this, buf);
                     if (m.isArrow()) {
                         Validate.isTrue(ivkr.getVarTypeSymbol() instanceof SymbolBuiltinTypePointer);
                         lvalue2rvalue(buf, ivkr);
@@ -235,7 +236,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             }
             _visitFuncArguments(a.getArguments(), this, buf);
 
-            buf._invokefunc(sfname);
+            buf._invokefunc(sf.getQualifiedName());
 
         } else if (s instanceof SymbolClass) {  // stack object alloc.
             // string s = string();  // alloc mem, call init.  then assign to var.
@@ -251,7 +252,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitStmtBlock(AST_Stmt_Block a, CodeBuf buf) {
         for (AST_Stmt stmt : a.getStatements()) {
-            stmt.walkthrough(this, buf);
+            stmt.acceptvisit(this, buf);
         }
     }
 
@@ -284,7 +285,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     public void visitStmtReturn(AST_Stmt_Return a, CodeBuf buf) {
         AST_Expr expr = a.getReturnExpression();
         if (expr != null) {
-            expr.walkthrough(this, buf);
+            expr.acceptvisit(this, buf);
             lvalue2rvalue(buf, expr);
 
             buf._ret(expr.getVarTypeSymbol().getTypesize());
@@ -297,7 +298,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     public void visitStmtExpr(AST_Stmt_Expr a, CodeBuf buf) {
         AST_Expr expr = a.getExpression();
 
-        expr.walkthrough(this, buf);
+        expr.acceptvisit(this, buf);
 
         SymbolVariable sv = expr.getVarSymbol();
         if (sv.getType() != SymbolBuiltinType._void) {  // doSthReturnVoid();  // not ret val.
@@ -312,10 +313,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitStmtIf(AST_Stmt_If a, CodeBuf buf) {
 
-        a.getCondition().walkthrough(this, buf);
+        a.getCondition().acceptvisit(this, buf);
         IntConsumer eot = buf._jmpifn_delay();  // end of then. if condition false, goto else/end
 
-        a.getThenStatement().walkthrough(this, buf);
+        a.getThenStatement().acceptvisit(this, buf);
 
         AST_Stmt stmtelse = a.getElseStatement();
         IntConsumer eoe = null;  // end of else. after exec then, should direct jumpover else.
@@ -324,7 +325,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         eot.accept(buf.idx());  // delaysetup
         if (stmtelse != null) {
-            stmtelse.walkthrough(this, buf);
+            stmtelse.acceptvisit(this, buf);
 
             eoe.accept(buf.idx());  // delaysetup
         }
@@ -338,12 +339,12 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         buf.getEnclosingLoopStack().push(linf);
 
         // cond.
-        a.getCondition().walkthrough(this, buf);
+        a.getCondition().acceptvisit(this, buf);
         IntConsumer endofwhile = buf._jmpifn_delay();  // end of while.
         linf.end_ip_onDefined.add(endofwhile);
 
         // body.
-        a.getStatement().walkthrough(this, buf);
+        a.getStatement().acceptvisit(this, buf);
         buf._jmp(linf.beg_ip);
 
         buf.getEnclosingLoopStack().pop();
@@ -362,7 +363,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         if (initexpr != null) {
             buf._lloadp(a.getName());
 
-            initexpr.walkthrough(this, buf);
+            initexpr.acceptvisit(this, buf);
 
             int sz = a.getTypeExpression().getTypeSymbol().getTypesize();
             if (initexpr.getVarSymbol().hasAddress()) {
@@ -391,10 +392,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         if (a.getBinaryKind() == AST_Expr_OperBinary.BinaryKind.ASSIGN) {
             Validate.isTrue(lhs.getVarSymbol().hasAddress());
 
-            lhs.walkthrough(this, buf);  // put lhs addr.
+            lhs.acceptvisit(this, buf);  // put lhs addr.
             buf._dup(SymbolBuiltinTypePointer.PTR_SIZE);
 
-            rhs.walkthrough(this, buf);  // put rhs addr(lval)/value(rval)
+            rhs.acceptvisit(this, buf);  // put rhs addr(lval)/value(rval)
 
             int sz = lhs.getVarTypeSymbol().getTypesize(); Validate.isTrue(sz > 0, "Invalid assignment. zero copies.");
             if (rhs.getVarSymbol().hasAddress()) {  // rhs: lvalue
@@ -452,12 +453,12 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 //                throw new UnsupportedOperationException();
 //            }
         } else {
-            lhs.walkthrough(this, buf);
+            lhs.acceptvisit(this, buf);
             lvalue2rvalue(buf, lhs);
 
-            rhs.walkthrough(this, buf);
+            rhs.acceptvisit(this, buf);
             lvalue2rvalue(buf, rhs);
-            Validate.isTrue(lhs.getVarTypeSymbol() == _int && rhs.getVarTypeSymbol() == _int, "Unsupported type: "+lhs.getVarTypeSymbol());
+            Validate.isTrue(lhs.getVarTypeSymbol() == _i32 && rhs.getVarTypeSymbol() == _i32, "Unsupported type: "+lhs.getVarTypeSymbol());
 
             switch (a.getBinaryKind()) {
                 case ADD: {

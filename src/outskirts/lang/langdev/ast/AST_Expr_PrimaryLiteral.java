@@ -17,9 +17,9 @@ public class AST_Expr_PrimaryLiteral extends AST_Expr {
     public long   getInt64() {   Validate.isTrue(literalkind == LiteralKind.INT64);   return (long)val;   }
     public float  getFloat32() { Validate.isTrue(literalkind == LiteralKind.FLOAT32); return (float)val;  }
     public double getFloat64() { Validate.isTrue(literalkind == LiteralKind.FLOAT64); return (double)val; }
-    public char   getChar()    { Validate.isTrue(literalkind == LiteralKind.CHAR);    return (char)val;   }
-    public String getString()  { Validate.isTrue(literalkind == LiteralKind.STRING);  return (String)val; }
+    public char   getUint16()    { Validate.isTrue(literalkind == LiteralKind.UINT16);    return (char)val;   }
     public boolean getBool()   { Validate.isTrue(literalkind == LiteralKind.BOOL);    return (boolean)val;}
+    public String getString()  { Validate.isTrue(literalkind == LiteralKind.STRING);  return (String)val; }
 
     public LiteralKind getLiteralKind() {
         return literalkind;
@@ -28,11 +28,11 @@ public class AST_Expr_PrimaryLiteral extends AST_Expr {
     public enum LiteralKind {
         INT32,
         INT64,
+        UINT16,
         FLOAT32,
         FLOAT64,
-        CHAR,
+        BOOL,
         STRING,
-        BOOL
     }
 
 }

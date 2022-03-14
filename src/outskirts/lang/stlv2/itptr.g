@@ -17,7 +17,10 @@
  * 9. Const Generics.
  */
 
-using stl.lang.String;
+using stl::lang::String;
+
+// using i8 as byte;
+// using i32 as int;
 
 namespace test;
 
@@ -40,10 +43,9 @@ class _main {
         s1.base = " kabcTex234";
 
 
-
         String s2;
         s2.base = "Tex";
-        int id = s1.find(s2, 0);  // s1.find(s2);
+        int id = s1.find(s2, 0);
 
 
         /*

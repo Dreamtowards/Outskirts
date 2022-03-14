@@ -17,7 +17,7 @@ public interface ScopedSymbol extends Symbol {
 
         while ((tab = tab.getParent()) != null) {
             if (tab.symbolAssociated != null) {
-                sb.insert(0, tab.symbolAssociated.getSimpleName()+".");
+                sb.insert(0, tab.symbolAssociated.getSimpleName()+"::");
             }
         }
         return sb.toString();
