@@ -12,12 +12,12 @@ public interface ScopedSymbol extends Symbol {
 
     @Override
     default String getQualifiedName() {
-        Scope tab = getSymbolTable();
-        StringBuilder sb = new StringBuilder(tab.symbolAssociated.getSimpleName());
+        Scope st = getSymbolTable();
+        StringBuilder sb = new StringBuilder(st.getAssociatedSymbol().getSimpleName());
 
-        while ((tab = tab.getParent()) != null) {
-            if (tab.symbolAssociated != null) {
-                sb.insert(0, tab.symbolAssociated.getSimpleName()+"::");
+        while ((st = st.getParent()) != null) {
+            if (st.getAssociatedSymbol() != null) {
+                sb.insert(0, st.getAssociatedSymbol().getSimpleName()+"::");
             }
         }
         return sb.toString();

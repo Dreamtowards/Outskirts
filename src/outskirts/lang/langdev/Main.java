@@ -67,7 +67,7 @@ public class Main {
 //        }
 
         // Exec
-        SymbolFunction sf = compiledfuncs.get("test::_main::main()");
+        SymbolFunction sf = compiledfuncs.get("test::_Main::main()");
 
         Machine.exec(sf.codebuf);
 
@@ -80,11 +80,8 @@ public class Main {
 //        ASTPrinter.printStmt(a, 0, sb);
 //        System.out.println(sb.toString());
 
-
 //        RuntimeExec.init();
-//
 //        RuntimeExec.imports("itptr.g");
-
 //        RuntimeExec.exec("using _main; _main.main();");
     }
 

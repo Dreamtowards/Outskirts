@@ -17,7 +17,9 @@ import java.util.NoSuchElementException;
  *
  */
 // this maybe temporary.  until Generic Available. vartype:: function<return_type, param_type...>
-public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
+
+// why not is a ScopedSymbol?
+public class SymbolFunction extends BaseSymbol implements ModifierSymbol, ScopedSymbol {
 
     private final TypeSymbol returntype;
     public final List<SymbolVariable> params;  // actual params. may include 'this'. order sensitive: codegen invokeproc args, 'this' is heading.
@@ -30,8 +32,6 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
     private final short modifiercode;
 
     public AST_Stmt_DefFunc genericsTmpASTForCompile;
-
-//    public boolean isStaticFunction;  // todo: reduce by: Modifiers.isStatic(getModifierCode());
 
     public SymbolFunction(String fname, List<SymbolVariable> params, TypeSymbol returntype, SymbolClass ownerclass, short modifiercode, Scope fnscope) {
         super(fname);
@@ -61,6 +61,11 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol {
     // parameters without 'this'. used for semantic func-call args type-check.
     public List<SymbolVariable> getDeclaredParameters() {
         return isStatic() ? getParameters() : getParameters().subList(1, getParameters().size());
+    }
+
+    @Override
+    public Scope getSymbolTable() {
+        return fnscope;
     }
 
     @Override

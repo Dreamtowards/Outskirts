@@ -38,7 +38,17 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
     @Override
     public void visitExprPrimaryIdentifier(AST_Expr_PrimaryIdentifier a, CodeBuf buf) {
 
-        // LocalVar, Typename, Out-Var.
+        // LocalVar, Typename.Out-Var.
+
+        // Math.PI, Main.sumNum -> grab the static mem
+        // locint -> grab stack mem
+        SymbolVariable sv = a.getVarSymbol();
+
+//        if (sv.isLocalVar()) {
+//
+//        } else if (sv.isMemberVar()) {
+//
+//        }
 
         buf._lloadp(a.getName());
     }

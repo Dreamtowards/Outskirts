@@ -18,8 +18,8 @@ public class AST_Stmt_DefClass extends AST_Stmt implements AST.Modifierable{ // 
 
     private final AST__Modifiers modifiers;
 
-    public List<TypeSymbol> genericsTmpFullfilledArguments;
-    public SymbolClass genericsTmpFullfilledSymbol;
+    public List<TypeSymbol> tmpGenericsArguments;  // for instancing
+    public SymbolClass tmpGenericsInstance;  // result
 
     public AST_Stmt_DefClass(String name, List<AST_Expr> superclasses, List<AST_Stmt> members, AST__Modifiers modifiers, List<AST_Expr_PrimaryIdentifier> genericParams) {
         this.name = name;

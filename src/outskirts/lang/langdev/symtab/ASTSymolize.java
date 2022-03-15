@@ -7,6 +7,7 @@ import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
 import outskirts.lang.langdev.parser.LxParser;
+import outskirts.util.CollectionUtils;
 import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
@@ -84,21 +85,18 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     @Override
     public void visitExprGenericsArgumented(AST_Expr_GenericsArgumented a, Scope p) {
-        AST_Expr type = a.getTypeExpression();
-        type.acceptvisit(this, p);
+        a.getTypeExpression().acceptvisit(this, p);
 
-        Validate.isTrue(type.getTypeSymbol() instanceof SymbolClass);
-        SymbolClass proto = (SymbolClass)type.getTypeSymbol();
-        List<TypeSymbol> gtype_args = new ArrayList<>();
-
-        for (AST_Expr garg : a.getGenericsArguments()) {
-            garg.acceptvisit(this, p);
-
-            gtype_args.add(garg.getTypeSymbol());
+        List<TypeSymbol> sGenericsArguments = new ArrayList<>();
+        for (AST_Expr arg : a.getGenericsArguments()) {
+            arg.acceptvisit(this, p);
+            sGenericsArguments.add(arg.getTypeSymbol());
         }
 
-        SymbolClass sc = SymbolClass.lookupOrBuildFullfilledTemplate(proto, gtype_args, this);
-        a.setSymbol(sc);
+        SymbolClass sGenericsPrototype = (SymbolClass)a.getTypeExpression().getTypeSymbol();
+
+        SymbolClass sGenericsInstanced = sGenericsPrototype.lookupInstancedGenerics(sGenericsArguments, this);
+        a.setSymbol(sGenericsInstanced);
     }
 
     /**
@@ -333,56 +331,47 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         // Validate.isTrue(p.findEnclosingLoop() != null);  // almost same as stmt_break.
     }
 
-    public static String _GenericsArgumentsString(List<TypeSymbol> gtype_args) {
-        return "<"+gtype_args.stream().map(TypeSymbol::getQualifiedName).collect(Collectors.joining(","))+">";
+    public static String strGenericsArguments(List<TypeSymbol> sGenericsArguments) {
+        return "<"+ CollectionUtils.toString(sGenericsArguments, ",", Symbol::getQualifiedName)+">";
     }
 
     @Override
     public void visitStmtDefClass(AST_Stmt_DefClass a, Scope _p) {
-        boolean isGenericsPrototype = false;
+        //
+        // Validate.isTrue(a.getGenericsParameters().size() == a.tmpGenericsArguments.size());
 
-        // GenericsClass.
-        String genericsSuffix = "";
-        if (a.getGenericsParameters().size() > 0) {
-            // Not Resolve prototype.
-            if (a.genericsTmpFullfilledArguments == null) {
-                isGenericsPrototype = true;
-            } else {  // resolves when GenericsArguments FullFilled.
-                Validate.isTrue(a.getGenericsParameters().size() == a.genericsTmpFullfilledArguments.size());
-                genericsSuffix = _GenericsArgumentsString(a.genericsTmpFullfilledArguments);
-            }
-        }
+        boolean isBuildingGenericsInstance = !a.getGenericsParameters().isEmpty() && a.tmpGenericsArguments != null;
 
-        Scope clp = new Scope(_p);
-        SymbolClass clsym = new SymbolClass(a.getSimpleName()+genericsSuffix, clp);
-        clp.symbolAssociated = clsym;   // before member. members need link the owner_class.
-        _p.define(clsym);  // before member. member should can lookup enclosing class symbol.
-        a.sym = clsym;
-        System.out.println("  --> Define Class "+clsym.getQualifiedName());
+        Scope stClass = new Scope(_p);
+        SymbolClass sc = new SymbolClass(a.getSimpleName(), stClass);
+        stClass.setAssociatedSymbol(sc);   // before member. members need link the owner_class.
+        a.sym = sc;
+        if (!isBuildingGenericsInstance)
+            _p.define(sc);  // before member. member should be able lookup enclosing class symbol.
 
+        boolean isGenericsPrototype = !a.getGenericsParameters().isEmpty() && a.tmpGenericsArguments == null;
         if (isGenericsPrototype) {
-            clsym.genericsPrototypeClassAST = a;
+            sc.theGenericsPrototypeAST = a;
             return;
         }
 
-        for (int i = 0;i < a.getGenericsParameters().size();i++) {
+        if (isBuildingGenericsInstance) {
+            for (int i = 0;i < a.getGenericsParameters().size();i++) {
+                stClass.defineAsCustomName(a.getGenericsParameters().get(i).getName(), a.tmpGenericsArguments.get(i));
+            }
 
-            // SymbolGenericsTypeParameter sgt = new SymbolGenericsTypeParameter(gparam.getName());
-            clp.defineAsCustomName(a.getGenericsParameters().get(i).getName(), a.genericsTmpFullfilledArguments.get(i));
+            Validate.isTrue(a.tmpGenericsArguments != null);
+            a.tmpGenericsArguments = null;  // consumed.
+            a.tmpGenericsInstance = sc;
         }
 
-        for (AST_Expr sup_type : a.getSuperTypeExpressions()) {
-            sup_type.acceptvisit(this, clp);
+        for (AST_Expr supTyp : a.getSuperTypeExpressions()) {
+            supTyp.acceptvisit(this, stClass);
         }
 
-        for (AST_Stmt clstmt : a.getMembers()) {
+        for (AST_Stmt clStmt : a.getMembers()) {
 
-            clstmt.acceptvisit(this, clp);
-        }
-
-        if (a.genericsTmpFullfilledArguments != null)  {
-            a.genericsTmpFullfilledArguments = null;  // consumed.
-            a.genericsTmpFullfilledSymbol = clsym;
+            clStmt.acceptvisit(this, stClass);
         }
 
     }

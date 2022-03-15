@@ -1,3 +1,24 @@
+
+/**
+ * TODO ls;
+ * 1. Type Diff. TypeLiteral vs TypeInstance. Solved!
+ * 2. Assignment. local-variable. member-field. Solv. ptr sz assignment.
+ * 3. StackObject Creation.  solv. space alloc.
+ * 4. MemberAccess. from Variable vs. from TemporaryRvalues.  Solv. lval: ptr off, rval: slice.
+ * 5. Pointers Syntax. & and *.  solv
+ * 6. Call Spec. ret-val. args. ret-ip.  solv.
+ *
+ * 2. Lvalue Rvalue on used operations. relations.
+ * 6. Pointer MemberAccess a->b.
+ *
+ * 5. new HeapObjectCreation
+ * 7. Refied Generics
+ * 8. using function<void, int> as int_consumer;
+ * 9. Const Generics.
+ */
+
+
+
 /*
 using static stlx.opengl.GL11.*;
 using std.lang.*;

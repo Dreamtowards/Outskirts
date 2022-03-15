@@ -2,6 +2,7 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 import outskirts.lang.langdev.compiler.ClassFile;
+import outskirts.util.CollectionUtils;
 
 import java.util.*;
 
@@ -19,27 +20,33 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         this.symtab = symtab;
     }
 
-    public static List<SymbolClass> genericsFilledClasses = new ArrayList<>();
+//    public static List<SymbolClass> genericsFilledClasses = new ArrayList<>();
 
-    public AST_Stmt_DefClass genericsPrototypeClassAST;
+    public AST_Stmt_DefClass theGenericsPrototypeAST;
 
-    public static SymbolClass lookupOrBuildFullfilledTemplate(SymbolClass prototype, List<TypeSymbol> gtype_args, ASTSymolize symize) {
+    private SymbolClass nextInstancedGenericsClass;  // linked. same prototype, diff generics instance.
+    private List<TypeSymbol> theGenericsArguments;
 
-        Scope originalscope = prototype.getSymbolTable().getParent();
-        SymbolClass r = (SymbolClass)originalscope.findLocalSymbol(prototype.getSimpleName()+ASTSymolize._GenericsArgumentsString(gtype_args));
-        if (r != null)
-            return r;
+    private String getGenericsSignature() {
+        return CollectionUtils.toString(theGenericsArguments, ",", Symbol::getQualifiedName);
+    }
 
-        // resolve.
-        AST_Stmt_DefClass a = prototype.genericsPrototypeClassAST;
-        a.genericsTmpFullfilledArguments = gtype_args;
-        symize.visitStmtDefClass(a, originalscope);
-        r = a.genericsTmpFullfilledSymbol;
+    public SymbolClass lookupInstancedGenerics(List<TypeSymbol> sGenericsArguments, ASTSymolize visitor) {
+        if (nextInstancedGenericsClass != null) {
+            if (nextInstancedGenericsClass.getGenericsSignature().equals(getGenericsSignature())) {  // matched.
+                return nextInstancedGenericsClass;
+            } else {
+                return nextInstancedGenericsClass.lookupInstancedGenerics(sGenericsArguments, visitor);  // passing.
+            }
+        } else {  // null, build.
+            theGenericsPrototypeAST.tmpGenericsArguments = sGenericsArguments;
 
-        if (!genericsFilledClasses.contains(r))
-            genericsFilledClasses.add(r);
+            Scope enclosingScope = getSymbolTable().getParent();
+            visitor.visitStmtDefClass(theGenericsPrototypeAST, enclosingScope);
 
-        return r;
+            nextInstancedGenericsClass = theGenericsPrototypeAST.tmpGenericsInstance;
+            return nextInstancedGenericsClass;
+        }
     }
 
 //    public Symbol getInstanceSymbol() {  // really.?

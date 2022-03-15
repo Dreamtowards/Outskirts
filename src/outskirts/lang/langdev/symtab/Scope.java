@@ -28,6 +28,14 @@ public final class Scope {
     public Symbol symbolAssociated;
 //    public AST astAssociated;
 
+    public Symbol getAssociatedSymbol() {
+        return symbolAssociated;
+    }
+
+    public void setAssociatedSymbol(Symbol symbolAssociated) {
+        this.symbolAssociated = symbolAssociated;
+    }
+
     public Scope(Scope enclosing) {
         this.enclosing = enclosing;
     }
