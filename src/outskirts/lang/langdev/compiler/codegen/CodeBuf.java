@@ -126,6 +126,11 @@ public class CodeBuf {
         append((byte)off);
     }
 
+    public void _static_addr(int off) {
+        append(STATIC_ADDR);
+        appendShort((short)off); // SHORT
+    }
+
     public void _ret(int sz) {
         append(RET);
         append((byte)sz);

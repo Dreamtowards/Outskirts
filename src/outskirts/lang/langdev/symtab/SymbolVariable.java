@@ -15,6 +15,9 @@ public class SymbolVariable extends BaseSymbol implements ModifierSymbol {
 
     private final boolean hasAddr;
 
+    public int staticVarOffset = -1;
+    public static int nextStaticVarOffset = 0;
+
     public SymbolVariable(String name, TypeSymbol type, short modifiercode, boolean hasAddr) {
         super(name);
         this.type = type;

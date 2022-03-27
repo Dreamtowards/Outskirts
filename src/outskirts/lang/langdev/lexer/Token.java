@@ -26,7 +26,7 @@ public final class Token {
     // connNext or connPrev .?
 //    private final boolean isConnectedNext;
 
-    private SourceLoc sloc;  // sourcelocation.
+    public SourceLoc sloc;  // sourcelocation.
 
     public Token(TokenType type, String content, SourceLoc sloc) {
         if (type.fixed() == null)

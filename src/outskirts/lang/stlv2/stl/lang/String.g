@@ -5,6 +5,12 @@ using stl::lang::System::memcpy;
 
 class String {
 
+    static int asv;
+
+    static int doSth() {
+        return 3;
+    }
+
     byte* base;
 
     byte charAt(int i) {

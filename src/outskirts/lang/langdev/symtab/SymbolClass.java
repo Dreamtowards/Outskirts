@@ -45,6 +45,7 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
             visitor.visitStmtDefClass(theGenericsPrototypeAST, enclosingScope);
 
             nextInstancedGenericsClass = theGenericsPrototypeAST.tmpGenericsInstance;
+            nextInstancedGenericsClass.theGenericsArguments = sGenericsArguments;
             return nextInstancedGenericsClass;
         }
     }

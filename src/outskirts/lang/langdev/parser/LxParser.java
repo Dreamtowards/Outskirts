@@ -196,7 +196,7 @@ public final class LxParser {
         AST_Expr l = parseExprPrimary(lx);
         while (true) {
             TokenType typ = lx.peek().type();
-            if (typ == TokenType.DOT || typ == TokenType.ARROW)
+            if (typ == TokenType.DOT || typ == TokenType.ARROW || typ == TokenType.COLCOL)  // Note: duplicated functionality, a::b to parseQualifiedName().
             {
                 boolean arrow = typ == TokenType.ARROW;
                 lx.next();

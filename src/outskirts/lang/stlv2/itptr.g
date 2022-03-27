@@ -15,14 +15,17 @@ class vec2<T> {
 
 class _Main {
 
-    static bool running;
+    static int running;
+
+    bool tes1;
 
     static void main() {
 
-        // bool b = running;
-        int i = 10;
-
-        int j = sizeof(vec2<int>);
+       // getstatic Classname::sfieldname
+       // getaddr STATIC_BASE+idxOffset("Classname::sfieldname")
+        int i2 = 0;
+        String::asv = 6;
+        int b = String::asv;
 
         /* String s1;
         s1.base = " kabcTex234";

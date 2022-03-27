@@ -40,7 +40,8 @@ public final class Opcodes {
             SUB_I32 = 31,
             MALLOC = 32,
             CAST_I8_I32 = 33,
-            CAST_I32_I8 = 34;
+            CAST_I32_I8 = 34,
+            STATIC_ADDR = 35;
 
     public static final String[] _NAMES = {
             "_NULL",
@@ -71,7 +72,8 @@ public final class Opcodes {
             "SUB_I32",
             "MALLOC",
             "CAST_I8_I32",
-            "CAST_I32_I8"
+            "CAST_I32_I8",
+            "STATIC_ADDR"
     };
 
     public static String _InstructionComment(CodeBuf buf, int idx) {

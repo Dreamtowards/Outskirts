@@ -331,9 +331,9 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         // Validate.isTrue(p.findEnclosingLoop() != null);  // almost same as stmt_break.
     }
 
-    public static String strGenericsArguments(List<TypeSymbol> sGenericsArguments) {
-        return "<"+ CollectionUtils.toString(sGenericsArguments, ",", Symbol::getQualifiedName)+">";
-    }
+//    public static String strGenericsArguments(List<TypeSymbol> sGenericsArguments) {
+//        return "<"+ CollectionUtils.toString(sGenericsArguments, ",", Symbol::getQualifiedName)+">";
+//    }
 
     @Override
     public void visitStmtDefClass(AST_Stmt_DefClass a, Scope _p) {
@@ -430,10 +430,17 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 //            sf.fnscope.resolveInside(a.getName());
 //        }
 
-        SymbolVariable sym = new SymbolVariable(a.getName(), a.getTypeExpression().getTypeSymbol(),
+        SymbolVariable sv = new SymbolVariable(a.getName(), a.getTypeExpression().getTypeSymbol(),
                                                  a.getModifiers().getModifierCode(), true);
-        a.sym = sym;
-        p.define(sym);
+        a.sym = sv;
+        p.define(sv);
+
+        if (sv.isStatic()) {
+            Validate.isTrue(p.getAssociatedSymbol() instanceof SymbolClass);
+
+            sv.staticVarOffset = SymbolVariable.nextStaticVarOffset;
+            SymbolVariable.nextStaticVarOffset += sv.getType().getTypesize();
+        }
 
         if (a.getInitializer() != null) {
             a.getInitializer().acceptvisit(this, p);
@@ -509,7 +516,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 //            Validate.isTrue(used instanceof SymbolClass, "non-static using required class symbol.");
 //        }
 
-        System.out.println("Define Using "+a.getDeclaredName() +" for "+used.getQualifiedName() + " in "+p.getMemberSymbols());
+//        System.out.println("Define Using "+a.getDeclaredName() +" for "+used.getQualifiedName() + " in "+p.getMemberSymbols());
         p.defineAsCustomName(a.getDeclaredName(), used);
     }
 

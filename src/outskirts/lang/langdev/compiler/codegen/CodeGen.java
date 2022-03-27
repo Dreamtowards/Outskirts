@@ -42,7 +42,11 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
         // Math.PI, Main.sumNum -> grab the static mem
         // locint -> grab stack mem
-        SymbolVariable sv = a.getVarSymbol();
+
+        if (a.getSymbol() instanceof SymbolVariable) {
+
+            buf._lloadp(a.getName());
+        }
 
 //        if (sv.isLocalVar()) {
 //
@@ -50,7 +54,6 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 //
 //        }
 
-        buf._lloadp(a.getName());
     }
 
     @Override
@@ -160,20 +163,24 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         AST_Expr expr = a.getExpression();
         expr.acceptvisit(this, buf);
 
-        Symbol s = expr.getExprSymbol();
+        Symbol sl = expr.getExprSymbol();
 
-        if (s instanceof SymbolClass) {
-            Symbol ms = ((SymbolClass)s).getSymbolTable().resolveMember(a.getIdentifier());
+//        if (s instanceof SymbolClass) {
+//            Symbol ms = ((SymbolClass)s).getSymbolTable().resolveMember(a.getIdentifier());
+//
+//            if (ms instanceof SymbolVariable) {
+//
+//                throw new IllegalStateException("Unsupported get static member variable");
+//            } else {
+//                // SymbolFunction, ignore.
+//                throw new IllegalStateException("Unsupported get static function address member.");
+//            }
+//        } else
+        if (a.getSymbol() instanceof SymbolVariable && a.getVarSymbol().isStatic()) {
 
-            if (ms instanceof SymbolVariable) {
-
-                throw new IllegalStateException("Unsupported get static member variable");
-            } else {
-                // SymbolFunction, ignore.
-                throw new IllegalStateException("Unsupported get static function address member.");
-            }
-        } else if (s instanceof SymbolVariable) {
-            SymbolVariable sv = (SymbolVariable)s;
+            buf._static_addr(a.getVarSymbol().staticVarOffset);
+        } else if (sl instanceof SymbolVariable) {
+            SymbolVariable sv = (SymbolVariable)sl;
             SymbolClass typ;
             if (a.isArrow()) {
                 typ = (SymbolClass) ((SymbolBuiltinTypePointer)sv.getType()).getPointerType();
@@ -201,7 +208,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
                 // SymbolFunction, ignore.
                 throw new IllegalStateException("Unsupported get function address member.");
             }
-        } else if (!(s instanceof SymbolNamespace)) {  // SymbolNamespace can be ignore.
+        } else if (!(sl instanceof SymbolNamespace)) {  // SymbolNamespace can be ignore.
             throw new IllegalStateException();
         }
 

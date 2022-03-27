@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static outskirts.lang.langdev.compiler.codegen.Opcodes.*;
+import static outskirts.util.IOUtils.readInt;
 import static outskirts.util.IOUtils.readShort;
 
 public class Machine {
@@ -30,6 +31,8 @@ public class Machine {
 
     private static int malloc_begin = str_constant_ai_ptr - 80;
     public static final List<Pair<Integer, Integer>> mallocated = new ArrayList<>();
+
+    private static int static_begin = malloc_begin - 40;
 
     private static int sum(int[] a) {
         int s = 0;
@@ -191,6 +194,13 @@ public class Machine {
                     byte off = code[ip++];
 
                     pushi32(esp+off);
+
+                    break;
+                }
+                case STATIC_ADDR: {
+                    int off = readShort(code, ip); ip+=2;
+
+                    push_ptr(static_begin+off);
 
                     break;
                 }

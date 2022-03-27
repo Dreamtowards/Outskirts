@@ -216,7 +216,8 @@ public final class Lexer {
     }
 
     public final String _dbg_statinf() {
-        return new SourceLoc(sourcelocation, srx, rdi, Math.min(rdi+1, srx.length())).toString();
+//        return new SourceLoc(sourcelocation, srx, rdi, Math.min(rdi+1, srx.length())).toString();
+        return peek().sloc.toString();
     }
 
 
