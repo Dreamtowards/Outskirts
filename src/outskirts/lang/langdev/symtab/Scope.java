@@ -2,6 +2,7 @@ package outskirts.lang.langdev.symtab;
 
 import outskirts.lang.langdev.ast.*;
 import outskirts.util.StringUtils;
+import outskirts.util.Validate;
 
 import java.util.*;
 
@@ -44,7 +45,7 @@ public final class Scope {
         return enclosing;
     }
 
-    public final Collection<Symbol> getMemberSymbols() {
+    public final Collection<Symbol> getLocalSymbols() {
         return Collections.unmodifiableCollection(_symbols.values());
     }
 
@@ -67,7 +68,7 @@ public final class Scope {
     }
 
     public Symbol resolve(String name) {
-        Symbol s = findLocalSymbol(name);
+        Symbol s = resolveMember(name);
         if (s != null)
             return s;
         if (enclosing != null)
@@ -77,31 +78,43 @@ public final class Scope {
     }
 
 
-    // MemberAccess "base.fur.inr"
-    public <T extends Symbol> T resolveQualifiedName(String qualifiedname) {  // resolveMAStr
-        Symbol s = null;
-        for (String nm : StringUtils.explode(qualifiedname, ".")) {
-            if (s == null) {  // assert idx==0;
-                s = resolve(nm);
-            } else {
-                s = ((ScopedSymbol)s).getSymbolTable().resolveMember(nm);
-            }
-        }
-        return (T)s;
-    }
-
-    public <T extends Symbol> T resolveQualifiedExpr(AST_Expr a) {  // resolveMAExpr
-        if (a instanceof AST_Expr_MemberAccess) {
-            AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)a;
-            ScopedSymbol l = resolveQualifiedExpr(c.getExpression());
-            return (T)l.getSymbolTable().resolveMember(c.getIdentifier());
-        } else {
-            return (T)resolve(((AST_Expr_PrimaryIdentifier)a).getName());
-        }
-    }
+//    // MemberAccess "base.fur.inr"
+//    public <T extends Symbol> T resolveQualifiedName(String qualifiedname) {  // resolveMAStr
+//        Symbol s = null;
+//        for (String nm : StringUtils.explode(qualifiedname, ".")) {
+//            if (s == null) {  // assert idx==0;
+//                s = resolve(nm);
+//            } else {
+//                s = ((ScopedSymbol)s).getSymbolTable().resolveMember(nm);
+//            }
+//        }
+//        return (T)s;
+//    }
+//
+//    public <T extends Symbol> T resolveQualifiedExpr(AST_Expr a) {  // resolveMAExpr
+//        if (a instanceof AST_Expr_MemberAccess) {
+//            AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)a;
+//            ScopedSymbol l = resolveQualifiedExpr(c.getExpression());
+//            return (T)l.getSymbolTable().resolveMember(c.getIdentifier());
+//        } else {
+//            return (T)resolve(((AST_Expr_PrimaryIdentifier)a).getName());
+//        }
+//    }
 
     public Symbol resolveMember(String name) {
-        return Objects.requireNonNull(findLocalSymbol(name), "Could not resolve member-symbol '"+name+"'");
+        Symbol s = findLocalSymbol(name);
+        if (s != null)
+            return s;
+        // search for super-classes
+        if (getAssociatedSymbol() instanceof SymbolClass) {
+            for (SymbolClass sup : ((SymbolClass) getAssociatedSymbol()).superClasses) {
+                s = sup.getSymbolTable().resolveMember(name);
+                if (s != null)
+                    return s;
+            }
+        }
+        return null;
+//        throw new NoSuchElementException("Could not resolve member-symbol '"+name+"'");
     }
 
     public SymbolFunction lookupEnclosingFuncction() {

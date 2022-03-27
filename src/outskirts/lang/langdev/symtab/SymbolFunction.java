@@ -91,7 +91,7 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol, Scoped
 
     public void defineOverwriteFunc(SymbolFunction sf) {
         Validate.isTrue(sf.getSimpleName().equals(getSimpleName()));
-        Validate.isTrue(!sf.getParametersSignature().equals(getParametersSignature()));  // toString optim.
+        Validate.isTrue(!sf.getParametersSignature().equals(getParametersSignature()), "Failed overwrite function, same signature.");  // toString optim.
 
         if (nextOverwriteFunc == null) {
             nextOverwriteFunc = sf;

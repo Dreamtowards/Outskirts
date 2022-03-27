@@ -188,10 +188,10 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
             } else {
                 typ = (SymbolClass) sv.getType();
             }
-            Symbol ms = typ.getSymbolTable().resolveMember(a.getIdentifier());
 
+            Symbol ms = a.getSymbol();
             if (ms instanceof SymbolVariable) {
-                int off = typ.memoffset(a.getIdentifier());
+                int off = typ.fieldoff(a.getIdentifier());
                 if (sv.hasAddress() || a.isArrow()) {  // ptr offset.
                     buf._ldc_i(off);
                     buf._add_i32();

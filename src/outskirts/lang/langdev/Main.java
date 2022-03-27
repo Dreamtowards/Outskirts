@@ -22,7 +22,23 @@ public class Main {
     public static Map<String, SymbolFunction> compiledfuncs = new HashMap<>();
 //    public static Scope glob;
 
+    static class Par {
+        int abc = 2;
+        void doSth() {
+            System.out.println("Par");
+        }
+    }
+    static class Sub extends Par {
+        int abc = 3;
+        void doSth() {
+            System.out.println("Sub");
+        }
+    }
+
     public static void main(String[] args) throws IOException {
+
+        Sub s = new Sub();
+        ((Par)s).doSth();
 
 //        Lexer l = new Lexer();
 //        l.appendsource("(s.length() == this->length()) && (this->find(s) == 0)");
@@ -38,6 +54,7 @@ public class Main {
         for (String cp : Arrays.asList(
                 "stl/lang/System.g",
                 "stl/lang/String.g",
+                "stl/math/vec2.g",
                 "itptr.g"
         )) {
             // Lex

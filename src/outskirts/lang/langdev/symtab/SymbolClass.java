@@ -1,5 +1,6 @@
 package outskirts.lang.langdev.symtab;
 
+import org.lwjgl.Sys;
 import outskirts.lang.langdev.ast.AST_Stmt_DefClass;
 import outskirts.lang.langdev.compiler.ClassFile;
 import outskirts.util.CollectionUtils;
@@ -12,6 +13,8 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
 //    public SymbolVariable standardInstanced = new SymbolVariable("<any:this>", this, this);
 
     public Scope symtab;
+
+    public List<SymbolClass> superClasses = new ArrayList<>();
 
 //    public ClassFile compiledclfile;
 
@@ -59,28 +62,33 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         return symtab;
     }
 
-    private static final int OBJECT_HEADER_SIZE = 0;
-
-    public int memoffset(String flname) {
-        int size = OBJECT_HEADER_SIZE;
-        for (Symbol s : getSymbolTable().getMemberSymbols()) {
+    public int fieldoff(String flname) {
+        int size = 0;
+        for (Symbol s : getSymbolTable().getLocalSymbols()) {
             if (s instanceof SymbolVariable) {
                 if (s.getSimpleName().equals(flname))
                     return size;
-                size += ((SymbolVariable)s).type.getTypesize();
+                size += ((SymbolVariable)s).getType().getTypesize();
             }
         }
-        throw new NoSuchElementException();
+        for (SymbolClass cl : superClasses) {
+            try {
+                return size+cl.fieldoff(flname);
+            } catch (Exception ex) { }  // bad example.
+        }
+        throw new NoSuchElementException("Not found field: "+flname);
     }
 
     @Override
     public int getTypesize() {
-        int size = OBJECT_HEADER_SIZE;
-        for (Symbol s : getSymbolTable().getMemberSymbols()) {
+        int size = 0;
+        for (Symbol s : getSymbolTable().getLocalSymbols()) {
             if (s instanceof SymbolVariable) {
-                SymbolVariable c = (SymbolVariable)s;
-                size += c.getType().getTypesize();
+                size += ((SymbolVariable)s).getType().getTypesize();
             }
+        }
+        for (SymbolClass cl : superClasses) {
+            size += cl.getTypesize();
         }
         return size;
     }

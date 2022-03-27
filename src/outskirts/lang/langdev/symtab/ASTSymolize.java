@@ -107,25 +107,26 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         AST_Expr expr = a.getExpression();
         expr.acceptvisit(this, p);
 
-        Symbol s = expr.getSymbol();
+        Symbol ls = expr.getSymbol();
         ScopedSymbol lp;
         if (a.isArrow()) {
-            SymbolBuiltinTypePointer ptr = (SymbolBuiltinTypePointer)((SymbolVariable)s).getType();
+            SymbolBuiltinTypePointer ptr = (SymbolBuiltinTypePointer)((SymbolVariable)ls).getType();
             lp = (ScopedSymbol)ptr.getPointerType();
-        } else if (s instanceof SymbolVariable) {  // access from Instance.
-            lp = (ScopedSymbol)((SymbolVariable)s).getType();
+        } else if (ls instanceof SymbolVariable) {  // access from Instance.
+            lp = (ScopedSymbol)((SymbolVariable)ls).getType();
         } else {  // SymbolNamespace, SymbolClass
-            lp = (ScopedSymbol)s;
+            lp = (ScopedSymbol)ls;
         }
 
-        Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());
-        if (ms instanceof SymbolVariable && s instanceof SymbolVariable) {
+        Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());  // inheritance search.
+        Objects.requireNonNull(ms);
+        if (ms instanceof SymbolVariable && ls instanceof SymbolVariable) {
             TypeSymbol typ = ((SymbolVariable)ms).getType();
             if (a.isArrow()) {
                 a.setExprSymbol(typ.lvalue());
             } else {
                 // val.memb;  when left expr is rval, access expr are rval.
-                a.setExprSymbol(typ.valsym(((SymbolVariable)s).hasAddress()));
+                a.setExprSymbol(typ.valsym(((SymbolVariable)ls).hasAddress()));
             }
         } else {
             // Namespace.. or expr.func(), expr->func().
@@ -133,9 +134,9 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         }
 
         // validate static access.
-        if (s instanceof SymbolVariable) {  // access from Instance. required non-static access.
+        if (ls instanceof SymbolVariable) {  // access from Instance. required non-static access.
             Validate.isTrue(!((ModifierSymbol)a.getExprSymbol()).isStatic());
-        } else if (s instanceof SymbolClass) {  // access from LiteralType.  required static-access.
+        } else if (ls instanceof SymbolClass) {  // access from LiteralType.  required static-access.
             Validate.isTrue(((ModifierSymbol)a.getExprSymbol()).isStatic());
         }
     }
@@ -340,26 +341,26 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         //
         // Validate.isTrue(a.getGenericsParameters().size() == a.tmpGenericsArguments.size());
 
-        boolean isBuildingGenericsInstance = !a.getGenericsParameters().isEmpty() && a.tmpGenericsArguments != null;
+        boolean instancingGenerics = !a.getGenericsParameters().isEmpty() && a.tmpGenericsArguments != null;
 
         Scope stClass = new Scope(_p);
         SymbolClass sc = new SymbolClass(a.getSimpleName(), stClass);
         stClass.setAssociatedSymbol(sc);   // before member. members need link the owner_class.
         a.sym = sc;
-        if (!isBuildingGenericsInstance)
+        if (!instancingGenerics)  // don't define instanced generics.
             _p.define(sc);  // before member. member should be able lookup enclosing class symbol.
 
+        // if there is a generics-prototype, just save AST, not analysis. since it's not been filled yet.
         boolean isGenericsPrototype = !a.getGenericsParameters().isEmpty() && a.tmpGenericsArguments == null;
         if (isGenericsPrototype) {
             sc.theGenericsPrototypeAST = a;
             return;
         }
 
-        if (isBuildingGenericsInstance) {
+        if (instancingGenerics) {
             for (int i = 0;i < a.getGenericsParameters().size();i++) {
                 stClass.defineAsCustomName(a.getGenericsParameters().get(i).getName(), a.tmpGenericsArguments.get(i));
             }
-
             Validate.isTrue(a.tmpGenericsArguments != null);
             a.tmpGenericsArguments = null;  // consumed.
             a.tmpGenericsInstance = sc;
@@ -367,6 +368,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         for (AST_Expr supTyp : a.getSuperTypeExpressions()) {
             supTyp.acceptvisit(this, stClass);
+            sc.superClasses.add((SymbolClass)supTyp.getTypeSymbol());
         }
 
         for (AST_Stmt clStmt : a.getMembers()) {
@@ -470,7 +472,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
     public void visitStmtNamespace(AST_Stmt_Namespace a, Scope _p) {
         Scope lp = _p;
 
-        for (String nm : StringUtils.explode(LxParser._ExpandQualifiedName(a.getNameExpression()), ".")) {
+        for (String nm : LxParser._ExpandQualifiedName(a.getNameExpression(), new ArrayList<>())) {
             SymbolNamespace ns = (SymbolNamespace)lp.findLocalSymbol(nm);
             if (ns != null) {
                 lp = ns.getSymbolTable();

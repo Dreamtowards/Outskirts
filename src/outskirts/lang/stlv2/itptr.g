@@ -1,33 +1,113 @@
 
 using stl::lang::System;
 using stl::lang::String;
+using stl::math::vec2;
+
+// using ots::gui::GuiRoot;
+// using ots::graphics::RenderEngine;
+
+//using outskirts::client::gui::ex::GuiRoot;
+//using outskirts::client::render::renderer::RenderEngine;
+
+// using outskirts.client.gui.ex.GuiRoot;
+// using outskirts.client.render.renderer.RenderEngine;
 
 namespace test;
 
-class vec2<T> {
-    T x;
-    T y;
+class Entity {
 
-    T sum() {
-        return this->x;
-    }
+    int x;
+    int y;
+    int z;
+
+}
+
+class EntitySheep : Entity {
+
+    int color;
+
 }
 
 class _Main {
 
-    static int running;
+    static void main() {
 
-    bool tes1;
+        EntitySheep es;
+        es.color = 1;
+        es.x = 5;
+        es.y = 6;
+        es.z = 7 + es.y;
+
+        int s = sizeof(EntitySheep);
+
+
+
+    }
+
+}
+
+
+/*
+
+    int running = false;
+    
+    AudioEngine audioEngine;
+    RenderEngine renderEngine;
+
+    WorldClient world;
+    EntityPlayerSP player;
+
+    GuiRoot rootGui;
+    Camera camera;
+    Timer timer;
+    Window window;
+    RayPicker rayPicker;
+
+    Thread thread;
+    ThreadWorker threadWorker;
+
+    Profiler profiler;
+
+    void run() {
+
+        start();
+
+        while (running)
+        {
+            runMainLoop();
+        }
+
+        destroy();
+
+    }
+
+    void start() {
+
+        running = true;
+
+        // load mods
+
+
+
+    }
+
+    void runMainLoop() {
+
+
+
+    }
+
+    void destroy() {
+
+    }
 
     static void main() {
 
-       // getstatic Classname::sfieldname
-       // getaddr STATIC_BASE+idxOffset("Classname::sfieldname")
-        int i2 = 0;
-        String::asv = 6;
-        int b = String::asv;
 
-        /* String s1;
+
+
+
+        String s1;
         s1.base = " kabcTex234";
 
 
@@ -36,11 +116,10 @@ class _Main {
         int id = s1.find(s2);
 
 
-        /*
+
         String v = s2.repeat(3);
         int len = v.length();
 
-/*
         vec2<int> v;
         v.x = 8;
         v.y = 9;
@@ -55,9 +134,7 @@ class _Main {
         int sz1 = sizeof(vec2<int>);
         int sz2 = sizeof(vec2<byte>);
         int sz3 = sizeof(vec2i);
-*/
 
-/*
         v.x = 8;
         v.y = 9;
 
@@ -68,7 +145,10 @@ class _Main {
 
         string s = string();
         s.hash = 21;
-        s.base = "okStr";*/
+        s.base = "okStr";
 
     }
 }
+
+
+*/

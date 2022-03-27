@@ -94,12 +94,13 @@ public final class LxParser {
         }
     }
 
-    public static String _ExpandQualifiedName(AST_Expr e) {
-        if (e instanceof AST_Expr_MemberAccess) {
-            AST_Expr_MemberAccess c = (AST_Expr_MemberAccess)e;
-            return _ExpandQualifiedName(c.getExpression()) + "." + c.getIdentifier();
+    public static List<String> _ExpandQualifiedName(AST_Expr e, List<String> ls) {
+        if (e instanceof AST_Expr_MemberAccess c) {
+            ls.add(0, c.getIdentifier());
+            return _ExpandQualifiedName(c.getExpression(), ls);
         } else {
-            return ((AST_Expr_PrimaryIdentifier)e).getName();
+            ls.add(0, ((AST_Expr_PrimaryIdentifier)e).getName());
+            return ls;
         }
     }
 
