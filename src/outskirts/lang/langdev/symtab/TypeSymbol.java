@@ -23,7 +23,7 @@ public interface TypeSymbol extends Symbol {
         if (v != null)
             return v;
 
-        v = new SymbolVariable(null, this, (short)0, hasAddr);
+        v = new SymbolVariable(null, this, (short)0, hasAddr); // todo: Modifiers Loses???
         _CACHED.put(k, v);
         return v;
     }

@@ -22,9 +22,26 @@ class Entity {
 
 }
 
-class EntitySheep : Entity {
+// todo: no-duplicated super types, abstract function;
+// primitive inline flat plain immediate struct
+class Savable {
+
+    int save() {
+        return 2;
+    }
+
+    static int getInt(int i) {
+        return 9+i;
+    }
+}
+
+class EntitySheep : Entity, Savable {
 
     int color;
+
+    int save(int e) {
+        return 3;
+    }
 
 }
 
@@ -36,10 +53,19 @@ class _Main {
         es.color = 1;
         es.x = 5;
         es.y = 6;
-        es.z = 7 + es.y;
+        es.z = 7 + es.x;
 
-        int s = sizeof(EntitySheep);
+        int thei = es.save(2);
 
+        // Entity* ths = (Entity*)&es;
+
+        // EntitySheep* sp = (EntitySheep*)ths;
+        // int k = sp->y;
+
+        // int s = sizeof(EntitySheep);
+        // int i = EntitySheep::getInt(2);
+        // int n = ((Savable*)&es)->save();
+        // int n2 = Savable::save((Savable*)&es);
 
 
     }

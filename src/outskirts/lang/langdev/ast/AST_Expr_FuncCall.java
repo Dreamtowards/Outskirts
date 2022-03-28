@@ -7,7 +7,9 @@ import outskirts.lang.langdev.symtab.SymbolVariable;
 import outskirts.lang.langdev.symtab.TypeSymbol;
 import outskirts.util.CollectionUtils;
 import outskirts.util.StringUtils;
+import outskirts.util.Validate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AST_Expr_FuncCall extends AST_Expr {
@@ -31,23 +33,31 @@ public class AST_Expr_FuncCall extends AST_Expr {
         return args;
     }
 
-    // corespounding to SymbolFunction::getParameterSignature
-    public String getParameterSignature() {
-        String opticalThis = null;
+//    public List<AST_Expr> getArgumentsIncludeInstanceCaller() {
+//        if (getExpression() instanceof AST_Expr_MemberAccess ma &&  // member-access
+//            ma.getSymbol() instanceof SymbolFunction sf) {  // instance
+//            Validate.isTrue(!sf.isStatic());
+//            return CollectionUtils.asList(ma.getExpression(), args);
+//        }
+//        return args;
+//    }
 
-        // Dont forget, the instance-call, need plus the 'this' parameter.
-        if (getExpression() instanceof AST_Expr_MemberAccess) {
-            AST_Expr_MemberAccess macc = (AST_Expr_MemberAccess)getExpression();
-            // a.func(1);
-            if (macc.getSymbol() instanceof SymbolFunction &&
-                macc.getExpression().getSymbol() instanceof SymbolVariable) {  // enough! why so many patches there?
-                TypeSymbol instType = macc.getExpression().getVarTypeSymbol();
-                TypeSymbol thisType = macc.isArrow() ? instType : SymbolBuiltinTypePointer.of(instType);  // arraw: left side already is the pointer
-                opticalThis = thisType.getQualifiedName();
-            }
+    // corespounding to SymbolFunction::getParameterSignature
+    public List<TypeSymbol> getParameterSignature() {
+        List<TypeSymbol> ls = new ArrayList<>();
+        for (AST_Expr a : getArguments()) {
+            ls.add(a.getVarTypeSymbol());
         }
-        return StringUtils.concat(opticalThis, ",",
-                CollectionUtils.toString(getArguments(), ",", e -> e.getVarTypeSymbol().getQualifiedName())
-        );
+        // adding 'this' of Variable-Call, var.func() put the 'var' as 'this' parameter of the func.
+        if (getExpression() instanceof AST_Expr_MemberAccess ma &&
+            ma.getExpression().getSymbol() instanceof SymbolVariable &&
+            ma.getSymbol() instanceof SymbolFunction fn &&
+            !fn.isStatic()) {
+
+            TypeSymbol typ = ma.getExpression().getVarTypeSymbol();
+            TypeSymbol ptr = ma.isArrow() ? typ : SymbolBuiltinTypePointer.of(typ);  // arraw: left side already is the pointer
+            ls.add(0, ptr);
+        }
+        return ls;
     }
 }

@@ -107,7 +107,7 @@ public final class Scope {
             return s;
         // search for super-classes
         if (getAssociatedSymbol() instanceof SymbolClass) {
-            for (SymbolClass sup : ((SymbolClass) getAssociatedSymbol()).superClasses) {
+            for (SymbolClass sup : ((SymbolClass)getAssociatedSymbol()).getSuperClasses()) {
                 s = sup.getSymbolTable().resolveMember(name);
                 if (s != null)
                     return s;

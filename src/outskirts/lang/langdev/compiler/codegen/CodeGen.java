@@ -138,20 +138,38 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
         AST_Expr expr = a.getExpression();
         expr.acceptvisit(this, buf);  // currently, cast only symbol cast. then just pass.
 
-        TypeSymbol srctyp = expr.getVarTypeSymbol();
-        TypeSymbol dsttyp = a.getType().getTypeSymbol();
-        if (srctyp == _i8 && dsttyp == _i32) {
+        TypeSymbol tsrc = expr.getVarTypeSymbol();
+        TypeSymbol tdst = a.getType().getTypeSymbol();
+        if (tsrc == _i8 && tdst == _i32) {
             lvalue2rvalue(buf, expr);
             buf._cast_i8_i32();
-        } else if (srctyp == _i32 && dsttyp == _i8) {
+        } else if (tsrc == _i32 && tdst == _i8) {
             lvalue2rvalue(buf, expr);
             buf._cast_i32_i8();
-        } else if (srctyp instanceof SymbolBuiltinTypePointer && dsttyp == _i32 ||
-                   srctyp == _i32 && dsttyp instanceof SymbolBuiltinTypePointer ||
-                   srctyp == _i8 && dsttyp == _bool) {
+        } else if (tsrc instanceof SymbolBuiltinTypePointer && tdst == _i32 ||
+                   tsrc == _i32 && tdst instanceof SymbolBuiltinTypePointer ||
+                   tsrc == _i8 && tdst == _bool) {
             lvalue2rvalue(buf, expr);
+        } else if (tdst instanceof SymbolBuiltinTypePointer dstp && tsrc instanceof SymbolBuiltinTypePointer srcp) {
+            SymbolClass dstpt = (SymbolClass)dstp.getPointerType();
+            SymbolClass exppt = (SymbolClass)srcp.getPointerType();
+            int off = exppt.calcBaseTypeOffset(dstpt);
+            if (off != -1) {  // (Object*)(Sub*)
+                // +off to super
+                lvalue2rvalue(buf, expr);
+                buf._ldc_i(off);
+                buf._add_i32();
+            } else if ((off=dstpt.calcBaseTypeOffset(exppt)) != -1) {  // (Sub*)(Object*)
+                // -off to sub
+                System.out.println("Off To Sub: "+(-off));
+                lvalue2rvalue(buf, expr);
+                buf._ldc_i(-off);
+                buf._add_i32();
+            } else {
+                throw new IllegalStateException("Illegal cast. no subordinary relation.");
+            }
         } else {
-            Validate.isTrue(srctyp == dsttyp);
+            Validate.isTrue(tsrc == tdst);
         }
     }
 
@@ -191,7 +209,7 @@ public class CodeGen implements ASTVisitor<CodeBuf> {
 
             Symbol ms = a.getSymbol();
             if (ms instanceof SymbolVariable) {
-                int off = typ.fieldoff(a.getIdentifier());
+                int off = typ.calcFieldOffset(a.getIdentifier());
                 if (sv.hasAddress() || a.isArrow()) {  // ptr offset.
                     buf._ldc_i(off);
                     buf._add_i32();

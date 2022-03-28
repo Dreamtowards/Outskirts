@@ -1,9 +1,6 @@
 package outskirts.lang.langdev.ast;
 
-import outskirts.lang.langdev.symtab.Symbol;
-import outskirts.lang.langdev.symtab.SymbolGenericsTypeParameter;
-import outskirts.lang.langdev.symtab.SymbolVariable;
-import outskirts.lang.langdev.symtab.TypeSymbol;
+import outskirts.lang.langdev.symtab.*;
 import outskirts.util.Validate;
 
 import java.util.Objects;
@@ -51,5 +48,8 @@ public abstract class AST_Expr extends AST {
     public final TypeSymbol getVarTypeSymbol() { return getVarSymbol().getType(); }
     public final SymbolVariable getVarSymbol() {
         return (SymbolVariable)getSymbol();
+    }
+    public final ModifierSymbol getModifierSymbol() {
+        return (ModifierSymbol)getSymbol();
     }
 }

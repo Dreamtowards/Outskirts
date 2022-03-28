@@ -6,15 +6,13 @@ import outskirts.lang.langdev.ast.astvisit.ASTVisitor;
 import outskirts.lang.langdev.compiler.ConstantPool;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.lang.langdev.compiler.codegen.CodeGen;
+import outskirts.lang.langdev.lexer.Lexer;
 import outskirts.lang.langdev.parser.LxParser;
-import outskirts.util.CollectionUtils;
-import outskirts.util.StringUtils;
 import outskirts.util.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static outskirts.lang.langdev.symtab.SymbolBuiltinType.*;
 
@@ -24,6 +22,22 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
     private ASTSymolize() {}
 
+    private SymbolFunction determineFunction(SymbolFunction sf, AST_Expr_FuncCall a) {
+        SymbolFunction out = sf.findOverwrites_PolymorphismTrans(a.getParameterSignature(), a.getArguments());
+        if (out != null)
+            return out;
+
+        // Find Upward. DFS because we care order.
+        for (SymbolClass c : sf.getOwnerClass().getSuperClasses()) {
+            SymbolFunction nextsf = (SymbolFunction)c.getSymbolTable().resolveMember(sf.getSimpleName());
+            if (nextsf != null) {
+                out = determineFunction(nextsf, a);
+                if (out != null)
+                    return out;
+            }
+        }
+        return null;
+    }
 
     @Override
     public void visitExprFuncCall(AST_Expr_FuncCall a, Scope p) {
@@ -37,33 +51,33 @@ public class ASTSymolize implements ASTVisitor<Scope> {
             arg.acceptvisit(this, p);
         }
 
-        if (s instanceof SymbolFunction) {  // Originally 'Exact' Function Calling.  expr_primary.iden(..) | iden(..)
-            // Validate.isTrue(fexpr instanceof AST_Expr_PrimaryIdentifier || fexpr instanceof AST_Expr_MemberAccess);  // meaningless.
-            SymbolFunction sf = (SymbolFunction)s;
-            sf = sf.findOverwriteFunc(a.getParameterSignature());  // findout the Correct Overwrite Function.
-            // Validate.isTrue(sf.getParametersSignature().equals(a.getParameterSignature()));
+        if (s instanceof SymbolFunction sf) {
+            // lookup overwrite.
+            // implicit type cast
+            sf = determineFunction(sf, a);
+            Objects.requireNonNull(sf, "Not found such function.");
             fexpr.setExprSymbol(sf); // Reset Update the Overwritten Symbol
 
             // check args types.
-            List<SymbolVariable> params = sf.getDeclaredParameters();
-            Validate.isTrue(a.getArguments().size() == params.size(), "argument size dismatched.");
-            for (int i = 0;i < a.getArguments().size();i++) {
-                TypeSymbol arg_typ = a.getArguments().get(i).getVarTypeSymbol(), prm_typ = params.get(i).getType();
-                Validate.isTrue(arg_typ == prm_typ, "argument "+(i+1)+" type dismatched. required: "+prm_typ+", actual: "+arg_typ);
-            }
+//            List<SymbolVariable> sParams = sf.getParameters();
+//            List<TypeSymbol> aArgs = a.getParameterSignature();
+//            Validate.isTrue(aArgs.size() == sParams.size(), "argument size dismatched. expect: "+sParams.size()+", actual: "+aArgs.size());
+//            for (int i = 0;i < sParams.size();i++) {
+//                TypeSymbol arg_typ = aArgs.get(i), prm_typ = sParams.get(i).getType();
+//                Validate.isTrue(arg_typ == prm_typ, "argument "+(i+1)+" type dismatched. required: "+prm_typ+", actual: "+arg_typ);
+//            }
 
             // TODO: this check is responsbility of MemberAccess. (static member access check)
             // when a function is static, dont allows it been called from instance context. like: instExpr.stfunc();
             // this may not a good way to check.
-            if (sf.isStatic() && fexpr instanceof AST_Expr_MemberAccess) {
-                // pkg.to.Class.Innr.stFunc();
-                AST_Expr left = ((AST_Expr_MemberAccess)fexpr).getExpression();
-                Validate.isTrue(left.getExprSymbol() instanceof SymbolNamespace ||
-                        left.getExprSymbol() instanceof SymbolClass);  // unavailable check.
-            }
-            if (!sf.isStatic()) {
-                Validate.isTrue(fexpr instanceof AST_Expr_MemberAccess);
-            }
+//            if (sf.isStatic() && fexpr instanceof AST_Expr_MemberAccess) {
+//                // pkg.to.Class.Innr.stFunc();
+//                AST_Expr left = ((AST_Expr_MemberAccess)fexpr).getExpression();
+//                Validate.isTrue(left.getExprSymbol() instanceof SymbolNamespace || left.getExprSymbol() instanceof SymbolClass);  // unavailable check.
+//            }
+//            if (!sf.isStatic()) {
+//                Validate.isTrue(fexpr instanceof AST_Expr_MemberAccess);
+//            }
 
             a.setExprSymbol(sf.getReturnType().rvalue());
         } else if (s instanceof SymbolClass) {  // Construction of Stack-Alloc-Object-Creation.  type(..).
@@ -120,7 +134,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         Symbol ms = lp.getSymbolTable().resolveMember(a.getIdentifier());  // inheritance search.
         Objects.requireNonNull(ms);
-        if (ms instanceof SymbolVariable && ls instanceof SymbolVariable) {
+        if (ls instanceof SymbolVariable && ms instanceof SymbolVariable) {
             TypeSymbol typ = ((SymbolVariable)ms).getType();
             if (a.isArrow()) {
                 a.setExprSymbol(typ.lvalue());
@@ -134,11 +148,11 @@ public class ASTSymolize implements ASTVisitor<Scope> {
         }
 
         // validate static access.
-        if (ls instanceof SymbolVariable) {  // access from Instance. required non-static access.
-            Validate.isTrue(!((ModifierSymbol)a.getExprSymbol()).isStatic());
-        } else if (ls instanceof SymbolClass) {  // access from LiteralType.  required static-access.
-            Validate.isTrue(((ModifierSymbol)a.getExprSymbol()).isStatic());
-        }
+        if (ls instanceof SymbolVariable && a.getModifierSymbol().isStatic())  // access from Instance. required non-static access.
+            throw new IllegalStateException("Refuse accessing static member from SymbolVariable.");
+//        if (ls instanceof SymbolClass && !a.getModifierSymbol().isStatic()) {  // access from LiteralType.  required static-access.
+//            Validate.isTrue(((ModifierSymbol)a.getExprSymbol()).isStatic(), "Refuse access non-static member from SymbolClass.");
+//        }
     }
 
     @Override
@@ -308,7 +322,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 //        Validate.isTrue(dst.getTypesize() == sv.getType().getTypesize(), "Cast typesize dismatch.");
 
 //        a.setExprSymbol(dst.valsym(sv.hasAddress()));
-        a.setExprSymbol(dst.rvalue());  // after cast, its been rvalues. e.g. (byte)i
+        a.setSymbol(dst.rvalue());  // after cast, its been rvalues. e.g. (byte)i
     }
 
     @Override
@@ -368,7 +382,7 @@ public class ASTSymolize implements ASTVisitor<Scope> {
 
         for (AST_Expr supTyp : a.getSuperTypeExpressions()) {
             supTyp.acceptvisit(this, stClass);
-            sc.superClasses.add((SymbolClass)supTyp.getTypeSymbol());
+            sc.getSuperClasses().add((SymbolClass)supTyp.getTypeSymbol());
         }
 
         for (AST_Stmt clStmt : a.getMembers()) {

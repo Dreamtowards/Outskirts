@@ -53,6 +53,13 @@ public final class CollectionUtils {
         return ls;
     }
 
+    public static <T> List<T> asList(T a, List<T> b) {
+        List<T> l = new ArrayList<>();
+        l.add(a);
+        l.addAll(b);
+        return l;
+    }
+
     public static float[] toArrayf(List<Float> list) {
         float[] array = new float[list.size()];
         int i = 0;

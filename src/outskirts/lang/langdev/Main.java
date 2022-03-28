@@ -24,21 +24,25 @@ public class Main {
 
     static class Par {
         int abc = 2;
-        void doSth() {
+        void doSth(Object o) {
             System.out.println("Par");
         }
     }
     static class Sub extends Par {
         int abc = 3;
-        void doSth() {
-            System.out.println("Sub");
+//        void doSth(Object s) {
+//            System.out.println("Sub");
+//        }
+
+        void doSth(String o) {
+            super.doSth(o);
         }
     }
 
     public static void main(String[] args) throws IOException {
 
         Sub s = new Sub();
-        ((Par)s).doSth();
+        (s).doSth((String)"s");
 
 //        Lexer l = new Lexer();
 //        l.appendsource("(s.length() == this->length()) && (this->find(s) == 0)");

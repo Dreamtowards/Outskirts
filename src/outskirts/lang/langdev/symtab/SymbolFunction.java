@@ -1,5 +1,8 @@
 package outskirts.lang.langdev.symtab;
 
+import org.lwjgl.Sys;
+import outskirts.lang.langdev.ast.AST_Expr;
+import outskirts.lang.langdev.ast.AST_Expr_TypeCast;
 import outskirts.lang.langdev.ast.AST_Stmt_DefFunc;
 import outskirts.lang.langdev.compiler.codegen.CodeBuf;
 import outskirts.util.CollectionUtils;
@@ -7,6 +10,7 @@ import outskirts.util.Validate;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 // why SymbolFunction is a TypeSymbol..?
 
@@ -42,21 +46,24 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol, Scoped
         this.fnscope = fnscope;
     }
 
-    public String getParametersSignature() {
-        return CollectionUtils.toString(params, ",", e -> e.getType().getQualifiedName());
+    public static String getParametersSignature(List<TypeSymbol> ts) {
+        return CollectionUtils.toString(ts, ",", Symbol::getQualifiedName);
     }
 
     public TypeSymbol getReturnType() {
         return returntype;
     }
 
-    public SymbolClass getOwnerSymbol() {
+    public SymbolClass getOwnerClass() {
         return ownerclass;
     }
 
     // note that not aligned with AST_Expr_FuncCall.getArguments().
     public List<SymbolVariable> getParameters() {
         return params;
+    }
+    public List<TypeSymbol> getParameterTypes() {
+        return params.stream().map(SymbolVariable::getType).collect(Collectors.toList());
     }
     // parameters without 'this'. used for semantic func-call args type-check.
     public List<SymbolVariable> getDeclaredParameters() {
@@ -72,7 +79,7 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol, Scoped
     public String getQualifiedName() {
 //        String[] prms = params.stream().map(p -> p.getType().getQualifiedName() + " "+p.getSimpleName()).toArray(String[]::new);
 //        return ownerclass.getQualifiedName()+"."+getSimpleName()+"("+String.join(",", prms)+"):"+getReturnType().getQualifiedName();
-        return getOwnerSymbol().getQualifiedName()+"::"+getSimpleName()+"("+getParametersSignature()+")";
+        return getOwnerClass().getQualifiedName()+"::"+getSimpleName()+"("+getParametersSignature(getParameterTypes())+")";
     }
 
 //    public SymbolVariable findVariable(Scope s, String name) {
@@ -91,7 +98,7 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol, Scoped
 
     public void defineOverwriteFunc(SymbolFunction sf) {
         Validate.isTrue(sf.getSimpleName().equals(getSimpleName()));
-        Validate.isTrue(!sf.getParametersSignature().equals(getParametersSignature()), "Failed overwrite function, same signature.");  // toString optim.
+        Validate.isTrue(!sf.getParameterTypes().equals(getParameterTypes()), "Failed overwrite function, same signature.");  // toString optim.
 
         if (nextOverwriteFunc == null) {
             nextOverwriteFunc = sf;
@@ -99,13 +106,43 @@ public class SymbolFunction extends BaseSymbol implements ModifierSymbol, Scoped
             nextOverwriteFunc.defineOverwriteFunc(sf);
         }
     }
-    public SymbolFunction findOverwriteFunc(String ps) {
-        if (getParametersSignature().equals(ps))
-            return this;
+
+    public SymbolFunction findOverwrites_PolymorphismTrans(List<TypeSymbol> argts, List<AST_Expr> args_ToTrans) {
+        List<TypeSymbol> prmts = getParameterTypes();
+        if (prmts.size() == argts.size()) {
+            // check Params/Args
+            boolean pass = true;
+            for (int i = 0;i < prmts.size();i++) {
+                TypeSymbol prm = prmts.get(i);
+                TypeSymbol arg = argts.get(i);
+                // both parameter and argument are class-pointer type.
+                if (prm instanceof SymbolBuiltinTypePointer prmptr && arg instanceof SymbolBuiltinTypePointer argptr &&
+                    prmptr.getPointerType() instanceof SymbolClass prmcls && argptr.getPointerType() instanceof SymbolClass argcls) {
+                    if (SymbolClass.isBaseTypeOf(prmcls, argcls)) {  // Compatable! Polymorphism
+                        if (prmcls != argcls && args_ToTrans != null) {  // do the Polymorphism type-cast.
+                            AST_Expr typ = new AST_Expr() {}; typ.setSymbol(prmptr);
+                            AST_Expr_TypeCast acast = new AST_Expr_TypeCast(args_ToTrans.get(i), typ);
+
+                            acast.setSymbol(prmptr.rvalue());  // TypeCast
+                            args_ToTrans.set(i, acast);
+                        }
+                    } else {  // Not compatable.
+                        pass = false;
+                        break;
+                    }
+                } else if (prm != arg) {
+                    pass = false;
+                    break;
+                }
+            }
+            if (pass)
+                return this;
+        }
 
         if (nextOverwriteFunc == null)
-            throw new NoSuchElementException("Not found overwrite func "+getSimpleName()+"("+ps+"). self: "+getParametersSignature());
+            return null;
+//            throw new NoSuchElementException("Not found overwrite func "+getSimpleName()+"("+getParametersSignature(argts)+"). self: ("+getParametersSignature(prmts)+")");
         else
-            return nextOverwriteFunc.findOverwriteFunc(ps);
+            return nextOverwriteFunc.findOverwrites_PolymorphismTrans(argts, args_ToTrans);
     }
 }

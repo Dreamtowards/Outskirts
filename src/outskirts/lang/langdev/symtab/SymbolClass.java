@@ -14,7 +14,10 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
 
     public Scope symtab;
 
-    public List<SymbolClass> superClasses = new ArrayList<>();
+    private List<SymbolClass> superClasses = new ArrayList<>();
+    public List<SymbolClass> getSuperClasses() {
+        return superClasses;
+    }
 
 //    public ClassFile compiledclfile;
 
@@ -62,7 +65,7 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         return symtab;
     }
 
-    public int fieldoff(String flname) {
+    public int calcFieldOffset(String flname) {
         int size = 0;
         for (Symbol s : getSymbolTable().getLocalSymbols()) {
             if (s instanceof SymbolVariable) {
@@ -73,20 +76,41 @@ public class SymbolClass extends BaseSymbol implements ScopedSymbol, TypeSymbol 
         }
         for (SymbolClass cl : superClasses) {
             try {
-                return size+cl.fieldoff(flname);
+                return size+cl.calcFieldOffset(flname);
             } catch (Exception ex) { }  // bad example.
         }
         throw new NoSuchElementException("Not found field: "+flname);
     }
 
-    @Override
-    public int getTypesize() {
+    public int calcBaseTypeOffset(SymbolClass sup) {
+        if (sup == this)
+            return 0;
+        int size = getVariablesSize();
+        for (SymbolClass cl : superClasses) {
+            int i = cl.calcBaseTypeOffset(sup);
+            if (i != -1)
+                return size+i;
+            size += cl.getTypesize();
+        }
+        return -1;
+    }
+    public static boolean isBaseTypeOf(SymbolClass base, SymbolClass sub) {
+        return sub.calcBaseTypeOffset(base) != -1;
+    }
+
+    private int getVariablesSize() {
         int size = 0;
         for (Symbol s : getSymbolTable().getLocalSymbols()) {
-            if (s instanceof SymbolVariable) {
+            if (s instanceof SymbolVariable) { // requires !isStatic()?
                 size += ((SymbolVariable)s).getType().getTypesize();
             }
         }
+        return size;
+    }
+
+    @Override
+    public int getTypesize() {
+        int size = getVariablesSize();
         for (SymbolClass cl : superClasses) {
             size += cl.getTypesize();
         }
