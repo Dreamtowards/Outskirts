@@ -146,6 +146,8 @@ public class Outskirts {
         // Render Phase
         profiler.push("render");
         {
+            renderEngine.prepare();
+
             profiler.push("world");
             if (world != null) {
                 camera.update();
@@ -183,8 +185,6 @@ public class Outskirts {
             renderEngine.fbGUI.pushFramebuffer();
             glClearColor(0, 0, 0, 0);
             glClear(GL_COLOR_BUFFER_BIT);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glDisable(GL_DEPTH_TEST);
             rootGUI.onDraw();

@@ -81,7 +81,6 @@ public final class RenderEngine {
 
     public Framebuffer fbGUI = Framebuffer.glfGenFramebuffer()
             .pushFramebuffer()
-            .resize(1280, 720)
             .attachTextureColor(0, GL_RGBA)
             .checkFramebufferStatus()
             .popFramebuffer();

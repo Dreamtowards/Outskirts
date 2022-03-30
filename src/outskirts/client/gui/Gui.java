@@ -110,8 +110,7 @@ public class Gui {
         gui.broadcaseEvent(new AttachEvent());
         children.add(index, gui);
 
-        if (isWrapChildren())
-            requestLayout();
+        requestLayout();
         requestDraw();
         return gui;
     }
@@ -148,8 +147,7 @@ public class Gui {
         getGui(index).setParent(null);
         Gui removed = children.remove(index);
         removed.broadcaseEvent(new DetachEvent());
-        if (isWrapChildren())
-            requestLayout();
+        requestLayout();
         requestDraw();
         return removed;
     }
@@ -184,9 +182,9 @@ public class Gui {
     }
 
 
-    public boolean isWrapChildren() {
-        return isNaN(width) || isNaN(height);
-    }
+//    public boolean isWrapChildren() {
+//        return isNaN(width) || isNaN(height);
+//    }
 
 
 
