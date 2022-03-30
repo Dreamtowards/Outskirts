@@ -1,6 +1,5 @@
 package outskirts.client.render.renderer.shadow;
 
-import outskirts.client.ClientSettings;
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Texture;
@@ -28,7 +27,7 @@ public class ShadowRenderer extends Renderer {
     private static final int SHADOW_SIZE = 100;
 
     private Framebuffer depthMapFBO = Framebuffer.glfGenFramebuffer()
-                .bindPushFramebuffer()
+                .pushFramebuffer()
                 .resize(SHADOW_RESOLUTION, SHADOW_RESOLUTION)
                 .attachTextureColor(0)
                 .disableColorBuffer()  // not render any Color Data. just depthMap.
@@ -54,7 +53,7 @@ public class ShadowRenderer extends Renderer {
 
 //        shadowDirection.set(Outskirts.getCamera().getCameraUpdater().getDirection());
 
-        depthMapFBO.bindPushFramebuffer();
+        depthMapFBO.pushFramebuffer();
 
         glClear(GL_DEPTH_BUFFER_BIT);
 

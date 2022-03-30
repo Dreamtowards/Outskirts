@@ -10,7 +10,6 @@ import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.Maths;
-import outskirts.util.Val;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -19,8 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.*;
 
+import static java.lang.Float.isNaN;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec4;
-import static outskirts.util.logging.Log.LOGGER;
 
 /**
  * reduce 'builder' style method, its likes convinent, but makes not clean. tends unmaintainable.
@@ -41,21 +40,19 @@ public class Gui {
 
     private Vector2f childrenBound = new Vector2f();
 
-    private boolean focused = false; // focusable
-
-    private boolean hovered = false; // isHovered() setHovered()
-
+    private boolean focused = false; // focusable?
+    private boolean hovered = false;
     private boolean pressed = false;
 
     /** when not VISIBLE, onDraw() will be not exec., and size been zero. */
     private boolean visible = true;
 
-    private boolean clipChildren = false;
+    private boolean clipping = false;
 
     /** efforts to onClickEvent... */
     private boolean enable = true;
 
-    /** just a attachment */
+    /** just an attachment */
     private Object tag;
 
     // they are not tint.(colorMultiply, opacity) cause other renderer would't supports, its high-level stuff
@@ -112,10 +109,14 @@ public class Gui {
         ((Gui)gui).setParent(this);
         gui.broadcaseEvent(new AttachEvent());
         children.add(index, gui);
+
+        if (isWrapChildren())
+            requestLayout();
+        requestDraw();
         return gui;
     }
     public final <T extends Gui> T addGui(T gui) {
-        return addGui(gui, size());
+        return addGui(gui, count());
     }
 
     public final Gui addChildren(Gui... guis) {
@@ -130,13 +131,13 @@ public class Gui {
     }
 
     public final void setGui(int index, Gui gui) {
-        if (index < size()) {
+        if (index < count()) {
             removeGui(index);
         }
         addGui(gui, index);
     }
 
-    public int size() {
+    public int count() {
         return children.size();
     }
 
@@ -147,6 +148,9 @@ public class Gui {
         getGui(index).setParent(null);
         Gui removed = children.remove(index);
         removed.broadcaseEvent(new DetachEvent());
+        if (isWrapChildren())
+            requestLayout();
+        requestDraw();
         return removed;
     }
     public final boolean removeGui(Gui g) {
@@ -156,7 +160,7 @@ public class Gui {
         return true;
     }
     public final void removeAllGuis() {
-        for (int i = size()-1;i >= 0;i--) {
+        for (int i = count()-1; i >= 0; i--) {
             removeGui(i);
         }
     }
@@ -180,6 +184,9 @@ public class Gui {
     }
 
 
+    public boolean isWrapChildren() {
+        return isNaN(width) || isNaN(height);
+    }
 
 
 
@@ -188,6 +195,7 @@ public class Gui {
         return this.x;
     }
     public void setRelativeX(float x) {
+        if (this.x != x) requestLayout();
         this.x = x;
     }
 
@@ -195,6 +203,7 @@ public class Gui {
         return this.y;
     }
     public void setRelativeY(float y) {
+        if (this.y != y) requestLayout();
         this.y = y;
     }
 
@@ -227,21 +236,23 @@ public class Gui {
 
     public float getWidth() {
         if (!isVisible()) return 0;
-        if (Float.isNaN(width)) return childrenBound.x;
+        if (isNaN(width)) return childrenBound.x;
         if (Float.isInfinite(width)) return getParent().getWidth();
         return width;
     }
     public void setWidth(float width) {
+        if (this.width != width) requestLayout();
         this.width = width;
     }
 
     public float getHeight() {
         if (!isVisible()) return 0;
-        if (Float.isNaN(height)) return childrenBound.y;
+        if (isNaN(height)) return childrenBound.y;
         if (Float.isInfinite(height)) return getParent().getHeight();
         return height;
     }
     public void setHeight(float height) {
+        if (this.height != height) requestLayout();
         this.height = height;
     }
 
@@ -258,12 +269,14 @@ public class Gui {
         if (oldFocused != focused) {
             performEvent(new OnFocusChangedEvent());
         }
+        if (oldFocused != focused) requestDraw();
     }
 
     public boolean isEnable() {
         return enable;
     }
     public void setEnable(boolean enable) {
+        if (this.enable != enable) requestDraw();
         this.enable = enable;
     }
 
@@ -276,13 +289,18 @@ public class Gui {
         if (oldVisible != visible) {
             performEvent(new OnVisibleChangedEvent());
         }
+        if (oldVisible != visible) {
+            requestLayout();
+            requestDraw();
+        }
     }
 
-    public boolean isClipChildren() {
-        return clipChildren;
+    public boolean isClipping() {
+        return clipping;
     }
-    public void setClipChildren(boolean clipChildren) {
-        this.clipChildren = clipChildren;
+    public void setClipping(boolean clipping) {
+        if (this.clipping != clipping) requestDraw();
+        this.clipping = clipping;
     }
 
     public Object getTag() {
@@ -303,6 +321,7 @@ public class Gui {
         } else if (oldHovered && !hovered) {
             performEvent(new OnMouseOutEvent());
         }
+        if (oldHovered != hovered) requestDraw();
     }
 
     public boolean isPressed() {
@@ -316,6 +335,7 @@ public class Gui {
         } else if (oldPressed && !pressed) {
             performEvent(new OnReleasedEvent());
         }
+        if (oldPressed != pressed) requestDraw();
     }
 
     @Override
@@ -372,14 +392,19 @@ public class Gui {
         }
     }
 
-    public static void forParents(Gui gfrom, Consumer<Gui> visitor) {
-        visitor.accept(gfrom);
+    public static void forParents(Gui gfrom, Consumer<Gui> visitor, boolean includeSelf) {
+        if (includeSelf)
+            visitor.accept(gfrom);
 
         Gui g = gfrom.getParent();
         if (g != Gui.EMPTY) {
-            forParents(g, visitor);
+            forParents(g, visitor, true);
         }
     }
+    public static void forParents(Gui gfrom, Consumer<Gui> visitor) {
+        forParents(gfrom, visitor, true);
+    }
+
     private static int calcDepth(Gui g) {
         int i = 0;
         while ((g=g.getParent()) != Gui.EMPTY) i++;
@@ -403,8 +428,7 @@ public class Gui {
         if (!isVisible()) return;
 //        _checks_MouseInOut();
 
-        boolean isClip = isClipChildren(); // avoid field dynamic changed
-
+        boolean isClip = isClipping(); // avoid field dynamic changed
         if (isClip)
             GuiRenderer.pushScissor(getX(), getY(), getWidth(), getHeight());
 
@@ -422,24 +446,61 @@ public class Gui {
         performEvent(new OnPostDrawEvent());
     }
 
-    private int cachedvolumehash;
-    private boolean isVolumeChanged() {
-        int h = vec4(getX(),getY(),getWidth(),getHeight()).hashCode() + (isVisible() ? 1 : 0); // child count.?
-        if (cachedvolumehash != h) {
-            cachedvolumehash = h;
-            return true;
+    private boolean layoutRequested = true;  // should reflow/repaint. markLayout()
+
+    public void requestLayout() {
+        layoutRequested = true;
+
+        if (getParent() != EMPTY)
+            getParent().requestLayout();
+    }
+    public boolean isLayoutRequested() {
+        return layoutRequested;
+    }
+    public void finishLayout() {
+        layoutRequested = false;
+        for (Gui g : getChildren()) {
+            g.finishLayout();
         }
-        return false;
     }
-    public static boolean hasVolumeChanged() {
-        Val v = Val.zero();
-        forChildren(getRootGUI(), g -> {
-            // Needs Full-through volume-cache-update. dont early exit. otherwise it will cause a lot of onLayout calls.
-            if (g.isVolumeChanged())
-                v.val = 1;
-        });
-        return v.val > 0;
+
+    private boolean drawRequested = true;
+
+    public void requestDraw() {
+        drawRequested = true;
+
+        if (getParent() != EMPTY)
+            getParent().requestDraw();
     }
+    public boolean isDrawRequested() {
+        return drawRequested;
+    }
+    public void finishDraw() {
+        drawRequested = false;
+        for (Gui g : getChildren()) {
+            g.finishDraw();
+        }
+    }
+
+
+    //    private int cachedvolumehash;
+//    private boolean isVolumeChanged() {  // hasAppearanceChange()
+//        int h = vec4(getX(),getY(),getWidth(),getHeight()).hashCode() + (isVisible() ? 1 : 0); // child count.?
+//        if (cachedvolumehash != h) {
+//            cachedvolumehash = h;
+//            return true;
+//        }
+//        return false;
+//    }
+//    public static boolean hasVolumeChanged() {  // markDirty() from subs. isDirty()
+//        Val v = Val.zero();
+//        forChildren(getRootGUI(), g -> {
+//            // Needs Full-through volume-cache-update. dont early exit. otherwise it will cause a lot of onLayout calls.
+//            if (g.isVolumeChanged())
+//                v.val = 1;
+//        });
+//        return v.val > 0;
+//    }
 
     public final void onLayout() {
         if (!isVisible()) return;
@@ -451,16 +512,20 @@ public class Gui {
         for (Gui child : children)
             child.onLayout();
 
-        _doSizeWrapChildren();
+        if (isNaN(width) || isNaN(height))
+            _updateChildrenBound();
     }
 
-    private void _doSizeWrapChildren() {
+    private void _updateChildrenBound() {
         float mxxs=0, mxys=0;
         for (Gui g : children) {
             mxxs = Math.max(mxxs, g.getRelativeX()+g.getWidth());
             mxys = Math.max(mxys, g.getRelativeY()+g.getHeight());
         }
-        childrenBound.set(mxxs, mxys);
+        if (childrenBound.x != mxxs || childrenBound.y != mxys) {
+            childrenBound.set(mxxs, mxys);
+            requestLayout();
+        }
     }
 
 
@@ -482,10 +547,10 @@ public class Gui {
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui{
         Gui.forChildren(this, g -> {
-            if (g.isVisible()) {
+            if (g.isVisible()) {  // Only Post to isVisible() Guis.
                 g.performEvent(event);
             }
-        }); // Only Post to isVisible() Guis.
+        });
         return Cancellable.isCancelled(event);
     }
 
@@ -632,28 +697,28 @@ public class Gui {
     // AlignParentLTRB
     public final void addLayoutorAlignParentLTRB(float left, float top, float right, float bottom) { // in "pixels". param-b can be NaN. i.e. not to set.
         addOnLayoutListener(e -> {
-            if (!Float.isNaN(left)) setRelativeX(left);
-            if (!Float.isNaN(top)) setRelativeY(top);
+            if (!isNaN(left)) setRelativeX(left);
+            if (!isNaN(top)) setRelativeY(top);
 
-            if (!Float.isNaN(right)) {
-                if (!Float.isNaN(left)) setWidth(getParent().getWidth() - (right+left));
+            if (!isNaN(right)) {
+                if (!isNaN(left)) setWidth(getParent().getWidth() - (right+left));
                 else setRelativeX(getParent().getWidth() - (right+getWidth()));
             }
-            if (!Float.isNaN(bottom)) {
-                if (!Float.isNaN(top)) setHeight(getParent().getHeight() - (top+bottom));
+            if (!isNaN(bottom)) {
+                if (!isNaN(top)) setHeight(getParent().getHeight() - (top+bottom));
                 else setRelativeY(getParent().getHeight() - (bottom+getHeight()));
             }
         });
     }
     public final void addLayoutorAlignParentRR(float rx, float ry, float rwidth, float rheight) { // RestRatio. 0:left, 0.5f:mid, 1:right
         addOnLayoutListener(e -> {
-            if (!Float.isNaN(rx))
+            if (!isNaN(rx))
                 setRelativeX((getParent().getWidth()-getWidth())*rx);
-            if (!Float.isNaN(ry))
+            if (!isNaN(ry))
                 setRelativeY((getParent().getHeight()-getHeight())*ry);
-            if (!Float.isNaN(rwidth))
+            if (!isNaN(rwidth))
                 setWidth(getParent().getWidth() * rwidth);
-            if (!Float.isNaN(rheight))
+            if (!isNaN(rheight))
                 setHeight(getParent().getHeight() * rheight);
         });
     }

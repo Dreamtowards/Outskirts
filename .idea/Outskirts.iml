@@ -8,11 +8,8 @@
       <excludeFolder url="file://$MODULE_DIR$/.idea/_eo" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/_schedu" />
       <excludeFolder url="file://$MODULE_DIR$/src/ext/test" />
-<<<<<<< Updated upstream
-=======
       <excludeFolder url="file://$MODULE_DIR$/src/outskirts/lang/g1" />
       <excludeFolder url="file://$MODULE_DIR$/src/outskirts/lang" />
->>>>>>> Stashed changes
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

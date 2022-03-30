@@ -9,11 +9,11 @@ import java.util.List;
 public final class GuiRoot extends Gui {
 
     public final void removeLastGui() {
-        removeGui(size()-1);
+        removeGui(count()-1);
     }
 
     public final Gui getLastGui() {
-        return getGui(size()-1);
+        return getGui(count()-1);
     }
 
     @Override
@@ -34,60 +34,51 @@ public final class GuiRoot extends Gui {
         return Outskirts.getHeight();
     }
 
-    private static Gui findHoveredChild(Gui parent) {
-        if (Outskirts.isIngame())  // is that right.?!
+    private static Gui findHovered(Gui g) {
+        if (!Gui.isMouseOver(g))
             return null;
-        Gui hovered = null;
-        for (Gui child : parent.getChildren()) {
-            if (Gui.isMouseOver(child)) {
-                hovered = child;
-                Gui childHovered = findHoveredChild(child);
-                if (childHovered != null)
-                    hovered = childHovered;
-            }
+        for (int i = g.count()-1; i >= 0; i--) {
+            Gui hc = findHovered(g.getGui(i));
+            if (hc != null)
+                return hc;
         }
-        return hovered;
+        return g;
     }
 
 
     {
-        // refreshHovered() onDraw may better effects, thats in-time, when mouse stay but ui moveing, still working good.
-//        addOnDrawListener(e -> {
-//            refreshHovers();
-//        });
-
         addMouseButtonListener(e -> {
-            if (e.getMouseButton() == 0 && !e.getButtonState()) {
-                performOnClickeds();
+            if (!Outskirts.isIngame() && e.getMouseButton() == 0 && !e.getButtonState()) {
+                performOnClicks();
             }
         });
     }
 
-    // refreshHovered() call onDraw() can correctly detect when mouse-stay but ui-moving.
+    // refreshHovered() invoke from onDraw() can correctly detect when mouse-stay but ui-moving.
     // should call before do layout. cuz layout may change during refreshHovrs(). (MouseIn/Out Events..)
-    public static void refreshHovers() {
-        Gui hoveredGui = findHoveredChild(Outskirts.getRootGUI());
-        List<Gui> hoveredGuis = new ArrayList<>();
+    public static void updateHovers() {
+        Gui dst = findHovered(Outskirts.getRootGUI());
+        List<Gui> hovers = new ArrayList<>();
 
-        if (hoveredGui != null) {
-            Gui.forParents(hoveredGui, g -> {
+        if (dst != null) {
+            Gui.forParents(dst, g -> {
                 g.setHover(true);
-                hoveredGuis.add(g);
+                hovers.add(g);
             });
         }
 
         Gui.forChildren(Outskirts.getRootGUI(), g -> {
-            if (!hoveredGuis.contains(g))
+            if (!hovers.contains(g))
                 g.setHover(false);
         });
     }
 
-    private static void performOnClickeds() {
-        Gui targ = findHoveredChild(Outskirts.getRootGUI());
-        if (targ == null)
+    private static void performOnClicks() {
+        Gui dst = findHovered(Outskirts.getRootGUI());
+        if (dst == null)
             return;
 
-        Gui.forParents(targ, g -> {
+        Gui.forParents(dst, g -> {
             if (g.isEnable() && g.isPressed()) {
                 g.performEvent(new OnClickEvent());
             }

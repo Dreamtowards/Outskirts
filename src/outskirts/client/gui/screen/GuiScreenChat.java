@@ -14,9 +14,7 @@ import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2f;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -105,7 +103,7 @@ public class GuiScreenChat extends Gui {
                         tabItemIdx = -1;
                     } else {
                         boolean matched = false;
-                        for (int i = 0; i < completeLs.size(); i++) {
+                        for (int i = 0; i < completeLs.count(); i++) {
                             if (tabCompleteItem(i).startsWith(inputPrefix)) {
                                 tabItemIdx = i; matched=true;
                                 break;
@@ -115,7 +113,7 @@ public class GuiScreenChat extends Gui {
                             tabItemIdx=-1;
                     }
                     // update CompleteList item display status. selected/ same-prefix.
-                    for (int i = 0;i < completeLs.size();i++) {
+                    for (int i = 0; i < completeLs.count(); i++) {
                         GuiText gText = completeLs.getGui(i);
                         boolean samepref = tabCompleteItem(i).startsWith(inputPrefix);
                         boolean selected = i==tabItemIdx;
@@ -137,7 +135,7 @@ public class GuiScreenChat extends Gui {
                                 Outskirts.getRootGUI().removeGui(this);
                                 break;
                             case KEY_TAB:
-                                if (completeLs.size() == 0) {
+                                if (completeLs.count() == 0) {
                                     updateTabComplete();
                                     tbInputBox.getText().performEvent(new GuiText.OnTextChangedEvent());
                                 } else {
@@ -145,7 +143,7 @@ public class GuiScreenChat extends Gui {
                                     int start = tabCompleteStartIndex();
                                     if (tabItemIdx==-1 || tabCompleteInputPrefix().equals(tabCompleteItem(tabItemIdx))) {
                                         tabItemIdx++;
-                                        tabItemIdx %= completeLs.size();
+                                        tabItemIdx %= completeLs.count();
                                     }
                                     String comp = tabCompleteItem(tabItemIdx);
                                     tbInputBox.texts(line.substring(0, start) + comp + line.substring(tabCompleteEndIndex()));

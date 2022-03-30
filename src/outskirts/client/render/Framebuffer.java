@@ -41,7 +41,7 @@ public final class Framebuffer {
         glViewport(0, 0, width, height);
         return this;
     }
-    public Framebuffer bindPushFramebuffer() {
+    public Framebuffer pushFramebuffer() {
         stackFramebuffer.push(this);
         doBindFramebuffer();
         return this;

@@ -43,7 +43,7 @@ public class GuiMap extends GuiDrag {
 
             currentMapOffset.addScaled(t, new Vector2f(currentBlock).negate());
         });
-        setClipChildren(true);
+        setClipping(true);
 
         addOnAttachListener(e -> {
             Outskirts.getWorld().getLoadedChunks().forEach(this::loadChunkImage);

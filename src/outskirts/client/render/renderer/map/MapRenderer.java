@@ -1,8 +1,6 @@
 package outskirts.client.render.renderer.map;
 
-import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
-import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.RenderEngine;
@@ -16,9 +14,6 @@ import outskirts.world.chunk.Chunk;
 
 import java.awt.image.BufferedImage;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class MapRenderer extends Renderer {
@@ -29,7 +24,7 @@ public class MapRenderer extends Renderer {
     );
 
     private Framebuffer fbChunk = Framebuffer.glfGenFramebuffer()
-            .bindPushFramebuffer()
+            .pushFramebuffer()
             .resize(128, 128)
             .attachTextureColor(0)
             .attachTextureDepth()
@@ -42,7 +37,7 @@ public class MapRenderer extends Renderer {
 
     public BufferedImage render(Chunk chunk) {
 
-        fbChunk.bindPushFramebuffer();
+        fbChunk.pushFramebuffer();
         Outskirts.renderEngine.prepare();
 
         shader.useProgram();

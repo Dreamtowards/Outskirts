@@ -8,8 +8,6 @@ import outskirts.util.Colors;
 
 import java.util.function.Consumer;
 
-import static outskirts.util.logging.Log.LOGGER;
-
 public class GuiDebugSnapshot extends Gui {
 
 
@@ -18,7 +16,7 @@ public class GuiDebugSnapshot extends Gui {
     }
 
     private static Gui doTree(Gui gui) {
-        return new GuiExpander(String.format("%s%s [%s]", gui.getClass().getSimpleName(), gui.isVisible()?"":" (-)", gui.size())).exec((GuiExpander g) -> {
+        return new GuiExpander(String.format("%s%s [%s]", gui.getClass().getSimpleName(), gui.isVisible()?"":" (-)", gui.count())).exec((GuiExpander g) -> {
             g.getHeader().addOnDrawListener(e -> {
                 if (g.getHeader().isHover()) {
                     Outskirts.getRootGUI().addOnPostDrawListener(new Consumer<OnPostDrawEvent>() {

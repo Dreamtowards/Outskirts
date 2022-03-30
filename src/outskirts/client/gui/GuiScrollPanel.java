@@ -26,7 +26,7 @@ public class GuiScrollPanel extends Gui implements Gui.Contentable {
     }
 
     public GuiScrollPanel() {
-        setClipChildren(true);
+        setClipping(true);
         setContent(new Gui());
 
         addOnLayoutListener(e -> {

@@ -1,14 +1,10 @@
 package outskirts.client;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.PixelFormat;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
@@ -22,24 +18,25 @@ import outskirts.client.render.Camera;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
+import outskirts.event.Events;
+import outskirts.event.client.WindowResizedEvent;
 import outskirts.init.Init;
 import outskirts.mod.Mods;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
@@ -82,7 +79,7 @@ public class Outskirts {
 
     private void start() throws Throwable {
 
-        for (String p : ProgramArguments.LIBS) {  // mods load, init.
+        for (String p : ProgramArguments.MODS) {  // mods load, init.
             Mods.registerInit(Path.of(p));
         }
 
@@ -114,6 +111,16 @@ public class Outskirts {
 
         TmpExtTest.init();
         // Why stores HermiteData.? use for what.? what if just stores featurepoints.?
+
+        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
+            Log.LOGGER.info("Resize fbGUI");
+            renderEngine.fbGUI
+                    .pushFramebuffer()
+                    .resize((int) window.getWidth(), (int) window.getHeight())
+                    .checkFramebufferStatus()
+                    .popFramebuffer();
+            getRootGUI().requestLayout();
+        });
     }
 
 
@@ -139,8 +146,6 @@ public class Outskirts {
         // Render Phase
         profiler.push("render");
         {
-            renderEngine.prepare();
-
             profiler.push("world");
             if (world != null) {
                 camera.update();
@@ -149,15 +154,8 @@ public class Outskirts {
                 renderEngine.render(world);
             }
             profiler.pop("world");
-
             profiler.push("gui");
-            GuiRoot.refreshHovers();
-            while (Gui.hasVolumeChanged()) {
-                rootGUI.onLayout();
-            }
-            glDisable(GL_DEPTH_TEST);
-            rootGUI.onDraw();
-            glEnable(GL_DEPTH_TEST);
+            this.renderGUI();
             profiler.pop("gui");
         }
         profiler.pop("render");
@@ -169,6 +167,35 @@ public class Outskirts {
 
         if (window.isCloseRequested())
             Outskirts.shutdown();
+    }
+
+    private void renderGUI() {
+        if (!isIngame())
+            GuiRoot.updateHovers();
+
+        if (rootGUI.isLayoutRequested()) {  // if or while?
+            rootGUI.onLayout();
+            rootGUI.finishLayout();
+
+            rootGUI.requestDraw();
+        }
+        if (rootGUI.isDrawRequested()) {
+            renderEngine.fbGUI.pushFramebuffer();
+            glClearColor(0, 0, 0, 0);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glDisable(GL_DEPTH_TEST);
+            rootGUI.onDraw();
+            glEnable(GL_DEPTH_TEST);
+
+            renderEngine.fbGUI.popFramebuffer();
+            rootGUI.finishDraw();
+        }
+        glDisable(GL_DEPTH_TEST);
+        Gui.drawTexture(renderEngine.fbGUI.colorTextures(0), rootGUI);
+        glEnable(GL_DEPTH_TEST);
     }
 
     private void runTick() {
@@ -224,7 +251,7 @@ public class Outskirts {
     }
 
     public static boolean isIngame() {
-        return Outskirts.getWorld() != null && Outskirts.getRootGUI().size() == 1 && Outskirts.getRootGUI().getGui(0) instanceof GuiIngame
+        return Outskirts.getWorld() != null && Outskirts.getRootGUI().count() == 1 && Outskirts.getRootGUI().getGui(0) instanceof GuiIngame
                 && !isAltKeyDown();
     }
 

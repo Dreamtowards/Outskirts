@@ -170,8 +170,8 @@ public final class SystemUtil {
     public static void updateDirectMemoryInfo() {
         try {
             Class cbits = Class.forName("java.nio.Bits");
-            DMEM_MAX = ReflectionUtils.getFieldv(cbits, "maxMemory");
-            DMEM_RESERVED = ((AtomicLong)ReflectionUtils.getFieldv(cbits, "reservedMemory")).get();
+            DMEM_MAX = ReflectionUtils.getFieldv(cbits, "MAX_MEMORY");  // maxMemory
+            DMEM_RESERVED = ((AtomicLong)ReflectionUtils.getFieldv(cbits, "RESERVED_MEMORY")).get();  // reservedMemory
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }

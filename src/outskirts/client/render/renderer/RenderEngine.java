@@ -3,6 +3,7 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Frustum;
@@ -19,13 +20,11 @@ import outskirts.client.render.renderer.sky.SkyRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.entity.Entity;
-import outskirts.init.Textures;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
-import outskirts.util.vector.Vector4f;
 import outskirts.world.World;
 
 import java.util.ArrayList;
@@ -58,9 +57,9 @@ public final class RenderEngine {
     private ModelRenderer modelRenderer = new ModelRenderer();
     private ShadowRenderer shadowRenderer = new ShadowRenderer();
     private SkyboxRenderer skyboxRenderer;// = new SkyboxRenderer();
-    private ParticleRenderer particleRenderer = new ParticleRenderer();
-    private PostRenderer postRenderer = new PostRenderer();
-    private SSAORenderer ssaoRenderer = new SSAORenderer();
+    private ParticleRenderer particleRenderer;// = new ParticleRenderer();
+    private PostRenderer postRenderer;// = new PostRenderer();
+    private SSAORenderer ssaoRenderer;// = new SSAORenderer();
     private MapRenderer mapRenderer = new MapRenderer();
     private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
     private SkyRenderer skyRenderer = new SkyRenderer();
@@ -68,7 +67,7 @@ public final class RenderEngine {
     private ChunkRenderDispatcher chunkRenderDispatcher = new ChunkRenderDispatcher();
 
     public Framebuffer gBufferFBO = Framebuffer.glfGenFramebuffer()
-            .bindPushFramebuffer()
+            .pushFramebuffer()
             .resize(1280, 720)
             .attachTextureColor(0, GL_RGBA16F) // position,depth  ?todo: RGB?RGBA
             .attachTextureColor(1, GL_RGB16F) // normal
@@ -78,8 +77,17 @@ public final class RenderEngine {
             .checkFramebufferStatus()
             .popFramebuffer();
 
+
+
+    public Framebuffer fbGUI = Framebuffer.glfGenFramebuffer()
+            .pushFramebuffer()
+            .resize(1280, 720)
+            .attachTextureColor(0, GL_RGBA)
+            .checkFramebufferStatus()
+            .popFramebuffer();
+
     public Framebuffer ssaoFBO = Framebuffer.glfGenFramebuffer()
-            .bindPushFramebuffer()
+            .pushFramebuffer()
             .resize(640, 360)
             .attachTextureColor(0, GL_RGB)
             .checkFramebufferStatus()
@@ -130,10 +138,6 @@ public final class RenderEngine {
         RenderEngine.checkGlError("prepare");
 
 
-        refreshProjectionMatrix();
-        refreshViewMatrix();
-        if (dbg_EnableFrustumUpdate)
-        refreshViewFrustum();
     }
 
     // update when view-aspect, FOV, near/far plane changed.
@@ -169,6 +173,12 @@ public final class RenderEngine {
 //        worldFramebuffer.popFramebuffer();
 
 
+        refreshProjectionMatrix();
+        refreshViewMatrix();
+        if (dbg_EnableFrustumUpdate)
+            refreshViewFrustum();
+
+
         List<Entity> entities = new ArrayList<>();
         for (Entity entity : world.getEntities()) {
             if (entity == Outskirts.getCamera().getOwnerEntity() && Outskirts.getCamera().getCameraDistance() == 0)
@@ -179,14 +189,14 @@ public final class RenderEngine {
             }
         }
 
-        gBufferFBO.bindPushFramebuffer();
+        gBufferFBO.pushFramebuffer();
             prepare();
             glDisable(GL_BLEND);
             entityRenderer.renderGBuffer(entities);
             glEnable(GL_BLEND);
         gBufferFBO.popFramebuffer();
 
-//        ssaoFBO.bindPushFramebuffer();
+//        ssaoFBO.pushFramebuffer();
 //            prepare();
 //            ssaoRenderer.renderSSAO(gBufferFBO.colorTextures(0), gBufferFBO.colorTextures(1));
 //        ssaoFBO.popFramebuffer();
@@ -206,7 +216,7 @@ public final class RenderEngine {
         if (skyboxRenderer != null) // disable: debug fast boost
             skyboxRenderer.render();
 
-        glDisable(GL_CULL_FACE);
+//        glDisable(GL_CULL_FACE);
 
         skyRenderer.render(skyHei, 0,
                 vec3(skyColor));

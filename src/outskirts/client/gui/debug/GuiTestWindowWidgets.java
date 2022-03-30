@@ -3,7 +3,6 @@ package outskirts.client.gui.debug;
 import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
-import outskirts.init.Textures;
 import outskirts.util.Colors;
 import outskirts.util.logging.Log;
 
@@ -41,7 +40,7 @@ public class GuiTestWindowWidgets extends Gui {
                 g.setContent(new Gui(0, 0, 500, 500) {{
                     addOnDrawListener(e -> drawRect(Colors.BLACK, this));
                 }});
-                g.setClipChildren(true);
+                g.setClipping(true);
                 g.setWidth(200);
                 g.setHeight(200);
             })

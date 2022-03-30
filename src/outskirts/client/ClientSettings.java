@@ -35,7 +35,7 @@ public final class ClientSettings {
         public static String UUID;
         public static String TOKEN;
 
-        public static List<String> LIBS = new ArrayList<>();
+        public static List<String> MODS = new ArrayList<>();
 
         public static void readArguments(String[] args) {
             parse(args).forEach((key, value) -> {
@@ -52,10 +52,10 @@ public final class ClientSettings {
                     case "token":
                         TOKEN = value;
                         break;
-                    case "libs": // or extensions .?
+                    case "mods": // or extensions .?
                         for (String e : StringUtils.explode(value, ";"))
                             if (!e.isEmpty())
-                                LIBS.add(e);
+                                MODS.add(e);
                         break;
                     default:
                         LOGGER.warn("Unknown program argument: {}", key);

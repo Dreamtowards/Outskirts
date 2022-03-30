@@ -20,13 +20,13 @@ public class GuiWrap extends Gui {
     @EventHandler
     private void onLayout0(OnLayoutEvent event) {
 
-        Gui fsGui = size() == 0 ? Gui.EMPTY : getGui(0);
+        Gui fsGui = count() == 0 ? Gui.EMPTY : getGui(0);
         Vector2f curr = new Vector2f(
                 (getWidth()-fsGui.getWidth())  * alignment.x,
                 (getHeight()-fsGui.getHeight()) * alignment.y);
         Vector2f lineStart = new Vector2f(curr);
 
-        for (int i = 0;i < size();i++) {
+        for (int i = 0; i < count(); i++) {
             Gui g = getGui(i);
             g.setRelativeXY(curr.x, curr.y);
 
@@ -34,7 +34,7 @@ public class GuiWrap extends Gui {
             curr.y += mainDirection.y * g.getHeight();
 
             // outbound. do wrap. once.
-            Gui nxGui = i+1 == size() ? Gui.EMPTY : getGui(i+1);
+            Gui nxGui = i+1 == count() ? Gui.EMPTY : getGui(i+1);
             if (!Gui.isPointOver(
                     getX()+curr.x +mainDirection.x*nxGui.getWidth(),
                     getY()+curr.y +mainDirection.y*nxGui.getHeight(), this)) {

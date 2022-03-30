@@ -47,6 +47,11 @@ public class GuiDebugV extends Gui {
         GuiBasisVisual basisv;
         GuiEntityGBufferVisual gbufv;
 
+        addOnDrawListener(e -> {
+            requestLayout();
+            requestDraw();
+        });
+
         Matrix3f theBasis = new Matrix3f();
         addChildren(
                 GuiDebugTxInfos.INSTANCE,

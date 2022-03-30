@@ -53,9 +53,9 @@ public class GuiExpander extends Gui implements Gui.Contentable {
 
     @Override
     public Gui setContent(Gui g) {
-        if (contentw.size() > 0) {
+        if (contentw.count() > 0) {
             contentw.removeGui(0);
-            assert contentw.size()==0;
+            assert contentw.count()==0;
         }
         contentw.addGui(g);
         return this;
