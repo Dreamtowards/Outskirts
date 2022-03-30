@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 /**
  * tmp launcher class. simple setup and launch main program
@@ -21,15 +24,9 @@ public final class Start {
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
         System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase()).getAbsolutePath());
 
-        if (CollectionUtils.contains(args, "--tmploadlibs")) { //tmp arg
-            for (File file : FileUtils.listFiles(new File("libraries"))) {
-                if (file.isFile() && file.getName().endsWith(".jar")) {
-                    SystemUtil.addClasspath(file);
-                }
-            }
-        }
-
-
+        Files.list(Path.of("libraries"))
+                .filter(p -> !Files.isDirectory(p) && p.endsWith(".jar"))
+                .forEach(SystemUtil::addClasspath);
 
         Main.main(args);
     }

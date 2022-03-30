@@ -201,13 +201,7 @@ public class OutskirtsServer {
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
         System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase()).getAbsolutePath());
 
-        if (CollectionUtils.contains(args, "--tmploadlibs")) { //tmp arg
-            for (File file : FileUtils.listFiles(new File("libraries"))) {
-                if (file.isFile() && file.getName().endsWith(".jar")) {
-                    SystemUtil.addClasspath(file);
-                }
-            }
-        }
+        // load libs
 
         new OutskirtsServer().run();
     }

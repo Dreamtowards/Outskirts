@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -84,27 +85,28 @@ public final class SystemUtil {
     /**
      * Ignore if the classpath is already loaded.
      */
-    public static synchronized void addClasspath(File classpath) {
+    public static synchronized void addClasspath(Path classpath) {
         try {
+            URL cpURL = classpath.toUri().toURL();
+
             if (RUNTIME_VERSION >= 9) {  // REQUIRED JVM ARGS: java --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
                 ClassLoader appclassloader = ClassLoader.getSystemClassLoader();  // ClassLoader$AppClassLoader.
                 Field UCP = appclassloader.getClass().getDeclaredField("ucp"); UCP.setAccessible(true);
                 Method ADDURL = UCP.getType().getDeclaredMethod("addURL", URL.class);
 
-                ADDURL.invoke(UCP.get(appclassloader), classpath.toURI().toURL());
+                ADDURL.invoke(UCP.get(appclassloader), cpURL);
             } else {
                 URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-                URL pathURL = classpath.toURI().toURL();
 
                 //if the classpath already been loaded
-                if (CollectionUtils.contains(loader.getURLs(), pathURL)) {
-                    LOGGER.warn("Already added classpath \"{}\". Ignore", pathURL);
+                if (CollectionUtils.contains(loader.getURLs(), cpURL)) {
+                    LOGGER.warn("Already added classpath \"{}\". Ignore", cpURL);
                     return;
                 }
 
                 Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                 method.setAccessible(true);
-                method.invoke(loader, pathURL);
+                method.invoke(loader, cpURL);
             }
         } catch (Exception ex) {
             throw new RuntimeException("Failed to add classpath. ("+classpath, ex);

@@ -5,10 +5,7 @@ import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
-import outskirts.util.CollectionUtils;
-import outskirts.util.Maths;
-import outskirts.util.Ref;
-import outskirts.util.Validate;
+import outskirts.util.*;
 import outskirts.util.obj.OBJLoader;
 import outskirts.util.ogg.OggLoader;
 
@@ -145,9 +142,6 @@ public final class Loader {
     }
     public static BufferedImage loadPNG(byte[] bytes) {
         return Loader.loadPNG(new ByteArrayInputStream((bytes)));
-    }
-    public static void savePNG(BufferedImage bi, OutputStream outputStream) {
-
     }
     public static byte[] savePNG(BufferedImage bi) { // TOOL METHOD
         try {

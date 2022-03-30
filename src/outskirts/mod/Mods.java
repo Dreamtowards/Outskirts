@@ -6,6 +6,8 @@ import outskirts.util.registry.Registry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -17,12 +19,12 @@ public final class Mods {
      * register mod to the Registry. (not init)
      * @param modloc mod location. a Jar File(Specified) or a Directory Classpath(for Development)
      */
-    public static void registerInit(File modloc) {
+    public static void registerInit(Path modloc) {
         try {
             Mod.Manifest manifest = loadManifest(modloc);
             SystemUtil.addClasspath(modloc);
 
-            Mod mod = (Mod)Class.forName(manifest.getMain()).newInstance();
+            Mod mod = (Mod)Class.forName(manifest.getMain()).newInstance();  // newInstance. loadClass. Init.
             mod.manifest = manifest;
 
             REGISTRY.register(mod);
@@ -31,20 +33,17 @@ public final class Mods {
         }
     }
 
-    private static Mod.Manifest loadManifest(File modloc) throws IOException {
-        final String MANIFOLD_PATH = "META-INF/MODMETA.MF";  // MOD.MF
+    private static Mod.Manifest loadManifest(Path modloc) throws IOException {
+        final String MANIFOLD_PATH = "META-INF/MODMETA.MF";  // MOD.MF  manifest.json
 
-        if (modloc.isFile()) {
-            JarFile j = new JarFile(modloc);
+        if (Files.isDirectory(modloc)) {
+            File dst = Path.of(modloc.toString(), MANIFOLD_PATH).toFile();
+            return Mod.Manifest.parse(new Manifest(new FileInputStream(dst)).getMainAttributes());
+        } else {  // File.
+            JarFile jf = new JarFile(new File(modloc.toUri()));
             return Mod.Manifest.parse(
-                    new Manifest(j.getInputStream(j.getEntry(MANIFOLD_PATH))).getMainAttributes()
+                    new Manifest(jf.getInputStream(jf.getEntry(MANIFOLD_PATH))).getMainAttributes()
             );
-        } else if (modloc.isDirectory()) {
-            return Mod.Manifest.parse(
-                    new Manifest(new FileInputStream(new File(modloc, MANIFOLD_PATH))).getMainAttributes()
-            );
-        } else {
-            throw new IllegalStateException();
         }
     }
 

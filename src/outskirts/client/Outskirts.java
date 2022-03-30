@@ -22,8 +22,6 @@ import outskirts.client.render.Camera;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
-import outskirts.event.client.WindowResizedEvent;
-import outskirts.event.client.input.*;
 import outskirts.init.Init;
 import outskirts.mod.Mods;
 import outskirts.physics.dynamics.RigidBody;
@@ -36,53 +34,40 @@ import outskirts.world.WorldClient;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
 import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
-import static outskirts.event.Events.EVENT_BUS;
 import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
-    // framebuffer coords.
-    private float dWheel, mouseDX, mouseDY, mouseX, mouseY;
-    private float ffdWheel, mouseFFDX, mouseFFDY;  // Full-Frame Delta value.
-    private float width, height; // Framebuffer Coords. not GuiCoords.
-
-    private static Outskirts INSTANCE;
+    private static Outskirts INST;
 
     public static RenderEngine renderEngine;
-
     private AudioEngine audioEngine;
 
-    private boolean running;
-
-    private GuiRoot rootGUI = new GuiRoot();
-
     private WorldClient world;
+    private EntityPlayerSP player;
 
+    private boolean running;
+    private GuiRoot rootGUI = new GuiRoot();
+    private Window window = new Window();
     private Camera camera = new Camera();
     private GameTimer timer = new GameTimer();
     private RayPicker rayPicker = new RayPicker();
-
-    private EntityPlayerSP player;
-
-    private Thread thread = Thread.currentThread();
-    private Scheduler scheduler = new Scheduler(thread);
-
+    private Scheduler scheduler = new Scheduler(Thread.currentThread());
     private Profiler profiler = new Profiler();
-
-    private long numFrames;
 
     public void run() {
         try
         {
-            this.startGame();
+            this.start();
 
             while (this.running)
             {
-                this.runGameLoop();
+                this.runMainLoop();
             }
         }
         catch (Throwable t)
@@ -95,17 +80,16 @@ public class Outskirts {
         }
     }
 
-    private void startGame() throws Throwable {
+    private void start() throws Throwable {
 
-        // init, load Modules
-        for (String e : ClientSettings.ProgramArguments.EXTENSIONS) {
-            Mods.registerInit(new File(e));
+        for (String p : ProgramArguments.LIBS) {  // mods load, init.
+            Mods.registerInit(Path.of(p));
         }
 
         this.running = true;
-        Outskirts.INSTANCE = this;
+        Outskirts.INST = this;
         ClientSettings.loadOptions();
-        this.createDisplay();
+        window.initWindow();
 
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
@@ -133,7 +117,7 @@ public class Outskirts {
     }
 
 
-    private void runGameLoop() throws Throwable { profiler.push("rt");
+    private void runMainLoop() throws Throwable { profiler.push("rt");
 
         timer.update();
 
@@ -149,13 +133,8 @@ public class Outskirts {
         profiler.pop("runTick");
 
         profiler.push("processInput");
-        processInput();
+        window.processInput();
         profiler.pop("processInput");
-
-        if (world != null) {
-            camera.update();
-            rayPicker.update(camera.getPosition(), camera.getDirection());
-        }
 
         // Render Phase
         profiler.push("render");
@@ -164,6 +143,9 @@ public class Outskirts {
 
             profiler.push("world");
             if (world != null) {
+                camera.update();
+                rayPicker.update(camera.getPosition(), camera.getDirection());
+
                 renderEngine.render(world);
             }
             profiler.pop("world");
@@ -182,25 +164,11 @@ public class Outskirts {
 
         profiler.pop("rt");
         profiler.push("updateDisplay");
-        this.updateDisplay();
+        window.updateWindow();
         profiler.pop("updateDisplay");
-        numFrames++;
-    }
 
-    public static void setWorld(WorldClient world) {
-        INSTANCE.world = world;
-        if (world == null)
-            return;
-
-        RigidBody prb = getPlayer().getRigidBody();
-        prb.transform().set(Transform.IDENTITY);
-        prb.transform().origin.set(0,20,0);
-        prb.getAngularVelocity().scale(0);
-        prb.getLinearVelocity().scale(0);
-
-        getPlayer().setGamemode(Gamemode.SPECTATOR);
-        getPlayer().setFlymode(true);
-
+        if (window.isCloseRequested())
+            Outskirts.shutdown();
     }
 
     private void runTick() {
@@ -228,42 +196,20 @@ public class Outskirts {
         }
     }
 
-    private void processInput() {
-        dWheel = 0; mouseDX = 0; mouseDY = 0;
-        ffdWheel = Mouse.getDWheel();
-        mouseFFDX = Mouse.getDX();
-        mouseFFDY = -Mouse.getDY();
+    public static void setWorld(WorldClient world) {
+        INST.world = world;
+        if (world == null)
+            return;
 
-        while (Mouse.next()) {
-            if (Mouse.getEventButton() == -1) {
-                dWheel = Mouse.getEventDWheel() / 80f;
-                mouseDX =  Mouse.getEventDX();
-                mouseDY = -Mouse.getEventDY();
-                mouseX = Mouse.getEventX();
-                mouseY = Display.getHeight()-Mouse.getEventY();
+        RigidBody prb = getPlayer().getRigidBody();
+        prb.transform().set(Transform.IDENTITY);
+        prb.transform().origin.set(0,20,0);
+        prb.getAngularVelocity().scale(0);
+        prb.getLinearVelocity().scale(0);
 
-                EVENT_BUS.post(new MouseMoveEvent(mouseDX, mouseDY));
-                EVENT_BUS.post(new MouseWheelEvent(dWheel));  // needs reduce.?
-            } else {
+        getPlayer().setGamemode(Gamemode.SPECTATOR);
+        getPlayer().setFlymode(true);
 
-                EVENT_BUS.post(new MouseButtonEvent(Mouse.getEventButton(), Mouse.getEventButtonState()));
-                KeyBinding.postInput(Mouse.getEventButton(), Mouse.getEventButtonState(), KeyBinding.TYPE_MOUSE);
-            }
-        }
-
-        while (Keyboard.next()) {
-            
-            EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKey(), Keyboard.getEventKeyState()));
-            KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
-
-            char ch = Keyboard.getEventCharacter();
-            if (Keyboard.getEventKeyState() && ch >= ' ' && ch != 127) {  // 127: backspace/DEL
-                int k = Keyboard.getEventKey();
-                if (SystemUtil.IS_OSX && (k==KEY_LEFT || k==KEY_UP || k==KEY_RIGHT || k==KEY_DOWN))
-                    continue;
-                EVENT_BUS.post(new CharInputEvent(ch));
-            }
-        }
     }
 
     private void destroy() {
@@ -282,161 +228,65 @@ public class Outskirts {
                 && !isAltKeyDown();
     }
 
-    public static boolean isRunning() {
-        return INSTANCE.running;
-    }
-
     public static void shutdown() {
         assert isRunning();
-        INSTANCE.running = false;
+        INST.running = false;
     }
+    public static boolean isRunning() { return INST.running; }
 
-    public static Profiler getProfiler() {
-        return INSTANCE.profiler;
-    }
+    public static AudioEngine getAudioEngine() { return INST.audioEngine; }
+    public static RenderEngine getRenderEngine() { return renderEngine; }
 
-    public static Scheduler getScheduler() {
-        return INSTANCE.scheduler;
-    }
+    public static WorldClient getWorld() { return INST.world; }
+    public static EntityPlayerSP getPlayer() { return INST.player; }
 
-    public static GuiRoot getRootGUI() {
-        return INSTANCE.rootGUI;
-    }
+    public static GuiRoot getRootGUI() { return INST.rootGUI; }
+    public static Window getWindow() { return INST.window; }
+    public static Camera getCamera() { return INST.camera; }
+    public static RayPicker getRayPicker() { return INST.rayPicker; }
+    public static Scheduler getScheduler() { return INST.scheduler; }
+    public static Profiler getProfiler() { return INST.profiler; }
 
-    public static EntityPlayerSP getPlayer() {
-        return INSTANCE.player;
-    }
+    public static float getDelta() { return INST.timer.getDelta(); }
+    public static long getSystemTime() { return (Sys.getTime() * 1000) / Sys.getTimerResolution(); }
 
-    public static WorldClient getWorld() {
-        return INSTANCE.world;
-    }
+    public static float getWidth() { return INST.window.getWidth() / GUI_SCALE; }
+    public static float getHeight() { return INST.window.getHeight() / GUI_SCALE; }
+    public static float getMouseX() { return INST.window.getMouseX() / GUI_SCALE; }
+    public static float getMouseY() { return INST.window.getMouseY() / GUI_SCALE; }
 
-    public static RayPicker getRayPicker() {
-        return INSTANCE.rayPicker;
-    }
+    public static float getMouseDX() { return INST.window.getMouseDX() / GUI_SCALE; }
+    public static float getMouseDY() { return INST.window.getMouseDY() / GUI_SCALE; }
+    public static float getDWheel() { return INST.window.getDWheel();}
+    public static float getMouseFFDX() { return INST.window.getMouseFFDX() / GUI_SCALE; }
+    public static float getMouseFFDY() { return INST.window.getMouseFFDY() / GUI_SCALE; }
+    public static float getFFDWheel() { return INST.window.getFFDWheel();}
 
-    public static float getDelta() {
-        return INSTANCE.timer.getDelta();
-    }
-
-    public static Camera getCamera() {
-        return INSTANCE.camera;
-    }
-
-    public static long getSystemTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-    }
-
-    public static float getDWheel() {
-        return INSTANCE.dWheel;
-    }
-    public static float getFFDWheel() {
-        return INSTANCE.ffdWheel;
-    }
-
-    public static float getMouseDX() {
-        return INSTANCE.mouseDX / GUI_SCALE;
-    }
-    public static float getMouseDY() {
-        return INSTANCE.mouseDY / GUI_SCALE;
-    }
-
-    public static float getMouseFFDX() {
-        return INSTANCE.mouseFFDX / GUI_SCALE;
-    }
-    public static float getMouseFFDY() {
-        return INSTANCE.mouseFFDY / GUI_SCALE;
-    }
-
-    public static float getMouseX() {
-        return INSTANCE.mouseX / GUI_SCALE;
-    }
-    public static float getMouseY() {
-        return INSTANCE.mouseY / GUI_SCALE;
-    }
-
-    public static float getWidth() {
-        return INSTANCE.width / GUI_SCALE;
-    }
-    public static float getHeight() {
-        return INSTANCE.height / GUI_SCALE;
-    }
-
-    public static boolean isCtrlKeyDown() {
-        return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL);
-    }
-    public static boolean isShiftKeyDown() {
-        return isKeyDown(KEY_LSHIFT) || isKeyDown(KEY_RSHIFT);
-    }
-    public static boolean isAltKeyDown() {
-        return isKeyDown(KEY_LMENU) || isKeyDown(KEY_RMENU);
-    }
-
-    public static boolean isMouseDown(int button) {
-        return Mouse.isButtonDown(button);
-    }
-    public static boolean isKeyDown(int key) {
-        return Keyboard.isKeyDown(key);
-    }
+    public static boolean isMouseDown(int button) { return Mouse.isButtonDown(button); }
+    public static boolean isKeyDown(int key) { return Keyboard.isKeyDown(key); }
+    public static boolean isCtrlKeyDown() { return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL); }
+    public static boolean isShiftKeyDown() { return isKeyDown(KEY_LSHIFT) || isKeyDown(KEY_RSHIFT); }
+    public static boolean isAltKeyDown() { return isKeyDown(KEY_LMENU) || isKeyDown(KEY_RMENU); }
 
     public static void setMouseGrabbed(boolean grabbed) {
         if (Mouse.isGrabbed() == grabbed) return;
         Mouse.setGrabbed(grabbed);
     }
 
-    public static String getClipboard() {
-        return SystemUtil.getClipboard();
-    }
-    public static void setClipboard(String s) {
-        SystemUtil.setClipboard(s);
-    }
+    public static String getClipboard() { return SystemUtil.getClipboard(); }
+    public static void setClipboard(String s) { SystemUtil.setClipboard(s); }
 
     // framebuffer_size == window_size * os_content_scale == (guiCoords * GUI_SCALE)* os_content_scale
     public static int toFramebufferCoords(float guiCoords) {
         return (int)(guiCoords * GUI_SCALE);
     }
 
-    private static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
+    public static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
         int wid=toFramebufferCoords(gwidth), hei=toFramebufferCoords(gheight), x=toFramebufferCoords(gx), y=toFramebufferCoords(getHeight()-gy-gheight);
         ByteBuffer pixels = BufferUtils.createByteBuffer(wid*hei*4);  // memAlloc(wid * hei * 4);
         glReadBuffer(GL_BACK);
         glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         return Loader.loadImage(pixels, wid, hei);
     }
-
-    private void createDisplay() throws IOException, LWJGLException {
-
-        ContextAttribs attribs = new ContextAttribs(3, 2)
-                .withForwardCompatible(true).withProfileCore(true);
-
-        Display.setResizable(true);
-        Display.setTitle("DISPLAY");
-        Display.setDisplayMode(new DisplayMode(ProgramArguments.WIDTH, ProgramArguments.HEIGHT));
-        Display.create(new PixelFormat(), attribs);
-
-        LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
-                System.getProperty("os.name"), System.getProperty("os.version"),
-                System.getProperty("java.version"), System.getProperty("os.arch"),
-                System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
-    }
-
-    private void updateDisplay() {
-
-        if (Display.isCloseRequested()) {  //glfwWindowShouldClose(window)
-            Outskirts.shutdown();
-        }
-
-        if (Display.wasResized() || numFrames==0) {
-            width = Display.getWidth();
-            height = Display.getHeight();
-
-            EVENT_BUS.post(new WindowResizedEvent());
-            glViewport(0, 0, (int)width, (int)height);
-        }
-
-        Display.update();
-        Display.sync(ClientSettings.FPS_CAPACITY);
-    }
-
 
 }
