@@ -1,5 +1,6 @@
 package outskirts.util;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.event.Events;
 import outskirts.event.client.input.KeyboardEvent;
@@ -23,7 +24,6 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.lwjgl.input.Keyboard.KEY_K;
 import static outskirts.util.logging.Log.LOGGER;
 
 /*
@@ -168,13 +168,13 @@ public final class SystemUtil {
     public static long DMEM_RESERVED;
 
     public static void updateDirectMemoryInfo() {
-        try {
-            Class cbits = Class.forName("java.nio.Bits");
-            DMEM_MAX = ReflectionUtils.getFieldv(cbits, "MAX_MEMORY");  // maxMemory
-            DMEM_RESERVED = ((AtomicLong)ReflectionUtils.getFieldv(cbits, "RESERVED_MEMORY")).get();  // reservedMemory
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+//        try {
+//            Class cbits = Class.forName("java.nio.Bits");
+//            DMEM_MAX = Runtime.getRuntime().maxMemory(); //ReflectionUtils.getFieldv(cbits, "MAX_MEMORY");  // maxMemory
+//            DMEM_RESERVED = ((AtomicLong)ReflectionUtils.getFieldv(cbits, "RESERVED_MEMORY")).get();  // reservedMemory
+//        } catch (ClassNotFoundException ex) {
+//            throw new RuntimeException(ex);
+//        }
     }
 
     public static void printMemoryInfo() {
@@ -196,7 +196,7 @@ public final class SystemUtil {
     public static void debugCanContinue() {
         while (true) {
             sleep(100);
-            if (Outskirts.isKeyDown(KEY_K))
+            if (Outskirts.isKeyDown(GLFW.GLFW_KEY_K))
                 break;
         }
     }

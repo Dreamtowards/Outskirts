@@ -30,11 +30,11 @@ public class GuiIBasis extends Gui {
               Matrix3f tmpRX = new Matrix3f(), tmpRY = new Matrix3f(), tmpRZ = new Matrix3f();
               g.addOnDraggingListener(e -> {
                   if (Outskirts.isShiftKeyDown()) {
-                      Matrix3f.rotate(Maths.toRadians(-Outskirts.getMouseDY()), Vector3f.UNIT_Z, tmpRZ);
+                      Matrix3f.rotate(Maths.toRadians(-e.dy), Vector3f.UNIT_Z, tmpRZ);
                       Matrix3f.mul(tmpRZ, basis, basis);
                   } else {
-                      Matrix3f.rotate(Maths.toRadians(Outskirts.getMouseDX()), Vector3f.UNIT_Y, tmpRY);
-                      Matrix3f.rotate(Maths.toRadians(Outskirts.getMouseDY()), Vector3f.UNIT_X, tmpRX);
+                      Matrix3f.rotate(Maths.toRadians(e.dx), Vector3f.UNIT_Y, tmpRY);
+                      Matrix3f.rotate(Maths.toRadians(e.dy), Vector3f.UNIT_X, tmpRX);
                       Matrix3f.mul(tmpRY, basis, basis);
                       Matrix3f.mul(tmpRX, basis, basis);
                   }

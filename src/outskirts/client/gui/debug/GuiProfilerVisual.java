@@ -1,5 +1,6 @@
 package outskirts.client.gui.debug;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.GuiText;
@@ -8,8 +9,6 @@ import outskirts.util.Colors;
 import outskirts.util.StringUtils;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector4f;
-
-import static org.lwjgl.input.Keyboard.KEY_P;
 
 // the visual actually is not very accurate, because the profiling data is half-prev-frame, half-curr-frame.
 public class GuiProfilerVisual extends Gui {
@@ -52,7 +51,7 @@ public class GuiProfilerVisual extends Gui {
         setHeight(450);
 
         addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == KEY_P) {
+            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_P) {
                 if (Outskirts.isAltKeyDown())
                     profiler.setEnable(!profiler.isEnable());
                 else

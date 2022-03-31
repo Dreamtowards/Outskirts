@@ -55,7 +55,7 @@ public class GuiIScalar extends GuiTextBox {
             g.setWidth(10);
             g.addLayoutorAlignParentLTRB(NaN, 0, 0, 0);
             g.addOnDraggingListener(e -> {
-                setValue(getValue() + -Outskirts.getMouseDY()*getDragSensitivity());
+                setValue(getValue() + -e.dy*getDragSensitivity());
                 setSelectionEmpty();
             });
             g.addOnDrawListener(e -> {

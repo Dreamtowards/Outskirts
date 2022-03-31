@@ -1,5 +1,6 @@
 package outskirts.client.main;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiColorPicker;
 import outskirts.client.gui.ex.GuiWindow;
@@ -15,8 +16,6 @@ import outskirts.util.SystemUtil;
 import outskirts.util.function.TrifFunc;
 import outskirts.util.vector.Vector3f;
 
-import static org.lwjgl.input.Keyboard.KEY_E;
-import static org.lwjgl.input.Keyboard.KEY_T;
 import static outskirts.client.Outskirts.*;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
@@ -37,7 +36,7 @@ public class TmpExtTest {
         theLight.position().set(40, 50, 40);
         theLight.color().set(1, 1, 1).scale(1.2f);
 
-        SystemUtil.debugAddKeyHook(KEY_E, () -> {
+        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_E, () -> {
 //            theLight.position().set(getPlayer().position());
 //            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
 
@@ -52,7 +51,7 @@ public class TmpExtTest {
                 matId = c-48;
             }
         });
-        SystemUtil.debugAddKeyHook(KEY_T, () -> {
+        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_T, () -> {
 //            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
 
             if (Outskirts.isAltKeyDown()) {

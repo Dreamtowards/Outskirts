@@ -1,7 +1,7 @@
 package outskirts.client.render.renderer;
 
-import org.lwjgl.Sys;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
 import outskirts.client.main.TmpExtTest;
@@ -20,8 +20,11 @@ import outskirts.client.render.renderer.sky.SkyRenderer;
 import outskirts.client.render.renderer.skybox.SkyboxRenderer;
 import outskirts.client.render.renderer.ssao.SSAORenderer;
 import outskirts.entity.Entity;
+import outskirts.event.Events;
+import outskirts.event.client.WindowResizedEvent;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Matrix4f;
 import outskirts.util.vector.Vector3f;
@@ -34,6 +37,7 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
+import static outskirts.client.Outskirts.GUI_FB_FACTOR;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.client.render.renderer.EntityRenderer.*;
 import static outskirts.util.logging.Log.LOGGER;
@@ -108,17 +112,23 @@ public final class RenderEngine {
 
 
 
-
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
-        LOGGER.info("LWJGL {}, GLFWL NONE.", Sys.getVersion());
+        LOGGER.info("LWJGL {}, GLFW{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR);
 
-
-        setVSync(true);
+        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
+            Log.LOGGER.info("Resize fbGUI");
+            fbGUI
+                    .pushFramebuffer()
+                    .resize((int)(Outskirts.getWidth()*GUI_FB_FACTOR), (int)(Outskirts.getHeight()*GUI_FB_FACTOR))
+                    .checkFramebufferStatus()
+                    .popFramebuffer();
+            Outskirts.getRootGUI().requestLayout();
+        });
     }
 
     public void prepare() {
-        glClearColor(0, 0, 0, 1);
+        glClearColor(0, 0.4f, 0.4f, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
@@ -248,15 +258,6 @@ public final class RenderEngine {
 
 
     private float fov = 70;
-    private boolean vsync;
-
-    public void setVSync(boolean enable) {
-        vsync = enable;
-        Display.setVSyncEnabled(enable);
-    }
-    public boolean isVSync() {
-        return vsync;
-    }
 
     public float getFov() {
         return fov;

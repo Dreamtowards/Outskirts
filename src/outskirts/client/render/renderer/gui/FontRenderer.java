@@ -60,7 +60,7 @@ public class FontRenderer extends Renderer {
     }
 
     public void renderString(String text, float x, float y, float textHeight, Vector4f color, boolean renderShadow) {
-        if (renderShadow) {
+        if (renderShadow=false) {
             float off = textHeight / 16; // 8
             float perc = .4f;
             renderString(text, x+off, y+off, textHeight, vec4(color).scale(perc,perc,perc, 1f), false);

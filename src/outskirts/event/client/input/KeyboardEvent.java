@@ -19,4 +19,8 @@ public class KeyboardEvent extends Event {
     public boolean getKeyState() {
         return keyState;
     }
+
+    public boolean isPressed() {
+        return keyState;
+    }
 }

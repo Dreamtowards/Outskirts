@@ -1,10 +1,7 @@
 package outskirts.client;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
@@ -18,8 +15,6 @@ import outskirts.client.render.Camera;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
-import outskirts.event.Events;
-import outskirts.event.client.WindowResizedEvent;
 import outskirts.init.Init;
 import outskirts.mod.Mods;
 import outskirts.physics.dynamics.RigidBody;
@@ -34,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
-import static org.lwjgl.input.Keyboard.*;
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
 
@@ -97,7 +91,11 @@ public class Outskirts {
         player.setName("Player215");
         camera.setOwnerEntity(player);
 
-        getRootGUI().addGui(GuiScreenMainMenu.INSTANCE);
+        getRootGUI().addGui(GuiScreenMainMenu.INSTANCE.exec(g -> {
+            g.addOnDrawListener(e -> {
+                Gui.drawRect(Colors.BLACK40, rootGUI);
+            });
+        }));
 
         GuiScreenMainMenu.INSTANCE.addGui(new Gui1DNoiseVisual().exec(g -> {
             g.setX(30);
@@ -111,20 +109,11 @@ public class Outskirts {
 
         TmpExtTest.init();
         // Why stores HermiteData.? use for what.? what if just stores featurepoints.?
-
-        Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
-            Log.LOGGER.info("Resize fbGUI");
-            renderEngine.fbGUI
-                    .pushFramebuffer()
-                    .resize((int) window.getWidth(), (int) window.getHeight())
-                    .checkFramebufferStatus()
-                    .popFramebuffer();
-            getRootGUI().requestLayout();
-        });
     }
 
 
     private void runMainLoop() throws Throwable { profiler.push("rt");
+        double s = getProgramTime();
 
         timer.update();
 
@@ -138,10 +127,6 @@ public class Outskirts {
             this.runTick();
         }
         profiler.pop("runTick");
-
-        profiler.push("processInput");
-        window.processInput();
-        profiler.pop("processInput");
 
         // Render Phase
         profiler.push("render");
@@ -204,7 +189,7 @@ public class Outskirts {
             if (isIngame()) {
                 // MOVEMENT
                 float lv =0.4f;
-                if (Outskirts.isKeyDown(KEY_F))
+                if (Outskirts.isKeyDown(GLFW.GLFW_KEY_F))
                     lv *= 6;
                 if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
                 if (KEY_WALK_BACKWARD.isKeyDown()) player.walk(lv, Maths.PI);
@@ -247,7 +232,7 @@ public class Outskirts {
         Loader.destroy();
         audioEngine.destroy();
 
-        Display.destroy();
+        window.destroy();
     }
 
     public static boolean isIngame() {
@@ -275,41 +260,38 @@ public class Outskirts {
     public static Profiler getProfiler() { return INST.profiler; }
 
     public static float getDelta() { return INST.timer.getDelta(); }
-    public static long getSystemTime() { return (Sys.getTime() * 1000) / Sys.getTimerResolution(); }
+    public static double getProgramTime() { return Window.getHighResolutionTime(); }  // getSystemTime().
 
     public static float getWidth() { return INST.window.getWidth() / GUI_SCALE; }
     public static float getHeight() { return INST.window.getHeight() / GUI_SCALE; }
     public static float getMouseX() { return INST.window.getMouseX() / GUI_SCALE; }
     public static float getMouseY() { return INST.window.getMouseY() / GUI_SCALE; }
 
+    // Frame-based deltas.
     public static float getMouseDX() { return INST.window.getMouseDX() / GUI_SCALE; }
     public static float getMouseDY() { return INST.window.getMouseDY() / GUI_SCALE; }
-    public static float getDWheel() { return INST.window.getDWheel();}
-    public static float getMouseFFDX() { return INST.window.getMouseFFDX() / GUI_SCALE; }
-    public static float getMouseFFDY() { return INST.window.getMouseFFDY() / GUI_SCALE; }
-    public static float getFFDWheel() { return INST.window.getFFDWheel();}
+    public static float getDScroll() { return INST.window.getDScroll();}
 
-    public static boolean isMouseDown(int button) { return Mouse.isButtonDown(button); }
-    public static boolean isKeyDown(int key) { return Keyboard.isKeyDown(key); }
-    public static boolean isCtrlKeyDown() { return isKeyDown(KEY_LCONTROL) || isKeyDown(KEY_RCONTROL); }
-    public static boolean isShiftKeyDown() { return isKeyDown(KEY_LSHIFT) || isKeyDown(KEY_RSHIFT); }
-    public static boolean isAltKeyDown() { return isKeyDown(KEY_LMENU) || isKeyDown(KEY_RMENU); }
-
-    public static void setMouseGrabbed(boolean grabbed) {
-        if (Mouse.isGrabbed() == grabbed) return;
-        Mouse.setGrabbed(grabbed);
-    }
-
-    public static String getClipboard() { return SystemUtil.getClipboard(); }
-    public static void setClipboard(String s) { SystemUtil.setClipboard(s); }
+    public static boolean isMouseDown(int button) { return INST.window.isMouseDown(button); }
+    public static boolean isKeyDown(int key) { return INST.window.isKeyDown(key); }
+    public static boolean isCtrlKeyDown() { return isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL); }
+    public static boolean isShiftKeyDown() { return isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT); }
+    public static boolean isAltKeyDown() { return isKeyDown(GLFW.GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW.GLFW_KEY_RIGHT_ALT); }
+    public static void setMouseGrabbed(boolean grabbed) { INST.window.setMouseGrabbed(grabbed); }
+    public static String getClipboard() { return INST.window.getClipboard(); }
+    public static void setClipboard(String s) { INST.window.setClipboard(s); }
 
     // framebuffer_size == window_size * os_content_scale == (guiCoords * GUI_SCALE)* os_content_scale
-    public static int toFramebufferCoords(float guiCoords) {
+    public static int toMainFramebufferCoords(float guiCoords) {
         return (int)(guiCoords * GUI_SCALE);
+    }
+    public static float GUI_FB_FACTOR = 1;
+    public static int toGuiFramebufferCoords(float guiCoords) {
+        return (int)(guiCoords * GUI_FB_FACTOR);
     }
 
     public static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
-        int wid=toFramebufferCoords(gwidth), hei=toFramebufferCoords(gheight), x=toFramebufferCoords(gx), y=toFramebufferCoords(getHeight()-gy-gheight);
+        int wid= toMainFramebufferCoords(gwidth), hei= toMainFramebufferCoords(gheight), x= toMainFramebufferCoords(gx), y= toMainFramebufferCoords(getHeight()-gy-gheight);
         ByteBuffer pixels = BufferUtils.createByteBuffer(wid*hei*4);  // memAlloc(wid * hei * 4);
         glReadBuffer(GL_BACK);
         glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);

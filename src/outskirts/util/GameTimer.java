@@ -1,37 +1,39 @@
 package outskirts.util;
 
+import outskirts.client.Outskirts;
+
 public class GameTimer {
 
-    public static final long TPS = 60; // ticks pre second, 20 ticks/s
-    private static final long TICK_LENGTH = 1000 / TPS; // 1000/20=50(ms)
+    public static final int TPS = 20; // ticks pre second, 20 ticks/s
+//    private static final long TICK_LENGTH = 1000 / TPS; // 1000/20=50(ms)
 
-    private long prevUpdate = -1;
+    private double prevTime = 0;
 
-    private long delta; // in millis
+    private double delta;
 
-    private float elapsedTicks;
+    private double elapsedTicks;
 
     public void update() {
-        long currentTime = System.currentTimeMillis();
-        if (prevUpdate == -1)
-            prevUpdate = currentTime;
+        double t = Outskirts.getProgramTime();
+        if (prevTime == 0)
+            prevTime = t;
 
-        delta = currentTime - prevUpdate;
+        delta = t - prevTime;
 
-        elapsedTicks += Math.min((float)delta / TICK_LENGTH, 10f);
+        elapsedTicks += Math.min(delta * TPS, 10f);
 
-        prevUpdate = currentTime;
+        prevTime = t;
     }
 
     public float getDelta() {
-        return delta / 1000f;
+        return (float)delta;
     }
 
     public boolean pollFullTick() {
-        if (elapsedTicks < 1f) {
+        if (elapsedTicks < 1.0) {
             return false;
         } else {
-            elapsedTicks -= 1f;
+            elapsedTicks -= 1.0;
             return true;
         }
     }

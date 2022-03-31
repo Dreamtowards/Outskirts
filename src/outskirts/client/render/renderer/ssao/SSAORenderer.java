@@ -74,7 +74,7 @@ public class SSAORenderer extends Renderer {
 
         shaderSSAO.useProgram();
 
-        float fbWidth = Outskirts.toFramebufferCoords(Outskirts.getWidth()), fbHeight = Outskirts.toFramebufferCoords(Outskirts.getHeight());
+        float fbWidth = Outskirts.toMainFramebufferCoords(Outskirts.getWidth()), fbHeight = Outskirts.toMainFramebufferCoords(Outskirts.getHeight());
         shaderSSAO.setVector2f("texRandTanScale", fbWidth/TEX_RAND_TANOP_SZ, fbHeight/TEX_RAND_TANOP_SZ);
 
         for (int i = 0;i < KERNEL_SAMPLES.length;i++) {

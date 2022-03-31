@@ -1,26 +1,21 @@
 package outskirts.client;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.ContextAttribs;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL;
+import outskirts.client.ClientSettings.ProgramArguments;
+import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.util.KeyBinding;
-import outskirts.util.SystemUtil;
 
-import java.io.IOException;
-
-import static org.lwjgl.input.Keyboard.*;
-import static org.lwjgl.input.Keyboard.KEY_DOWN;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static outskirts.event.Events.EVENT_BUS;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class Window {
+
+    private long window;
 
     /* All these are Framebuffer Coordinate. */
     private float x;
@@ -31,21 +26,14 @@ public final class Window {
     private float mouseX;
     private float mouseY;
 
-    /* Event-based Delta. */  // todo: why not treat DX as FFDX? since there almost use base on full-frame
+    /* Frame-based Delta. not Event-based. don't use in event-call. */
     private float mouseDX;
     private float mouseDY;
-    private float dWheel;  // todo: scroll shoud also have x and y for e.g. touchpad support. and provide getDScroll() => x+y; for universal use.
+    private float scrollDX;
+    private float scrollDY;
 
-    /* Full-Frame based Delta. */
-    private float mouseFFDX;
-    private float mouseFFDY;
-    private float ffdWheel;
-
-    // private String title;
+    private String title;
     // resizable, fullscreen
-
-    private boolean firstUpdate = true;
-
 
 
     public float getX() { return x; }
@@ -57,84 +45,174 @@ public final class Window {
     public float getMouseY() { return mouseY; }
     public float getMouseDX() { return mouseDX; }
     public float getMouseDY() { return mouseDY; }
-    public float getDWheel() { return dWheel; }  // getDWheel() = combination of wheelDX+wheelDY.
+    public float getScrollDX() { return scrollDX; }
+    public float getScrollDY() { return scrollDY; }
+    public float getDScroll() { return scrollDX+scrollDY; }
 
-    public float getMouseFFDX() { return mouseFFDX; }
-    public float getMouseFFDY() { return mouseFFDY; }
-    public float getFFDWheel() { return ffdWheel; }
+    public void initWindow() {
+        GLFWErrorCallback.createPrint(System.err).set();
+        if (!glfwInit())
+            throw new IllegalStateException("Unable to initialize GLFW.");
 
-    public void initWindow() throws IOException, LWJGLException {
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX req.
+//        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+//        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
-        ContextAttribs attribs = new ContextAttribs(3, 2)
-                .withForwardCompatible(true).withProfileCore(true);
+        window = glfwCreateWindow(ProgramArguments.WIDTH, ProgramArguments.HEIGHT, title="DISPLAY", 0, 0);
+        if (window == 0)
+            throw new IllegalStateException("Failed to create the GLFW window.");
 
-        Display.setResizable(true);
-        Display.setTitle("DISPLAY");
-        Display.setDisplayMode(new DisplayMode(ClientSettings.ProgramArguments.WIDTH, ClientSettings.ProgramArguments.HEIGHT));
-        Display.create(new PixelFormat(), attribs);
+        glfwMakeContextCurrent(window);
+        glfwSwapInterval(1);  // 1: enable v-sync.
+        GL.createCapabilities();  // GL Context.
+        initCallbacks();
+        printSystemLog();
+
+        int[] w = new int[1], h = new int[1];
+        glfwGetFramebufferSize(window, w, h);
+        width = w[0];
+        height = h[0];
+    }
+
+    private boolean firstupdate = true;
+
+    public void updateWindow() {
+        if (firstupdate) {
+            firstupdate = false;
+            EVENT_BUS.post(new WindowResizedEvent());
+        }
+        resetFramebasedDeltas();
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    public void destroy() {
+
+        glfwDestroyWindow(window);
+
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
+    }
+
+    private void resetFramebasedDeltas() {  // call right before glfwPollEvents(), every frame.
+        mouseDX = 0;
+        mouseDY = 0;
+        scrollDX = 0;
+        scrollDY = 0;
+    }
+
+    public boolean isCloseRequested() {
+        return glfwWindowShouldClose(window);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        glfwSetWindowTitle(window, title);
+    }
+    public String getTitle() {
+        return title;
+    }
+    public String getClipboard() {
+        return glfwGetClipboardString(window);
+    }
+    public void setClipboard(String s) {
+        glfwSetClipboardString(window, s);
+    }
+
+    public static double getHighResolutionTime() {
+        return glfwGetTime();
+    }
+
+
+    public boolean isKeyDown(int key) {
+        return glfwGetKey(window, key) == GLFW_PRESS;
+    }
+    public boolean isMouseDown(int button) {
+        return glfwGetMouseButton(window, button) == GLFW_PRESS;
+    }
+
+    public void setMousePos(float x, float y) {
+        glfwSetCursorPos(window, x, y);
+    }
+    public void setMouseGrabbed(boolean grabbed) {
+        glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+
+    private void initCallbacks() {
+
+        glfwSetFramebufferSizeCallback(window, this::glfwcallback_framebuffer_size);
+
+        glfwSetKeyCallback(window, this::glfwcallback_key);
+        glfwSetCharCallback(window, this::glfwcallback_char);
+
+        glfwSetMouseButtonCallback(window, this::glfwcallback_mouse_button);
+        glfwSetCursorPosCallback(window, this::glfwcallback_mouse_pos);
+        glfwSetScrollCallback(window, this::glfwcallback_scroll);
+
+    }
+
+    private void glfwcallback_framebuffer_size(long w, int nw, int nh) {
+        width = nw;
+        height = nh;
+
+        EVENT_BUS.post(new WindowResizedEvent());
+        glViewport(0, 0, (int)width, (int)height);
+    }
+
+    private void glfwcallback_key(long w, int key, int scancode, int action, int mode) {
+        boolean pressed = action==GLFW_PRESS;
+
+        EVENT_BUS.post(new KeyboardEvent(key, pressed));
+        KeyBinding.postInput(key, pressed, KeyBinding.TYPE_KEYBOARD);
+    }
+
+    private void glfwcallback_char(long w, int ch) {
+
+        // if (ch >= ' ' && ch != 127)  // 127: backspace/DEL
+        EVENT_BUS.post(new CharInputEvent(ch));
+    }
+
+    private void glfwcallback_mouse_button(long w, int button, int action, int mods) {
+        boolean pressed = action==GLFW_PRESS;
+
+        EVENT_BUS.post(new MouseButtonEvent(button, pressed));
+        KeyBinding.postInput(button, pressed, KeyBinding.TYPE_MOUSE);
+    }
+
+    private void glfwcallback_mouse_pos(long w, double _xpos, double _ypos) {
+        float xpos = (float)_xpos*2, ypos = (float)_ypos*2;
+        float edx = xpos-mouseX, edy = ypos-mouseY;  // ED: Event-based Delta. not Frame-based. it might litter than frame-based, since one frame might have multiple events.
+
+        mouseDX += edx;
+        mouseDY += edy;
+        mouseX = xpos;
+        mouseY = ypos;
+
+        EVENT_BUS.post(new MouseMoveEvent(edx, edy));
+    }
+
+    private void glfwcallback_scroll(long w, double _xoffset, double _yoffset) {
+        float edx = (float)_xoffset, edy = (float)_yoffset;
+
+        scrollDX += edx;
+        scrollDY += edy;
+
+        EVENT_BUS.post(new InputScrollEvent(edx, edy));
+    }
+
+    public static void printSystemLog() {
 
         LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
                 System.getProperty("os.name"), System.getProperty("os.version"),
                 System.getProperty("java.version"), System.getProperty("os.arch"),
                 System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
-    }
-
-
-    public void processInput() {
-        dWheel = 0; mouseDX = 0; mouseDY = 0;
-        ffdWheel = Mouse.getDWheel();
-        mouseFFDX = Mouse.getDX();
-        mouseFFDY = -Mouse.getDY();
-
-        while (Mouse.next()) {
-            if (Mouse.getEventButton() == -1) {
-                dWheel = Mouse.getEventDWheel() / 80f;
-                mouseDX =  Mouse.getEventDX();
-                mouseDY = -Mouse.getEventDY();
-                mouseX = Mouse.getEventX();
-                mouseY = Display.getHeight()-Mouse.getEventY();
-
-                EVENT_BUS.post(new MouseMoveEvent(mouseDX, mouseDY));
-                EVENT_BUS.post(new MouseWheelEvent(dWheel));  // needs reduce.?
-            } else {
-
-                EVENT_BUS.post(new MouseButtonEvent(Mouse.getEventButton(), Mouse.getEventButtonState()));
-                KeyBinding.postInput(Mouse.getEventButton(), Mouse.getEventButtonState(), KeyBinding.TYPE_MOUSE);
-            }
-        }
-
-        while (Keyboard.next()) {
-
-            EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKey(), Keyboard.getEventKeyState()));
-            KeyBinding.postInput(Keyboard.getEventKey(), Keyboard.getEventKeyState(), KeyBinding.TYPE_KEYBOARD);
-
-            char ch = Keyboard.getEventCharacter();
-            if (Keyboard.getEventKeyState() && ch >= ' ' && ch != 127) {  // 127: backspace/DEL
-                int k = Keyboard.getEventKey();
-                if (SystemUtil.IS_OSX && (k==KEY_LEFT || k==KEY_UP || k==KEY_RIGHT || k==KEY_DOWN))
-                    continue;
-                EVENT_BUS.post(new CharInputEvent(ch));
-            }
-        }
-    }
-
-    public void updateWindow() {
-
-        if (Display.wasResized() || firstUpdate) {
-            width = Display.getWidth();
-            height = Display.getHeight();
-
-            EVENT_BUS.post(new WindowResizedEvent());
-            glViewport(0, 0, (int)width, (int)height);
-        }
-        firstUpdate = false;
-
-        Display.update();
-        Display.sync(ClientSettings.FPS_CAPACITY);
-    }
-
-    public boolean isCloseRequested() {
-        return Display.isCloseRequested();  //glfwWindowShouldClose(window)
     }
 
 

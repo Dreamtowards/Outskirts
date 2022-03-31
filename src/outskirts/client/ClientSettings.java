@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.lwjgl.input.Keyboard.*;
+import static org.lwjgl.glfw.GLFW.*;
 import static outskirts.util.logging.Log.LOGGER;
 
 public final class ClientSettings {
@@ -90,7 +90,7 @@ public final class ClientSettings {
 
 
 
-    public static float GUI_SCALE = 1f;
+    public static float GUI_SCALE = 2f;
 
 
 
@@ -102,22 +102,22 @@ public final class ClientSettings {
     public static final KeyBinding KEY_USE = new KeyBinding("key.use", 1, KeyBinding.TYPE_MOUSE, "categories.gameplay");
     public static final KeyBinding KEY_ATTACK = new KeyBinding("key.attack", 0, KeyBinding.TYPE_MOUSE, "categories.gameplay");
 
-    public static final KeyBinding KEY_WALK_FORWARD = new KeyBinding("key.forward", KEY_W, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
-    public static final KeyBinding KEY_WALK_BACKWARD = new KeyBinding("key.backward", KEY_S, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
-    public static final KeyBinding KEY_WALK_LEFT = new KeyBinding("key.left", KEY_A, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
-    public static final KeyBinding KEY_WALK_RIGHT = new KeyBinding("key.right", KEY_D, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
-    public static final KeyBinding KEY_JUMP = new KeyBinding("key.jump", KEY_SPACE, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
-    public static final KeyBinding KEY_SNEAK = new KeyBinding("key.sneak", KEY_LSHIFT, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_WALK_FORWARD = new KeyBinding("key.forward", GLFW_KEY_W, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_WALK_BACKWARD = new KeyBinding("key.backward", GLFW_KEY_S, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_WALK_LEFT = new KeyBinding("key.left", GLFW_KEY_A, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_WALK_RIGHT = new KeyBinding("key.right", GLFW_KEY_D, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_JUMP = new KeyBinding("key.jump", GLFW_KEY_SPACE, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
+    public static final KeyBinding KEY_SNEAK = new KeyBinding("key.sneak", GLFW_KEY_LEFT_SHIFT, KeyBinding.TYPE_KEYBOARD, "categories.gameplay");
 
-    public static final KeyBinding KEY_HOTBAR1 = new KeyBinding("key.hotbar1", KEY_1, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 0));
-    public static final KeyBinding KEY_HOTBAR2 = new KeyBinding("key.hotbar2", KEY_2, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 1));
-    public static final KeyBinding KEY_HOTBAR3 = new KeyBinding("key.hotbar3", KEY_3, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 2));
-    public static final KeyBinding KEY_HOTBAR4 = new KeyBinding("key.hotbar4", KEY_4, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 3));
-    public static final KeyBinding KEY_HOTBAR5 = new KeyBinding("key.hotbar5", KEY_5, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 4));
-    public static final KeyBinding KEY_HOTBAR6 = new KeyBinding("key.hotbar6", KEY_6, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 5));
-    public static final KeyBinding KEY_HOTBAR7 = new KeyBinding("key.hotbar7", KEY_7, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 6));
-    public static final KeyBinding KEY_HOTBAR8 = new KeyBinding("key.hotbar8", KEY_8, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 7));
-    public static final KeyBinding KEY_HOTBAR9 = new KeyBinding("key.hotbar9", KEY_9, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 8));
+    public static final KeyBinding KEY_HOTBAR1 = new KeyBinding("key.hotbar1", GLFW_KEY_1, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 0));
+    public static final KeyBinding KEY_HOTBAR2 = new KeyBinding("key.hotbar2", GLFW_KEY_2, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 1));
+    public static final KeyBinding KEY_HOTBAR3 = new KeyBinding("key.hotbar3", GLFW_KEY_3, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 2));
+    public static final KeyBinding KEY_HOTBAR4 = new KeyBinding("key.hotbar4", GLFW_KEY_4, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 3));
+    public static final KeyBinding KEY_HOTBAR5 = new KeyBinding("key.hotbar5", GLFW_KEY_5, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 4));
+    public static final KeyBinding KEY_HOTBAR6 = new KeyBinding("key.hotbar6", GLFW_KEY_6, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 5));
+    public static final KeyBinding KEY_HOTBAR7 = new KeyBinding("key.hotbar7", GLFW_KEY_7, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 6));
+    public static final KeyBinding KEY_HOTBAR8 = new KeyBinding("key.hotbar8", GLFW_KEY_8, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 7));
+    public static final KeyBinding KEY_HOTBAR9 = new KeyBinding("key.hotbar9", GLFW_KEY_9, KeyBinding.TYPE_KEYBOARD, "categories.gameplay").setOnInputListener(keyState -> changeHotbarSlotWhenKeyDown(keyState, 8));
 
     private static void changeHotbarSlotWhenKeyDown(boolean keyState, int slot) {
         if (keyState) Outskirts.getPlayer().setHotbarSlot(slot);

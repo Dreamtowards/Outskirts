@@ -139,10 +139,10 @@ public class GuiRenderer extends Renderer {
     }
 
     private static void glfScissor(float x, float y, float width, float height) {
-        glScissor(Outskirts.toFramebufferCoords(x),
-                  Outskirts.toFramebufferCoords(Outskirts.getHeight()-y-height),
-                  Outskirts.toFramebufferCoords(width),
-                  Outskirts.toFramebufferCoords(height));
+        glScissor(Outskirts.toGuiFramebufferCoords(x),
+                  Outskirts.toGuiFramebufferCoords(Outskirts.getHeight()-y-height),
+                  Outskirts.toGuiFramebufferCoords(width),
+                  Outskirts.toGuiFramebufferCoords(height));
     }
 
     /**

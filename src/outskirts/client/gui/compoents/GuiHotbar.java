@@ -15,7 +15,7 @@ public class GuiHotbar extends Gui {
         addMouseWheelListener(e -> {
             if (Outskirts.isIngame())
                 Outskirts.getPlayer().setHotbarSlot(
-                     (int)Maths.mod(Outskirts.getPlayer().getHotbarSlot()+Math.signum(Outskirts.getDWheel()), 16));
+                     (int)Maths.mod(Outskirts.getPlayer().getHotbarSlot()+Math.signum(e.getDScroll()), 16));
         });
     }
 

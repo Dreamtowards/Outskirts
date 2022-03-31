@@ -19,10 +19,12 @@
     <orderEntry type="library" name="jogg-0.0.7" level="project" />
     <orderEntry type="library" name="jorbis-0.0.15" level="project" />
     <orderEntry type="library" name="typetools-0.4.4" level="project" />
-    <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="log4j-api-2.13.1" level="project" />
     <orderEntry type="library" name="log4j-core-2.13.1" level="project" />
     <orderEntry type="library" name="junit-4.10" level="project" />
     <orderEntry type="library" name="asm-all-5.1" level="project" />
+    <orderEntry type="library" name="lwjgl-openal" level="project" />
+    <orderEntry type="library" name="lwjgl" level="project" />
+    <orderEntry type="library" name="lwjgl-stb" level="project" />
   </component>
 </module>

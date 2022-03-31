@@ -2,6 +2,7 @@ package outskirts.client.gui.debug;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
@@ -18,9 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.lwjgl.input.Keyboard.KEY_I;
-import static org.lwjgl.input.Keyboard.KEY_V;
 
 public class GuiVert3D extends Gui {
 
@@ -198,7 +196,7 @@ public class GuiVert3D extends Gui {
                     drawRect(vert.color, x, y, 4, 4);
                     if (vert.name.contains("[v]"))
                         drawString(vert.name.replace("[v]", " (" + vert.position + ")"), x, y, vert.color);
-                    else if (Outskirts.isKeyDown(KEY_V))
+                    else if (Outskirts.isKeyDown(GLFW.GLFW_KEY_V))
                         drawString(vert.name +vert.position, x, y, vert.color);
                     else
                         drawString(vert.name, x, y, vert.color);

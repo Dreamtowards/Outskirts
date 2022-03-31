@@ -92,9 +92,9 @@ public class GuiScreenOptions extends Gui {
                             f -> World.sz = f.intValue());
                 })),
                 row("VSync", new GuiSwitch().exec((GuiSwitch g) -> {
-                    g.initCheckedSync(
-                            () -> Outskirts.renderEngine.isVSync(),
-                            b -> Outskirts.renderEngine.setVSync(b));
+//                    g.initCheckedSync(
+//                            () -> Outskirts.getWindow().isVSync(),
+//                            b -> Outskirts.getWindow().setVSync(b));
 
                 })),
                 row("FPS Capacity", new GuiSlider().exec((GuiSlider g) -> {

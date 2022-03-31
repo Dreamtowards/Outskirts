@@ -1,6 +1,5 @@
 package outskirts.client.render;
 
-import org.lwjgl.input.Mouse;
 import outskirts.client.ClientSettings;
 import outskirts.client.Outskirts;
 import outskirts.entity.player.EntityPlayer;
@@ -45,11 +44,11 @@ public class Camera {
         if (Outskirts.isIngame()) {
             // actually this mouse-move looks wrong: not sampled full-frame all move records, just sampled frame-tail event move.
             // but this gets better experience effect.
-            eulerAngles.y += -Math.toRadians(Outskirts.getMouseFFDX() * ClientSettings.MOUSE_SENSITIVITY);
-            eulerAngles.x += -Math.toRadians(Outskirts.getMouseFFDY() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.y += -Math.toRadians(Outskirts.getMouseDX() * ClientSettings.MOUSE_SENSITIVITY);
+            eulerAngles.x += -Math.toRadians(Outskirts.getMouseDY() * ClientSettings.MOUSE_SENSITIVITY);
             eulerAngles.x = Maths.clamp(eulerAngles.x, -Maths.PI/2f, Maths.PI/2f);
 
-            cameraDistance += Math.signum(Outskirts.getFFDWheel());
+            cameraDistance += Math.signum(Outskirts.getDScroll());
             cameraDistance = Math.min(cameraDistance, 0);
         }
 

@@ -115,15 +115,15 @@ public final class ShaderProgram {
     }
 
     public void setMatrix2f(String uniformName, Matrix2f matrix) {
-        glUniformMatrix2(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix2f.store(matrix, new float[4])));
+        glUniformMatrix2fv(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix2f.store(matrix, new float[4])));
     }
 
     public void setMatrix3f(String uniformName, Matrix3f matrix) {
-        glUniformMatrix3(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix3f.store(matrix, new float[9])));
+        glUniformMatrix3fv(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix3f.store(matrix, new float[9])));
     }
 
     public void setMatrix4f(String uniformName, Matrix4f matrix) {
-        glUniformMatrix4(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix4f.store(matrix, new float[16])));
+        glUniformMatrix4fv(getUniformLocation(uniformName), true, Loader.loadBuffer(Matrix4f.store(matrix, new float[16])));
     }
 
     public void setVector2f(String uniformName, Vector2f vector) {

@@ -38,7 +38,7 @@ public class GuiMap extends GuiDrag {
         addOnDraggingListener(e -> currentMapOffset.add(e.dx, e.dy));
         addMouseWheelListener(e -> {
             float oldscale = scale;
-            scale = Maths.clamp(scale+Outskirts.getDWheel(), 0.2f, 50);
+            scale = Maths.clamp(scale+e.getDScroll(), 0.2f, 50);
             float t = scale - oldscale;
 
             currentMapOffset.addScaled(t, new Vector2f(currentBlock).negate());

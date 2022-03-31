@@ -1,6 +1,5 @@
 package outskirts.util;
 
-import org.lwjgl.Sys;
 import outskirts.util.function.TriConsumer;
 
 import java.lang.reflect.Array;

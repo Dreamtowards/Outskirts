@@ -38,7 +38,7 @@ public class GuiDrag extends Gui {
 
         addMouseMoveListener(e -> {
             if (isDragging()) {
-                performEvent(new OnDraggingEvent(Outskirts.getMouseDX(), Outskirts.getMouseDY()));
+                performEvent(new OnDraggingEvent(e.getMouseDX(), e.getMouseDY()));
             }
         });
     }

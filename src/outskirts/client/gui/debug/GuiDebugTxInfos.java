@@ -21,7 +21,7 @@ public class GuiDebugTxInfos extends Gui {
     {
         addOnDrawListener(e -> {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("\nU/T: %s / %s | JVM_Max: %s\n", FileUtils.toDisplaySize(SystemUtil.MEM_USED), FileUtils.toDisplaySize(SystemUtil.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtil.MEM_MAXIMUM)));
+            sb.append(String.format("\nU/T: %s / %s | VM_Max: %s\n", FileUtils.toDisplaySize(SystemUtil.MEM_USED), FileUtils.toDisplaySize(SystemUtil.MEM_TOTAL), FileUtils.toDisplaySize(SystemUtil.MEM_MAXIMUM)));
 
             currSecFrames++;
             deltaSumUntilOne += Outskirts.getDelta();

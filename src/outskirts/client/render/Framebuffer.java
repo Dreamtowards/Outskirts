@@ -58,7 +58,7 @@ public final class Framebuffer {
 
     private static void bindMainFramebuffer() { // or should be isolate with this Object, as a static method bindMainFramebuffer() ..?
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, Outskirts.toFramebufferCoords(Outskirts.getWidth()), Outskirts.toFramebufferCoords(Outskirts.getHeight()));
+        glViewport(0, 0, Outskirts.toMainFramebufferCoords(Outskirts.getWidth()), Outskirts.toMainFramebufferCoords(Outskirts.getHeight()));
     }
 
     //

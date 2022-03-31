@@ -1,6 +1,6 @@
 package outskirts.client.gui;
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.render.Texture;
@@ -344,7 +344,7 @@ public class Gui {
 
     public static void initEscClose(Gui g) {
         g.addKeyboardListener(e -> {
-            if (e.getKeyState() && e.getKey() == Keyboard.KEY_ESCAPE && getRootGUI().getLastGui() == g) {
+            if (e.getKeyState() && e.getKey() == GLFW.GLFW_KEY_ESCAPE && getRootGUI().getLastGui() == g) {
                 g.getParent().removeGui(g);
             }
         });
@@ -637,8 +637,8 @@ public class Gui {
     public final void addKeyboardListener(Consumer<KeyboardEvent> lsr) {
         addGlobalEventListener(KeyboardEvent.class, lsr);
     }
-    public final void addMouseWheelListener(Consumer<MouseWheelEvent> lsr) {
-        addGlobalEventListener(MouseWheelEvent.class, lsr);
+    public final void addMouseWheelListener(Consumer<InputScrollEvent> lsr) {
+        addGlobalEventListener(InputScrollEvent.class, lsr);
     }
 
 
