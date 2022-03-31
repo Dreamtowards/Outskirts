@@ -20,9 +20,9 @@ public final class Start {
 
     public static void main(String[] args) throws Exception {
 
-        // DEFAULT: -ea  (java9+:) --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+        // DEFAULT: -ea  (java9+:) --add-opens java.base/java.nio=ALL-UNNAMED
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
-        System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/"+ SystemUtil.OS_NAME.toLowerCase()).getAbsolutePath());
+        System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/macosx").getAbsolutePath());
 
         Files.list(Path.of("libraries"))
                 .filter(p -> !Files.isDirectory(p) && p.endsWith(".jar"))

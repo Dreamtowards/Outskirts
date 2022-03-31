@@ -117,7 +117,7 @@ public final class RenderEngine {
         LOGGER.info("LWJGL {}, GLFW{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR);
 
         Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
-            Log.LOGGER.info("Resize fbGUI");
+            // Log.LOGGER.info("Resize fbGUI");
             fbGUI
                     .pushFramebuffer()
                     .resize((int)(Outskirts.getWidth()*GUI_FB_FACTOR), (int)(Outskirts.getHeight()*GUI_FB_FACTOR))

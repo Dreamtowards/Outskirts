@@ -2,6 +2,7 @@ package outskirts.client.gui;
 
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.GuiRenderer;
@@ -10,6 +11,7 @@ import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
 import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -545,9 +547,11 @@ public class Gui {
     }
     public final boolean broadcaseEvent(Event event) { // post to all children gui{
         Gui.forChildren(this, g -> {
-            if (g.isVisible()) {  // Only Post to isVisible() Guis.
-                g.performEvent(event);
-            }
+            // whether isVisible(), just dispatch.
+            // something dependents on event, don't missed.
+            // e.g. global event dependent on OnAttach/OnDetach, if Attached as Invisiable, then to Visible, it just missed the event.
+
+            g.performEvent(event);
         });
         return Cancellable.isCancelled(event);
     }

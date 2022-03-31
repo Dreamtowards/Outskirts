@@ -2,6 +2,8 @@ package outskirts.client;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.stb.STBVorbis;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
@@ -91,6 +93,7 @@ public class Outskirts {
         player.setName("Player215");
         camera.setOwnerEntity(player);
 
+//        getRootGUI().addGui(GuiIngame.INSTANCE);
         getRootGUI().addGui(GuiScreenMainMenu.INSTANCE.exec(g -> {
             g.addOnDrawListener(e -> {
                 Gui.drawRect(Colors.BLACK40, rootGUI);
@@ -113,7 +116,6 @@ public class Outskirts {
 
 
     private void runMainLoop() throws Throwable { profiler.push("rt");
-        double s = getProgramTime();
 
         timer.update();
 
@@ -154,6 +156,8 @@ public class Outskirts {
 
         if (window.isCloseRequested())
             Outskirts.shutdown();
+
+//        Log.LOGGER.info("FPS "+(1f/getDelta()));
     }
 
     private void renderGUI() {

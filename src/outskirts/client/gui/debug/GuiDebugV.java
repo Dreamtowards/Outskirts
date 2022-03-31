@@ -1,5 +1,6 @@
 package outskirts.client.gui.debug;
 
+import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
 import outskirts.client.gui.*;
 import outskirts.client.gui.ex.GuiWindow;
@@ -15,10 +16,13 @@ import outskirts.entity.Entity;
 import outskirts.entity.item.EntityStaticMesh;
 import outskirts.entity.player.Gamemode;
 import outskirts.event.EventPriority;
+import outskirts.event.Events;
+import outskirts.event.client.input.KeyboardEvent;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
@@ -47,9 +51,11 @@ public class GuiDebugV extends Gui {
         GuiBasisVisual basisv;
         GuiEntityGBufferVisual gbufv;
 
-        addOnDrawListener(e -> {
-            requestLayout();
-            requestDraw();
+        addKeyboardListener(e -> {
+            if (e.isPressed() && e.getKey() == GLFW.GLFW_KEY_R) {
+                requestLayout();
+                requestDraw();
+            }
         });
 
         Matrix3f theBasis = new Matrix3f();

@@ -59,8 +59,8 @@ public final class Window {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX req.
-//        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-//        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
@@ -71,6 +71,10 @@ public final class Window {
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);  // 1: enable v-sync.
         GL.createCapabilities();  // GL Context.
+
+        glfwShowWindow(window);
+        glfwFocusWindow(window);
+
         initCallbacks();
         printSystemLog();
 
@@ -141,7 +145,11 @@ public final class Window {
     public void setMousePos(float x, float y) {
         glfwSetCursorPos(window, x, y);
     }
+
+    private boolean mouseGrabbed = false;
     public void setMouseGrabbed(boolean grabbed) {
+        if (grabbed == mouseGrabbed) return;
+        mouseGrabbed = grabbed;
         glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
