@@ -52,6 +52,13 @@ public final class CollectionUtils {
         return ls;
     }
 
+    public static <T> List<T> asList(T a, List<T> b) {
+        List<T> l = new ArrayList<>();
+        l.add(a);
+        l.addAll(b);
+        return l;
+    }
+
     public static float[] toArrayf(List<Float> list) {
         float[] array = new float[list.size()];
         int i = 0;
@@ -146,6 +153,13 @@ public final class CollectionUtils {
         return indexOf(array, find) != -1;
     }
 
+    public static <T> T find(Iterable<T> it, Predicate<T> test) {
+        for (T e : it) {
+            if (test.test(e))
+                return e;
+        }
+        return null;
+    }
 
     public static <T> T get(T[] array, Predicate<T> predicate) {
         for (T e : array) {
@@ -177,6 +191,12 @@ public final class CollectionUtils {
     }
     public static <T> T[] subarray(T[] array, int beginIndex) {
         return subarray(array, beginIndex, array.length);
+    }
+
+    public static byte[] subarray(byte[] arr, int begin, int end) {
+        byte[] a = new byte[end - begin];
+        System.arraycopy(arr, begin, a, 0, a.length);
+        return a;
     }
 
     //this custom should be in library..? RAND is too high level

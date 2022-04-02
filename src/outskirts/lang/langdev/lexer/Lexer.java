@@ -2,100 +2,341 @@ package outskirts.lang.langdev.lexer;
 
 import outskirts.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.Objects;
 
+import static outskirts.lang.langdev.lexer.TokenType.EOF;
+import static outskirts.lang.langdev.lexer.TokenType.LITERAL_INT;
+
+/**
+ * In-time Lexer.
+ * reading token at in-time. not predict/parse all tokens at 'beginning'.
+ * because some token may context-related, cant been predict at lexical-time.
+ * and its not cost so much space-cost since not need holds all tokens.
+ */
 public final class Lexer {
 
-    public int index;
-    private final List<Token> tokens = new ArrayList<>();
+//    private int index;
+//    private final List<TokenItem> tokens = new ArrayList<>();
+//    private final LinkedList<Integer> markers = new LinkedList<>();
 
-    public void read(final String s) {
-        Intptr idx = Intptr.zero();
-        while (skipBlanks(s, idx) != -1) {
-            final int i = idx.i;  // tmp local.
-            final char ch = s.charAt(idx.i);
+//    private Token curr;
 
-            String text; int type;
+    private String sourcelocation;
+    private String srx = "";  // Source
+    private int rdi;     // ReadIndex.
+    private final LinkedList<Integer> rdimarkers = new LinkedList<>();  // for mark/setback.
 
-            Intptr nline = Intptr.zero(), nchar = Intptr.zero();
-            StringUtils.locate(s, i, nline, nchar);
+//    private final LinkedList<Integer> markedreadidxs = new LinkedList<>();  // for pushIdx, popIdx. AST SourceLocation QuickRangeDefine
+//    public void pushReadIdx() { markedreadidxs.push(rdi); }
+//    public int popReadIdx() { return markedreadidxs.pop(); }
 
-            if (startsWith("//", s,i)) {   // Singleline Comment.
-                int end = s.indexOf("\n", i);
-                idx.i = end==-1 ? s.length() : end+1;  // +1: jump over the '\n'.
-                continue;
-            } else if (startsWith("/*", s,i)) {  // Multiline Comment.
-                int end = s.indexOf("*/", i);
-                Validate.isTrue(end != -1, "Unterminated Multiline Comment.");
-                idx.i= end +2;  // +2: jump over the "*/".
-                continue;
-            } else if (isIntegerChar(ch) || (ch=='.' && isIntegerChar(atchar(s,i+1)))) {  // Number Literal.
-                text = readNumber(s, idx);
-                type = Token.TYPE_NUMBER;
-            } else if (ch == '"') {  // String Literal.
-                text = readQuote(s, idx, '"');
-                type = Token.TYPE_STRING;
-            } else if (isNameChar(ch, true)) {  // Name.
-                text = readName(s, idx);
-                type = Token.TYPE_NAME;
-            } else if (isBorderChar(ch)) {  // Border.
-                text = readBorder(s, idx);
-                type = Token.TYPE_BORDER;
-            } else {
-                throw new IllegalStateException(String.format("Unexpected token: %s in [%s:%s]", ch, nline.i, nchar.i));
+    public String getSource() { return srx; }
+    public void setSourceName(String sourcelocation) {
+        this.sourcelocation = sourcelocation;
+    }
+    public String getSourceName() {
+        return sourcelocation;
+    }
+
+    public int readidx() { return rdi; }
+    public int cleanrdi() {
+        Intptr idx = Intptr.of(rdi);
+        _skipBlankAndComments(srx, idx);
+        return idx.i;
+    }
+
+    // read/next/peek
+
+    private Token read(TokenType expctedtype, boolean steppin) {
+        Intptr idx = Intptr.of(rdi);
+
+        _skipBlankAndComments(srx, idx);
+
+        // optim.
+        boolean eof = idx.i >= srx.length();
+//        if () {
+//            if (expctedtype != null) return null;
+//            else return new Token(TokenType.EOF, null, new SourceLoc(sourcelocation, srx, srx.length(), srx.length()));
+//        }
+
+        final int beg = idx.i;
+        rdi=beg;  // assign unblank-begin to rdi is allowed. else the SrcLoc.end might before SrcLoc.begin if the Parse only peeking not steppin. (Modifiers)
+        TokenType type = null;
+        String content = null;  // only available for TType.fixed==null Types.
+
+        if (expctedtype != null) {  // as expected.
+            type = expctedtype;
+
+            if (expctedtype == TokenType.IDENTIFIER) {
+                content = readName(srx, idx);
+
+                if (content == null)  // not a identifier
+                    return null;
+                if (TokenType.lookup(content) != null)  // overlapped with keyword.
+                    return null;
+            } else if (expctedtype == EOF) {
+                if (!eof)
+                    return null;
+            } else {  // keywords.
+                String keyw = expctedtype.fixed();
+                Validate.isTrue(keyw != null, "Unsupported infixed token type.");
+
+                if (!srx.startsWith(keyw, beg))  // not match.
+                    return null;
+
+                idx.i += keyw.length();
             }
 
-            tokens.add(new Token(text, type, nline.i, nchar.i));
+        } else {  // as predicted.
+            if (eof) {
+                type = EOF;
+                content = "\0";
+            } else {
+                char ch = srx.charAt(beg);
+
+                if (isNumberChar(ch) || (ch == '.' && isNumberChar(atchar(srx, beg + 1))) || (ch == '-' && isNumberChar(atchar(srx, beg + 1)))) {
+                    Ref<TokenType> tmp = Ref.wrap();
+                    content = readNumber(srx, idx, tmp);
+                    type = tmp.value;
+                } else if (ch == '\"') {
+                    content = readQuote(srx, idx, '\"');
+                    type = TokenType.LITERAL_STRING;
+                } else if (ch == '\'') {
+                    content = readQuote(srx, idx, '\'');
+                    type = TokenType.LITERAL_CHAR;
+                } else if (isNameChar(ch, true)) {  // before keywords. because a valid name may startsWith (but not equals) a keyword.
+                    content = readName(srx, idx);
+
+                    TokenType keywtyp = TokenType.lookup(content);
+                    if (keywtyp != null) {  // Overlapped with Keywords.
+                        content = null;
+                        type = keywtyp;
+                    } else {
+                        type = TokenType.IDENTIFIER;
+                    }
+                } else {
+                    for (TokenType e : TokenType.values()) {
+                        String fixed = e.fixed();
+                        if (fixed != null && srx.startsWith(fixed, beg)) {
+                            type = e;
+                            idx.i += fixed.length();
+                            break;
+                        }
+                    }
+                    Validate.isTrue(type != null, "Not found keyword at '" + srx.substring(beg, Math.min(srx.length() - 1, idx.i)) + "'");
+                }
+            }
+        }
+
+        if (steppin) {
+            rdi = idx.i;
+        }
+        Validate.isTrue(type != null);
+//        Validate.isTrue(idx.i != beg, "nothing had been 'read'? ptr no change");
+        return new Token(type, content, new SourceLoc(sourcelocation, srx, beg, idx.i));
+    }
+
+    private static void _skipBlankAndComments(String s, Intptr idx) {
+        while (idx.i < s.length()) {
+            int i = idx.i;
+
+            i = skipBlanks(s, i);
+
+            if (s.startsWith("//", i)) {
+                int end = s.indexOf("\n", i+2);
+                i = end==-1 ? s.length() : end+1;
+            } else if (s.startsWith("/*", i)) {
+                int end = s.indexOf("*/", i+2);
+                Validate.isTrue(end!=-1, "Unterminated multiline comment.");
+                i = end+2;
+            }
+
+            // no change anymore
+            if (i == idx.i) {
+                break;
+            } else {
+                idx.i = i;
+            }
         }
     }
+
+    public void appendsource(String src) {
+        this.srx += src;
+    }
+
+
+
 
     public Token peek() {
-        if (eof())
-            return Token.EOF;
-            // throw new IllegalStateException("EOF");
-        return tokens.get(index);
+        return read(null, false);
     }
-
-    public Token next() {
-        if (eof())
-            return Token.EOF;
-            // throw new IllegalStateException("EOF");
-        return tokens.get(index++);
+    public boolean peeking(TokenType expected) {
+        Objects.requireNonNull(expected);
+        return read(expected, false) != null;
     }
-
-    public boolean eof() {
-        return index == tokens.size();
-    }
-
-    public List<Token> tokens() {
-        return tokens;
-    }
-
-    // deprecated way: char nextUnblank(), the 'next' is writable mean even for Unblanked chars.
-    public static int skipBlanks(String s, Intptr idx) {
-        while (idx.i < s.length()) {
-            char ch = s.charAt(idx.i);
-            if (ch > ' ')
-                return idx.i;
-            idx.i++;
+    public final boolean selpeeking(TokenType... expecteds) {
+        for (TokenType e : expecteds) {
+            if (peeking(e))
+                return true;
         }
-        return -1;
-    }
-
-    private static boolean isBorderChar(char ch) {
-        if (ch >= '!' && ch <= '/') return true;
-        if (ch >= ':' && ch <= '@') return true;
-        if (ch >= '[' && ch <= '`') return true;
-        if (ch >= '{' && ch <= '~') return true;
         return false;
     }
+
+    @Nonnull
+    public Token next(TokenType expected) {
+        Token t = read(expected, true);
+        if (t == null)
+            throw new IllegalStateException("Expect token "+expected+", auto_detected: "+peek()+" at "+_dbg_statinf());
+        return t;
+    }
+    public final Token next() {
+        return next(null);
+    }
+
+    @Nullable
+    public final Token trynext(TokenType expected) {
+        Objects.requireNonNull(expected);
+        return read(expected, true);
+    }
+    public final boolean nexting(TokenType expected) {
+        return trynext(expected) != null;
+    }
+
+    @Nullable
+    public final Token selnext(TokenType... expecteds) {
+        Token t;
+        for (TokenType e : expecteds) {
+            if ((t = trynext(e)) != null)
+                return t;
+        }
+        return null;
+    }
+
+    public final String _dbg_statinf() {
+//        return new SourceLoc(sourcelocation, srx, rdi, Math.min(rdi+1, srx.length())).toString();
+        return peek().sloc.toString();
+    }
+
+
+
+
+
+
+    public void mark() {
+        rdimarkers.push(rdi);
+    }
+    public void unmark() {
+        rdi = rdimarkers.pop();
+//        curr = null;  // curr is invalid since rdi changed.
+    }
+    public void cancelmark() {
+        rdimarkers.pop();
+    }
+    public boolean isSpeculating() {
+        return rdimarkers.size() > 0;
+    }
+
+
+
+
+//    public boolean peeking(TokenType t) {
+//
+//    }
+//    public final Lexer match(String s) {
+//        Token t = next();
+//        Validate.isTrue(t.text().equals(s), "Bad token. expected: '"+s+"', actual: '"+t.text()+"'. at "+t.detailString());
+//        return this;
+//    }
+//    public final boolean peeking(String connected) {
+//        return peekingc(connected) > 0;
+//    }
+//    public final boolean peekingone(String... ors) {
+//        for (String s : ors) {
+//            if (peeking(s))
+//                return true;
+//        }
+//        return false;
+//    }
+//
+//    public final int peekingc(String connected) {  // "c" suffix, count of peeking connected
+//
+//        String ld = peek().text();
+//        if (connected.equals(ld))       // quick optim
+//            return 1;
+//        if (!connected.startsWith(ld))  // quick optim
+//            return 0;
+//
+//
+//        int i = 1;              // token rel_idx offset
+//        int off = ld.length();  // connected_str char offset.
+//        while (off < connected.length()) {
+//            Token t = tokens.get(index+(i++)); String c = t.text();
+//            boolean leading = off + c.length() < connected.length();  // not last
+//            if ((leading && !t.isConnectedNext()) ||
+//                !connected.startsWith(c, off)) {
+//                return 0;
+//            }
+//            off += c.length();
+//        }
+//        return i;
+//    }
+//    public final boolean peeking_skp(String s) {
+//        int i;
+//        if ((i= peekingc(s)) > 0) {
+//            skip(i);
+//            if (i > 1) {
+//                System.out.println("Skipped "+i);
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+//    public final String peekingone_skp(String... ls) {
+//        for (String s : ls) {
+//            if (peeking_skp(s))
+//                return s;
+//        }
+//        return null;
+//    }
+
+
+
+
+    // deprecated way: char nextUnblank(), the 'next' is writable mean even for Unblanked chars.
+    public static int skipBlanks(String s, int idx) {
+        while (idx < s.length()) {
+            char ch = s.charAt(idx);
+            if (isUnblankChar(ch))
+                return idx;
+            idx++;
+        }
+        return idx;
+    }
+    private static boolean isUnblankChar(char ch) {
+        return ch > ' ';
+    }
+
     private static boolean isNameChar(char ch, boolean first) {
         return (ch=='_' || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z'))
-                || (!first && isIntegerChar(ch));
+                || (!first && isNumberChar(ch));
     }
-    private static boolean isIntegerChar(char ch) {
-        return ch >= '0' && ch <= '9';
+    private static String readName(String s, Intptr idxptr) {
+        int i = idxptr.i;
+        int begin = i;
+        while (i < s.length()) {
+            if (isNameChar(s.charAt(i), i==begin))
+                i++;
+            else
+                break;
+        }
+        if (i == idxptr.i)
+            return null;  // invalid name.
+        idxptr.i = i;
+        return s.substring(begin, i);
     }
 
 
@@ -129,67 +370,98 @@ public final class Lexer {
         throw new IllegalStateException("Unterminated string.");
     }
 
-    private static String readNumber(String s, Intptr idx) {
-        StringBuilder sb = new StringBuilder();
-        boolean p = false;  // pointed.
+    private static boolean isNumberChar(char ch, int literaltype) {
+        switch (literaltype) {
+            case NUML_BINARY: return ch == '0' || ch == '1';
+            case NUML_DECIMAL: return ch >= '0' && ch <= '9';
+            case NUML_HEX: return (ch>='0' && ch<='9') || (ch>='a' && ch<='f') || (ch>='A' && ch<='F');
+            default: throw new IllegalArgumentException("Bad enum");
+        }
+    }
+    private static boolean isNumberChar(char ch) {
+        return isNumberChar(ch, NUML_DECIMAL);
+    }
+
+    public static final int NUML_BINARY = 1;  // Integer Number Literal Type. INLT.
+    public static final int NUML_DECIMAL = 2;
+    public static final int NUML_HEX = 3;
+    private static String readNumber(String s, Intptr idx, Ref<TokenType> numtype_out) {
         int i = idx.i;
+//        if (s.charAt(0) == '-') i++;  // neg.
+        int beg = i;
+
+        boolean dot = false;  // fp. decimal point.
+        int literaltype = NUML_DECIMAL;
+        TokenType numtype = LITERAL_INT;
+
+        if (s.charAt(beg) == '0') {  // IntNumber LiteralType.
+            char nx = atchar(s, beg+1);
+
+            if (nx=='x' || nx=='X') {  // Hex
+                literaltype = NUML_HEX;
+                i += 2;
+            } else if (nx == 'b' || nx == 'B') {  // Binary
+                literaltype = NUML_BINARY;
+                i += 2;
+            } else {  // Decimal validate no 0 leading.
+                Validate.isTrue(!isNumberChar(nx), "decimal integer 0-leading is not allowed.");  // 0123 is not allowed. confuse with some octal form.
+            }
+
+            if (literaltype != NUML_DECIMAL) {
+                Validate.isTrue(isNumberChar(s.charAt(i), literaltype), "Bad number heading.");
+            }
+        }
+
         while (i < s.length()) {
             char c = s.charAt(i);
-            if (isIntegerChar(c)) {
+
+            if (isNumberChar(c, literaltype)) {
                 i++;
-                sb.append(c);
-            } else if (!p && c == '.') {
+            } else if (c == '.') {
+                Validate.isTrue(!dot, "Decimal point already set.");
+                Validate.isTrue(literaltype == NUML_DECIMAL, "Decimal places only allowed for Decimals.");
                 i++;
-                p = true;
-                sb.append(c);
-            } else if (i != 0 && c == '_') {
+                dot = true;
+                numtype = TokenType.LITERAL_DOUBLE;
+            } else if (c == '_') {
+                Validate.isTrue(isNumberChar(atchar(s,i-1), literaltype) &&
+                                     isNumberChar(atchar(s,i+1), literaltype), "Neighber of _ must be nums.");
                 i++;
             } else {
-                if (c == 'f' || c == 'd') {
-                    i++;
-                    sb.append(c);
+                if (literaltype == NUML_DECIMAL) {
+                    if (c == 'e' || c == 'E') {  // fp exponent.
+                        i++;
+                        if (atchar(s, i) == '-') {
+                            i++;
+                        }
+                        while (isNumberChar(s.charAt(i))) {
+                            i++;
+                        }
+                        numtype = TokenType.LITERAL_DOUBLE;
+                    }
+                    // Suffixes.
+                    if (c == 'f' || c == 'F') {
+                        i++;
+                        numtype = TokenType.LITERAL_FLOAT;
+                    } else if (c == 'd' || c == 'D') {
+                        i++;
+                        numtype = TokenType.LITERAL_DOUBLE;
+                    } else if (c == 'l' || c == 'L') {
+//                        Validate.isTrue(numtype == null);
+                        i++;
+                        numtype = TokenType.LITERAL_LONG;
+                    } else {
+                        numtype = LITERAL_INT;
+                    }
                 }
                 break;
             }
         }
         idx.i = i;
-        return sb.toString();
+        numtype_out.value = Objects.requireNonNull(numtype);
+        return s.substring(beg, i);
     }
 
-    private static String readName(String s, Intptr idx) {
-        StringBuilder sb = new StringBuilder();
-        int begin = idx.i;
-        while (idx.i < s.length()) {
-            char ch = s.charAt(idx.i);
-            if (isNameChar(ch, idx.i==begin)) {
-                sb.append(ch);
-                idx.i++;
-            } else {
-                break;
-            }
-        }
-        return sb.toString();
-    }
-
-    private static String readBorder(String s, Intptr idx) {
-        int i = idx.i;
-        if (startsWith("||",s,i) || startsWith("&&",s,i) ||
-            startsWith("<<",s,i) || startsWith(">>",s,i) ||
-            startsWith("==",s,i) || startsWith("!=",s,i) ||
-            startsWith("<=",s,i) || startsWith(">=",s,i)) {
-            idx.i += 2;
-            return s.substring(i, i+2);
-        }
-        if (isBorderChar(s.charAt(i))) {
-            idx.i += 1;
-            return s.substring(i, i+1);
-        }
-        throw new IllegalStateException("Illegal border token.");
-    }
-
-    private static boolean startsWith(String search, String full, int fromIndex) {
-        return full.indexOf(search, fromIndex) == fromIndex;
-    }
     private static char atchar(String s, int i) {
         return i >= s.length() ? 0 : s.charAt(i);
     }

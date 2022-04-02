@@ -1,118 +1,110 @@
 package outskirts.lang.langdev;
 
 import outskirts.lang.langdev.ast.*;
+import outskirts.lang.langdev.compiler.ClassCompiler;
 import outskirts.lang.langdev.lexer.Lexer;
-import outskirts.lang.langdev.parser.Parserls;
+import outskirts.lang.langdev.machine.Machine;
+import outskirts.lang.langdev.parser.LxParser;
+import outskirts.lang.langdev.symtab.*;
 import outskirts.util.IOUtils;
+
 
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import static outskirts.lang.langdev.parser.Parserls.pass;
-import static outskirts.lang.langdev.parser.Parserls.struct;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
 
+    // what if only functions been compiled. the data-struct is implied inside the opcodes?
+    public static Map<String, SymbolFunction> compiledfuncs = new HashMap<>();
+//    public static Scope glob;
+
+    static class Par {
+        int abc = 2;
+        void doSth(Object o) {
+            System.out.println("Par");
+        }
+    }
+    static class Sub extends Par {
+        int abc = 3;
+//        void doSth(Object s) {
+//            System.out.println("Sub");
+//        }
+
+        void doSth(String o) {
+            super.doSth(o);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
 
-        String s = IOUtils.toString(new FileInputStream("main.g"));
+        Sub s = new Sub();
+        (s).doSth((String)"s");
 
-        Lexer lex = new Lexer();
-        lex.read(s);
+//        Lexer l = new Lexer();
+//        l.appendsource("(s.length() == this->length()) && (this->find(s) == 0)");
+//        AST_Expr aa = LxParser.parseExpr(l);
+//        System.out.println(((AST_Expr_OperBinary)aa).getBinaryKind());
+//        System.exit(0);
+//        System.out.println("abccd".lastIndexOf("cd", 3));
+//        System.exit(0);
 
-        int i = 0;
+        Scope glob = new Scope(null);
+        SymbolBuiltinType.init(glob);
 
-        var exprbase = pass().initname("expression");
-        {
-            Parserls varname;
-            var primary = pass().or(
-                    struct(AST_Token_LiteralNumber::new).number().initname("NumberLiteral"),
-                    struct(AST_Token_LiteralString::new).string().initname("StringLiteral"),
-                    varname=struct(AST_Token_VariableName::new).name().initname("VariableName")
-            ).initname("Primary");
+        for (String cp : Arrays.asList(
+                "stl/lang/System.g",
+                "stl/lang/String.g",
+                "stl/math/vec2.g",
+                "itptr.g"
+        )) {
+            // Lex
+            Lexer lx = new Lexer();
+            lx.setSourceName(cp);
+            lx.appendsource(IOUtils.toString(new FileInputStream("/Users/dreamtowards/Projects/Outskirts/src/outskirts/lang/stlv2/"+cp)));
 
-            var fargls = struct(ASTls::new).op(pass().and(exprbase).repeat(pass().id(",").and(exprbase))).initname("FuncArgs");
+            // Parse
+            AST__CompilationUnit a = LxParser.parse_CompilationUnit(lx);
 
-            var expr1 = pass();
-                expr1.or(
-                    pass().id("(").and(exprbase).id(")").initname("ExprParentheses"),
-                    pass().or(primary).repeat(pass().or(
-                            pass().id(".").and(varname).composer(stk -> {
-                                var r = stk.pop();
-                                var l = stk.pop();
-                                stk.push(new AST_Expr_BiOper(l, ".", r));
-                            }).initname("MemberAccess"),
-                            pass().id("(").and(fargls).id(")").composer(stk -> {
-                                ASTls ls = stk.pop();
-                                var f = stk.pop();
-                                stk.push(new AST_Expr_FuncCall(f, ls.toArray()));
-                            }).initname("FuncCall"),
-                            pass().id("[").and(exprbase).id("]").composer(stk -> {
-                                var r = stk.pop();
-                                var l = stk.pop();
-                                stk.push(new AST() {
-                                    @Override
-                                    public String toString() {
-                                        return "array_access{"+l+"["+r+"]}";
-                                    }
-                                });
-                            }).initname("ArrayAccess")
-                    ))
-            ).initname("expr1");
+            // Type/Symbol Entering. // Attr. Identity   //  ASTSymbol.idenStmtBlockStmts(a, glob);
+            a.acceptvisit(ASTSymolize.INSTANCE, glob);
 
-//            int[] arr = {};
-//            int in = ((arr)).[0];
-//
-//            AST l, r;
-//            AST_Token o;
-//            l = primary.readone(lex);
-//            while (true) {
-//                o = (AST_Token)primary.readone(lex);
-//                if (o.text().equals(".")) {
-//                    r = primary.readone(lex);
-//                    l = new AST_Expr_BiOper(l, o, r);
-//                } else if (o.text().equals("[")){
-//                    r = exprbase.readone(lex);
-//                    pass().id("]").read(lex);
-//                    l = new AST_Expr_ArrAcc(l, r);
-//                } else if (o.text().equals("(")) {
-//                    r = p_args.read(lex);
-//                    l = new FunCall(l, r);
-//                }
-//            }
+            // Compile.
+            // ClassCompiler.compileStmtBlockStmts(a.getDeclrations());
 
-            var expr2 = pass().or(
-                    struct(AST_Expr_PostInc::new).and(expr1).id("++").markLookahead().initname("PostInc"),
-                    expr1
-            ).initname("expr2_suffix");
-
-            var expr3 = pass().or(
-                    struct(AST_Expr_Neg::new).id("-").and(expr2).initname("Neg"),
-                    expr2
-            ).initname("expr3_prefix");
-
-            var expr4 = struct(AST_Expr_BiOper::composite).and(expr3).repeat(pass().iden("*", "/").and(expr3));
-            var expr5 = struct(AST_Expr_BiOper::composite).and(expr4).repeat(pass().iden("+", "-").and(expr4));
-
-            var expr15 = struct(AST_Expr_BiOper::composite);
-                expr15.and(expr5).op(pass().iden("=").and(expr15));
-
-            exprbase.and(expr15);  // init.
-
-
-            System.out.println(exprbase.readone(lex));
         }
 
-
-
-
-//        {
-//            var extls = pass().id(":").name().repeat(pass().id(",").name());
-//            var clas = struct().id("class").name().op(extls).id("{").id("}");
-//
-//
-//
+//        for (SymbolClass sc : SymbolClass.genericsFilledClasses) {
+//            for (Symbol sym : sc.getSymbolTable().getMemberSymbols())  {
+//                if (sym instanceof SymbolFunction) {
+//                    SymbolFunction sf = (SymbolFunction)sym;
+//                    // copy ast.?
+//                    ClassCompiler._CompileFunction(sf.genericsTmpASTForCompile, new ConstantPool());
+////                    System.out.println("Compiled Func "+sc.getQualifiedName()+"  "+((AST_Stmt_DefFunc)m).getName());
+//                }
+//            }
 //        }
+
+        // Exec
+        SymbolFunction sf = compiledfuncs.get("test::_Main::main()");
+
+        Machine.exec(sf.codebuf);
+
+
+
+
+
+
+//        StringBuffer sb = new StringBuffer();
+//        ASTPrinter.printStmt(a, 0, sb);
+//        System.out.println(sb.toString());
+
+//        RuntimeExec.init();
+//        RuntimeExec.imports("itptr.g");
+//        RuntimeExec.exec("using _main; _main.main();");
     }
 
 }

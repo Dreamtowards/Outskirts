@@ -14,7 +14,7 @@ public final class StringUtils {
     public static final String EMPTY = "";
     public static final String SPACE = " ";
 
-    private static final String HEX_MAPPING = "0123456789abcdef";
+    public static final String HEX_MAPPING = "0123456789abcdef";
 
     public static String toHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
@@ -236,5 +236,21 @@ public final class StringUtils {
         }
 
         return num;
+    }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.isEmpty();
+    }
+
+    public static String concat(String a, String delimiter, String b) {
+        if (!isBlank(a) && !isBlank(b)) {
+            return a+delimiter+b;
+        } else if (!isBlank(a) && isBlank(b)) {
+            return a;
+        } else if (isBlank(a) && !isBlank(b)) {
+            return b;
+        } else {
+            return "";
+        }
     }
 }
