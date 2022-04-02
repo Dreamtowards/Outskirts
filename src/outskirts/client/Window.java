@@ -3,7 +3,6 @@ package outskirts.client;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import outskirts.client.ClientSettings.ProgramArguments;
-import outskirts.event.Events;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.util.KeyBinding;
@@ -34,7 +33,7 @@ public final class Window {
 
     private String title;
     // resizable, fullscreen
-
+    private float windowContentScale;
 
     public float getX() { return x; }
     public float getY() { return y; }
@@ -62,6 +61,8 @@ public final class Window {
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
         window = glfwCreateWindow(ProgramArguments.WIDTH, ProgramArguments.HEIGHT, title="DISPLAY", 0, 0);
@@ -75,22 +76,24 @@ public final class Window {
         glfwShowWindow(window);
         glfwFocusWindow(window);
 
-        initCallbacks();
+        initGlfwCallbacks();
         printSystemLog();
-
-        int[] w = new int[1], h = new int[1];
-        glfwGetFramebufferSize(window, w, h);
-        width = w[0];
-        height = h[0];
     }
 
-    private boolean firstupdate = true;
+    public void postInitialGlfwEvents() {
+
+        float[] x = new float[1], y = new float[1];
+        glfwGetWindowContentScale(window, x, y);
+        glfwcallback_window_content_scale(window, x[0], y[0]);
+
+        // Note: FramebufferSizeEvent should always after WindowContentScaleEvent etc.
+        // since resizing the framebuffer requires some updated relevant values. e.g. window-content-scale.
+        int[] w = new int[1], h = new int[1];
+        glfwGetFramebufferSize(window, w, h);
+        glfwcallback_framebuffer_size(window, w[0], h[0]);
+    }
 
     public void updateWindow() {
-        if (firstupdate) {
-            firstupdate = false;
-            EVENT_BUS.post(new WindowResizedEvent());
-        }
         resetFramebasedDeltas();
 
         glfwSwapBuffers(window);
@@ -130,7 +133,7 @@ public final class Window {
         glfwSetClipboardString(window, s);
     }
 
-    public static double getHighResolutionTime() {
+    public static double getPrecisionTime() {
         return glfwGetTime();
     }
 
@@ -153,9 +156,10 @@ public final class Window {
         glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
-    private void initCallbacks() {
+    private void initGlfwCallbacks() {
 
         glfwSetFramebufferSizeCallback(window, this::glfwcallback_framebuffer_size);
+        glfwSetWindowContentScaleCallback(window, this::glfwcallback_window_content_scale);
 
         glfwSetKeyCallback(window, this::glfwcallback_key);
         glfwSetCharCallback(window, this::glfwcallback_char);
@@ -170,8 +174,18 @@ public final class Window {
         width = nw;
         height = nh;
 
-        EVENT_BUS.post(new WindowResizedEvent());
         glViewport(0, 0, (int)width, (int)height);
+        EVENT_BUS.post(new WindowResizedEvent());
+        LOGGER.info("SYS FB CHANGE");
+    }
+
+    private void glfwcallback_window_content_scale(long w, float nx, float ny) {
+        if (nx != ny)
+            throw new IllegalStateException("Unexpected ratio of window content scale.");
+
+        windowContentScale = nx;
+        ClientSettings.GUI_SCALE = windowContentScale;
+        LOGGER.info("SYS ContentChange: "+ windowContentScale);
     }
 
     private void glfwcallback_key(long w, int key, int scancode, int action, int mode) {
@@ -195,7 +209,7 @@ public final class Window {
     }
 
     private void glfwcallback_mouse_pos(long w, double _xpos, double _ypos) {
-        float xpos = (float)_xpos*2, ypos = (float)_ypos*2;
+        float xpos = (float)_xpos*windowContentScale, ypos = (float)_ypos*windowContentScale;  // *sysScale: make mousepos same coords with framebuffer.
         float edx = xpos-mouseX, edy = ypos-mouseY;  // ED: Event-based Delta. not Frame-based. it might litter than frame-based, since one frame might have multiple events.
 
         mouseDX += edx;

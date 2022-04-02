@@ -2,13 +2,9 @@ package outskirts.client;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.stb.STBImage;
-import org.lwjgl.stb.STBVorbis;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
-import outskirts.client.gui.debug.GuiDebugV;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -22,7 +18,6 @@ import outskirts.mod.Mods;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
-import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -89,6 +84,8 @@ public class Outskirts {
 
         Init.registerAll(Side.CLIENT);
 
+        window.postInitialGlfwEvents();
+
         player = new EntityPlayerSP();
         player.setName("Player215");
         camera.setOwnerEntity(player);
@@ -107,8 +104,7 @@ public class Outskirts {
             g.setHeight(80);
         }));
 
-        GuiIngame.INSTANCE.addGui(GuiDebugV.INSTANCE.exec(g -> g.setVisible(false)));
-        GuiIngame.INSTANCE.addGui(GuiVert3D.INSTANCE.exec(g -> g.setVisible(false)));
+
 
         TmpExtTest.init();
         // Why stores HermiteData.? use for what.? what if just stores featurepoints.?
@@ -264,7 +260,7 @@ public class Outskirts {
     public static Profiler getProfiler() { return INST.profiler; }
 
     public static float getDelta() { return INST.timer.getDelta(); }
-    public static double getProgramTime() { return Window.getHighResolutionTime(); }  // getSystemTime().
+    public static double getProgramTime() { return Window.getPrecisionTime(); }  // getSystemTime().
 
     public static float getWidth() { return INST.window.getWidth() / GUI_SCALE; }
     public static float getHeight() { return INST.window.getHeight() / GUI_SCALE; }
@@ -289,9 +285,9 @@ public class Outskirts {
     public static int toMainFramebufferCoords(float guiCoords) {
         return (int)(guiCoords * GUI_SCALE);
     }
-    public static float GUI_FB_FACTOR = 1;
+    public static float GUI_FBO_SIZE_FACTOR = 1;
     public static int toGuiFramebufferCoords(float guiCoords) {
-        return (int)(guiCoords * GUI_FB_FACTOR);
+        return (int)(guiCoords * GUI_FBO_SIZE_FACTOR);
     }
 
     public static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {

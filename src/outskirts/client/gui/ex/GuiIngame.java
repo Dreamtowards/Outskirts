@@ -22,6 +22,9 @@ public class GuiIngame extends Gui {
 
         addOnDrawListener(this::onDlaw);
         addKeyboardListener(this::onKeyboard);
+
+        // should be external init?
+        addGui(GuiDebugV.INSTANCE.exec(g -> g.setVisible(false)));
     }
 
     @EventHandler
@@ -50,9 +53,6 @@ public class GuiIngame extends Gui {
                     break;
                 case GLFW.GLFW_KEY_SLASH:
                     Outskirts.getRootGUI().addGui(GuiScreenChat.INSTANCE);
-                    break;
-                case GLFW.GLFW_KEY_V:
-                    Gui.toggleVisible(GuiVert3D.INSTANCE);
                     break;
                 case GLFW.GLFW_KEY_F3:
                     Gui.toggleVisible(GuiDebugV.INSTANCE);

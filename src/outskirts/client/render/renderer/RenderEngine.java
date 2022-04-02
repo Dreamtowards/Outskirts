@@ -3,7 +3,6 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Frustum;
@@ -37,7 +36,7 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
-import static outskirts.client.Outskirts.GUI_FB_FACTOR;
+import static outskirts.client.Outskirts.GUI_FBO_SIZE_FACTOR;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.client.render.renderer.EntityRenderer.*;
 import static outskirts.util.logging.Log.LOGGER;
@@ -95,6 +94,7 @@ public final class RenderEngine {
             .attachTextureColor(0, GL_RGB)
             .checkFramebufferStatus()
             .popFramebuffer();
+
 //    public Framebuffer ssaoBlurFBO = Framebuffer.glfGenFramebuffer()
 //            .bindPushFramebuffer()
 //            .resize(1280, 720)
@@ -117,10 +117,11 @@ public final class RenderEngine {
         LOGGER.info("LWJGL {}, GLFW{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR);
 
         Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
-            // Log.LOGGER.info("Resize fbGUI");
+            Log.LOGGER.info("Resize Gui FBO");
+
             fbGUI
                     .pushFramebuffer()
-                    .resize((int)(Outskirts.getWidth()*GUI_FB_FACTOR), (int)(Outskirts.getHeight()*GUI_FB_FACTOR))
+                    .resize((int)(Outskirts.getWidth()* GUI_FBO_SIZE_FACTOR), (int)(Outskirts.getHeight()* GUI_FBO_SIZE_FACTOR))
                     .checkFramebufferStatus()
                     .popFramebuffer();
             Outskirts.getRootGUI().requestLayout();
