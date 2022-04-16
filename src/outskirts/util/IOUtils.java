@@ -32,17 +32,21 @@ public final class IOUtils {
         }
     }
 
-    public static long write(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
-        long written = 0;
-        int length;
-        while ((length = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, length);
-            written += length;
+    public static long write(InputStream is, OutputStream os, byte[] buf) {
+        try {
+            long written = 0;
+            int length;
+            while ((length = is.read(buf)) != -1) {
+                os.write(buf, 0, length);
+                written += length;
+            }
+            return written;
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed IO operation. ", ex);
         }
-        return written;
     }
 
-    public static long write(InputStream is, OutputStream os) throws IOException {
+    public static long write(InputStream is, OutputStream os) {
         return write(is, os, DEFAULT_BUFFER);
     }
     public static long write(byte[] in, OutputStream os) throws IOException {
@@ -60,7 +64,7 @@ public final class IOUtils {
 
 
 
-    public static byte[] toByteArray(InputStream is) throws IOException {
+    public static byte[] toByteArray(InputStream is) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(is, out);
         return out.toByteArray();

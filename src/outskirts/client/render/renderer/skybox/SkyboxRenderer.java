@@ -6,6 +6,7 @@ import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.init.ex.Models;
+import outskirts.util.BitmapImage;
 import outskirts.util.Identifier;
 
 import java.awt.image.BufferedImage;
@@ -20,15 +21,15 @@ public class SkyboxRenderer extends Renderer {
             new Identifier("shaders/skybox/skybox.vsh").getInputStream(),
             new Identifier("shaders/skybox/skybox.fsh").getInputStream()
     );
-    public final Texture textureCubemap = Loader.loadTextureCubeMap(null, Loader.loadPNG(new Identifier("textures/skybox/ext1.png").getInputStream()));
-//            Loader.loadTextureCubeMap(null, new BufferedImage[]{
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/right.jpg").getInputStream()),
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/left.jpg").getInputStream()),
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/top.jpg").getInputStream()),
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/bottom.jpg").getInputStream()),
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/front.jpg").getInputStream()),
-//            Loader.loadPNG(new Identifier("textures/skybox/wide/back.jpg").getInputStream())
-//    });
+    public final Texture textureCubemap = //Loader.loadTextureCubeMap(null, Loader.loadPNG(new Identifier("textures/skybox/ext1.png").getInputStream()));
+            Loader.loadTextureCubeMap(null, new BitmapImage[]{
+            Loader.loadPNG(new Identifier("textures/skybox/wide/right.jpg").getInputStream()),
+            Loader.loadPNG(new Identifier("textures/skybox/wide/left.jpg").getInputStream()),
+            Loader.loadPNG(new Identifier("textures/skybox/wide/top.jpg").getInputStream()),
+            Loader.loadPNG(new Identifier("textures/skybox/wide/bottom.jpg").getInputStream()),
+            Loader.loadPNG(new Identifier("textures/skybox/wide/front.jpg").getInputStream()),
+            Loader.loadPNG(new Identifier("textures/skybox/wide/back.jpg").getInputStream())
+    });
 
     public void render() {
 

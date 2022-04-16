@@ -1,7 +1,14 @@
 package outskirts.client;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.stb.STBImageWrite;
+import org.lwjgl.stb.STBVorbis;
+import org.lwjgl.stb.STBVorbisInfo;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
@@ -11,14 +18,16 @@ import outskirts.util.ogg.OggLoader;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static org.lwjgl.openal.AL10.*;
@@ -122,59 +131,61 @@ public final class Loader {
         return OBJLoader.saveOBJ(model).getBytes(StandardCharsets.UTF_8);
     }
 
-    public static int loadOGG(InputStream inputStream) {
-        try {
-            OggLoader.OggData oggData = OggLoader.loadOGG(inputStream);
-            int bufferID = alGenBuffers(); bufs.add(bufferID);
-            alBufferData(bufferID, oggData.format, oggData.data, oggData.frequency);
-            return bufferID;
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to loadOGG().", ex);
+    public static int loadOGG(InputStream in) {
+        ByteBuffer oggdat = loadBuffer(IOUtils.toByteArray(in));
+        int channels;
+        int sampleRate;
+        ShortBuffer pcm;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer sChannels = stack.mallocInt(1), sSampRate = stack.mallocInt(1);
+            pcm = STBVorbis.stb_vorbis_decode_memory(oggdat, sChannels, sSampRate);
+            channels = sChannels.get(); sampleRate = sSampRate.get();
         }
+        int alformat;
+        if (channels == 1) alformat = AL_FORMAT_MONO16;
+        else if (channels == 2) alformat = AL_FORMAT_STEREO16;
+        else throw new IllegalStateException("Unsupported channels.");
+
+        int bufferID = alGenBuffers(); bufs.add(bufferID);
+        alBufferData(bufferID, alformat, Objects.requireNonNull(pcm), sampleRate);
+        return bufferID;
     }
 
-    public static BufferedImage loadPNG(InputStream inputStream) {
-        try {
-            return ImageIO.read(inputStream);
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to loadPNG().", ex);
+    public static BitmapImage loadPNG(InputStream in) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            ByteBuffer imgbuf = loadBuffer(IOUtils.toByteArray(in));
+            IntBuffer wid = stack.mallocInt(1), hei = stack.mallocInt(1), channels = stack.mallocInt(1);
+            ByteBuffer pixelsRGBA = STBImage.stbi_load_from_memory(imgbuf, wid, hei, channels, STBImage.STBI_rgb_alpha);
+            return new BitmapImage(wid.get(), hei.get(), pixelsRGBA);
         }
     }
-    public static BufferedImage loadPNG(byte[] bytes) {
-        return Loader.loadPNG(new ByteArrayInputStream((bytes)));
-    }
-    public static byte[] savePNG(BufferedImage bi) { // TOOL METHOD
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bi, "PNG", baos);
-            return baos.toByteArray();
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to savePNG().", ex);
-        }
-    }
-    public static byte[] savePNG(Texture texture) {  // TOOL METHOD
-        return Loader.savePNG(Texture.glfGetTexImage(texture));
+//    public static BitmapImage loadPNG(byte[] bytes) {
+//        return Loader.loadPNG(new ByteArrayInputStream((bytes)));
+//    }
+    public static void savePNG(BitmapImage bi, Path filepath) {
+        STBImageWrite.stbi_write_png(filepath.toAbsolutePath().toString(),
+                bi.getWidth(), bi.getHeight(), STBImage.STBI_rgb_alpha, bi.getPixels(), 0);
     }
 
-    public static Texture loadTexture(InputStream pngInputStream) {
-        return loadTexture(Loader.loadPNG(pngInputStream));
+    public static Texture loadTexture(InputStream pngin) {
+        return loadTexture(Loader.loadPNG(pngin));
     }
-    public static Texture loadTexture(byte[] pngbytes) { // TOOL METHOD
-        return Loader.loadTexture(Loader.loadPNG(pngbytes));
-    }
+//    public static Texture loadTexture(byte[] pngbytes) { // TOOL METHOD
+//        return Loader.loadTexture(Loader.loadPNG(pngbytes));
+//    }
 
-    public static Texture loadTexture(BufferedImage bufferedImage) {
+    public static Texture loadTexture(BitmapImage bufferedImage) {
         return loadTexture(null, bufferedImage);
     }
-    public static Texture loadTexture(@Nullable Texture dest, BufferedImage bufferedImage) {
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
+    public static Texture loadTexture(@Nullable Texture dest, BitmapImage img) {
+        int width = img.getWidth();
+        int height = img.getHeight();
         if (dest == null) {
             dest = new Texture(glGenTextures()); texs.add(dest.textureID());
         }
         bindAndInitializeTexture(GL_TEXTURE_2D, dest.textureID());
 
-        ByteBuffer buffer = Loader.loadTextureData(bufferedImage, true);
+        ByteBuffer buffer = img.loadFlippedPixelsY();
 
         if (width > dest.getWidth() || height > dest.getHeight()) {
             glTexImage2D(GL_TEXTURE_2D, 0, OP_TEX2D_internalformat, width, height, 0, OP_TEX2D_format, OP_TEX2D_type, OP_TEX2D_nullbuffer?null:buffer);
@@ -190,14 +201,14 @@ public final class Loader {
     }
 
     /**
-     * @param bufferedImages 6 faces. order: +X, -X, +Y, -Y, +Z, -Z.  right, left, top, bottom, front, back.
+     * @param imgs 6 faces. order: +X, -X, +Y, -Y, +Z, -Z.  right, left, top, bottom, front, back.
      */
-    public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage[] bufferedImages) {
-        Validate.isTrue(bufferedImages.length == 6, "Texture CubeMap requires 6 faces.");
+    public static Texture loadTextureCubeMap(@Nullable Texture dest, BitmapImage[] imgs) {
+        Validate.isTrue(imgs.length == 6, "Texture CubeMap requires 6 faces.");
 
-        int width = bufferedImages[0].getWidth();
-        int height = bufferedImages[0].getHeight();
-        for (BufferedImage bi : bufferedImages) {
+        int width = imgs[0].getWidth();
+        int height = imgs[0].getHeight();
+        for (BitmapImage bi : imgs) {
             Validate.isTrue(bi.getWidth()==width && bi.getHeight()==height, "Texuure CubeMap faces required same size.");
         }
 
@@ -211,7 +222,7 @@ public final class Loader {
 
         boolean initTex = width != dest.getWidth() || height != dest.getHeight(); // flag for all 6 faces.
         for (int i = 0;i < 6;i++) {
-            ByteBuffer buffer = Loader.loadTextureData(bufferedImages[i], false);
+            ByteBuffer buffer = imgs[i].getPixels();  // flip-y needs???
             if (initTex) {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
                 dest.setWidth(width).setHeight(height);
@@ -222,28 +233,28 @@ public final class Loader {
 
         return dest;
     }
-    public static Texture loadTextureCubeMap(@Nullable Texture dest, BufferedImage map) {
-        int xu = map.getWidth() / 4, yu = map.getHeight() / 3;
-        return loadTextureCubeMap(dest, new BufferedImage[] {
-                map.getSubimage(2*xu, yu, xu, yu),
-                map.getSubimage(0, yu, xu, yu),
-                map.getSubimage(xu, 0, xu, yu),
-                map.getSubimage(xu, 2*yu, xu, yu),
-                map.getSubimage(xu, yu, xu, yu),
-                map.getSubimage(3*xu, yu, xu, yu),
-        });
-    }
+//    public static Texture loadTextureCubeMap(@Nullable Texture dest, BitmapImage map) {
+//        int xu = map.getWidth() / 4, yu = map.getHeight() / 3;
+//        return loadTextureCubeMap(dest, new BitmapImage[] {
+//                map.getSubimage(2*xu, yu, xu, yu),
+//                map.getSubimage(0, yu, xu, yu),
+//                map.getSubimage(xu, 0, xu, yu),
+//                map.getSubimage(xu, 2*yu, xu, yu),
+//                map.getSubimage(xu, yu, xu, yu),
+//                map.getSubimage(3*xu, yu, xu, yu),
+//        });
+//    }
 
     /**
      * TextureArray.length == srcImages.length + fromIndex
      */
-    public static Texture loadTextureArray(@Nullable Texture dest, BufferedImage[] bufferedImagesArray, int fromIndex) {
+    public static Texture loadTextureArray(@Nullable Texture dest, BitmapImage[] imgs, int fromIndex) {
         int maxWidth = 0;
         int maxHeight = 0;
 
-        for (BufferedImage bufferedImage : bufferedImagesArray) {
-            maxWidth = Math.max(maxWidth, bufferedImage.getWidth());
-            maxHeight = Math.max(maxHeight, bufferedImage.getHeight());
+        for (BitmapImage img : imgs) {
+            maxWidth = Math.max(maxWidth, img.getWidth());
+            maxHeight = Math.max(maxHeight, img.getHeight());
         }
 
         if (dest == null) {
@@ -253,14 +264,14 @@ public final class Loader {
         bindAndInitializeTexture(GL_TEXTURE_2D_ARRAY, dest.textureID());
 
         if (maxWidth > dest.getWidth() || maxHeight > dest.getHeight()) {
-            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, maxWidth, maxHeight, fromIndex + bufferedImagesArray.length, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, maxWidth, maxHeight, fromIndex + imgs.length, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
             dest.setWidth(maxWidth).setHeight(maxHeight);
         }
 
-        for (int i = 0;i < bufferedImagesArray.length;i++) {
-            ByteBuffer pixels = Loader.loadTextureData(bufferedImagesArray[i], true);
+        for (int i = 0;i < imgs.length;i++) {
+            ByteBuffer pixels = imgs[i].loadFlippedPixelsY();
 
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, fromIndex + i, bufferedImagesArray[i].getWidth(), bufferedImagesArray[i].getHeight(), 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, fromIndex + i, imgs[i].getWidth(), imgs[i].getHeight(), 1, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         }
 
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
@@ -320,48 +331,47 @@ public final class Loader {
      * @return RGBA pixels sequence.
      *         additional, when a pixel's alpha == 0, then its RGB will be load as 0 (even though its src-pixel's RGB is not 0)
      */
-    static ByteBuffer loadTextureData(BufferedImage bufferedImage, boolean flipY) {
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
-        ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+//    static ByteBuffer loadTextureData(BitmapImage bi, boolean flipY) {
+//        int width = bi.getWidth();
+//        int height = bi.getHeight();
+//
+//        for (int i = 0;i < height;i++) {
+//            int y = flipY ? height - i - 1 : i;
+//            for (int x = 0;x < width; x++) {
+//                int argb = bi.getRGB(x, y);
+//                int alpha = ((argb >> 24) & 0xFF);
+//                if (alpha == 0) {
+//                    buffer.put((byte)0).put((byte)0).put((byte)0).put((byte)0);
+//                } else {
+//                    buffer.put((byte)((argb >> 16) & 0xFF));  //RED
+//                    buffer.put((byte)((argb >>  8) & 0xFF));  //GREEN
+//                    buffer.put((byte)((argb      ) & 0xFF));  //BLUE
+//                    buffer.put((byte)  alpha              );  //ALPHA
+//                }
+//            }
+//        }
+//        buffer.flip();
+//
+//        return buffer;
+//    }
 
-        for (int i = 0;i < height;i++) {
-            int y = flipY ? height - i - 1 : i;
-            for (int x = 0;x < width; x++) {
-                int argb = bufferedImage.getRGB(x, y);
-                int alpha = ((argb >> 24) & 0xFF);
-                if (alpha == 0) {
-                    buffer.put((byte)0).put((byte)0).put((byte)0).put((byte)0);
-                } else {
-                    buffer.put((byte)((argb >> 16) & 0xFF));  //RED
-                    buffer.put((byte)((argb >>  8) & 0xFF));  //GREEN
-                    buffer.put((byte)((argb      ) & 0xFF));  //BLUE
-                    buffer.put((byte)  alpha              );  //ALPHA
-                }
-            }
-        }
-        buffer.flip();
-
-        return buffer;
-    }
-
-    /**
-     * load OBJ-Image from GL bytes pixels data.
-     * @param rgbaGLPixels GL Y-Flipped Pixels.
-     */
-    public static BufferedImage loadImage(ByteBuffer rgbaGLPixels, int width, int height) {
-        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0;y < height;y++) {
-            for (int x = 0;x < width;x++) {
-                int r = rgbaGLPixels.get((y*width+x)*4)   & 0xFF;
-                int g = rgbaGLPixels.get((y*width+x)*4+1) & 0xFF;
-                int b = rgbaGLPixels.get((y*width+x)*4+2) & 0xFF;
-                int a = rgbaGLPixels.get((y*width+x)*4+3) & 0xFF;
-                bi.setRGB(x, height-1-y, (a << 24) | (r << 16) | (g << 8) | b);
-            }
-        }
-        return bi;
-    }
+//    /**
+//     * load OBJ-Image from GL bytes pixels data.
+//     * @param rgbaGLPixels GL Y-Flipped Pixels.
+//     */
+//    public static BitmapImage loadImage(ByteBuffer rgbaGLPixels, int width, int height) {
+//        BitmapImage bi = new BitmapImage(width, height);
+//        for (int y = 0;y < height;y++) {
+//            for (int x = 0;x < width;x++) {
+//                int r = rgbaGLPixels.get((y*width+x)*4)   & 0xFF;
+//                int g = rgbaGLPixels.get((y*width+x)*4+1) & 0xFF;
+//                int b = rgbaGLPixels.get((y*width+x)*4+2) & 0xFF;
+//                int a = rgbaGLPixels.get((y*width+x)*4+3) & 0xFF;
+//                bi.setRGB(x, height-1-y, (a << 24) | (r << 16) | (g << 8) | b);
+//            }
+//        }
+//        return bi;
+//    }
 
     static void destroy() {
         for (int tex : texs)

@@ -3,7 +3,7 @@ package outskirts.util.concurrent;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Scheduler {
+public class Scheduler {  // ScheduledExecutor
 
     private final Queue<Runnable> scheduledTasks = new LinkedList<>();
 

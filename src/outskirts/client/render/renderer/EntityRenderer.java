@@ -1,6 +1,5 @@
 package outskirts.client.render.renderer;
 
-import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
@@ -11,13 +10,10 @@ import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
 import outskirts.init.MaterialTextures;
-import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix4f;
-import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
 import java.util.List;
@@ -115,7 +111,7 @@ public class EntityRenderer extends Renderer {
         shaderGeometry.useProgram();
 
         int i = 0;
-        for (TextureAtlas.Fragment frag : MaterialTextures.DIFFUSE_ATLAS.fragments()) {
+        for (TextureAtlas.AtlasFragment frag : MaterialTextures.DIFFUSE_ATLAS.fragments()) {
             shaderGeometry.setVector4f("mtlfrags["+i+"]", vec4(frag.OFFSET.x, frag.OFFSET.y, frag.SCALE.x, frag.SCALE.y));
             i++;
         }

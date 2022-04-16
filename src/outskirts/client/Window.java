@@ -1,11 +1,22 @@
 package outskirts.client;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.stb.STBEasyFont;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Platform;
 import outskirts.client.ClientSettings.ProgramArguments;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.util.KeyBinding;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -57,13 +68,16 @@ public final class Window {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX req.
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+        if (Platform.get() == Platform.MACOSX) {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX req.
+            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+        }
 
         window = glfwCreateWindow(ProgramArguments.WIDTH, ProgramArguments.HEIGHT, title="DISPLAY", 0, 0);
         if (window == 0)
@@ -77,20 +91,6 @@ public final class Window {
         glfwFocusWindow(window);
 
         initGlfwCallbacks();
-        printSystemLog();
-    }
-
-    public void postInitialGlfwEvents() {
-
-        float[] x = new float[1], y = new float[1];
-        glfwGetWindowContentScale(window, x, y);
-        glfwcallback_window_content_scale(window, x[0], y[0]);
-
-        // Note: FramebufferSizeEvent should always after WindowContentScaleEvent etc.
-        // since resizing the framebuffer requires some updated relevant values. e.g. window-content-scale.
-        int[] w = new int[1], h = new int[1];
-        glfwGetFramebufferSize(window, w, h);
-        glfwcallback_framebuffer_size(window, w[0], h[0]);
     }
 
     public void updateWindow() {
@@ -108,11 +108,32 @@ public final class Window {
         glfwSetErrorCallback(null).free();
     }
 
+    public void postInitialGlfwEvents() {
+
+        float[] x = new float[1], y = new float[1];
+        glfwGetWindowContentScale(window, x, y);
+        glfwcallback_window_content_scale(window, x[0], y[0]);
+
+        // Note: FramebufferSizeEvent should always after WindowContentScaleEvent etc.
+        // since resizing the framebuffer requires some updated relevant values. e.g. window-content-scale.
+        int[] w = new int[1], h = new int[1];
+        glfwGetFramebufferSize(window, w, h);
+        glfwcallback_framebuffer_size(window, w[0], h[0]);
+    }
+
     private void resetFramebasedDeltas() {  // call right before glfwPollEvents(), every frame.
         mouseDX = 0;
         mouseDY = 0;
         scrollDX = 0;
         scrollDY = 0;
+    }
+
+    public void makeWindowCentered() {
+        long monitor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidm = Objects.requireNonNull(glfwGetVideoMode(monitor));
+        glfwSetWindowPos(window,
+                (int)((vidm.width()*windowContentScale - width) * .5f),
+                (int)((vidm.height()*windowContentScale - height) * .5f));
     }
 
     public boolean isCloseRequested() {
@@ -168,6 +189,9 @@ public final class Window {
         glfwSetCursorPosCallback(window, this::glfwcallback_mouse_pos);
         glfwSetScrollCallback(window, this::glfwcallback_scroll);
 
+//        glfwSetErrorCallback((int errcode, long desc) -> {  // tmp. dont use? or the glfw runtime exception will not throw.
+//            LOGGER.error("GLFW Error: [{}] {}", errcode, MemoryUtil.memUTF8(desc));
+//        });
     }
 
     private void glfwcallback_framebuffer_size(long w, int nw, int nh) {
@@ -176,7 +200,6 @@ public final class Window {
 
         glViewport(0, 0, (int)width, (int)height);
         EVENT_BUS.post(new WindowResizedEvent());
-        LOGGER.info("SYS FB CHANGE");
     }
 
     private void glfwcallback_window_content_scale(long w, float nx, float ny) {
@@ -184,8 +207,7 @@ public final class Window {
             throw new IllegalStateException("Unexpected ratio of window content scale.");
 
         windowContentScale = nx;
-        ClientSettings.GUI_SCALE = windowContentScale;
-        LOGGER.info("SYS ContentChange: "+ windowContentScale);
+        ClientSettings.GUI_SCALE = windowContentScale;  // tmp way.
     }
 
     private void glfwcallback_key(long w, int key, int scancode, int action, int mode) {
@@ -209,9 +231,10 @@ public final class Window {
     }
 
     private void glfwcallback_mouse_pos(long w, double _xpos, double _ypos) {
-        float xpos = (float)_xpos*windowContentScale, ypos = (float)_ypos*windowContentScale;  // *sysScale: make mousepos same coords with framebuffer.
-        float edx = xpos-mouseX, edy = ypos-mouseY;  // ED: Event-based Delta. not Frame-based. it might litter than frame-based, since one frame might have multiple events.
-
+        // *sysScale: make mousepos same coords with framebuffer. BUT maybe shouldn't? think the camera-rotation-control, higher screen resolution shouldn't move faster.
+        float xpos = (float)_xpos*windowContentScale, ypos = (float)_ypos*windowContentScale;
+        // ED: Event-based Delta. not Frame-based. it might litter than frame-based, since one frame might have multiple events.
+        float edx = xpos-mouseX, edy = ypos-mouseY;
         mouseDX += edx;
         mouseDY += edy;
         mouseX = xpos;
@@ -227,14 +250,6 @@ public final class Window {
         scrollDY += edy;
 
         EVENT_BUS.post(new InputScrollEvent(edx, edy));
-    }
-
-    public static void printSystemLog() {
-
-        LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
-                System.getProperty("os.name"), System.getProperty("os.version"),
-                System.getProperty("java.version"), System.getProperty("os.arch"),
-                System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
     }
 
 

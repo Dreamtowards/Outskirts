@@ -30,6 +30,21 @@ public final class ReflectionUtils {
         throw new NoSuchElementException("Not found such Super class.");
     }
 
+    public static Field findFieldUpward(Class cls, String fname) {
+        Class dstc = findSuperior(cls, c -> getField(c, fname) != null);
+        return getField(dstc, fname);
+    }
+
+    public static Field getField(Class cls, String fname) {
+        try {
+            Field f = cls.getDeclaredField(fname);
+            f.setAccessible(true);
+            return f;
+        } catch (NoSuchFieldException ex) {
+            return null;
+        }
+    }
+
     /**
      * Get Field Value.
      * @param objOrCls non-static-field: Owner Object. static-field: the Class.

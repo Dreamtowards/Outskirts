@@ -6,6 +6,7 @@ import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
+import outskirts.util.BitmapImage;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
@@ -51,11 +52,11 @@ public class SSAORenderer extends Renderer {
             KERNEL_SAMPLES[i] = v;
         }
 
-        BufferedImage texRandTS = new BufferedImage(TEX_RAND_TANOP_SZ, TEX_RAND_TANOP_SZ, BufferedImage.TYPE_INT_ARGB);
+        BitmapImage texRandTS = new BitmapImage(TEX_RAND_TANOP_SZ, TEX_RAND_TANOP_SZ);
         for (int i = 0;i < TEX_RAND_TANOP_SZ;i++) {
             for (int j = 0; j < TEX_RAND_TANOP_SZ; j++) {
                 // actually [-1, 1] of xy in shader/applicate. just int RGB cant store negatives.
-                texRandTS.setRGB(i, j, Colors.toARGB(new Vector4f((float)Math.random(), (float)Math.random(), 0, 1)));
+                texRandTS.setPixel(i, j, Colors.toRGBA(new Vector4f((float)Math.random(), (float)Math.random(), 0, 1)));
 //                texRandTS.setRGB(i, j, Colors.toARGB(new Vector4f(1,1,1,1)));
             }
         }

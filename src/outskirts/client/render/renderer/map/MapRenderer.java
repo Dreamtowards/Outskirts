@@ -6,6 +6,7 @@ import outskirts.client.render.Framebuffer;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.Renderer;
 import outskirts.client.render.shader.ShaderProgram;
+import outskirts.util.BitmapImage;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
@@ -35,7 +36,7 @@ public class MapRenderer extends Renderer {
 
     private float clipHeight = 256;
 
-    public BufferedImage render(Chunk chunk) {
+    public BitmapImage render(Chunk chunk) {
 
         fbChunk.pushFramebuffer();
         Outskirts.renderEngine.prepare();

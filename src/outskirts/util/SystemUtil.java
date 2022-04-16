@@ -90,8 +90,8 @@ public final class SystemUtil {
             URL cpURL = classpath.toUri().toURL();
 
             if (RUNTIME_VERSION >= 9) {  // REQUIRED JVM ARGS: java --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
-                ClassLoader appclassloader = ClassLoader.getSystemClassLoader();  // ClassLoader$AppClassLoader.
-                Field UCP = appclassloader.getClass().getDeclaredField("ucp"); UCP.setAccessible(true);
+                ClassLoader appclassloader = (ClassLoader) ClassLoader.getSystemClassLoader();  // ClassLoader$AppClassLoader.
+                Field UCP = ReflectionUtils.findFieldUpward(appclassloader.getClass(), "ucp");  // upward finding required.
                 Method ADDURL = UCP.getType().getDeclaredMethod("addURL", URL.class);
 
                 ADDURL.invoke(UCP.get(appclassloader), cpURL);

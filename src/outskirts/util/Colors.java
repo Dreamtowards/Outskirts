@@ -76,6 +76,13 @@ public final class Colors {
                 (((int)(color.y*255) & 0xFF) << 8 ) |
                   (int)(color.z*255) & 0xFF;
     }
+    public static int toRGBA(Vector4f color) {
+//        validate(color);
+        return  (((int)(color.x*255) & 0xFF) << 24) |
+                (((int)(color.y*255) & 0xFF) << 16) |
+                (((int)(color.z*255) & 0xFF) << 8 ) |
+                (int)(color.w*255) & 0xFF;
+    }
 
 //    private static void validateLDR(Vector4f color) {
 //        assert  color.x >= 0 && color.x <= 1 &&

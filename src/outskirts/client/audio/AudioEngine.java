@@ -34,9 +34,10 @@ public final class AudioEngine {
         ALCCapabilities deviceCaps = ALC.createCapabilities(device);
         AL.createCapabilities(deviceCaps);
 
-        LOGGER.info("AudioEngine initialized. AL_I: {} / {}, devispec {}", alGetString(AL_VENDOR), alGetString(AL_VERSION), alcGetString(device, ALC_DEVICE_SPECIFIER));
 
         alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+
+        LOGGER.info("AudioEngine initialized. AL_I: {} / {}, devispec {}", alGetString(AL_VENDOR), alGetString(AL_VERSION), alcGetString(device, ALC_DEVICE_SPECIFIER));
     }
 
 

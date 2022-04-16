@@ -3,6 +3,7 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.FileUtils;
 import outskirts.util.ReflectionUtils;
 import outskirts.util.SystemUtil;
+import outskirts.util.logging.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -20,13 +21,14 @@ public final class Start {
 
     public static void main(String[] args) throws Exception {
 
-        // DEFAULT: -ea  (java9+:) --add-opens java.base/java.nio=ALL-UNNAMED
+        // DEFAULT: -ea  (java9+:) --add-opens java.base/java.nio=ALL-UNNAMED (getdirectmem) --add-opens java.base/jdk.internal.loader=ALL-UNNAMED (java9+ addclasspath)
         // OSX: -XstartOnFirstThread -Djava.awt.headless=true -ea
-        System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/macosx").getAbsolutePath());
+         System.setProperty("org.lwjgl.librarypath", new File("libraries/platform/macosx").getAbsolutePath());
+//         System.setProperty("java.awt.headless", "true");
 
-        Files.list(Path.of("libraries"))
-                .filter(p -> !Files.isDirectory(p) && p.endsWith(".jar"))
-                .forEach(SystemUtil::addClasspath);
+//        Files.list(Path.of("libraries"))
+//                .filter(p -> !Files.isDirectory(p) && p.toString().toLowerCase().endsWith(".jar"))
+//                .forEach(SystemUtil::addClasspath);
 
         Main.main(args);
     }

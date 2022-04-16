@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -36,7 +37,7 @@ public class EventBus {
      *  not use Suppler-Function-Factory because that though more convenient for init EventBus,
      *  but that'll make EventBus some little loose - misc field/setter. but inheritment
      */
-    public EventBus(Supplier<List> handlerListFactory) {
+    public EventBus(Supplier<List<Handler>> handlerListFactory) {
         this.handlers = handlerListFactory.get();
     }
 
@@ -176,8 +177,8 @@ public class EventBus {
         private Object unregisterTag = null;  // only for unregister search. you can unregister this handler by using the tag object to calls unregister() method
 
         private Handler(Class eventclass, Consumer function) {
-            this.eventclass = eventclass;
-            this.function = function;
+            this.eventclass = Objects.requireNonNull(eventclass);
+            this.function = Objects.requireNonNull(function);
         }
 
         private void invoke(Event event) {

@@ -11,6 +11,7 @@ import outskirts.client.gui.stat.GuiRow;
 import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.EntityRenderer;
 import outskirts.client.render.renderer.RenderEngine;
+import outskirts.util.BitmapImage;
 import outskirts.util.Colors;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 
 public class GuiColorPicker extends Gui {
 
-    private static BufferedImage IMG_PALETTE = Loader.loadPNG(new Identifier("textures/gui/palette.png").getInputStream());
+    private static BitmapImage IMG_PALETTE = Loader.loadPNG(new Identifier("textures/gui/palette.png").getInputStream());
     private static Texture TEX_PALETTE = Loader.loadTexture(IMG_PALETTE);
 
     private Vector4f color;
@@ -40,7 +41,7 @@ public class GuiColorPicker extends Gui {
                       if (g.isHover()) {
                           int pX = (int)(((Outskirts.getMouseX() - g.getX()) / g.getWidth()) * IMG_PALETTE.getWidth());
                           int pY = (int)(((Outskirts.getMouseY() - g.getY()) / g.getHeight()) * IMG_PALETTE.getHeight());
-                          Vector4f col = Colors.fromARGB(IMG_PALETTE.getRGB(pX, pY), null);
+                          Vector4f col = Colors.fromRGBA(IMG_PALETTE.getPixel(pX, pY), null);
 //                          if (Outskirts.isAltKeyDown())
                           drawRect(col, Outskirts.getMouseX(), Outskirts.getMouseY() - 16, 8, 8);
                           if (Outskirts.isMouseDown(0) && g.isPressed())

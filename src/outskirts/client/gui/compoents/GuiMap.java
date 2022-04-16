@@ -8,6 +8,7 @@ import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.render.Texture;
 import outskirts.event.EventHandler;
 import outskirts.event.world.chunk.ChunkMeshBuiltEvent;
+import outskirts.util.BitmapImage;
 import outskirts.util.Colors;
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector2f;
@@ -64,7 +65,7 @@ public class GuiMap extends GuiDrag {
     }
 
     private void loadChunkImage(Chunk chunk) {
-        BufferedImage bi = Outskirts.renderEngine.getMapRenderer().render(chunk);
+        BitmapImage bi = Outskirts.renderEngine.getMapRenderer().render(chunk);
         mapChunkFrags.put(ChunkPos.of(chunk), Loader.loadTexture(bi));
     }
 

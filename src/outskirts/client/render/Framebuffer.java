@@ -2,6 +2,7 @@ package outskirts.client.render;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
+import outskirts.util.BitmapImage;
 import outskirts.util.CollectionUtils;
 
 import java.awt.image.BufferedImage;
@@ -101,7 +102,7 @@ public final class Framebuffer {
         Loader.OP_TEX2D_internalformat = internalformat;
         Loader.OP_TEX2D_format         = format;
         Loader.OP_TEX2D_type           = type;
-        Texture texture = Loader.loadTexture(null, new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
+        Texture texture = Loader.loadTexture(null, new BitmapImage(width, height));
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.textureID(), 0);
         return texture;
     }

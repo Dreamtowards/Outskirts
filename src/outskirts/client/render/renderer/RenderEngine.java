@@ -113,12 +113,11 @@ public final class RenderEngine {
 
 
     public RenderEngine() {
-        LOGGER.info("RenderEngine initialized. GL_I: {} - {} | {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
-        LOGGER.info("LWJGL {}, GLFW{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR);
+        LOGGER.info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
+        LOGGER.info("LWJGL {}, GLFW {}.{}.{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR, GLFW.GLFW_VERSION_MINOR, GLFW.GLFW_VERSION_REVISION);
 
         Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
-            Log.LOGGER.info("Resize Gui FBO");
-
+//            Log.LOGGER.info("Resize Gui FBO");
             fbGUI
                     .pushFramebuffer()
                     .resize((int)(Outskirts.getWidth()* GUI_FBO_SIZE_FACTOR), (int)(Outskirts.getHeight()* GUI_FBO_SIZE_FACTOR))

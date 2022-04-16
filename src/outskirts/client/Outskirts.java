@@ -2,6 +2,7 @@ package outskirts.client;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.Platform;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
@@ -18,6 +19,7 @@ import outskirts.mod.Mods;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.util.*;
 import outskirts.util.concurrent.Scheduler;
+import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
@@ -28,6 +30,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL11.*;
 import static outskirts.client.ClientSettings.*;
+import static outskirts.util.logging.Log.LOGGER;
 
 public class Outskirts {
 
@@ -78,13 +81,16 @@ public class Outskirts {
         Outskirts.INST = this;
         ClientSettings.loadOptions();
         window.initWindow();
+        printSystemLog();
 
         renderEngine = new RenderEngine();
         audioEngine = new AudioEngine();
 
+        window.postInitialGlfwEvents();
+        window.makeWindowCentered();
         Init.registerAll(Side.CLIENT);
 
-        window.postInitialGlfwEvents();
+
 
         player = new EntityPlayerSP();
         player.setName("Player215");
@@ -112,6 +118,7 @@ public class Outskirts {
 
 
     private void runMainLoop() throws Throwable { profiler.push("rt");
+        Log.info("Lop  "+Thread.currentThread().getName());
 
         timer.update();
 
@@ -290,12 +297,20 @@ public class Outskirts {
         return (int)(guiCoords * GUI_FBO_SIZE_FACTOR);
     }
 
-    public static BufferedImage screenshot(float gx, float gy, float gwidth, float gheight) {
+    public static BitmapImage screenshot(float gx, float gy, float gwidth, float gheight) {
         int wid= toMainFramebufferCoords(gwidth), hei= toMainFramebufferCoords(gheight), x= toMainFramebufferCoords(gx), y= toMainFramebufferCoords(getHeight()-gy-gheight);
         ByteBuffer pixels = BufferUtils.createByteBuffer(wid*hei*4);  // memAlloc(wid * hei * 4);
         glReadBuffer(GL_BACK);
         glReadPixels(x, y, wid,hei, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        return Loader.loadImage(pixels, wid, hei);
+        return BitmapImage.fromGL(wid, hei, pixels);
+    }
+
+    public static void printSystemLog() {
+
+        LOGGER.info("OperationSystem {} {}, rt {} {}, VM {} v{}",
+                System.getProperty("os.name"), System.getProperty("os.version"),
+                System.getProperty("java.version"), System.getProperty("os.arch"),
+                System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
     }
 
 }
