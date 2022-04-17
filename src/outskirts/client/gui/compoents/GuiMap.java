@@ -17,7 +17,6 @@ import outskirts.util.vector.Vector4f;
 import outskirts.world.chunk.Chunk;
 import outskirts.world.chunk.ChunkPos;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,13 +35,17 @@ public class GuiMap extends GuiDrag {
 
     public GuiMap() {
         addOnDrawListener(this::onDlaw);
-        addOnDraggingListener(e -> currentMapOffset.add(e.dx, e.dy));
+        addOnDraggingListener(e -> {
+            currentMapOffset.add(e.dx, e.dy);
+            requestDraw();
+        });
         addMouseWheelListener(e -> {
             float oldscale = scale;
             scale = Maths.clamp(scale+e.getDScroll(), 0.2f, 50);
             float t = scale - oldscale;
 
             currentMapOffset.addScaled(t, new Vector2f(currentBlock).negate());
+            requestDraw();
         });
         setClipping(true);
 

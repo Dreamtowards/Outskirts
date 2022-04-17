@@ -2,6 +2,7 @@ package outskirts.client.gui.ex;
 
 import outskirts.client.Outskirts;
 import outskirts.client.gui.Gui;
+import outskirts.client.gui.GuiAlign;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public final class GuiRoot extends Gui {
             if (hc != null)
                 return hc;
         }
+        // spec case: do not collide GuiAlign, it always covers previous guis,
+        if (g instanceof GuiAlign)  // after child search. do collide child.
+            return null;
         return g;
     }
 

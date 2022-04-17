@@ -13,8 +13,6 @@ import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-import java.awt.image.BufferedImage;
-
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL13.*;

@@ -7,7 +7,7 @@ import outskirts.util.*;
 public class GuiScrollPanel extends Gui implements Gui.Contentable {
 
     private static float MOUSE_SENSTIVITY = 2.5f;
-    private static float SCROLLBAR_THICKNESS = 10;
+    private float scrollbarThickness = 10;
 
     private Gui contentw = addGui(new Gui()); // contentGui wrapper
 
@@ -31,11 +31,11 @@ public class GuiScrollPanel extends Gui implements Gui.Contentable {
 
         addOnLayoutListener(e -> {
             // Position
-            hScrollbar.setWidth(getWidth()-SCROLLBAR_THICKNESS);
-            hScrollbar.setHeight(SCROLLBAR_THICKNESS);
+            hScrollbar.setWidth(getWidth()- scrollbarThickness);
+            hScrollbar.setHeight(scrollbarThickness);
             hScrollbar.setRelativeXY(0, getHeight() - hScrollbar.getHeight());
 
-            vScrollbar.setWidth(SCROLLBAR_THICKNESS);
+            vScrollbar.setWidth(scrollbarThickness);
             vScrollbar.setHeight(getHeight());
             vScrollbar.setRelativeXY(getWidth() - vScrollbar.getWidth(), 0);
 
@@ -86,5 +86,12 @@ public class GuiScrollPanel extends Gui implements Gui.Contentable {
     @Override
     public Gui getContent() {
         return contentw.getGui(0);
+    }
+
+    public float getScrollbarThickness() {
+        return scrollbarThickness;
+    }
+    public void setScrollbarThickness(float scrollbarThickness) {
+        this.scrollbarThickness = scrollbarThickness;
     }
 }

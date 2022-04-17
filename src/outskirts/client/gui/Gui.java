@@ -2,14 +2,15 @@ package outskirts.client.gui;
 
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.gui.GuiRenderer;
 import outskirts.event.*;
 import outskirts.event.client.input.*;
 import outskirts.event.gui.GuiEvent;
+import outskirts.util.Colors;
 import outskirts.util.CopyOnIterateArrayList;
+import outskirts.util.IOUtils;
 import outskirts.util.Maths;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector2f;
@@ -36,10 +37,11 @@ public class Gui {
     private float height = NaN;
 
     protected static final float NaN = Float.NaN;
-    protected static final float INFINITY = Float.POSITIVE_INFINITY;
+    protected static final float INF = Float.POSITIVE_INFINITY;
 
     protected static final String EVTAG_DEFDECO = "DEF_DECO"; //
 
+    // available only when width/height is set to WrapContent (NaN).
     private Vector2f childrenBound = new Vector2f();
 
     private boolean focused = false; // focusable?
@@ -107,13 +109,12 @@ public class Gui {
      * @return the Gui which added //todo: should make Create and Add in one Line .?
      */
     public <T extends Gui> T addGui(T gui, int index) {
-        assert gui.getParent() == Gui.EMPTY;
+        assert gui.getParent() == Gui.EMPTY : "Failed to add gui, not detach yet. gui: "+gui+", parent: "+gui.getParent();
         ((Gui)gui).setParent(this);
         gui.broadcaseEvent(new AttachEvent());
         children.add(index, gui);
 
         requestLayout();
-        requestDraw();
         return gui;
     }
     public final <T extends Gui> T addGui(T gui) {
@@ -150,7 +151,6 @@ public class Gui {
         Gui removed = children.remove(index);
         removed.broadcaseEvent(new DetachEvent());
         requestLayout();
-        requestDraw();
         return removed;
     }
     public final boolean removeGui(Gui g) {
@@ -195,7 +195,10 @@ public class Gui {
         return this.x;
     }
     public void setRelativeX(float x) {
-        if (this.x != x) requestLayout();
+        if (valdif(this.x, x)) {
+//            Log.LOGGER.info("X Changed: {}, {}\n{}", this.x, x, IOUtils.toString(new Throwable()));
+            requestLayout();
+        }
         this.x = x;
     }
 
@@ -203,7 +206,10 @@ public class Gui {
         return this.y;
     }
     public void setRelativeY(float y) {
-        if (this.y != y) requestLayout();
+        if (valdif(this.y, y)) {
+//            Log.LOGGER.info("Y Changed: {}, {}\n{}", this.y, y, IOUtils.toString(new Throwable()));
+            requestLayout();
+        }
         this.y = y;
     }
 
@@ -237,22 +243,27 @@ public class Gui {
     public float getWidth() {
         if (!isVisible()) return 0;
         if (isNaN(width)) return childrenBound.x;
-        if (Float.isInfinite(width)) return getParent().getWidth();
+        if (width == INF) return getParent().getWidth()-getRelativeX();
         return width;
     }
     public void setWidth(float width) {
-        if (this.width != width) requestLayout();
+        if (valdif(this.width, width)) requestLayout();
         this.width = width;
+    }
+    private static boolean valdif(float a, float b) {  // value changed
+        if (isNaN(a) || isNaN(b))
+            return isNaN(a) != isNaN(b);
+        return a != b;
     }
 
     public float getHeight() {
         if (!isVisible()) return 0;
         if (isNaN(height)) return childrenBound.y;
-        if (Float.isInfinite(height)) return getParent().getHeight();
+        if (height == INF) return getParent().getHeight()-getRelativeY();
         return height;
     }
     public void setHeight(float height) {
-        if (this.height != height) requestLayout();
+        if (valdif(this.height, height)) requestLayout();
         this.height = height;
     }
 
@@ -291,7 +302,6 @@ public class Gui {
         }
         if (oldVisible != visible) {
             requestLayout();
-            requestDraw();
         }
     }
 
@@ -446,40 +456,14 @@ public class Gui {
         performEvent(new OnPostDrawEvent());
     }
 
-    private boolean layoutRequested = true;  // should reflow/repaint. markLayout()
-
-    public void requestLayout() {
+    public static boolean layoutRequested = true;  // should reflow/repaint. markLayout()
+    public static void requestLayout() {
         layoutRequested = true;
-
-        if (getParent() != EMPTY)
-            getParent().requestLayout();
-    }
-    public boolean isLayoutRequested() {
-        return layoutRequested;
-    }
-    public void finishLayout() {
-        layoutRequested = false;
-        for (Gui g : getChildren()) {
-            g.finishLayout();
-        }
     }
 
-    private boolean drawRequested = true;
-
-    public void requestDraw() {
+    public static boolean drawRequested = true;
+    public static void requestDraw() {
         drawRequested = true;
-
-        if (getParent() != EMPTY)
-            getParent().requestDraw();
-    }
-    public boolean isDrawRequested() {
-        return drawRequested;
-    }
-    public void finishDraw() {
-        drawRequested = false;
-        for (Gui g : getChildren()) {
-            g.finishDraw();
-        }
     }
 
 
@@ -512,11 +496,12 @@ public class Gui {
         for (Gui child : children)
             child.onLayout();
 
-        if (isNaN(width) || isNaN(height))
-            _updateChildrenBound();
+        _updateChildrenBound();
     }
 
     private void _updateChildrenBound() {
+        if (!isNaN(width) && !isNaN(height))
+            return;
         float mxxs=0, mxys=0;
         for (Gui g : children) {
             mxxs = Math.max(mxxs, g.getRelativeX()+g.getWidth());
@@ -524,7 +509,7 @@ public class Gui {
         }
         if (childrenBound.x != mxxs || childrenBound.y != mxys) {
             childrenBound.set(mxxs, mxys);
-            requestLayout();
+//            requestLayout();  // this request is necessary, because even tho the changers have called the Request,
         }
     }
 

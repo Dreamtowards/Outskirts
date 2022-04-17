@@ -5,7 +5,6 @@ import outskirts.client.Outskirts;
 import outskirts.util.BitmapImage;
 import outskirts.util.CollectionUtils;
 
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
 import static org.lwjgl.opengl.GL11.*;

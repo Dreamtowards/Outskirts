@@ -15,6 +15,7 @@ public final class Colors {
     public static final Vector4f WHITE05 = new Vector4f(1, 1, 1, 0.05f);
 
     public static final Vector4f BLACK = new Vector4f(0, 0, 0, 1);
+    public static final Vector4f BLACK90 = new Vector4f(0, 0, 0, 0.9f);
     public static final Vector4f BLACK80 = new Vector4f(0, 0, 0, 0.8f);
     public static final Vector4f BLACK40 = new Vector4f(0, 0, 0, 0.4f);
     public static final Vector4f BLACK10 = new Vector4f(0, 0, 0, 0.1f);

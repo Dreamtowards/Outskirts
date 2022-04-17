@@ -126,9 +126,10 @@ public class GuiPopupMenu extends Gui {
         private GuiPopupMenu submenu;
 
         private GuiItem(Gui content) {
-            addGui(content);
-            content.addLayoutorAlignParentRR(Float.NaN, 0.45f);
-            content.addLayoutorAlignParentLTRB(8, Float.NaN, 8, Float.NaN);
+//            addGui(content);
+//            content.addLayoutorAlignParentRR(Float.NaN, 0.45f);
+//            content.addLayoutorAlignParentLTRB(8, Float.NaN, 8, Float.NaN);
+            addChildren(new GuiAlign(NaN, .5f).setContent(content));  // +horiz 8 margin
             setHeight(38);
             setWidth(190);
 //            Consumer lsr = e -> {
@@ -180,11 +181,11 @@ public class GuiPopupMenu extends Gui {
         private GuiRow lsMenu;
 
         public GuiMenubar() {
-            setWidth(INFINITY);
+            setWidth(INF);
 
             addChildren(
               lsMenu=new GuiRow().exec(g -> {
-                  g.setWidth(INFINITY);
+                  g.setWidth(INF);
                   g.setHeight(16);
                   g.addOnDrawListener(e -> {
                       drawRect(Colors.WHITE20, g);

@@ -24,7 +24,6 @@ import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.WorldClient;
 
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
@@ -118,7 +117,6 @@ public class Outskirts {
 
 
     private void runMainLoop() throws Throwable { profiler.push("rt");
-        Log.info("Lop  "+Thread.currentThread().getName());
 
         timer.update();
 
@@ -167,13 +165,21 @@ public class Outskirts {
         if (!isIngame())
             GuiRoot.updateHovers();
 
-        if (rootGUI.isLayoutRequested()) {  // if or while?
+        int tmp = 0;
+        while (Gui.layoutRequested) {  // if or while?
+            Gui.layoutRequested = false;
             rootGUI.onLayout();
-            rootGUI.finishLayout();
 
-            rootGUI.requestDraw();
+            Gui.requestDraw();
+//            SystemUtil.sleep(100);
+            LOGGER.info("GUI Layouting ");
+            if (tmp++ > 5) {
+                LOGGER.error("Error on Gui layouting: over iterated. skipped.");
+                break;
+            }
         }
-        if (rootGUI.isDrawRequested()) {
+        if (Gui.drawRequested) {
+            Gui.drawRequested = false;
             renderEngine.fbGUI.pushFramebuffer();
             glClearColor(0, 0, 0, 0);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -183,7 +189,6 @@ public class Outskirts {
             glEnable(GL_DEPTH_TEST);
 
             renderEngine.fbGUI.popFramebuffer();
-            rootGUI.finishDraw();
         }
         glDisable(GL_DEPTH_TEST);
         Gui.drawTexture(renderEngine.fbGUI.colorTextures(0), rootGUI);

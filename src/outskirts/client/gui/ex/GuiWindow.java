@@ -2,10 +2,7 @@ package outskirts.client.gui.ex;
 
 import outskirts.client.Loader;
 import outskirts.client.Outskirts;
-import outskirts.client.gui.Gui;
-import outskirts.client.gui.GuiButton;
-import outskirts.client.gui.GuiDrag;
-import outskirts.client.gui.GuiScrollPanel;
+import outskirts.client.gui.*;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.render.Texture;
 import outskirts.event.EventPriority;
@@ -20,8 +17,9 @@ public final class GuiWindow extends Gui {
 
     public static Gui TASKBAR = new GuiColumn();
     static {
-        GuiIngame.INSTANCE.addGui(TASKBAR);
-        TASKBAR.addLayoutorAlignParentRR(1f, 0.5f);
+        GuiIngame.INSTANCE.addChildren(
+                new GuiAlign(1, .5f).setContent(TASKBAR)
+        );
     }
 
     private static final Texture TEX_BG = Loader.loadTexture(new Identifier("textures/gui/bg/dialog_background_opaque.png").getInputStream());
@@ -49,11 +47,7 @@ public final class GuiWindow extends Gui {
                   drawString(title, g.getX() + g.getWidth() / 2, g.getY() + 8, Colors.GRAY, 16, .5f, false);
               });
           }).addChildren(
-            new Gui().exec(g -> { // Close Window
-                g.addLayoutorAlignParentLTRB(NaN, NaN, 12, NaN);
-                g.addLayoutorAlignParentRR(NaN, 0.5f);
-                g.setWidth(20);
-                g.setHeight(20);
+            new Gui(12, 12, 20, 20).exec(g -> { // Close Window
                 GuiButton.initOnMouseDownClickSound(g);
                 g.addOnClickListener(e -> {
                     Outskirts.getRootGUI().removeGui(this);
@@ -64,11 +58,7 @@ public final class GuiWindow extends Gui {
                     drawString("x", g.getX() + g.getWidth() / 2, g.getY() + 2, g.isHover() ? Colors.RED : Colors.GRAY, 16, .5f, false);
                 });
             }),
-            new Gui().exec(g -> { // Min Window
-                g.addLayoutorAlignParentLTRB(NaN, NaN, 32, NaN);
-                g.addLayoutorAlignParentRR(NaN, 0.5f);
-                g.setWidth(20);
-                g.setHeight(20);
+            new Gui(32, 12, 20, 20).exec(g -> { // Min Window
                 GuiButton.initOnMouseDownClickSound(g);
                 g.addOnClickListener(e -> {
                     Outskirts.getRootGUI().removeGui(this);
@@ -86,27 +76,27 @@ public final class GuiWindow extends Gui {
                 });
             })
           ),
-          new GuiScrollPanel().exec((GuiScrollPanel g) -> {  // mainPanel
+          new GuiAlign().useLTRB(14, WIN_HANDLER_HEIGHT, 14, 14).setContent(new GuiScrollPanel().exec((GuiScrollPanel g) -> {  // mainPanel
               g.setContent(main);
-              g.addLayoutorAlignParentLTRB(14, WIN_HANDLER_HEIGHT, 14, 14);
               g.addOnDrawListener(e -> {
                   drawCornerStretchTexture(TEX_INDENT, g.getX()-2, g.getY()-2, g.getWidth()+4, g.getHeight()+4, 5);
               });
-          }),
-          new GuiDrag().exec((GuiDrag g) -> {  // Resizer
-              float SIZER_SZ = 12;
-              g.addLayoutorAlignParentLTRB(NaN, NaN, 0, 0);
-              g.setWidth(SIZER_SZ);
-              g.setHeight(SIZER_SZ);
-              g.addOnDrawListener(e -> {
-                  if (g.isHover())
-                      drawRect(Colors.WHITE40, g);
-              });
-              g.addOnDraggingListener(e -> {
-                  setWidth(getWidth() + e.dx);
-                  setHeight(getHeight() + e.dy);
-              });
-          })
+          })),
+          new GuiAlign(1, 1).setContent(
+            new GuiDrag().exec((GuiDrag g) -> {  // Resizer
+                float SIZER_SZ = 12;
+                g.setWidth(SIZER_SZ);
+                g.setHeight(SIZER_SZ);
+                g.addOnDrawListener(e -> {
+                    if (g.isHover())
+                        drawRect(Colors.WHITE40, g);
+                });
+                g.addOnDraggingListener(e -> {
+                    setWidth(getWidth() + e.dx);
+                    setHeight(getHeight() + e.dy);
+                });
+            })
+          )
         );
 
         addOnDrawListener(e -> {

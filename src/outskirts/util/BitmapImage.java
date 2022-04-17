@@ -56,11 +56,10 @@ public class BitmapImage {
     public ByteBuffer getPixels() {
         return pixels;
     }
-    public ByteBuffer loadFlippedPixelsY() {
+    public final ByteBuffer loadFlippedPixelsY() {
         return flipPixelsY(width, height, pixels);
     }
     public static ByteBuffer flipPixelsY(int width, int height, ByteBuffer src) {
-        Log.info("Flipping: "+width+", "+height);
         ByteBuffer dst = BufferUtils.createByteBuffer(width * height * 4);
         for (int y = 0;y < height;y++) {
             int flipped_pos_base = (height-1-y) * width * 4;

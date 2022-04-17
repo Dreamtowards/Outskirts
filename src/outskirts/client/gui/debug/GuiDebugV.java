@@ -6,27 +6,20 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.render.chunk.ChunkRenderDispatcher;
 import outskirts.client.render.chunk.RenderSection;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.renderer.RenderEngine;
-import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.entity.Entity;
 import outskirts.entity.item.EntityStaticMesh;
 import outskirts.entity.player.Gamemode;
 import outskirts.event.EventPriority;
-import outskirts.event.Events;
-import outskirts.event.client.input.KeyboardEvent;
 import outskirts.init.ex.Models;
 import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.Colors;
-import outskirts.util.Maths;
-import outskirts.util.logging.Log;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
-import outskirts.world.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,15 +29,14 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_FILL;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
-import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiDebugV extends Gui {
 
     public static GuiDebugV INSTANCE = new GuiDebugV();
 
     public GuiDebugV() {
-        setWidth(INFINITY);
-        setHeight(INFINITY);
+        setWidth(INF);
+        setHeight(INF);
 
         GuiMemoryLog memLog;
         GuiProfilerVisual profv;
@@ -54,7 +46,6 @@ public class GuiDebugV extends Gui {
         addKeyboardListener(e -> {
             if (e.isPressed() && e.getKey() == GLFW.GLFW_KEY_R) {
                 requestLayout();
-                requestDraw();
             }
         });
 
@@ -63,20 +54,16 @@ public class GuiDebugV extends Gui {
                 GuiDebugTxInfos.INSTANCE,
                 GuiDebugPhys.INSTANCE,
                 GuiILightsList.INSTANCE,
-                basisv=new GuiBasisVisual(theBasis, true).exec((GuiBasisVisual g) -> {
-                    g.addOnDrawListener(e -> Matrix3f.set(theBasis, Outskirts.renderEngine.getViewMatrix())).priority(EventPriority.HIGH);
-                    g.addLayoutorAlignParentRR(0.5f, 0.5f);
-                }),
-                memLog=new GuiMemoryLog().exec(g -> {
-                    g.addLayoutorAlignParentLTRB(0, NaN, NaN, 0);
-                }),
-                profv=new GuiProfilerVisual().exec(g -> {
-                    g.addLayoutorAlignParentLTRB(NaN, NaN, 10, 10);
-                }),
+                new GuiAlign(.5f, .5f).setContent(
+                    basisv=new GuiBasisVisual(theBasis, true).exec((GuiBasisVisual g) -> {
+                        // update mat before draw.
+                        g.addOnDrawListener(e -> Matrix3f.set(theBasis, Outskirts.renderEngine.getViewMatrix())).priority(EventPriority.HIGH);
+                    })
+                ),
+                new GuiAlign(0, 1).setContent(memLog=new GuiMemoryLog()),
+                new GuiAlign(.98f, .98f).setContent(profv=new GuiProfilerVisual()),  // 10px original.x
                 gbufv=new GuiEntityGBufferVisual(),
                 new GuiPopupMenu.GuiMenubar().exec((GuiPopupMenu.GuiMenubar menubar) -> {
-
-
 
                     menubar.addMenu("Profiler", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
@@ -85,8 +72,6 @@ public class GuiDebugV extends Gui {
                         ));
                     }));
 
-
-
                     menubar.addMenu("Physics", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
                                 new GuiCheckBox("BoundingBox").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showBoundingBox=b)),
@@ -94,8 +79,6 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("ContactPoints").exec(g->initCBL(g, false, b-> GuiDebugPhys.INSTANCE.showContactPoints=b))
                         ));
                     }));
-
-
 
                     menubar.addMenu("GEO Rd. RENDERING.", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
@@ -117,8 +100,6 @@ public class GuiDebugV extends Gui {
                                 new GuiCheckBox("Polymode: LINE. r. FILL").exec(g -> initCBL(g, false,  b->glPolygonMode(GL_FRONT_AND_BACK, b?GL_LINE: GL_FILL)))
                         ));
                     }));
-
-
 
                     menubar.addMenu("WorldC", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
@@ -213,8 +194,7 @@ public class GuiDebugV extends Gui {
 
                     menubar.addMenu("GUI", new GuiPopupMenu().exec((GuiPopupMenu menu) -> {
                         menu.addItem(new GuiColumn().addChildren(
-                                new GuiButton("Gui Weights Test Window").exec(g -> {
-                                    g.setWidth(NaN);
+                                new GuiButton("Test W").exec(g -> {
                                     g.addOnClickListener(e -> Outskirts.getRootGUI().addGui(new GuiWindow(new GuiTestWindowWidgets())));
                                 }),
                                 new GuiButton("DumpRTG").exec(g -> {

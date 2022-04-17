@@ -13,8 +13,6 @@ import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.chunk.Chunk;
 
-import java.awt.image.BufferedImage;
-
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class MapRenderer extends Renderer {

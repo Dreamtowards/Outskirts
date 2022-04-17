@@ -8,13 +8,6 @@ import outskirts.material.Material;
 import outskirts.util.BitmapImage;
 import outskirts.util.IOUtils;
 import outskirts.util.Identifier;
-import outskirts.util.logging.Log;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public final class MaterialTextures {
 

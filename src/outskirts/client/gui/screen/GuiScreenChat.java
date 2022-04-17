@@ -43,22 +43,23 @@ public class GuiScreenChat extends Gui {
         addLayoutorAlignParentLTRB(2, NaN, 80, 2);
         initEscClose(this);
 
+        completeLs=new GuiColumn().exec(g -> {
+            g.addOnDrawListener(e -> {
+                drawRect(Colors.BLACK80, g);
+            });
+            g.addOnLayoutListener(e -> {
+                Vector2f p = tbInputBox.calculateTextPosition(tabCompleteStartIndex());
+                g.setX(p.x);
+                g.setY(tbInputBox.getY()-g.getHeight());
+            });
+        });
         addChildren(
-          completeLs=new GuiColumn().exec(g -> {
-              g.addOnDrawListener(e -> {
-                  drawRect(Colors.BLACK80, g);
-              });
-              g.addOnLayoutListener(e -> {
-                  Vector2f p = tbInputBox.calculateTextPosition(tabCompleteStartIndex());
-                  g.setX(p.x);
-                  g.setY(tbInputBox.getY()-g.getHeight());
-              });
-          }),
           new GuiColumn().exec(g -> {
-              g.setWidth(INFINITY);
+              g.setWidth(INF);
           }).addChildren(
             new GuiScrollPanel().exec((GuiScrollPanel g) -> {
-                g.setWidth(INFINITY);
+                g.setWidth(INF);
+                g.setScrollbarThickness(2);
                 g.addOnDrawListener(e -> {
                     drawRect(Colors.BLACK40, g);
                     if (Outskirts.isCtrlKeyDown())
@@ -76,7 +77,7 @@ public class GuiScreenChat extends Gui {
             new Gui(0, 0, 0, 2),
             new GuiTextBox().exec((GuiTextBox g) -> {
                 tbInputBox=g;
-                g.setWidth(INFINITY);
+                g.setWidth(INF);
                 g.setHeight(20);
                 g.setMaxLines(1);
                 g.getText().setRelativeXY(4, 2);
@@ -95,6 +96,7 @@ public class GuiScreenChat extends Gui {
                     completeLs.setVisible(g.isFocused());
                 });
                 g.getText().addOnTextChangedListener(e -> {
+                    requestLayout();
                     if (historyIdx==0) {
                         histories.set(0, g.texts());  // update current text record.
                     }
@@ -171,7 +173,8 @@ public class GuiScreenChat extends Gui {
                     lastTabCompleteStartIdx = tabCompleteStartIdx;
                 });
             })
-          )
+          ),
+          completeLs
         );
 
     }

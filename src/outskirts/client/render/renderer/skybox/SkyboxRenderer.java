@@ -9,8 +9,6 @@ import outskirts.init.ex.Models;
 import outskirts.util.BitmapImage;
 import outskirts.util.Identifier;
 
-import java.awt.image.BufferedImage;
-
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;

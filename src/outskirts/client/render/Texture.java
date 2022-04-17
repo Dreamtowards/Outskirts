@@ -6,7 +6,6 @@ import outskirts.util.BitmapImage;
 import outskirts.util.Colors;
 import outskirts.util.vector.Vector4f;
 
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -46,13 +45,6 @@ public final class Texture {
 
     private void delete() {
         glDeleteTextures(textureID);
-    }
-
-    private static BufferedImage gen1x1tex(Vector4f color) {
-        BufferedImage b = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        b.setRGB(0, 0, Colors.toARGB(color));
-        ;
-        return b;
     }
 
     public static BitmapImage glfGetTexImage(Texture tex) {

@@ -1,7 +1,6 @@
 package outskirts.client.gui;
 
 import outskirts.client.Loader;
-import outskirts.client.Outskirts;
 import outskirts.client.audio.AudioSource;
 import outskirts.client.render.Texture;
 import outskirts.init.Sounds;
@@ -16,12 +15,15 @@ public class GuiButton extends Gui {
     static Texture TEX_BUTTON_BACKGROUND_HOVER = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_hover.png").getInputStream());
     static Texture TEX_BUTTON_BACKGROUND_PRESSED = Loader.loadTexture(new ResourceLocation("textures/gui/button/background_pressed.png").getInputStream());
 
-    private GuiText text = addGui(new GuiText());
+    private GuiText text;
+
+    public boolean _drawBackground = true;
 
     // tmp tool constructor
-    public GuiButton(String text) {
-        getText().setText(text);
-        getText().addLayoutorAlignParentRR(0.5f, 0.5f);
+    public GuiButton(String tx) {
+        addChildren(new GuiAlign(.5f, .5f).setContent(
+                this.text=new GuiText(tx)
+        ));
 
         setWidth(100); //250
         setHeight(32); //40
@@ -32,7 +34,8 @@ public class GuiButton extends Gui {
 
             getText().getTextColor().set(isHover() || isPressed() ? Colors.YELLOW : Colors.WHITE);
 
-            drawButtonBackground(this);
+            if (_drawBackground)
+                drawButtonBackground(this);
         });
     }
 

@@ -59,12 +59,14 @@ public class GuiComboBox extends Gui {
 
             // dlaw selected.
             if (getSelectedIndex() >= 0 && getSelectedIndex() < getOptions().size()) {
+                boolean tmpDisableLayoutReq = Gui.layoutRequested;
                 Gui optionGui = getOptions().get(getSelectedIndex());
                 float cX=optionGui.getX(), cY=optionGui.getY();
                 optionGui.setX(getX()+12);
                 optionGui.setY(getY()+ (getHeight()-optionGui.getHeight())/2f);
                 optionGui.onDraw();
                 optionGui.setX(cX); optionGui.setY(cY);
+                Gui.layoutRequested = tmpDisableLayoutReq;
             }
 
             drawTexture(TEX_DROPDOWN_ARROW, getX()+getWidth() - 11 - 8, getY()+(getHeight()-11)/2f, 11, 11);

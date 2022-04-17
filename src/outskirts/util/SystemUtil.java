@@ -8,11 +8,6 @@ import outskirts.event.client.input.MouseButtonEvent;
 import outskirts.util.logging.Log;
 import sun.misc.Unsafe;
 
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -54,32 +49,32 @@ public final class SystemUtil {
     // JAVA VERSION
     public static final int RUNTIME_VERSION = 9;
 
-    public static boolean openURL(String uri) {
-        try {
-            uri = uri.replace(File.separator, "/");
-            Desktop.getDesktop().browse(new URI(uri));
-            return true;
-        } catch (IOException | URISyntaxException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    public static String getClipboard() {
-        try {
-            Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-            if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                return (String) transferable.getTransferData(DataFlavor.stringFlavor);
-            }
-        } catch (UnsupportedFlavorException | IOException ex) {
-            ex.printStackTrace();
-        }
-        return "";
-    }
-
-    public static void setClipboard(String text) {
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
-    }
+//    public static boolean openURL(String uri) {
+//        try {
+//            uri = uri.replace(File.separator, "/");
+//            Desktop.getDesktop().browse(new URI(uri));
+//            return true;
+//        } catch (IOException | URISyntaxException ex) {
+//            ex.printStackTrace();
+//            return false;
+//        }
+//    }
+//
+//    public static String getClipboard() {
+//        try {
+//            Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+//            if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+//                return (String) transferable.getTransferData(DataFlavor.stringFlavor);
+//            }
+//        } catch (UnsupportedFlavorException | IOException ex) {
+//            ex.printStackTrace();
+//        }
+//        return "";
+//    }
+//
+//    public static void setClipboard(String text) {
+//        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+//    }
 
 
     /**

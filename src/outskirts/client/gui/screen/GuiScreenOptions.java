@@ -8,13 +8,9 @@ import outskirts.client.gui.stat.GuiRow;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.util.Colors;
-import outskirts.util.Maths;
 import outskirts.world.World;
 
 import java.util.Arrays;
-
-import static java.lang.Float.NaN;
-import static outskirts.util.logging.Log.LOGGER;
 
 public class GuiScreenOptions extends Gui {
 
@@ -23,8 +19,8 @@ public class GuiScreenOptions extends Gui {
     private GuiScrollPanel gOptionsDisplay;
 
     public GuiScreenOptions() {
-        setWidth(INFINITY);
-        setHeight(INFINITY);
+        setWidth(INF);
+        setHeight(INF);
         addOnDrawListener(e -> {
             drawRect(Colors.BLACK10, this);
         });
@@ -51,7 +47,7 @@ public class GuiScreenOptions extends Gui {
               ).exec(g -> {
                   g.getChildren().forEach(c -> {
                       c.setWidth(160);
-                      c.setHeight(80);
+                      c.setHeight(40);
                   });
               })
           ),
@@ -69,9 +65,11 @@ public class GuiScreenOptions extends Gui {
         public GuiGraphicOptions() {
 
             addChildren(
-              new GuiColumn().addChildren(
-                new GuiText("GRAPHI/ VIDEO").exec((GuiText g) -> {
-                    g.setTextHeight(48);
+              new GuiColumn().exec(g -> {
+                  g.setRelativeXY(20, 20);
+              }).addChildren(
+                new GuiText("Vd Ops").exec((GuiText g) -> {
+                    g.setTextHeight(28);
                 }),
                 row("FOV", new GuiSlider().exec((GuiSlider g) -> {
                     g.setUserMinMaxValue(10, 140);
@@ -148,13 +146,10 @@ public class GuiScreenOptions extends Gui {
             g.setHeight(46);
         }).addChildren(
                 new GuiText(title).exec(g -> {
-                    g.setWidth(300);
-                    g.addLayoutorAlignParentRR(NaN, .5f);
-                    g.setRelativeX(5);
+                    g.setWidth(150);
+                    g.setRelativeX(5);  // need vertical center?
                 }),
-                op.exec(g -> {
-                    g.addLayoutorAlignParentRR(NaN, .5f);
-                })
+                op
         );
     }
 

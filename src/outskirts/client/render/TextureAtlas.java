@@ -4,8 +4,6 @@ import outskirts.client.Loader;
 import outskirts.util.BitmapImage;
 import outskirts.util.vector.Vector2f;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

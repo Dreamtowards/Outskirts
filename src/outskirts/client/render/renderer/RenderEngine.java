@@ -3,6 +3,7 @@ package outskirts.client.render.renderer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import outskirts.client.Outskirts;
+import outskirts.client.gui.Gui;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Framebuffer;
 import outskirts.client.render.Frustum;
@@ -123,7 +124,7 @@ public final class RenderEngine {
                     .resize((int)(Outskirts.getWidth()* GUI_FBO_SIZE_FACTOR), (int)(Outskirts.getHeight()* GUI_FBO_SIZE_FACTOR))
                     .checkFramebufferStatus()
                     .popFramebuffer();
-            Outskirts.getRootGUI().requestLayout();
+            Gui.requestLayout();
         });
     }
 

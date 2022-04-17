@@ -18,7 +18,6 @@ import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
 import outskirts.util.vector.Vector4f;
 
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 public class GuiColorPicker extends Gui {
