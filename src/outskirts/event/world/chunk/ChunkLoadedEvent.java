@@ -1,6 +1,6 @@
 package outskirts.event.world.chunk;
 
-import outskirts.world.chunk.Chunk;
+import outskirts.world.Chunk;
 
 public class ChunkLoadedEvent extends ChunkEvent {
 

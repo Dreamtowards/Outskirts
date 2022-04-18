@@ -1,15 +1,10 @@
 package outskirts.world.gen;
 
-import outskirts.client.Outskirts;
-import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.isoalgorithm.sdf.SDF;
-import outskirts.init.Materials;
-import outskirts.physics.collision.broadphase.bounding.AABB;
-import outskirts.util.function.TrifFunc;
+import outskirts.block.Block;
+import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
-import outskirts.world.chunk.Chunk;
-import outskirts.world.chunk.ChunkPos;
+import outskirts.world.Chunk;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
@@ -18,37 +13,30 @@ public class ChunkGenerator {
 
     private NoiseGeneratorPerlin noise = new NoiseGeneratorPerlin();
 
-    public Chunk generate(ChunkPos chunkpos, World world) {
-        Chunk chunk = new Chunk(world, chunkpos.x, chunkpos.z);
-        GenerationInfo gspec = new GenerationInfo();
+    public Chunk generate(Vector3f chunkpos, World world) {
+        Chunk chunk = new Chunk(world, chunkpos);
+        // GenerationInfo gspec = new GenerationInfo();
 
+        for (int x = 0;x < 16;x++) {
+            for (int z = 0;z < 16;z++) {
+                float f = noise.fbm((chunkpos.x+x)/8, (chunkpos.z+z)/20, 5);
 
-        for (int i = 0;i < 1;i++) {
-            int finalI = i;
-            TrifFunc FUNC = (x, y, z) -> {
-                x = x+chunkpos.x;
-                y = y+ finalI *16;
-                z = z+chunkpos.z;
-
-                float b = SDF.box(vec3(x,y,z).sub(8), vec3(4f,5,4f));
-                if (b < 0) return b;
-                return y-(noise.fbm((x)/29,(z)/29, 7)*16+8);
-//                return y-5;
-            };
-            Octree node = Octree.fromSDF(vec3(0), 16, FUNC, 5, lf -> {
-                if (FUNC.sample(lf.min) < -1.8f) lf.material = Materials.DIRT;
-                else lf.material = Materials.GRASS;
-            });
-//            Octree.doLOD((Octree.Internal)node, 4, vec3(0), 16);
-            chunk.octree(i*16, node);
+//                if (f > 0 && f < 0.1f) {
+//                    f = (f+1) / 2;
+//                }
+                if (chunkpos.y < 10) {
+                    Log.LOGGER.warn("Noise: "+f);
+                    chunk.setBlock(x, (int)(((f+1)/2)*16), z, new Block());
+                }
+            }
         }
 
         return chunk;
     }
 
-    public void populate(World world, ChunkPos chunkpos) {
-        for (int x = chunkpos.x; x < chunkpos.x+16;x++) {
-            for (int z = chunkpos.z; z < chunkpos.z+16;z++) {
+    public void populate(World world, Vector3f chunkpos) {
+//        for (int x = chunkpos.x; x < chunkpos.x+16;x++) {
+//            for (int z = chunkpos.z; z < chunkpos.z+16;z++) {
 //                int topY = world.getHighestBlock(x, z);
 //
 //                if (NoiseGenerator.hash(x * z * 238429480) > 0.984f) {
@@ -58,14 +46,8 @@ public class ChunkGenerator {
 //                if (NoiseGenerator.hash(x * z * 234892374) > 0.194f) {
 //                    new WorldGenTallGrass().generate(world, new Vector3f(x, topY, z));
 //                }
-            }
-        }
-    }
-
-    public static class GenerationInfo {
-
-
-        public int seaLevel = 7;
+//            }
+//        }
     }
 
 }

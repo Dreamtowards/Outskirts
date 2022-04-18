@@ -1,5 +1,6 @@
 package outskirts.entity;
 
+import outskirts.client.Outskirts;
 import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.physics.dynamics.RigidBody;
@@ -28,6 +29,8 @@ public abstract class Entity implements Registrable, Savable, Tickable {
 
     // ref to the world
     private World world;
+
+    private final Vector3f prevPosition = new Vector3f();
 
     public Entity() {
         renderPerferences = Side.CURRENT.isClient() ? new RenderPerferences() : null;
@@ -71,6 +74,13 @@ public abstract class Entity implements Registrable, Savable, Tickable {
     }
     public final Matrix3f rotation() {
         return rigidbody.transform().basis;
+    }
+
+    public Vector3f getPrevPosition() {
+        return prevPosition;
+    }
+    public Vector3f getRenderingInterportedPosition() {
+        return Vector3f.lerp(Outskirts.getTimer().getTickFrac(), prevPosition, position(), new Vector3f());
     }
 
     public World getWorld() {

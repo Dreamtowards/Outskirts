@@ -125,7 +125,7 @@ public class EntityRenderer extends Renderer {
 
             glBindVertexArray(model.vaoID());
 
-            shaderGeometry.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.position(), entity.tmp_boxSphere_scale, entity.rotation(), MAT_MODELMAT_TRANS));
+            shaderGeometry.setMatrix4f("modelMatrix", Maths.createModelMatrix(entity.getRenderingInterportedPosition(), entity.tmp_boxSphere_scale, entity.rotation(), MAT_MODELMAT_TRANS));
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getDiffuseMap().textureID());

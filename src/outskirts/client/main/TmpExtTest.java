@@ -26,9 +26,6 @@ public class TmpExtTest {
 
     public static Light theLight = new Light();
 
-    //todo: GameRule LS   Separator/ NonCollision
-    //tod0: DebugV OP. options
-
     public static int matId = 1;
 
     public static void init() {
@@ -36,76 +33,76 @@ public class TmpExtTest {
         theLight.position().set(40, 50, 40);
         theLight.color().set(1, 1, 1).scale(1.2f);
 
-        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_E, () -> {
-//            theLight.position().set(getPlayer().position());
-//            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
-
-            Outskirts.getRootGUI().addGui(new GuiWindow(
-                    new GuiColorPicker(Outskirts.isAltKeyDown() ? EntityRenderer.skyColor : EntityRenderer.bgColor)
-            ));
-        });
-
-        EVENT_BUS.register(CharInputEvent.class, e -> {
-            char c = e.getChar();
-            if (c >= '0' && c <= '9') {
-                matId = c-48;
-            }
-        });
-        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_T, () -> {
-//            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
-
-            if (Outskirts.isAltKeyDown()) {
-
-                Outskirts.getWorld().unloadChunk(Outskirts.getWorld().getLoadedChunk(Outskirts.getPlayer().position()));
-
-                LOGGER.info("regenerated.");
-                return;
-            }
-
-            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-            if (p == null) return;
-
-            Octree.Internal nd = Outskirts.getWorld().getOctree(p);
-
-            //chunk.octree(0,
-//                    Octree.collapse(nd);
-            //);
-//            Octree.doLOD((Octree.Internal)nd.child(2), 4, vec3(0), 8);
-//            nd.child(0, null);
-            Octree.doLOD(nd, 4, vec3(0), 16);
-
-
-            renderEngine.getChunkRenderDispatcher().markRebuild(aabb(Vector3f.floor(vec3(p),16), 16));
-
-//            LOGGER.info("TEST EXECTUED.");
-        });
-        SystemUtil.debugAddMouseKeyHook(1, () -> {
-            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-            if (p == null) return;
-
-            Octree.Leaf lf = Outskirts.getWorld().findLeaf(p,null);
-            lf.material = Material.REGISTRY.values().get(matId);
-
-            Vector3f mn = Vector3f.floor(vec3(p), lf.size);
-            renderEngine.getChunkRenderDispatcher().markRebuild(aabb(mn, lf.size));
-        });
-        SystemUtil.debugAddMouseKeyHook(0, () -> {
-            if (!Outskirts.isIngame())
-                return;
-            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
-            if (p==null)return;
-
-            AABB aabb = aabb(vec3(p).sub(3), 6);
-
-            Outskirts.getWorld().forOctrees(aabb, (nd, v) -> {
-                TrifFunc FUNCQ = (x, y, z) -> {
-                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2));
-                };
-                CSG.difference(nd, FUNCQ);
-            });
-
-            renderEngine.getChunkRenderDispatcher().markRebuild(aabb);
-        });
+//        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_E, () -> {
+////            theLight.position().set(getPlayer().position());
+////            renderEngine.getShadowRenderer().getShadowDirection().set(getCamera().getDirection());
+//
+//            Outskirts.getRootGUI().addGui(new GuiWindow(
+//                    new GuiColorPicker(Outskirts.isAltKeyDown() ? EntityRenderer.skyColor : EntityRenderer.bgColor)
+//            ));
+//        });
+//
+//        EVENT_BUS.register(CharInputEvent.class, e -> {
+//            char c = e.getChar();
+//            if (c >= '0' && c <= '9') {
+//                matId = c-48;
+//            }
+//        });
+//        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_T, () -> {
+////            Outskirts.getRootGUI().addGui(new GuiWindow(new GuiDebugSnapshot(Outskirts.getRootGUI())));
+//
+//            if (Outskirts.isAltKeyDown()) {
+//
+//                Outskirts.getWorld().unloadChunk(Outskirts.getWorld().getLoadedChunk(Outskirts.getPlayer().position()));
+//
+//                LOGGER.info("regenerated.");
+//                return;
+//            }
+//
+//            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+//            if (p == null) return;
+//
+////            Octree.Internal nd = Outskirts.getWorld().getOctree(p);
+//
+//            //chunk.octree(0,
+////                    Octree.collapse(nd);
+//            //);
+////            Octree.doLOD((Octree.Internal)nd.child(2), 4, vec3(0), 8);
+////            nd.child(0, null);
+////            Octree.doLOD(nd, 4, vec3(0), 16);
+//
+//
+////            renderEngine.getChunkRenderDispatcher().markRebuild(aabb(Vector3f.floor(vec3(p),16), 16));
+//
+////            LOGGER.info("TEST EXECTUED.");
+//        });
+////        SystemUtil.debugAddMouseKeyHook(1, () -> {
+////            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+////            if (p == null) return;
+////
+////            Octree.Leaf lf = Outskirts.getWorld().findLeaf(p,null);
+////            lf.material = Material.REGISTRY.values().get(matId);
+////
+////            Vector3f mn = Vector3f.floor(vec3(p), lf.size);
+////            renderEngine.getChunkRenderDispatcher().markRebuild(aabb(mn, lf.size));
+////        });
+////        SystemUtil.debugAddMouseKeyHook(0, () -> {
+////            if (!Outskirts.isIngame())
+////                return;
+////            Vector3f p = Outskirts.getRayPicker().getCurrentPoint();
+////            if (p==null)return;
+////
+////            AABB aabb = aabb(vec3(p).sub(3), 6);
+////
+//////            Outskirts.getWorld().forOctrees(aabb, (nd, v) -> {
+//////                TrifFunc FUNCQ = (x, y, z) -> {
+//////                    return SDF.box(vec3(x,y,z).add(v).sub(p), vec3(2));
+//////                };
+//////                CSG.difference(nd, FUNCQ);
+//////            });
+////
+////            renderEngine.getChunkRenderDispatcher().markRebuild(aabb);
+////        });
     }
 
 }

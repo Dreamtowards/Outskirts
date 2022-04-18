@@ -64,7 +64,7 @@ public class Camera {
 
         if (ownerEntity != null) {
             // Camera Position
-            position.set(ownerEntity.position()).add(0, 0.8f, 0).addScaled(cameraDistance, direction);
+            position.set(ownerEntity.getRenderingInterportedPosition()).add(0, 0.8f, 0).addScaled(cameraDistance, direction);
         }
     }
 

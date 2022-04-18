@@ -1,10 +1,7 @@
 package outskirts.world.gen.feature;
 
-import outskirts.init.Blocks;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
-import outskirts.world.chunk.Chunk;
-import outskirts.world.gen.MapGen;
 
 public class WorldGenTree extends WorldGen {
 

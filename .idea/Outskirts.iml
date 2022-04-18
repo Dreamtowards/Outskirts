@@ -16,15 +16,12 @@
     <orderEntry type="library" exported="" name="json-20171018" level="project" />
     <orderEntry type="library" exported="" name="jsr305-3.0.1" level="project" />
     <orderEntry type="library" exported="" name="netty-all-4.0.23.Final" level="project" />
-    <orderEntry type="library" name="jogg-0.0.7" level="project" />
-    <orderEntry type="library" name="jorbis-0.0.15" level="project" />
     <orderEntry type="library" name="typetools-0.4.4" level="project" />
     <orderEntry type="library" name="log4j-api-2.13.1" level="project" />
     <orderEntry type="library" name="log4j-core-2.13.1" level="project" />
-    <orderEntry type="library" name="junit-4.10" level="project" />
-    <orderEntry type="library" name="asm-all-5.1" level="project" />
     <orderEntry type="library" name="lwjgl-openal" level="project" />
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="lwjgl-stb" level="project" />
+    <orderEntry type="library" name="junit-4.10" level="project" />
   </component>
 </module>

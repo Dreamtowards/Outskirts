@@ -6,6 +6,7 @@ import org.lwjgl.system.Platform;
 import outskirts.client.audio.AudioEngine;
 import outskirts.client.gui.Gui;
 import outskirts.client.gui.debug.Gui1DNoiseVisual;
+import outskirts.client.gui.debug.GuiDebugV;
 import outskirts.client.gui.ex.GuiIngame;
 import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
@@ -158,6 +159,8 @@ public class Outskirts {
         if (window.isCloseRequested())
             Outskirts.shutdown();
 
+        if (GuiDebugV.INSTANCE.isVisible())
+            Gui.requestDraw();
 //        Log.LOGGER.info("FPS "+(1f/getDelta()));
     }
 
@@ -171,8 +174,6 @@ public class Outskirts {
             rootGUI.onLayout();
 
             Gui.requestDraw();
-//            SystemUtil.sleep(100);
-            LOGGER.info("GUI Layouting ");
             if (tmp++ > 5) {
                 LOGGER.error("Error on Gui layouting: over iterated. skipped.");
                 break;
@@ -200,7 +201,7 @@ public class Outskirts {
         if (getWorld() != null) {
             if (isIngame()) {
                 // MOVEMENT
-                float lv =0.4f;
+                float lv =1.4f;
                 if (Outskirts.isKeyDown(GLFW.GLFW_KEY_F))
                     lv *= 6;
                 if (KEY_WALK_FORWARD.isKeyDown()) player.walk(lv, 0);
@@ -267,6 +268,7 @@ public class Outskirts {
     public static GuiRoot getRootGUI() { return INST.rootGUI; }
     public static Window getWindow() { return INST.window; }
     public static Camera getCamera() { return INST.camera; }
+    public static GameTimer getTimer() { return INST.timer; }
     public static RayPicker getRayPicker() { return INST.rayPicker; }
     public static Scheduler getScheduler() { return INST.scheduler; }
     public static Profiler getProfiler() { return INST.profiler; }

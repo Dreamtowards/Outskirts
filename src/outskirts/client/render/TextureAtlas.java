@@ -4,6 +4,7 @@ import outskirts.client.Loader;
 import outskirts.util.BitmapImage;
 import outskirts.util.vector.Vector2f;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,13 +34,11 @@ public final class TextureAtlas {
 
         //build atlas image
         BitmapImage atlasimg = new BitmapImage(totalWidth, maxHeight);
-        // todo: ImgCpy
-//        Graphics2D g2d = (Graphics2D)atlasBufferedImage.getGraphics();
-//        int startX = 0;
-//        for (AtlasFragment fragment : atlas) {
-//            g2d.drawImage(fragment.img, startX, 0, null);
-//            startX += fragment.img.getWidth();
-//        }
+        int startX = 0;
+        for (AtlasFragment fragment : atlas) {
+            atlasimg.copyPixels(fragment.img, startX, 0);
+            startX += fragment.img.getWidth();
+        }
 
         //recalculate fragments TEX_COORDS info
         float tmpOffsetX = 0;
@@ -55,6 +54,7 @@ public final class TextureAtlas {
 
         //load build atlas texture
         this.texture = Loader.loadTexture(atlasimg);
+        Loader.savePNG(atlasimg, Path.of("atlas.png"));
     }
 
     public List<AtlasFragment> fragments() {

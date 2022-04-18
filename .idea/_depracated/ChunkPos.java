@@ -2,9 +2,7 @@ package outskirts.world.chunk;
 
 import outskirts.util.Maths;
 import outskirts.util.vector.Vector3f;
-
-import java.util.Arrays;
-import java.util.Objects;
+import outskirts.world.Chunk;
 
 public final class ChunkPos {
 

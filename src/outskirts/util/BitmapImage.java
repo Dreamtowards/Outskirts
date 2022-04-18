@@ -44,10 +44,20 @@ public class BitmapImage {
     }
     public int getPixel(int x, int y) {
         int bas = pxbase(x,y);
-        return ((pixels.get(bas) * 0xFF) << 24) |
-               ((pixels.get(bas+1) * 0xFF) << 16) |
-               ((pixels.get(bas+2) * 0xFF) << 8) |
-                (pixels.get(bas+3) * 0xFF);
+        return ((pixels.get(bas) & 0xFF) << 24) |
+               ((pixels.get(bas+1) & 0xFF) << 16) |
+               ((pixels.get(bas+2) & 0xFF) << 8) |
+                (pixels.get(bas+3) & 0xFF);
+    }
+
+    public void copyPixels(BitmapImage img, int dstX, int dstY) {
+
+        for (int dx = 0;dx < img.getWidth();dx++) {
+            for (int dy = 0;dy < img.getHeight();dy++) {
+
+                setPixel(dstX+dx, dstY+dy, img.getPixel(dx, dy));
+            }
+        }
     }
 
     public int getWidth() { return width; }

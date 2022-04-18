@@ -1,52 +1,39 @@
 package outskirts.world;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.isoalgorithm.dc.Octree;
-import outskirts.client.render.lighting.Light;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkUnloadedEvent;
-import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.physics.dynamics.DiscreteDynamicsWorld;
-import outskirts.util.CopyOnIterateArrayList;
 import outskirts.util.GameTimer;
-import outskirts.util.Ref;
 import outskirts.util.Tickable;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.chunk.Chunk;
-import outskirts.world.chunk.ChunkPos;
 import outskirts.world.gen.ChunkGenerator;
-import outskirts.world.storage.ChunkLoader;
 
-import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiConsumer;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.aabb;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.Maths.floor;
 import static outskirts.util.Maths.mod;
-import static outskirts.util.logging.Log.LOGGER;
 
 public abstract class World implements Tickable {
 
     private final List<Entity> entities = new ArrayList<>();
 
-    private Map<Long, Chunk> loadedChunks = new HashMap<>();
+    private final Map<Vector3f, Chunk> loadedChunks = new HashMap<>();
 
-    // private Map<Vector3f, Section> loadedsections = new HashMap<>();
+    public final DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
 
-    public DiscreteDynamicsWorld dynamicsWorld = new DiscreteDynamicsWorld();
-
-    private ChunkGenerator chunkGenerator = new ChunkGenerator();
-    private ChunkLoader chunkLoader = new ChunkLoader();
+    private final ChunkGenerator chunkGenerator = new ChunkGenerator();
+//    private ChunkLoader chunkLoader = new ChunkLoader();
 
     // 24000, 0==sunrise.
     public float daytime;
 
     public void addEntity(Entity entity) {
-        assert !entities.contains(entity);
+        assert !entities.contains(entity) : "Failed add the entity, already existed.";
         synchronized (entities) {
             entities.add(entity);
         }
@@ -55,7 +42,7 @@ public abstract class World implements Tickable {
     }
 
     public void removeEntity(Entity entity) {
-        assert entities.contains(entity);
+        assert entities.contains(entity) : "Failed remove the entity, not exists.";
         synchronized (entities) {
             entities.remove(entity);
         }
@@ -64,123 +51,64 @@ public abstract class World implements Tickable {
     }
 
     public List<Entity> getEntities() {
-        synchronized (entities) {
-            return Collections.unmodifiableList(entities);
-        }
-    }
-
-    /**
-     * fc: if contains entity.pos.
-     * fi: if intersects entity.volume.
-     */
-    public List<Entity> getEntitiesfc(AABB contains) {
-        // todo: Accumulate algorithms. use of B.P.
-        List<Entity> entities = new ArrayList<>();
-        synchronized (this.entities) {
-            for (Entity e : getEntities()) {
-                if (contains.containsEqLs(e.position()))
-                    entities.add(e);
-            }
-        }
         return entities;
     }
 
+    public final Chunk provideChunk(Vector3f chunkpos) {
+        Chunk chunk = getLoadedChunk(chunkpos);
+        if (chunk != null)
+            return chunk;
+        // chunk = chunkLoader.loadChunk(this, chunkpos);
 
-    public Octree.Internal getOctree(Vector3f p) {
-        Chunk chunk = getLoadedChunk(p);
-        if (chunk == null) return null;
-        return chunk.octree(p.y);
-    }
-    public final void forOctrees(AABB aabb, BiConsumer<Octree, Vector3f> visitor) {
-        AABB.forGridi(aabb, 16, v -> {
-            Octree nd = getOctree(v);
-            if (nd != null)
-                visitor.accept(nd, v);
-        });
-    }
-
-    public Octree.Leaf findLeaf(Vector3f p, Ref<Octree.Internal> lp) {
-        Octree.Internal node = getOctree(p);
-        if (node==null) return null;
-        Vector3f rp = Vector3f.mod(vec3(p), 16f).scale(1/16f);
-        return Octree.findLeaf(node, rp, lp);
-    }
-
-    /**
-     * @param x,z world_coordinate.any
-     */
-    public final Chunk provideChunk(float x, float z) {
-        Chunk chunk = getLoadedChunk(x, z);
         if (chunk == null) {
-            ChunkPos chunkpos = ChunkPos.of(x, z);
-//            chunk = chunkLoader.loadChunk(this, chunkpos);
+            chunk = chunkGenerator.generate(chunkpos, this);
+        }
 
-            if (chunk == null) {
-                chunk = chunkGenerator.generate(chunkpos, this);
-            }
-
-            loadedChunks.put(ChunkPos.asLong(chunk.x, chunk.z), chunk);
+        loadedChunks.put(chunkpos, chunk);
 
 //            tryPopulate(chunkpos);
-
-            Chunk fchunk = chunk;
-            Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkLoadedEvent(fchunk)));
-        }
+        Events.EVENT_BUS.post(new ChunkLoadedEvent(chunk));
         return chunk;
     }
 
-    private void tryPopulate(ChunkPos chunkpos) {
-        for (int dx = -1;dx <= 1;dx++) {
-            for (int dz = -1;dz <= 1;dz++) {
-                Chunk chunk = getLoadedChunk(chunkpos.x+dx*16, chunkpos.z+dz*16);
-                if (chunk != null && !chunk.populated && isNeibghersAllLoaded(chunk.x, chunk.z)) {
-                    chunkGenerator.populate(this, ChunkPos.of(chunk));
-                    chunk.populated = true;
-                }
-            }
-        }
-    }
+//    private void tryPopulate(ChunkPos chunkpos) {
+//        for (int dx = -1;dx <= 1;dx++) {
+//            for (int dz = -1;dz <= 1;dz++) {
+//                Chunk chunk = getLoadedChunk(chunkpos.x+dx*16, chunkpos.z+dz*16);
+//                if (chunk != null && !chunk.populated && isNeibghersAllLoaded(chunk.x, chunk.z)) {
+//                    chunkGenerator.populate(this, ChunkPos.of(chunk));
+//                    chunk.populated = true;
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Default Chunk Populate Condition.
      * allow populate if neibgher chunks already loaded.
      * else if just directly populate may cause Massive-Chain-Generation.
      */
-    private boolean isNeibghersAllLoaded(int chunkX, int chunkZ) {
-        for (int dx = -1;dx <= 1;dx++) {
-            for (int dz = -1;dz <= 1;dz++) {
-                if (getLoadedChunk(chunkX+dx*16, chunkZ+dz*16) == null)
-                    return false;
-            }
-        }
-        return true;
-    }
+//    private boolean isNeibghersAllLoaded(int chunkX, int chunkZ) {
+//        for (int dx = -1;dx <= 1;dx++) {
+//            for (int dz = -1;dz <= 1;dz++) {
+//                if (getLoadedChunk(chunkX+dx*16, chunkZ+dz*16) == null)
+//                    return false;
+//            }
+//        }
+//        return true;
+//    }
 
     public void unloadChunk(Chunk chunk) {
-        loadedChunks.remove(ChunkPos.asLong(chunk.x, chunk.z));
+        Chunk tmp = loadedChunks.remove(chunk.getPosition());
+        assert tmp != null : "Failed to unload. no such chunk.";
 
-        chunkLoader.saveChunk(chunk);
+//        chunkLoader.saveChunk(chunk);
 
-        // Unload Sections.
-        for (int k : new ArrayList<>(chunk.getOctrees().keySet())) {
-            chunk.octree(k, null);
-        }
-
-        Outskirts.getScheduler().addScheduledTask(() -> Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk)));
+        Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk));
     }
 
-    /**
-     * @param x,z world_coordinate.any
-     */
-    @Nullable
-    public Chunk getLoadedChunk(float x, float z) {
-        return loadedChunks.get(ChunkPos.asLong(x, z));
-    }
-    public final Chunk getLoadedChunk(ChunkPos chunkpos) {
-        return getLoadedChunk(chunkpos.x, chunkpos.z);
-    }
-    public final Chunk getLoadedChunk(Vector3f p) {
-        return getLoadedChunk(p.x, p.z);
+    public final Chunk getLoadedChunk(Vector3f chunkpos) {
+        return loadedChunks.get(chunkpos);
     }
 
     public final Collection<Chunk> getLoadedChunks() {
@@ -189,6 +117,10 @@ public abstract class World implements Tickable {
 
     @Override
     public void onTick() {
+
+        entities.forEach(e -> {
+            e.getPrevPosition().set(e.position());
+        });
 
         Outskirts.getProfiler().push("Physics");
         dynamicsWorld.stepSimulation(1f/GameTimer.TPS);

@@ -1,8 +1,7 @@
 package outskirts.event.world.chunk;
 
 import outskirts.event.world.WorldEvent;
-import outskirts.world.World;
-import outskirts.world.chunk.Chunk;
+import outskirts.world.Chunk;
 
 public abstract class ChunkEvent extends WorldEvent {
 

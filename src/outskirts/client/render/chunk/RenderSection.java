@@ -6,6 +6,7 @@ import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.entity.item.EntityStaticMesh;
 import outskirts.init.MaterialTextures;
 import outskirts.util.vector.Vector3f;
+import outskirts.world.Chunk;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 import static outskirts.util.logging.Log.LOGGER;
@@ -13,26 +14,30 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderSection {
 
-    public boolean dirty;
+    public boolean rebuildRequested;
     public EntityStaticMesh proxyentity = new EntityStaticMesh();
 
-    public Octree cachedLod;
-    public float cachedLodSize;
-    public boolean lodDirty;
+//    public Octree cachedLod;
+//    public float cachedLodSize;
+//    public boolean lodDirty;
 
-    public void computeLOD() {
-        cachedLodSize = calcShouldLodSize();
-        Octree n = Outskirts.getWorld().getOctree(position());
-        if (n==null) return;
-        cachedLod = Octree.doLOD((Octree.Internal)Octree.copy(n), cachedLodSize, vec3(0), 16f);
-        LOGGER.info("Build LOD");
-    }
-    public float calcShouldLodSize() {
-        return ChunkRenderDispatcher.calculateLodSize(position(), Outskirts.getPlayer().position());
+//    public void computeLOD() {
+//        cachedLodSize = calcShouldLodSize();
+//        Octree n = Outskirts.getWorld().getOctree(position());
+//        if (n==null) return;
+//        cachedLod = Octree.doLOD((Octree.Internal)Octree.copy(n), cachedLodSize, vec3(0), 16f);
+//        LOGGER.info("Build LOD");
+//    }
+//    public float calcShouldLodSize() {
+//        return ChunkRenderDispatcher.calculateLodSize(position(), Outskirts.getPlayer().position());
+//    }
+
+    public void markRebuild() {
+        rebuildRequested = true;
     }
 
     public RenderSection(Vector3f p) {
-        assert p.x%16==0 && p.y%16==0 && p.z%16==0;
+        Chunk.validateChunkPos(p);
         proxyentity.getRenderPerferences().setDiffuseMap(MaterialTextures.DIFFUSE_ATLAS.getAtlasTexture())
                                           .setNormalMap(MaterialTextures.NORMAL_ATLAS.getAtlasTexture())
                                           .setDisplacementMap(MaterialTextures.DISPLACEMENT_ATLAS.getAtlasTexture());

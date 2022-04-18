@@ -183,6 +183,10 @@ public final class CollectionUtils {
         Arrays.fill(arr, v);
         return arr;
     }
+    public static float[] fill(float[] arr, float v) {
+        Arrays.fill(arr, v);
+        return arr;
+    }
 
     public static <T> T[] subarray(T[] array, int beginIndex, int endIndex) {
         T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), endIndex - beginIndex);

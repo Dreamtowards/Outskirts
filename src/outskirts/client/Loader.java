@@ -1,23 +1,18 @@
 package outskirts.client;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.stb.STBImageWrite;
 import org.lwjgl.stb.STBVorbis;
-import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
 import outskirts.util.*;
 import outskirts.util.obj.OBJLoader;
-import outskirts.util.ogg.OggLoader;
 
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -28,7 +23,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -36,7 +30,6 @@ import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static outskirts.util.logging.Log.LOGGER;

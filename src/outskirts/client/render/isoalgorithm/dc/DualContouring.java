@@ -1,27 +1,12 @@
 package outskirts.client.render.isoalgorithm.dc;
 
-import ext.dualc.TestDualc;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.chunk.ChunkMeshGen;
 import outskirts.material.Material;
-import outskirts.util.CollectionUtils;
-import outskirts.util.Colors;
-import outskirts.util.StringUtils;
-import outskirts.util.Val;
-import outskirts.util.logging.Log;
-import outskirts.util.mx.VertexUtil;
-import outskirts.util.vector.Vector3f;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static outskirts.client.render.isoalgorithm.dc.Octree.EDGE;
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
-import static outskirts.util.logging.Log.LOGGER;
 
 /**
  *  Adaptive Resolution of Varying Octree.

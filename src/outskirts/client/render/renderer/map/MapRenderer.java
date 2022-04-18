@@ -11,7 +11,7 @@ import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.vector.Matrix3f;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.chunk.Chunk;
+import outskirts.world.Chunk;
 
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 

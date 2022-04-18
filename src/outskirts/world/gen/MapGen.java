@@ -1,6 +1,6 @@
 package outskirts.world.gen;
 
-import outskirts.world.chunk.Chunk;
+import outskirts.world.Chunk;
 
 public abstract class MapGen {
 

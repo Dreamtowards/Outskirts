@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
-public class ChunkMeshGen {
+public class ChunkMeshGenDualc {
 
     public static VertexBuffer buildModel(RenderSection rs, Ref<float[]> vertm, Function<Vector3f, Octree> octreeGet) {
 

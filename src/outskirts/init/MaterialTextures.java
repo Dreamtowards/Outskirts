@@ -1,6 +1,5 @@
 package outskirts.init;
 
-import com.jcraft.jorbis.Block;
 import outskirts.client.Loader;
 import outskirts.client.render.Texture;
 import outskirts.client.render.TextureAtlas;

@@ -1,6 +1,5 @@
 package outskirts.event;
 
-import net.jodah.typetools.TypeResolver;
 import outskirts.util.CollectionUtils;
 import outskirts.util.Validate;
 import outskirts.util.concurrent.Scheduler;
@@ -70,11 +69,11 @@ public class EventBus {
         return handler;
     }
     // unsafe when using (Event e) -> { accessing externalstackvari }.
-    public final <E extends Event> Handler register(Consumer<E> function) {
-        // crazy powerful func..
-        Class eventclass = TypeResolver.resolveRawArguments(Consumer.class, function.getClass())[0];
-        return register(eventclass, function);
-    }
+//    public final <E extends Event> Handler register(Consumer<E> function) {
+//        // crazy powerful func..
+//        Class eventclass = net.jodah.typetools.TypeResolver.resolveRawArguments(Consumer.class, function.getClass())[0];
+//        return register(eventclass, function);
+//    }
 
     // for supports static class/methods, that may have some problem about unnecessary complexity
     // e.g does static-listener using non-static-method..? instanced-listener using static-method..?

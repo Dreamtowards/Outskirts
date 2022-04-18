@@ -1,6 +1,5 @@
 package ext.etc;
 
-import org.junit.Test;
 import outskirts.util.CollectionUtils;
 
 import java.util.*;
@@ -28,7 +27,6 @@ public class LiteExam {
      * 2.找给客户 41 分钱的硬币；
      * 3.硬币最少化
      */
-    @Test
     @SuppressWarnings("all")
     public void exa1() {
         float tSum = 41;
@@ -68,7 +66,6 @@ public class LiteExam {
      * 2.每个物品分被选中和不被选中两个状态（后面还有个问题，待讨论）；
      * 3.可选物品列表已知，背包总的承重量一定。
      */
-    @Test
     @SuppressWarnings("all")
     public void tst2() {
         int N = 7;
