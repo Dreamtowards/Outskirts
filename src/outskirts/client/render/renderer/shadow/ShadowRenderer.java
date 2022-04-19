@@ -94,8 +94,4 @@ public class ShadowRenderer extends Renderer {
         return shadowspaceMatrix;
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

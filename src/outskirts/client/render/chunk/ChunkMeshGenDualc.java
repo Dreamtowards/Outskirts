@@ -1,7 +1,5 @@
 package outskirts.client.render.chunk;
 
-import outskirts.client.Outskirts;
-import outskirts.client.gui.debug.GuiVert3D;
 import outskirts.client.render.VertexBuffer;
 import outskirts.client.render.isoalgorithm.dc.DualContouring;
 import outskirts.client.render.isoalgorithm.dc.Octree;
@@ -9,7 +7,6 @@ import outskirts.util.CollectionUtils;
 import outskirts.util.Ref;
 import outskirts.util.mx.VertexUtil;
 import outskirts.util.vector.Vector3f;
-import outskirts.world.World;
 
 import java.util.List;
 import java.util.function.Function;
@@ -18,7 +15,7 @@ import static outskirts.client.render.isoalgorithm.sdf.Vectors.vec3;
 
 public class ChunkMeshGenDualc {
 
-    public static VertexBuffer buildModel(RenderSection rs, Ref<float[]> vertm, Function<Vector3f, Octree> octreeGet) {
+    public static VertexBuffer buildModel(RenderChunk rs, Ref<float[]> vertm, Function<Vector3f, Octree> octreeGet) {
 
         Octree node = octreeGet.apply(rs.position());
         if (node==null) return null;

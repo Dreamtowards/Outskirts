@@ -7,7 +7,7 @@ import outskirts.client.gui.GuiExpander;
 import outskirts.client.gui.inspection.num.GuiIScalar;
 import outskirts.client.gui.stat.GuiColumn;
 import outskirts.client.gui.stat.GuiRow;
-import outskirts.client.render.renderer.preferences.RenderPerferences;
+import outskirts.client.render.renderer.RenderPerferences;
 
 import java.util.function.Consumer;
 

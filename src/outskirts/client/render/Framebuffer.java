@@ -101,7 +101,7 @@ public final class Framebuffer {
         Loader.OP_TEX2D_internalformat = internalformat;
         Loader.OP_TEX2D_format         = format;
         Loader.OP_TEX2D_type           = type;
-        Texture texture = Loader.loadTexture(null, new BitmapImage(width, height));
+        Texture texture = Loader.loadTexture(new BitmapImage(width, height));
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.textureID(), 0);
         return texture;
     }

@@ -47,11 +47,6 @@ public class FontRenderer extends Renderer {
         }
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return null;
-    }
-
     private Texture checkUnicodePageTexture(int unicodePage) {
         if (unicodePageTextures[unicodePage] == null) {
             unicodePageTextures[unicodePage] = Loader.loadTexture(new ResourceLocation(String.format("font/unicode_page_%s.png", unicodePage)).getInputStream());

@@ -82,11 +82,11 @@ public class DiscreteDynamicsWorld extends CollisionWorld {
         Outskirts.getProfiler().pop("updateAABBs");
 
         Outskirts.getProfiler().push("Broadphase");
-        broadphase.calculateOverlappingPairs();
+//        broadphase.calculateOverlappingPairs();
         Outskirts.getProfiler().pop("Broadphase");
 
         Outskirts.getProfiler().push("Narrowphase");
-        collisionManifolds = narrowphase.detectCollisions(broadphase.getOverlappingPairs());
+//        collisionManifolds = narrowphase.detectCollisions(broadphase.getOverlappingPairs());
         Outskirts.getProfiler().pop("Narrowphase");
     }
 

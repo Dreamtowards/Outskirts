@@ -5,7 +5,7 @@ in vec2 fragPos;
 
 out vec4 FragColor;
 
-uniform int texMode = 0;  // 0==Usually. 1==vec4(r,g,b,1.0), 2==(a,a,a,1.0).
+uniform int texMode = 0;  // 0==Usually. 1==vec4(r,g,b,1.0), 2==(a,a,a,1.0). for debug see Texture Channels
 
 uniform sampler2D textureSampler;
 uniform vec4 colorMultiply;

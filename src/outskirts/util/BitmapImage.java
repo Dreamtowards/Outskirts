@@ -35,12 +35,13 @@ public class BitmapImage {
     private int pxbase(int x, int y) {
         return y*width*4 + x*4;
     }
-    public void setPixel(int x, int y, int rgba) {
+    public BitmapImage setPixel(int x, int y, int rgba) {
         int bas = pxbase(x,y);
         pixels.put(bas, (byte)((rgba >> 24) & 0xFF));
         pixels.put(bas+1, (byte)((rgba >> 16) & 0xFF));
         pixels.put(bas+2, (byte)((rgba >> 8) & 0xFF));
         pixels.put(bas+3, (byte)(rgba & 0xFF));
+        return this;
     }
     public int getPixel(int x, int y) {
         int bas = pxbase(x,y);
@@ -83,8 +84,7 @@ public class BitmapImage {
     }
 
     public static BitmapImage ofSingleColor(int rgba) {
-        return new BitmapImage(1, 1,
-                Loader.loadBuffer(IOUtils.writeInt(new byte[4], 0, rgba)));
+        return new BitmapImage(1, 1).setPixel(0,0,rgba);
     }
     public static BitmapImage fromGL(int width, int height, ByteBuffer rgbaYFlipped) {
         return new BitmapImage(width, height, flipPixelsY(width, height, rgbaYFlipped));

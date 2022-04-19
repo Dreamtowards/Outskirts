@@ -4,29 +4,20 @@ import outskirts.client.Loader;
 import outskirts.client.Outskirts;
 import outskirts.client.render.Model;
 import outskirts.client.render.VertexBuffer;
-import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.event.EventHandler;
 import outskirts.event.Events;
 import outskirts.event.world.chunk.ChunkLoadedEvent;
 import outskirts.event.world.chunk.ChunkUnloadedEvent;
-import outskirts.physics.collision.broadphase.bounding.AABB;
 import outskirts.util.*;
-import outskirts.util.logging.Log;
-import outskirts.util.vector.Vector3f;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static outskirts.client.render.isoalgorithm.sdf.Vectors.*;
 import static outskirts.util.logging.Log.LOGGER;
-import static outskirts.util.vector.Vector3f.abs;
 
 public class ChunkRenderDispatcher {
 
-    private final List<RenderSection> rendersections = new CopyOnWriteArrayList<>();
+    private final List<RenderChunk> rendersections = new CopyOnWriteArrayList<>();
 
     public ChunkRenderDispatcher() {
 
@@ -39,7 +30,7 @@ public class ChunkRenderDispatcher {
 
     @EventHandler
     private void onChunkLoaded(ChunkLoadedEvent e) {
-        RenderSection rs = new RenderSection(e.getChunk().getPosition());
+        RenderChunk rs = new RenderChunk(e.getChunk().getPosition());
         rs.markRebuild();
 
         rs.doLoadUp();
@@ -55,7 +46,7 @@ public class ChunkRenderDispatcher {
     private void onChunkUnloaded(ChunkUnloadedEvent e) {
         int i = CollectionUtils.removeIf(rendersections,
                 rs -> rs.position().equals(e.getChunk().getPosition()),
-                RenderSection::doUnloadDown);
+                RenderChunk::doUnloadDown);
         assert i == 1;
     }
 //
@@ -115,7 +106,7 @@ public class ChunkRenderDispatcher {
         public void run() {
             while (Outskirts.isRunning()) {
 
-                for (RenderSection rs : rendersections) {
+                for (RenderChunk rs : rendersections) {
                     if (rs.rebuildRequested) {
                         rs.rebuildRequested = false;
 
@@ -127,7 +118,7 @@ public class ChunkRenderDispatcher {
             }
         }
 
-        private void processChunkRebuild(RenderSection rs) {
+        private void processChunkRebuild(RenderChunk rs) {
 
             if (Outskirts.getWorld().getLoadedChunk(rs.position()) == null) {
                 LOGGER.warn("Chunk not loaded yet?? why. "+rs.position());
@@ -141,7 +132,7 @@ public class ChunkRenderDispatcher {
                         3,vbuf.posarr(),
                         2,vbuf.uvarr(),
                         3,vbuf.normarr(),
-                        1, CollectionUtils.fill(new float[vbuf.positions.size()/3], 1));
+                        1, CollectionUtils.fill(new float[vbuf.positions.size()/3], 2));
                 rs.setModel(model);
 //                LOGGER.info("MODEL UPLOADED. "+model);
             });

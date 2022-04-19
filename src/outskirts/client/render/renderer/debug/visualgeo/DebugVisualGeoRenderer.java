@@ -47,8 +47,4 @@ public class DebugVisualGeoRenderer extends Renderer {
         render(entity.getModel(), entity.position(), entity.rotation());
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

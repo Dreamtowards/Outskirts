@@ -44,9 +44,4 @@ public class AnRenderer extends Renderer {
         glDrawElements(GL_TRIANGLES, model.model.vertexCount(), GL_UNSIGNED_INT, 0);
 
     }
-
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

@@ -10,6 +10,7 @@ import outskirts.client.render.Model;
 import outskirts.client.render.Texture;
 import outskirts.client.render.VertexBuffer;
 import outskirts.util.*;
+import outskirts.util.logging.Log;
 import outskirts.util.obj.OBJLoader;
 
 import javax.annotation.Nullable;
@@ -21,6 +22,7 @@ import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -167,8 +169,8 @@ public final class Loader {
 //        return Loader.loadTexture(Loader.loadPNG(pngbytes));
 //    }
 
-    public static Texture loadTexture(BitmapImage bufferedImage) {
-        return loadTexture(null, bufferedImage);
+    public static Texture loadTexture(BitmapImage img) {
+        return loadTexture(null, img);
     }
     public static Texture loadTexture(@Nullable Texture dest, BitmapImage img) {
         int width = img.getWidth();
@@ -364,6 +366,13 @@ public final class Loader {
 //            }
 //        }
 //        return bi;
+//    }
+//    public static String bufstr(ByteBuffer buf) {
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0;i < buf.limit();i++) {
+//            sb.append(buf.get(i)).append(", ");
+//        }
+//        return sb.toString();
 //    }
 
     static void destroy() {

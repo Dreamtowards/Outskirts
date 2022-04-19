@@ -43,12 +43,6 @@ public class PostRenderer extends Renderer {
     }
 
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
-
-
     public static final Model QUAD_FULLNDC = Loader.loadModel(2,new float[] {
             -1, 1,
             -1, -1,

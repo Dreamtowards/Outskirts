@@ -4,7 +4,7 @@ import outskirts.client.Outskirts;
 
 public class GameTimer {
 
-    public static final int TPS = 5; // ticks pre second, 20 ticks/s
+    public static final int TPS = 20; // ticks pre second, 20 ticks/s
 //    private static final long TICK_LENGTH = 1000 / TPS; // 1000/20=50(ms)
 
     private double prevTime = 0;

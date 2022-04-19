@@ -34,8 +34,4 @@ public class DebugTestRenderer extends Renderer {
 
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

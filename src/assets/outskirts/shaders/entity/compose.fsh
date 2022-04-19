@@ -6,8 +6,8 @@ out vec4 FragColor;
 in vec2 QuadTexCoord;
 
 uniform sampler2D gPositionDepth;
-uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpecular;
+uniform sampler2D gNormal;
 
 uniform vec3 CameraPos;
 

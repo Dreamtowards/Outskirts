@@ -4,8 +4,10 @@ import org.lwjgl.BufferUtils;
 import outskirts.client.Loader;
 import outskirts.util.BitmapImage;
 import outskirts.util.Colors;
+import outskirts.util.FileUtils;
 import outskirts.util.vector.Vector4f;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -14,8 +16,9 @@ public final class Texture {
 
     public static final Texture UNIT = Loader.loadTexture(BitmapImage.ofSingleColor(Colors.toRGBA(Vector4f.ONE)));
     public static final Texture ZERO = Loader.loadTexture(BitmapImage.ofSingleColor(Colors.toRGBA(Vector4f.ZERO)));
+    public static void init() {}  // isolated init UNIT, ZERO textures. otherwise, might accidently affact by Loader.OP_Tex.. setted from other operation.
 
-    private int textureID;
+    private final int textureID;
     private int width;
     private int height;
 

@@ -1,7 +1,7 @@
 package outskirts.entity;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.renderer.preferences.RenderPerferences;
+import outskirts.client.render.renderer.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.physics.dynamics.RigidBody;
 import outskirts.storage.Savable;

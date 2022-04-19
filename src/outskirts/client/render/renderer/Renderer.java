@@ -12,11 +12,6 @@ import outskirts.client.render.shader.ShaderProgram;
  */
 public abstract class Renderer {
 
-    // deprecated. cuz often, a renderer had multi shader programs.
-    public abstract ShaderProgram getShader();
-
-
-
 
 
 

@@ -54,11 +54,6 @@ public class ParticleRenderer extends Renderer {
         }
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
-
 
 
     /**

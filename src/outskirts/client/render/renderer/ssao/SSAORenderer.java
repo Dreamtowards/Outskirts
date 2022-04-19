@@ -103,9 +103,4 @@ public class SSAORenderer extends Renderer {
         PostRenderer.doDrawQuad();
 
     }
-
-    @Override
-    public ShaderProgram getShader() {
-        return null;
-    }
 }

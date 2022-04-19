@@ -97,11 +97,6 @@ public class GuiRenderer extends Renderer {
         render(model, texture, x, y, width, height, 0f, 0f, 1f, 1f);
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
-
     /**
      * this is for supports multi-level(layer) scissor
      */

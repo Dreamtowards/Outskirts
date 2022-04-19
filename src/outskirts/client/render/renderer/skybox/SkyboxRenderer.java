@@ -48,9 +48,4 @@ public class SkyboxRenderer extends Renderer {
         glDepthFunc(GL_LESS);   // set back
         glEnable(GL_CULL_FACE); // set back.
     }
-
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

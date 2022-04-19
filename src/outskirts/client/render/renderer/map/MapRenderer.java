@@ -68,8 +68,4 @@ public class MapRenderer extends Renderer {
         this.clipHeight = clipHeight;
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

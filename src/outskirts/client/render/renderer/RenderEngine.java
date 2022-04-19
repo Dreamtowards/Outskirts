@@ -44,6 +44,10 @@ import static outskirts.util.logging.Log.LOGGER;
 
 public final class RenderEngine {
 
+    static {
+        Texture.init();
+    }
+
     private Matrix4f projectionMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
 
@@ -59,12 +63,12 @@ public final class RenderEngine {
     private GuiRenderer guiRenderer = new GuiRenderer();
     private FontRenderer fontRenderer = new FontRenderer();
     private ModelRenderer modelRenderer = new ModelRenderer();
-    private ShadowRenderer shadowRenderer = new ShadowRenderer();
-    private SkyboxRenderer skyboxRenderer;// = new SkyboxRenderer();
-    private ParticleRenderer particleRenderer;// = new ParticleRenderer();
-    private PostRenderer postRenderer;// = new PostRenderer();
-    private SSAORenderer ssaoRenderer;// = new SSAORenderer();
-    private MapRenderer mapRenderer = new MapRenderer();
+//    private ShadowRenderer shadowRenderer = new ShadowRenderer();
+//    private SkyboxRenderer skyboxRenderer = new SkyboxRenderer();
+//    private ParticleRenderer particleRenderer = new ParticleRenderer();
+//    private PostRenderer postRenderer = new PostRenderer();
+//    private SSAORenderer ssaoRenderer = new SSAORenderer();
+//    private MapRenderer mapRenderer = new MapRenderer();
     private DebugVisualGeoRenderer debugVisualGeoRenderer = new DebugVisualGeoRenderer();
     private SkyRenderer skyRenderer = new SkyRenderer();
 
@@ -74,8 +78,8 @@ public final class RenderEngine {
             .pushFramebuffer()
             .resize(1280, 720)
             .attachTextureColor(0, GL_RGBA16F) // position,depth  ?todo: RGB?RGBA
-            .attachTextureColor(1, GL_RGB16F) // normal
-            .attachTextureColor(2, GL_RGBA) // diffuse
+            .attachTextureColor(1, GL_RGBA)   // diffuse
+            .attachTextureColor(2, GL_RGB16F) // normal
             .initMRT()
             .attachRenderbufferDepthStencil()
             .checkFramebufferStatus()
@@ -89,12 +93,12 @@ public final class RenderEngine {
             .checkFramebufferStatus()
             .popFramebuffer();
 
-    public Framebuffer ssaoFBO = Framebuffer.glfGenFramebuffer()
-            .pushFramebuffer()
-            .resize(640, 360)
-            .attachTextureColor(0, GL_RGB)
-            .checkFramebufferStatus()
-            .popFramebuffer();
+//    public Framebuffer ssaoFBO = Framebuffer.glfGenFramebuffer()
+//            .pushFramebuffer()
+//            .resize(640, 360)
+//            .attachTextureColor(0, GL_RGB)
+//            .checkFramebufferStatus()
+//            .popFramebuffer();
 
 //    public Framebuffer ssaoBlurFBO = Framebuffer.glfGenFramebuffer()
 //            .bindPushFramebuffer()
@@ -223,8 +227,7 @@ public final class RenderEngine {
         glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         entityRenderer.renderCompose(gBufferFBO, Collections.singletonList(TmpExtTest.theLight));
-        if (skyboxRenderer != null) // disable: debug fast boost
-            skyboxRenderer.render();
+//            skyboxRenderer.render();
 
 //        glDisable(GL_CULL_FACE);
 
@@ -306,18 +309,18 @@ public final class RenderEngine {
     public ModelRenderer getModelRenderer() {
         return modelRenderer;
     }
-    public ShadowRenderer getShadowRenderer() {
-        return shadowRenderer;
-    }
-    public SkyboxRenderer getSkyboxRenderer() {
-        return skyboxRenderer;
-    }
-    public ParticleRenderer getParticleRenderer() {
-        return particleRenderer;
-    }
-    public MapRenderer getMapRenderer() {
-        return mapRenderer;
-    }
+//    public ShadowRenderer getShadowRenderer() {
+//        return shadowRenderer;
+//    }
+//    public SkyboxRenderer getSkyboxRenderer() {
+//        return skyboxRenderer;
+//    }
+//    public ParticleRenderer getParticleRenderer() {
+//        return particleRenderer;
+//    }
+//    public MapRenderer getMapRenderer() {
+//        return mapRenderer;
+//    }
     public DebugVisualGeoRenderer getDebugVisualGeoRenderer() {
         return debugVisualGeoRenderer;
     }

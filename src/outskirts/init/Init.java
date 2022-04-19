@@ -14,10 +14,12 @@ public final class Init {
     //use event to register/release..?
     public static void registerAll(Side side) {
 
-        Materials.init();
-        if (side.isClient()) MaterialTextures.init();
+//        Materials.init();
+//        if (side.isClient()) MaterialTextures.init();
 
-        Items.init();
+        BlockTextures.init();
+
+//        Items.init();
 //        for (Block b : Block.REGISTRY.values()) {
 //            Item.REGISTRY.register(new ItemBlock(b));
 //        }
@@ -33,7 +35,7 @@ public final class Init {
             Models.init();
         }
 
-        Packets.init();
+//        Packets.init();
 
         Entities.init();
 

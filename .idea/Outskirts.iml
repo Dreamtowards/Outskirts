@@ -23,5 +23,6 @@
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="lwjgl-stb" level="project" />
     <orderEntry type="library" name="junit-4.10" level="project" />
+    <orderEntry type="library" name="b1.7.3" level="project" />
   </component>
 </module>

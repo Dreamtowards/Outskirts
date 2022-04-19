@@ -80,11 +80,6 @@ public class ModelRenderer extends Renderer {
         render(MODEL_TRIANGLE, Texture.UNIT, Vector3f.ZERO, Vector3f.ONE, Matrix3f.IDENTITY, color, true, true, GL_TRIANGLES);
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
-
 
 
     public static Model M_HORIZ_PLANE = Loader.loadModel(3, new float[] {

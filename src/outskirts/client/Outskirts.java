@@ -12,6 +12,7 @@ import outskirts.client.gui.ex.GuiRoot;
 import outskirts.client.gui.screen.*;
 import outskirts.client.main.TmpExtTest;
 import outskirts.client.render.Camera;
+import outskirts.client.render.Texture;
 import outskirts.client.render.renderer.RenderEngine;
 import outskirts.entity.player.EntityPlayerSP;
 import outskirts.entity.player.Gamemode;
@@ -23,8 +24,10 @@ import outskirts.util.concurrent.Scheduler;
 import outskirts.util.logging.Log;
 import outskirts.util.profiler.Profiler;
 import outskirts.util.vector.Vector3f;
+import outskirts.util.vector.Vector4f;
 import outskirts.world.WorldClient;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
@@ -93,7 +96,7 @@ public class Outskirts {
 
 
         player = new EntityPlayerSP();
-        player.setName("Player215");
+        player.setName("Entitypl0xEF");
         camera.setOwnerEntity(player);
 
 //        getRootGUI().addGui(GuiIngame.INSTANCE);

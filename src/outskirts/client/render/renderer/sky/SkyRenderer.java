@@ -49,9 +49,4 @@ public class SkyRenderer extends Renderer {
 
         glBindVertexArray(0);
     }
-
-    @Override
-    public ShaderProgram getShader() {
-        return shader;
-    }
 }

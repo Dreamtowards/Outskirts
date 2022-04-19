@@ -20,7 +20,7 @@ public class WorldClient extends World {
         super.onTick();
 
         Vector3f dpos = Vector3f.floor(vec3(Outskirts.getPlayer().position()), 16);
-        final int vd = 1;
+        final int vd = sz;
 
         // Load up.
         for (int dx = -vd;dx <= vd;dx++) {

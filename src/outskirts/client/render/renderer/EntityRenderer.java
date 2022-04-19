@@ -1,7 +1,6 @@
 package outskirts.client.render.renderer;
 
 import outskirts.client.Outskirts;
-import outskirts.client.render.renderer.preferences.RenderPerferences;
 import outskirts.client.render.Model;
 import outskirts.client.render.TextureAtlas;
 import outskirts.client.render.Framebuffer;
@@ -9,7 +8,6 @@ import outskirts.client.render.lighting.Light;
 import outskirts.client.render.renderer.post.PostRenderer;
 import outskirts.client.render.shader.ShaderProgram;
 import outskirts.entity.Entity;
-import outskirts.init.MaterialTextures;
 import outskirts.util.Identifier;
 import outskirts.util.Maths;
 import outskirts.util.ResourceLocation;
@@ -87,8 +85,8 @@ public class EntityRenderer extends Renderer {
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
-        shaderCompose.setInt("gNormal", 1);
-        shaderCompose.setInt("gAlbedoSpecular", 2);
+        shaderCompose.setInt("gAlbedoSpecular", 1);
+        shaderCompose.setInt("gNormal", 2);
         shaderCompose.setInt("ssaoBlurMap", 3);
 
         shaderCompose.setInt("shadowdepthMap", 6);
@@ -110,11 +108,11 @@ public class EntityRenderer extends Renderer {
 
         shaderGeometry.useProgram();
 
-        int i = 0;
-        for (TextureAtlas.AtlasFragment frag : MaterialTextures.DIFFUSE_ATLAS.fragments()) {
-            shaderGeometry.setVector4f("mtlfrags["+i+"]", vec4(frag.OFFSET.x, frag.OFFSET.y, frag.SCALE.x, frag.SCALE.y));
-            i++;
-        }
+//        int i = 0;
+//        for (TextureAtlas.AtlasFragment frag : MaterialTextures.DIFFUSE_ATLAS.fragments()) {
+//            shaderGeometry.setVector4f("mtlfrags["+i+"]", vec4(frag.OFFSET.x, frag.OFFSET.y, frag.SCALE.x, frag.SCALE.y));
+//            i++;
+//        }
 
         shaderGeometry.setMatrix4f("projectionMatrix", Outskirts.renderEngine.getProjectionMatrix());
         shaderGeometry.setMatrix4f("viewMatrix", Outskirts.renderEngine.getViewMatrix());
@@ -129,12 +127,12 @@ public class EntityRenderer extends Renderer {
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, renderPerferences.getDiffuseMap().textureID());
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, renderPerferences.getSpecularMap().textureID());
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, renderPerferences.getNormalMap().textureID());
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, renderPerferences.getDisplacementMap().textureID());
+//            glActiveTexture(GL_TEXTURE1);
+//            glBindTexture(GL_TEXTURE_2D, renderPerferences.getSpecularMap().textureID());
+//            glActiveTexture(GL_TEXTURE2);
+//            glBindTexture(GL_TEXTURE_2D, renderPerferences.getNormalMap().textureID());
+//            glActiveTexture(GL_TEXTURE3);
+//            glBindTexture(GL_TEXTURE_2D, renderPerferences.getDisplacementMap().textureID());
 
             glDrawElements(GL_TRIANGLES, model.vertexCount(), GL_UNSIGNED_INT, 0);
         }
@@ -165,9 +163,9 @@ public class EntityRenderer extends Renderer {
             }
         }
 
-        shaderCompose.setMatrix4f("shadowspaceMatrix", Outskirts.renderEngine.getShadowRenderer().getShadowspaceMatrix());
-        glActiveTexture(GL_TEXTURE6);
-        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture().textureID());
+//        shaderCompose.setMatrix4f("shadowspaceMatrix", Outskirts.renderEngine.getShadowRenderer().getShadowspaceMatrix());
+//        glActiveTexture(GL_TEXTURE6);
+//        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture().textureID());
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(0).textureID());
@@ -175,14 +173,10 @@ public class EntityRenderer extends Renderer {
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(1).textureID());
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, gfbo.colorTextures(2).textureID());
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.ssaoFBO.colorTextures(0).textureID());
+//        glActiveTexture(GL_TEXTURE3);
+//        glBindTexture(GL_TEXTURE_2D, Outskirts.renderEngine.ssaoFBO.colorTextures(0).textureID());
 
         PostRenderer.doDrawQuad();
     }
 
-    @Override
-    public ShaderProgram getShader() {
-        throw new UnsupportedOperationException();
-    }
 }

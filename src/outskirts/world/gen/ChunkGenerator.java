@@ -1,6 +1,8 @@
 package outskirts.world.gen;
 
 import outskirts.block.Block;
+import outskirts.block.BlockDirt;
+import outskirts.block.BlockStone;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
@@ -18,15 +20,19 @@ public class ChunkGenerator {
         // GenerationInfo gspec = new GenerationInfo();
 
         for (int x = 0;x < 16;x++) {
-            for (int z = 0;z < 16;z++) {
-                float f = noise.fbm((chunkpos.x+x)/8, (chunkpos.z+z)/20, 5);
+            for (int y = 0;y < 16;y++) {
+                for (int z = 0; z < 16; z++) {
+                    float f = noise.fbm((chunkpos.x + x) / 20, (chunkpos.y + y) / 20, (chunkpos.z + z) / 20, 3);
 
-//                if (f > 0 && f < 0.1f) {
-//                    f = (f+1) / 2;
+                    if (f > 0 && f < 0.4f) {
+                        chunk.setBlock(x, y, z, f < 0.04f ? new BlockDirt() : new BlockStone());
+                    }
+//                if (chunkpos.y == 0) {
+//                    int till = (int)(((f+1)/2)*16);
+//                    for (int i = 0;i < till;i++) {
+//                        chunk.setBlock(x, i, z, new Block());
+//                    }
 //                }
-                if (chunkpos.y < 10) {
-                    Log.LOGGER.warn("Noise: "+f);
-                    chunk.setBlock(x, (int)(((f+1)/2)*16), z, new Block());
                 }
             }
         }

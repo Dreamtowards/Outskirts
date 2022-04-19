@@ -1,5 +1,6 @@
 package outskirts.world;
 
+import outskirts.block.Block;
 import outskirts.client.Outskirts;
 import outskirts.entity.Entity;
 import outskirts.event.Events;
@@ -54,7 +55,8 @@ public abstract class World implements Tickable {
         return entities;
     }
 
-    public final Chunk provideChunk(Vector3f chunkpos) {
+    public final Chunk provideChunk(Vector3f p) {
+        Vector3f chunkpos = Vector3f.floor(vec3(p), 16);
         Chunk chunk = getLoadedChunk(chunkpos);
         if (chunk != null)
             return chunk;
@@ -98,6 +100,13 @@ public abstract class World implements Tickable {
 //        return true;
 //    }
 
+    public Block getBlock(float x, float y, float z) {
+        Chunk chunk = getLoadedChunk(vec3(x,y,z));
+        if (chunk == null) return null;
+        Vector3f cp = chunk.getPosition();
+        return chunk.getBlock((int)x-(int)cp.x, (int)y-(int)cp.y, (int)z-(int)cp.z);
+    }
+
     public void unloadChunk(Chunk chunk) {
         Chunk tmp = loadedChunks.remove(chunk.getPosition());
         assert tmp != null : "Failed to unload. no such chunk.";
@@ -107,8 +116,8 @@ public abstract class World implements Tickable {
         Events.EVENT_BUS.post(new ChunkUnloadedEvent(chunk));
     }
 
-    public final Chunk getLoadedChunk(Vector3f chunkpos) {
-        return loadedChunks.get(chunkpos);
+    public final Chunk getLoadedChunk(Vector3f p) {
+        return loadedChunks.get(Vector3f.floor(vec3(p), 16));
     }
 
     public final Collection<Chunk> getLoadedChunks() {

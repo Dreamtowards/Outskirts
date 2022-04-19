@@ -21,13 +21,13 @@ public class GuiEntityGBufferVisual extends Gui {
         Framebuffer fbo = Outskirts.renderEngine.gBufferFBO;
 
         addChildren(new GuiColumn().addChildren(
-          new GuiImage(fbo.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("Position")),
-          new GuiImage(fbo.colorTextures(0)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Depth")),
-          new GuiImage(fbo.colorTextures(1)).exec(texprop(TEXMODE_RGBA)).addChildren(new GuiText("Normal")),
-          new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("Albedo")),
+//          new GuiImage(fbo.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("Position")),
+//          new GuiImage(fbo.colorTextures(0)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Depth")),
+//          new GuiImage(fbo.colorTextures(1)).exec(texprop(TEXMODE_RGBA)).addChildren(new GuiText("Normal")),
+//          new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("Albedo")),
 //          new GuiImage(fbo.colorTextures(2)).exec(texprop(TEXMODE_AAA1)).addChildren(new GuiText("Specular")),
-          new GuiImage(Outskirts.renderEngine.ssaoFBO.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("SSAOBlur")),
-          new GuiImage(Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture()).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("ShadowDMap"))
+//          new GuiImage(Outskirts.renderEngine.ssaoFBO.colorTextures(0)).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("SSAOBlur")),
+//          new GuiImage(Outskirts.renderEngine.getShadowRenderer().getDepthMapTexture()).exec(texprop(TEXMODE_RGB1)).addChildren(new GuiText("ShadowDMap"))
         ));
 
     }

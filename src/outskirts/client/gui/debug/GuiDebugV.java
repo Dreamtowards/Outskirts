@@ -6,7 +6,6 @@ import outskirts.client.gui.*;
 import outskirts.client.gui.ex.GuiWindow;
 import outskirts.client.gui.inspection.GuiIEntity;
 import outskirts.client.gui.stat.GuiColumn;
-import outskirts.client.render.chunk.RenderSection;
 import outskirts.client.render.isoalgorithm.dc.HermiteData;
 import outskirts.client.render.isoalgorithm.dc.Octree;
 import outskirts.client.render.renderer.RenderEngine;
