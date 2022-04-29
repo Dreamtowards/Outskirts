@@ -146,5 +146,5 @@ public abstract class World implements Tickable {
 
     }
 
-    public static int sz=0;
+    public static int sz=3;
 }

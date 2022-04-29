@@ -90,7 +90,7 @@ public final class ClientSettings {
 
 
 
-    public static float GUI_SCALE = 2f;
+    public static float GUI_SCALE = 1f;
 
 
 

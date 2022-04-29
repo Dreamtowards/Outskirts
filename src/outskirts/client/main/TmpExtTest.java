@@ -30,7 +30,7 @@ public class TmpExtTest {
 
     public static void init() {
 
-        theLight.position().set(40, 50, 40);
+        theLight.position().set(200000, 500000, 300000);
         theLight.color().set(1, 1, 1).scale(1.2f);
 
 //        SystemUtil.debugAddKeyHook(GLFW.GLFW_KEY_E, () -> {

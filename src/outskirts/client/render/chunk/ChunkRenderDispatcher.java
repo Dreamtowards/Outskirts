@@ -121,7 +121,7 @@ public class ChunkRenderDispatcher {
         private void processChunkRebuild(RenderChunk rs) {
 
             if (Outskirts.getWorld().getLoadedChunk(rs.position()) == null) {
-                LOGGER.warn("Chunk not loaded yet?? why. "+rs.position());
+                LOGGER.warn("Chunk not loaded yet?. "+rs.position());
                 return;
             }
 

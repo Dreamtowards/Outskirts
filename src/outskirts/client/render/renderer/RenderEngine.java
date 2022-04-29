@@ -119,7 +119,7 @@ public final class RenderEngine {
 
     public RenderEngine() {
         LOGGER.info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
-        LOGGER.info("LWJGL {}, GLFW {}.{}.{}.", Version.getVersion(), GLFW.GLFW_VERSION_MAJOR, GLFW.GLFW_VERSION_MINOR, GLFW.GLFW_VERSION_REVISION);
+        LOGGER.info("LWJGL {}, GLFW {}.", Version.getVersion(), GLFW.glfwGetVersionString());
 
         Events.EVENT_BUS.register(WindowResizedEvent.class, e -> {
 //            Log.LOGGER.info("Resize Gui FBO");

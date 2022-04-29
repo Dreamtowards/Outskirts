@@ -1,8 +1,6 @@
 package outskirts.world.gen;
 
-import outskirts.block.Block;
-import outskirts.block.BlockDirt;
-import outskirts.block.BlockStone;
+import outskirts.block.*;
 import outskirts.util.logging.Log;
 import outskirts.util.vector.Vector3f;
 import outskirts.world.World;
@@ -19,20 +17,60 @@ public class ChunkGenerator {
         Chunk chunk = new Chunk(world, chunkpos);
         // GenerationInfo gspec = new GenerationInfo();
 
-        for (int x = 0;x < 16;x++) {
-            for (int y = 0;y < 16;y++) {
-                for (int z = 0; z < 16; z++) {
-                    float f = noise.fbm((chunkpos.x + x) / 20, (chunkpos.y + y) / 20, (chunkpos.z + z) / 20, 3);
+        for (int rx = 0;rx < 16;rx++) {
+            for (int rz = 0; rz < 16; rz++) {
+                int x = (int)chunkpos.x+rx;
+                int z = (int)chunkpos.z+rz;
+//                int fPlain = (int)(noise.fbm(x/60f, z/60f, 4)*20) + 60;
+//                int fMountain = (int)(noise.fbm(x/80f, z/80f, 5)*180) + 60;
 
-                    if (f > 0 && f < 0.4f) {
-                        chunk.setBlock(x, y, z, f < 0.04f ? new BlockDirt() : new BlockStone());
-                    }
-//                if (chunkpos.y == 0) {
-//                    int till = (int)(((f+1)/2)*16);
-//                    for (int i = 0;i < till;i++) {
-//                        chunk.setBlock(x, i, z, new Block());
+                for (int ry = 0;ry < 16;ry++) {
+                    int y = (int)chunkpos.y + ry;
+                    Block bl = null;
+
+//                    boolean fill = y < fPlain;
+                    float f3d = (noise.fbm(x/80f, y/120f, z/80f, 3)+1)/2f;
+                    float yf = noise.noise(y/10f);
+//                    yf = (yf+1f)/2f;
+                    yf = yf*0.2f+1f;
+                    boolean fill = (f3d * yf) > 0.5f;
+//                    if (y < fMountain) {
+//                        float f3d = noise.fbm(x/120f, y/220f, z/120f, 6);
+//                        if (f3d > 0.2f)
+//                            fill = true;
 //                    }
-//                }
+
+                    if (fill)
+                        bl = new BlockStone();
+                    else if (y < 58)
+                        bl = new BlockWater();
+
+                    chunk.setBlock(rx, ry, rz, bl);
+                }
+            }
+        }
+
+        for (int rx = 0;rx < 16;rx++) {
+            for (int rz = 0;rz < 16;rz++) {
+                int numFill = 0;
+
+                for (int ry = 15;ry >= 0;ry--) {
+                    Block bl = chunk.getBlock(rx,ry,rz);
+
+                    if (bl == null) {
+                        numFill = -1;
+                    } else if (bl instanceof BlockStone) {
+                        if (numFill == -1) {  // top
+                            numFill = 3;
+                            int y = (int)chunkpos.y+ry;
+                            bl = y < 65 ? new BlockSand() : new BlockGrass();
+                            chunk.setBlock(rx,ry,rz, bl);
+                        } else if (numFill > 0) {
+                            numFill--;
+
+                            chunk.setBlock(rx,ry,rz, new BlockDirt());
+                        }
+                    }
                 }
             }
         }

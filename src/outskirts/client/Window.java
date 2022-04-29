@@ -12,6 +12,7 @@ import outskirts.client.ClientSettings.ProgramArguments;
 import outskirts.event.client.WindowResizedEvent;
 import outskirts.event.client.input.*;
 import outskirts.util.KeyBinding;
+import outskirts.util.logging.Log;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,7 +45,7 @@ public final class Window {
 
     private String title;
     // resizable, fullscreen
-    private float windowContentScale;
+//    private float windowContentScale;
 
     public float getX() { return x; }
     public float getY() { return y; }
@@ -117,8 +118,8 @@ public final class Window {
         // Note: FramebufferSizeEvent should always after WindowContentScaleEvent etc.
         // since resizing the framebuffer requires some updated relevant values. e.g. window-content-scale.
         int[] w = new int[1], h = new int[1];
-        glfwGetFramebufferSize(window, w, h);
-        glfwcallback_framebuffer_size(window, w[0], h[0]);
+        glfwGetWindowSize(window, w, h);
+        glfwcallback_window_size(window, w[0], h[0]);
     }
 
     private void resetFramebasedDeltas() {  // call right before glfwPollEvents(), every frame.
@@ -131,9 +132,11 @@ public final class Window {
     public void makeWindowCentered() {
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vidm = Objects.requireNonNull(glfwGetVideoMode(monitor));
+        int[] w = new int[1], h = new int[1];
+        glfwGetWindowSize(window, w, h);
         glfwSetWindowPos(window,
-                (int)((vidm.width()*windowContentScale - width) * .5f),
-                (int)((vidm.height()*windowContentScale - height) * .5f));
+                ((vidm.width() - w[0]) / 2),
+                ((vidm.height() - h[0]) / 2));
     }
 
     public boolean isCloseRequested() {
@@ -179,6 +182,7 @@ public final class Window {
 
     private void initGlfwCallbacks() {
 
+        glfwSetWindowSizeCallback(window, this::glfwcallback_window_size);
         glfwSetFramebufferSizeCallback(window, this::glfwcallback_framebuffer_size);
         glfwSetWindowContentScaleCallback(window, this::glfwcallback_window_content_scale);
 
@@ -194,20 +198,25 @@ public final class Window {
 //        });
     }
 
-    private void glfwcallback_framebuffer_size(long w, int nw, int nh) {
+    private void glfwcallback_window_size(long w, int nw, int nh) {
         width = nw;
         height = nh;
 
-        glViewport(0, 0, (int)width, (int)height);
         EVENT_BUS.post(new WindowResizedEvent());
+    }
+
+    private void glfwcallback_framebuffer_size(long w, int nw, int nh) {
+
+//        Log.info("glViewPort");
+//        glViewport(0, 0, (int)width, (int)height);
     }
 
     private void glfwcallback_window_content_scale(long w, float nx, float ny) {
         if (nx != ny)
             throw new IllegalStateException("Unexpected ratio of window content scale.");
 
-        windowContentScale = nx;
-        ClientSettings.GUI_SCALE = windowContentScale;  // tmp way.
+//        windowContentScale = nx;
+//        ClientSettings.GUI_SCALE = windowContentScale;  // tmp way.
     }
 
     private void glfwcallback_key(long w, int key, int scancode, int action, int mode) {
@@ -232,7 +241,8 @@ public final class Window {
 
     private void glfwcallback_mouse_pos(long w, double _xpos, double _ypos) {
         // *sysScale: make mousepos same coords with framebuffer. BUT maybe shouldn't? think the camera-rotation-control, higher screen resolution shouldn't move faster.
-        float xpos = (float)_xpos*windowContentScale, ypos = (float)_ypos*windowContentScale;
+        float xpos = (float)_xpos,//*windowContentScale,
+              ypos = (float)_ypos;//*windowContentScale;
         // ED: Event-based Delta. not Frame-based. it might litter than frame-based, since one frame might have multiple events.
         float edx = xpos-mouseX, edy = ypos-mouseY;
         mouseDX += edx;

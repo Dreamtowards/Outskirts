@@ -552,7 +552,7 @@ public final class Maths {
             dest = new Vector2f();
         return dest.set(
                     (x /  width * 2f) - 1f,
-                1 - (y / height * 2f)
+               1f - (y / height * 2f)
         );
     }
 
